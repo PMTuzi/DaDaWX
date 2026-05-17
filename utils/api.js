@@ -1,9 +1,9 @@
 // API 基础配置
-const ENV = 'development'
+const ENV = 'production'
 
 const CONFIG = {
   production: {
-    baseUrl: 'https://api.dada.ai',
+    baseUrl: 'https://api.cyberpm.tech',
     aliyunOssBucket: 'dada-photos',
     aliyunOssRegion: 'oss-cn-hangzhou',
   },
