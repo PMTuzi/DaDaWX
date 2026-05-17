@@ -1,8 +1,22 @@
 /* pages/report/report.wxss */
 .page-report {
-  min-height: 100vh;
+  height: 100vh;
   background: #f5f5f7;
-  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+}
+
+/* 固定导航栏 */
+.section-nav-wrap {
+  flex-shrink: 0;
+  background: #ffffff;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+  z-index: 10;
+}
+
+.section-nav {
+  white-space: nowrap;
+  padding: 16rpx;
 }
 
 .report-header {
@@ -93,15 +107,32 @@
   font-size: 20rpx;
 }
 
-.section-content {
-  height: calc(100vh - 480rpx);
+/* 整页滚动区 */
+.page-scroll {
+  flex: 1;
+  height: 0;
 }
 
-.section-body {
-  padding: 24rpx;
-  padding-bottom: calc(140rpx + env(safe-area-inset-bottom));
-  height: 100%;
-  box-sizing: border-box;
+/* 板块块 */
+.section-block {
+  padding: 0 24rpx;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 28rpx 0 8rpx;
+}
+
+.section-icon {
+  color: #e8a87c;
+}
+
+.section-name {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1a1a2e;
 }
 
 .card-title {
@@ -708,3 +739,5 @@
 .share-icon {
   font-size: 32rpx;
 }
+
+

@@ -6,54 +6,88 @@
 }
 
 .report-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24rpx;
+  background: var(--card-bg);
+  border-radius: 24rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.05);
+  overflow: hidden;
 }
 
 .report-main {
   display: flex;
   align-items: center;
-  gap: 24rpx;
-  flex: 1;
+  padding: 36rpx 32rpx 28rpx;
+  gap: 32rpx;
 }
 
-.report-score {
+.report-score-ring {
   display: flex;
-  align-items: baseline;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(232, 168, 124, 0.12), rgba(232, 168, 124, 0.04));
+  border: 3rpx solid rgba(232, 168, 124, 0.25);
+  flex-shrink: 0;
 }
 
 .score-num {
-  font-size: 48rpx;
+  font-size: 44rpx;
   font-weight: 800;
-  color: #e8a87c;
+  color: var(--accent);
+  line-height: 1.1;
 }
 
-.score-max {
-  font-size: 22rpx;
-  color: #999;
+.score-label {
+  font-size: 18rpx;
+  color: var(--text-hint);
+  margin-top: 4rpx;
 }
 
 .report-info {
   flex: 1;
+  min-width: 0;
 }
 
 .report-tags {
-  margin-bottom: 8rpx;
+  margin-bottom: 12rpx;
+}
+
+.report-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .report-time {
   font-size: 22rpx;
-  color: #999;
+  color: var(--text-hint);
+}
+
+.report-arrow {
+  font-size: 36rpx;
+  color: var(--text-hint);
+  font-weight: 300;
+  line-height: 1;
+}
+
+.report-divider {
+  height: 1rpx;
+  background: var(--border);
+  margin: 0 32rpx;
 }
 
 .report-actions {
-  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  padding: 16rpx 32rpx 20rpx;
 }
 
 .action-delete {
   font-size: 24rpx;
-  color: #e74c3c;
-  padding: 8rpx 16rpx;
+  color: var(--text-hint);
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
 }

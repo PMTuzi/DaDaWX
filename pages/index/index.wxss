@@ -4,22 +4,21 @@
   flex-direction: column;
   min-height: 100vh;
   background: #f5f5f7;
-  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+  padding-bottom: 40rpx;
 }
 
 .header {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 60rpx 32rpx 40rpx;
+  padding: 120rpx 32rpx 48rpx;
   background: linear-gradient(180deg, #1a1a2e, #2d2d4a);
 }
 
 .brand-area {
-  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   text-align: center;
   margin-bottom: 24rpx;
 }
@@ -40,66 +39,89 @@
 }
 
 .logo {
-  font-size: 56rpx;
+  font-size: 88rpx;
   font-weight: 800;
   color: #ffffff;
-  letter-spacing: 8rpx;
-  margin-bottom: 12rpx;
+  letter-spacing: 16rpx;
+  margin-bottom: 28rpx;
 }
 
 .slogan {
-  font-size: 24rpx;
+  font-size: 28rpx;
   color: rgba(255, 255, 255, 0.7);
   letter-spacing: 2rpx;
 }
 
+.brand-area-small .logo {
+  font-size: 56rpx;
+  letter-spacing: 8rpx;
+  margin-bottom: 12rpx;
+}
+
+.brand-area-small .slogan {
+  font-size: 24rpx;
+}
+
 .report-summary {
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(20rpx);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(24rpx);
   border: 1rpx solid rgba(255, 255, 255, 0.15);
-  border-radius: 24rpx;
-  padding: 28rpx;
-  margin-top: 20rpx;
+  border-radius: 20rpx;
+  padding: 20rpx 24rpx 18rpx;
+  margin-top: 16rpx;
+}
+
+.summary-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
 }
 
 .summary-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 20rpx;
+  gap: 8rpx;
+}
+
+.summary-title-icon {
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .summary-title {
-  font-size: 28rpx;
+  font-size: 24rpx;
   font-weight: 600;
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 1rpx;
 }
 
-.summary-date {
-  font-size: 22rpx;
-  color: rgba(255, 255, 255, 0.5);
+.summary-arrow {
+  font-size: 32rpx;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 300;
 }
 
-.summary-score {
+.summary-body {
   display: flex;
   align-items: center;
-  gap: 24rpx;
+  gap: 20rpx;
 }
 
 .score-circle {
-  width: 120rpx;
-  height: 120rpx;
+  width: 100rpx;
+  height: 100rpx;
   border-radius: 50%;
-  border: 4rpx solid;
+  border: 3rpx solid;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .score-num {
-  font-size: 44rpx;
+  font-size: 38rpx;
   font-weight: 800;
   color: #ffffff;
   line-height: 1;
@@ -107,28 +129,53 @@
 
 .score-unit {
   font-size: 18rpx;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.5);
 }
 
-.score-info {
+.score-detail {
   flex: 1;
+  min-width: 0;
 }
 
 .score-level {
-  font-size: 30rpx;
-  font-weight: 600;
+  font-size: 28rpx;
+  font-weight: 700;
   margin-bottom: 8rpx;
 }
 
+.score-tags {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  gap: 8rpx;
+}
+
+.summary-footer {
+  margin-top: 14rpx;
+  padding-top: 12rpx;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
 .summary-advantage {
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.7);
-  margin-top: 16rpx;
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.55);
   line-height: 1.5;
+  flex: 1;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.summary-date {
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, 0.35);
+  flex-shrink: 0;
+  margin-top: 4rpx;
 }
 
 .action-area {
@@ -171,7 +218,7 @@
 
 .feature-intro {
   flex-shrink: 0;
-  padding: 40rpx 32rpx 0;
+  padding: 16rpx 32rpx 0;
 }
 
 .feature-steps {
@@ -221,7 +268,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 32rpx 32rpx 40rpx;
+  margin: 12rpx 32rpx 0;
   padding: 32rpx;
   background: #ffffff;
   border-radius: 24rpx;
@@ -353,10 +400,9 @@
 /* Banner广告 */
 .banner-ad {
   flex-shrink: 0;
-  margin: 24rpx 32rpx 40rpx;
+  margin: 20rpx 32rpx 16rpx;
   border-radius: 20rpx;
   overflow: hidden;
-  height: 240rpx;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
 }
 

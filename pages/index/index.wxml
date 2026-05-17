@@ -8,24 +8,30 @@
     </view>
 
     <!-- 如果有最新报告，展示摘要 -->
-    <view class="report-summary card" wx:if="{{hasReport}}" bindtap="onViewReport">
-      <view class="summary-header">
-        <text class="summary-title">形象诊断报告</text>
-        <text class="summary-date">{{latestReport.createTime}}</text>
+    <view class="report-summary" wx:if="{{hasReport}}" bindtap="onViewReport">
+      <view class="summary-top">
+        <view class="summary-header">
+          <view class="summary-title-icon icon icon-chart" style="font-size:24rpx;"></view>
+          <text class="summary-title">形象诊断报告</text>
+        </view>
+        <text class="summary-arrow">›</text>
       </view>
-      <view class="summary-score">
+      <view class="summary-body">
         <view class="score-circle" style="border-color: {{scoreLevel.color}}">
           <text class="score-num">{{latestReport.basic.overallScore}}</text>
           <text class="score-unit">/10</text>
         </view>
-        <view class="score-info">
+        <view class="score-detail">
           <view class="score-level" style="color: {{scoreLevel.color}}">{{scoreLevel.text}}</view>
           <view class="score-tags">
             <text class="tag tag-warm" wx:for="{{latestReport.basic.tags}}" wx:key="*this">{{item}}</text>
           </view>
         </view>
       </view>
-      <view class="summary-advantage">{{latestReport.basic.advantages}}</view>
+      <view class="summary-footer">
+        <text class="summary-advantage">{{latestReport.basic.advantages}}</text>
+        <text class="summary-date">{{latestReport.createTime}}</text>
+      </view>
     </view>
   </view>
 
@@ -55,7 +61,7 @@
 
   <!-- Banner广告 -->
   <view class="banner-ad" bindtap="onBannerTap">
-    <image class="banner-image" src="{{bannerImage}}" mode="aspectFill" wx:if="{{bannerImage}}"></image>
+    <image class="banner-image" src="{{bannerImage}}" mode="widthFix" wx:if="{{bannerImage}}"></image>
     <view class="banner-placeholder" wx:else>
       <text class="banner-placeholder-text">广告位</text>
     </view>
@@ -87,7 +93,7 @@
       <view class="outfit-entry-icon icon icon-dress"></view>
       <view class="outfit-entry-info">
         <text class="outfit-entry-title">穿搭决策</text>
-        <text class="outfit-entry-desc">上传衣物照片，AI帮你评分对比</text>
+        <text class="outfit-entry-desc">上传衣物照片，搭搭帮你理性分析</text>
       </view>
     </view>
     <text class="outfit-entry-arrow">→</text>

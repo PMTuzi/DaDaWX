@@ -8,7 +8,7 @@ Page({
     hasReport: false,
     latestReport: null,
     scoreLevel: null,
-    bannerImage: ''
+    bannerImage: '/images/finalbanner2.jpg'
   },
 
   onLoad() {
