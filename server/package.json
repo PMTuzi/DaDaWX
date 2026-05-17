@@ -1,7 +1,7 @@
 {
   "name": "dada-server",
   "version": "1.0.0",
-  "description": "搭搭 - AI形象决策平台后端服务",
+  "description": "搭搭 - AI形象诊断平台后端服务",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

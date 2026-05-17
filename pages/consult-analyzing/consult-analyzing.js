@@ -21,21 +21,21 @@ Page({
   getSteps(type) {
     if (type === 'compare') {
       return [
-        { label: '图片就绪', icon: '📸' },
-        { label: '识别各款特征', icon: '🔍' },
-        { label: '显瘦效果分析', icon: '✂️' },
-        { label: '百搭程度对比', icon: '🎯' },
-        { label: '质感评估对比', icon: '💎' },
-        { label: '综合排名生成', icon: '🏆' }
+        { label: '图片就绪', icon: 'camera' },
+        { label: '识别各款特征', icon: 'search' },
+        { label: '显瘦效果分析', icon: 'scissors' },
+        { label: '百搭程度对比', icon: 'target' },
+        { label: '质感评估对比', icon: 'gem' },
+        { label: '综合排名生成', icon: 'trophy' }
       ]
     }
     return [
-      { label: '图片就绪', icon: '📸' },
-      { label: '识别衣物特征', icon: '🔍' },
-      { label: '版型适合度分析', icon: '✂️' },
-      { label: '颜色匹配度分析', icon: '🎨' },
-      { label: '质感做工评估', icon: '💎' },
-      { label: '生成决策结论', icon: '📋' }
+      { label: '图片就绪', icon: 'camera' },
+      { label: '识别衣物特征', icon: 'search' },
+      { label: '版型适合度分析', icon: 'scissors' },
+      { label: '颜色匹配度分析', icon: 'palette' },
+      { label: '质感做工评估', icon: 'gem' },
+      { label: '生成决策结论', icon: 'clipboard' }
     ]
   },
 

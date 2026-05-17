@@ -13,8 +13,8 @@
       <text class="tag tag-warm" wx:for="{{report.basic.tags}}" wx:key="*this">{{item}}</text>
     </view>
     <view class="score-desc">
-      <view class="desc-item advantage">✅ {{report.basic.advantages}}</view>
-      <view class="desc-item weakness" wx:if="{{report.basic.weaknesses}}">⚠️ {{report.basic.weaknesses}}</view>
+      <view class="desc-item advantage"><view class="icon icon-check" style="font-size:28rpx;color:var(--success);margin-right:4rpx;"></view> {{report.basic.advantages}}</view>
+      <view class="desc-item weakness" wx:if="{{report.basic.weaknesses}}"><view class="icon icon-warning" style="font-size:28rpx;color:var(--warm);margin-right:4rpx;"></view> {{report.basic.weaknesses}}</view>
     </view>
   </view>
 
@@ -23,7 +23,7 @@
     <view class="nav-item {{currentSection === index ? 'active' : ''}}"
       wx:for="{{sections}}" wx:key="key"
       data-index="{{index}}" bindtap="onSectionTap">
-      <text class="nav-icon">{{item.icon}}</text>
+      <view class="nav-icon icon icon-{{item.icon}}" style="font-size:36rpx;"></view>
       <text class="nav-name">{{item.name}}</text>
     </view>
   </scroll-view>
@@ -48,7 +48,7 @@
           <view class="card-title">日常小贴士</view>
           <view class="tips-list">
             <view class="tip-item" wx:for="{{report.summary.dailyTips}}" wx:key="*this">
-              <text class="tip-bullet">💡</text>
+              <view class="tip-bullet icon icon-tip" style="font-size:28rpx;color:var(--warm);margin-right:8rpx;"></view>
               <text class="tip-text">{{item}}</text>
             </view>
           </view>
@@ -112,7 +112,7 @@
           <view class="card-title danger-title">避雷发型</view>
           <view class="avoid-list">
             <view class="avoid-item" wx:for="{{report.faceShape.avoidHaircuts}}" wx:key="name">
-              <text class="avoid-name">❌ {{item.name}}</text>
+              <text class="avoid-name"><view class="icon icon-close" style="font-size:24rpx;color:var(--danger);margin-right:4rpx;"></view> {{item.name}}</text>
               <text class="avoid-reason">{{item.reason}}</text>
             </view>
           </view>
@@ -180,14 +180,14 @@
           <view class="card-title">适配发色</view>
           <view class="haircolor-list">
             <view class="haircolor-item" wx:for="{{report.skinColor.goodHairColors}}" wx:key="name">
-              <text class="hc-name">✅ {{item.name}}</text>
+              <text class="hc-name"><view class="icon icon-check" style="font-size:24rpx;color:var(--success);margin-right:4rpx;"></view> {{item.name}}</text>
               <text class="hc-detail">{{item.detail}}</text>
             </view>
           </view>
           <view class="divider"></view>
           <view class="haircolor-list bad">
             <view class="haircolor-item" wx:for="{{report.skinColor.badHairColors}}" wx:key="name">
-              <text class="hc-name">❌ {{item.name}}</text>
+              <text class="hc-name"><view class="icon icon-close" style="font-size:24rpx;color:var(--danger);margin-right:4rpx;"></view> {{item.name}}</text>
               <text class="hc-detail">{{item.reason}}</text>
             </view>
           </view>
@@ -304,7 +304,7 @@
           <view class="card-title danger-title">避雷版型</view>
           <view class="avoid-list">
             <view class="avoid-item" wx:for="{{report.bodyShape.avoidStyles}}" wx:key="type">
-              <text class="avoid-name">❌ {{item.type}}</text>
+              <text class="avoid-name"><view class="icon icon-close" style="font-size:24rpx;color:var(--danger);margin-right:4rpx;"></view> {{item.type}}</text>
               <text class="avoid-reason">{{item.reason}}</text>
             </view>
           </view>
@@ -314,7 +314,7 @@
           <view class="card-title">比例优化技巧</view>
           <view class="tips-list">
             <view class="tip-item" wx:for="{{report.bodyShape.tips}}" wx:key="*this">
-              <text class="tip-bullet">💡</text>
+              <view class="tip-bullet icon icon-tip" style="font-size:28rpx;color:var(--warm);margin-right:8rpx;"></view>
               <text class="tip-text">{{item}}</text>
             </view>
           </view>
@@ -349,7 +349,7 @@
           <view class="card-title danger-title">避雷单品</view>
           <view class="avoid-list">
             <view class="avoid-item" wx:for="{{report.outfitItems.avoidItems}}" wx:key="name">
-              <text class="avoid-name">❌ {{item.name}}</text>
+              <text class="avoid-name"><view class="icon icon-close" style="font-size:24rpx;color:var(--danger);margin-right:4rpx;"></view> {{item.name}}</text>
               <text class="avoid-reason">{{item.reason}}</text>
             </view>
           </view>
@@ -400,7 +400,7 @@
           <view class="card-title">适配发色</view>
           <view class="haircolor-list">
             <view class="haircolor-item" wx:for="{{report.hairRecommend.hairColors}}" wx:key="name">
-              <text class="hc-name">✅ {{item.name}}</text>
+              <text class="hc-name"><view class="icon icon-check" style="font-size:24rpx;color:var(--success);margin-right:4rpx;"></view> {{item.name}}</text>
               <text class="hc-detail">{{item.detail}}</text>
             </view>
           </view>
@@ -410,7 +410,7 @@
           <view class="card-title danger-title">发型避雷</view>
           <view class="avoid-list">
             <view class="avoid-item" wx:for="{{report.hairRecommend.avoidHair}}" wx:key="name">
-              <text class="avoid-name">❌ {{item.name}}</text>
+              <text class="avoid-name"><view class="icon icon-close" style="font-size:24rpx;color:var(--danger);margin-right:4rpx;"></view> {{item.name}}</text>
               <text class="avoid-reason">{{item.reason}}</text>
             </view>
           </view>
@@ -479,7 +479,7 @@
           <view class="card-title danger-title">避雷妆容</view>
           <view class="avoid-list">
             <view class="avoid-item" wx:for="{{report.makeup.avoidMakeup}}" wx:key="*this">
-              <text class="avoid-name">❌ {{item}}</text>
+              <text class="avoid-name"><view class="icon icon-close" style="font-size:24rpx;color:var(--danger);margin-right:4rpx;"></view> {{item}}</text>
             </view>
           </view>
         </view>
@@ -491,11 +491,11 @@
   <!-- 底部分享栏 -->
   <view class="share-bar safe-bottom">
     <button class="share-btn" open-type="share">
-      <text class="share-icon">🔗</text>
+      <view class="share-icon icon icon-link" style="font-size:36rpx;"></view>
       <text>分享</text>
     </button>
     <view class="share-btn" bindtap="onShare">
-      <text class="share-icon">🖼️</text>
+      <view class="share-icon icon icon-image" style="font-size:36rpx;"></view>
       <text>海报</text>
     </view>
   </view>

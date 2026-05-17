@@ -7,12 +7,12 @@ Page({
     progress: 0,
     currentStep: 0,
     steps: [
-      { label: '图片上传', icon: '📤', status: 'pending' },
-      { label: '视觉特征提取', icon: '👁️', status: 'pending' },
-      { label: '脸型分析', icon: '🔍', status: 'pending' },
-      { label: '肤色检测', icon: '🎨', status: 'pending' },
-      { label: '风格匹配', icon: '✨', status: 'pending' },
-      { label: '报告生成', icon: '📋', status: 'pending' }
+      { label: '图片上传', icon: 'upload', status: 'pending' },
+      { label: '视觉特征提取', icon: 'eye', status: 'pending' },
+      { label: '脸型分析', icon: 'search', status: 'pending' },
+      { label: '肤色检测', icon: 'palette', status: 'pending' },
+      { label: '风格匹配', icon: 'sparkle', status: 'pending' },
+      { label: '报告生成', icon: 'clipboard', status: 'pending' }
     ],
     ossUrl: '',
     imageUrl: '',

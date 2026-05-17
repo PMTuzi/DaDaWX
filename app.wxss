@@ -1,4 +1,6 @@
 /* 全局样式 */
+@import "styles/iconfont.wxss";
+
 page {
   --primary: #1a1a2e;
   --primary-light: #2d2d4a;
@@ -149,6 +151,7 @@ page {
 .empty-state .empty-icon {
   font-size: 120rpx;
   margin-bottom: 24rpx;
+  color: var(--accent);
 }
 
 .empty-state .empty-text {

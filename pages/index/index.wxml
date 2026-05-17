@@ -32,7 +32,7 @@
   <!-- 核心入口 -->
   <view class="action-area">
     <view class="diagnose-btn btn-primary" bindtap="onStartDiagnose">
-      <view class="btn-icon">📸</view>
+      <view class="btn-icon icon icon-camera"></view>
       <view class="btn-text">
         <text class="btn-main">立即诊断</text>
         <text class="btn-sub">拍照上传 → AI 分析 → 生成报告</text>
@@ -44,17 +44,17 @@
   <view class="feature-intro">
     <view class="feature-steps">
       <view class="step">
-        <view class="step-icon">📸</view>
+        <view class="step-icon icon icon-camera"></view>
         <text class="step-text">拍照上传</text>
       </view>
       <view class="step-arrow">→</view>
       <view class="step">
-        <view class="step-icon">🤖</view>
+        <view class="step-icon icon icon-ai"></view>
         <text class="step-text">AI 分析</text>
       </view>
       <view class="step-arrow">→</view>
       <view class="step">
-        <view class="step-icon">📋</view>
+        <view class="step-icon icon icon-clipboard"></view>
         <text class="step-text">生成报告</text>
       </view>
     </view>
@@ -63,15 +63,15 @@
   <!-- 快捷入口 -->
   <view class="quick-entries">
     <view class="entry-item" bindtap="onGoHairStyle">
-      <view class="entry-icon">💇‍♀️</view>
+      <view class="entry-icon icon icon-hair"></view>
       <text class="entry-name">发型推荐</text>
     </view>
     <view class="entry-item" bindtap="onGoOutfit">
-      <view class="entry-icon">👗</view>
+      <view class="entry-icon icon icon-dress"></view>
       <text class="entry-name">穿搭灵感</text>
     </view>
     <view class="entry-item" bindtap="onGoMakeup">
-      <view class="entry-icon">💄</view>
+      <view class="entry-icon icon icon-makeup"></view>
       <text class="entry-name">妆容指南</text>
     </view>
 

@@ -4,16 +4,10 @@ const { formatDate, getScoreLevel } = require('../../utils/format')
 
 Page({
   data: {
-    slogan: '国内首款「反种草」AI 形象决策平台',
+    slogan: '国内首款「反种草」AI 形象诊断平台',
     hasReport: false,
     latestReport: null,
-    scoreLevel: null,
-    showCaseIndex: 0,
-    cases: [
-      { avatar: '👩‍🦰', name: '小鹿', score: 8.6, tags: ['鹅蛋脸', '冷夏型', '清冷风'] },
-      { avatar: '👩‍🦱', name: 'Coco', score: 7.9, tags: ['方脸', '暖秋型', '御姐风'] },
-      { avatar: '👩', name: '阿月', score: 8.2, tags: ['圆脸', '浅春型', '甜美风'] }
-    ]
+    scoreLevel: null
   },
 
   onLoad() {
@@ -77,10 +71,5 @@ Page({
 
   onGoMakeup() {
     wx.navigateTo({ url: '/pages/makeup/makeup' })
-  },
-
-  // 案例轮播
-  onCaseChange(e) {
-    this.setData({ showCaseIndex: e.detail.current })
   }
 })

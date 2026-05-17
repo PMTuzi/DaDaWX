@@ -436,35 +436,35 @@ ${JSON.stringify(visualFeatures, null, 2)}
   "outfitAdvice": [
     {
       "type": "accessory",
-      "icon": "💍",
+      "icon": "ring",
       "title": "饰品搭配",
       "description": "具体饰品搭配建议描述(1-2句)",
       "reason": "搭配理由(1句)"
     },
     {
       "type": "hairstyle",
-      "icon": "💇",
+      "icon": "hair",
       "title": "发型搭配",
       "description": "具体发型搭配建议描述(1-2句)",
       "reason": "搭配理由(1句)"
     },
     {
       "type": "makeup",
-      "icon": "💄",
+      "icon": "makeup",
       "title": "妆容搭配",
       "description": "具体妆容搭配建议描述(1-2句)",
       "reason": "搭配理由(1句)"
     },
     {
       "type": "shoes",
-      "icon": "👠",
+      "icon": "heel",
       "title": "鞋履搭配",
       "description": "具体鞋履搭配建议描述(1-2句)",
       "reason": "搭配理由(1句)"
     },
     {
       "type": "bag",
-      "icon": "👜",
+      "icon": "bag",
       "title": "包包搭配",
       "description": "具体包包搭配建议描述(1-2句)",
       "reason": "搭配理由(1句)"
@@ -577,35 +577,35 @@ ${userInfo.reason ? `- 纠结原因：${userInfo.reason}` : ''}
   "outfitAdvice": [
     {
       "type": "accessory",
-      "icon": "💍",
+      "icon": "ring",
       "title": "饰品搭配",
       "description": "针对推荐款的具体饰品搭配建议(1-2句)",
       "reason": "搭配理由(1句)"
     },
     {
       "type": "hairstyle",
-      "icon": "💇",
+      "icon": "hair",
       "title": "发型搭配",
       "description": "针对推荐款的具体发型搭配建议(1-2句)",
       "reason": "搭配理由(1句)"
     },
     {
       "type": "makeup",
-      "icon": "💄",
+      "icon": "makeup",
       "title": "妆容搭配",
       "description": "针对推荐款的具体妆容搭配建议(1-2句)",
       "reason": "搭配理由(1句)"
     },
     {
       "type": "shoes",
-      "icon": "👠",
+      "icon": "heel",
       "title": "鞋履搭配",
       "description": "针对推荐款的具体鞋履搭配建议(1-2句)",
       "reason": "搭配理由(1句)"
     },
     {
       "type": "bag",
-      "icon": "👜",
+      "icon": "bag",
       "title": "包包搭配",
       "description": "针对推荐款的具体包包搭配建议(1-2句)",
       "reason": "搭配理由(1句)"

@@ -9,21 +9,21 @@ Page({
         type: 'buy',
         title: '买不买',
         subtitle: '想买又犹豫？AI帮你看值不值',
-        icon: '🛍️',
+        icon: 'shopping',
         gradient: 'linear-gradient(135deg, #667eea, #764ba2)'
       },
       {
         type: 'keep',
         title: '留不留',
         subtitle: '退货还是留下？AI帮你做决定',
-        icon: '🤔',
+        icon: 'thinking',
         gradient: 'linear-gradient(135deg, #f093fb, #f5576c)'
       },
       {
         type: 'compare',
         title: '选哪个',
         subtitle: '几件纠结选哪件？AI帮你横向对比',
-        icon: '⚖️',
+        icon: 'balance',
         gradient: 'linear-gradient(135deg, #4facfe, #00f2fe)'
       }
     ],

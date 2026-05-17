@@ -17,11 +17,11 @@ const FALLBACK_SINGLE_RESULT = {
   tips: ['搭配高腰下装可优化比例', '可叠穿增加层次感', '配饰选择简约风格'],
   dadaComment: '这件还行啦，但搭搭觉得你可以找到更心动的喵~',
   outfitAdvice: [
-    { type: 'accessory', icon: '💍', title: '饰品搭配', description: '建议搭配简约金属饰品，提升整体精致感', reason: '简约饰品与该款风格协调' },
-    { type: 'hairstyle', icon: '💇', title: '发型搭配', description: '建议搭配低马尾或自然披发，保持清爽感', reason: '发型简洁不抢服饰风头' },
-    { type: 'makeup', icon: '💄', title: '妆容搭配', description: '建议日常淡妆，裸粉色系唇妆点缀', reason: '淡妆与该款气质匹配' },
-    { type: 'shoes', icon: '👠', title: '鞋履搭配', description: '建议搭配小白鞋或乐福鞋，休闲百搭', reason: '舒适鞋款提升实穿性' },
-    { type: 'bag', icon: '👜', title: '包包搭配', description: '建议搭配简约托特包或斜挎小包', reason: '包型与整体风格统一' }
+    { type: 'accessory', icon: 'ring', title: '饰品搭配', description: '建议搭配简约金属饰品，提升整体精致感', reason: '简约饰品与该款风格协调' },
+    { type: 'hairstyle', icon: 'hair', title: '发型搭配', description: '建议搭配低马尾或自然披发，保持清爽感', reason: '发型简洁不抢服饰风头' },
+    { type: 'makeup', icon: 'makeup', title: '妆容搭配', description: '建议日常淡妆，裸粉色系唇妆点缀', reason: '淡妆与该款气质匹配' },
+    { type: 'shoes', icon: 'heel', title: '鞋履搭配', description: '建议搭配小白鞋或乐福鞋，休闲百搭', reason: '舒适鞋款提升实穿性' },
+    { type: 'bag', icon: 'bag', title: '包包搭配', description: '建议搭配简约托特包或斜挎小包', reason: '包型与整体风格统一' }
   ]
 }
 
@@ -45,11 +45,11 @@ const FALLBACK_COMPARE_RESULT = {
   ],
   dadaComment: 'A款明显更胜一筹，B款就留作备胎吧喵~',
   outfitAdvice: [
-    { type: 'accessory', icon: '💍', title: '饰品搭配', description: '推荐款适合搭配精致银饰', reason: '银饰提升高级感' },
-    { type: 'hairstyle', icon: '💇', title: '发型搭配', description: '推荐搭配干练低马尾', reason: '与推荐款气质相符' },
-    { type: 'makeup', icon: '💄', title: '妆容搭配', description: '建议清透底妆+豆沙色唇', reason: '日常通勤百搭妆容' },
-    { type: 'shoes', icon: '👠', title: '鞋履搭配', description: '搭配尖头平底鞋或小高跟', reason: '延伸腿部线条' },
-    { type: 'bag', icon: '👜', title: '包包搭配', description: '搭配通勤风手提包', reason: '场景匹配度高' }
+    { type: 'accessory', icon: 'ring', title: '饰品搭配', description: '推荐款适合搭配精致银饰', reason: '银饰提升高级感' },
+    { type: 'hairstyle', icon: 'hair', title: '发型搭配', description: '推荐搭配干练低马尾', reason: '与推荐款气质相符' },
+    { type: 'makeup', icon: 'makeup', title: '妆容搭配', description: '建议清透底妆+豆沙色唇', reason: '日常通勤百搭妆容' },
+    { type: 'shoes', icon: 'heel', title: '鞋履搭配', description: '搭配尖头平底鞋或小高跟', reason: '延伸腿部线条' },
+    { type: 'bag', icon: 'bag', title: '包包搭配', description: '搭配通勤风手提包', reason: '场景匹配度高' }
   ]
 }
 

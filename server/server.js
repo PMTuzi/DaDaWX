@@ -54,7 +54,7 @@ app.use('/api/consult', consultRoutes)
 // 首页
 app.get('/', (req, res) => {
   res.json({
-    name: '搭搭 - AI形象决策平台',
+    name: '搭搭 - AI形象诊断平台',
     version: '1.0.0',
     apiDocs: {
       '视觉分析': 'POST /api/ai/analyze-vision',
@@ -85,5 +85,5 @@ app.use((err, req, res, next) => {
 })
 
 app.listen(PORT, () => {
-  console.log(`🚀 搭搭服务已启动: http://localhost:${PORT}`)
+  console.log(`搭搭服务已启动: http://localhost:${PORT}`)
 })

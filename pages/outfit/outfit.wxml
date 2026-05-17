@@ -12,7 +12,7 @@
       data-type="{{item.type}}" bindtap="onCardTap">
       <view class="card-bg" style="background: {{item.gradient}}"></view>
       <view class="card-content">
-        <view class="card-icon">{{item.icon}}</view>
+        <view class="card-icon icon icon-{{item.icon}}" style="font-size:48rpx;"></view>
         <view class="card-title">{{item.title}}</view>
         <view class="card-subtitle">{{item.subtitle}}</view>
       </view>

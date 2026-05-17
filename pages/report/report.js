@@ -7,14 +7,14 @@ Page({
     scoreLevel: null,
     currentSection: 0,
     sections: [
-      { key: 'summary', name: '综合建议', icon: '📝' },
-      { key: 'faceShape', name: '脸型分析', icon: '🔍' },
-      { key: 'skinColor', name: '肤色诊断', icon: '🎨' },
-      { key: 'style', name: '风格基因', icon: '✨' },
-      { key: 'bodyShape', name: '身形适配', icon: '📐' },
-      { key: 'outfitItems', name: '穿搭推荐', icon: '👗' },
-      { key: 'hairRecommend', name: '发型推荐', icon: '💇‍♀️' },
-      { key: 'makeup', name: '妆容指南', icon: '💄' }
+      { key: 'summary', name: '综合建议', icon: 'note' },
+      { key: 'faceShape', name: '脸型分析', icon: 'search' },
+      { key: 'skinColor', name: '肤色诊断', icon: 'palette' },
+      { key: 'style', name: '风格基因', icon: 'sparkle' },
+      { key: 'bodyShape', name: '身形适配', icon: 'ruler' },
+      { key: 'outfitItems', name: '穿搭推荐', icon: 'dress' },
+      { key: 'hairRecommend', name: '发型推荐', icon: 'hair' },
+      { key: 'makeup', name: '妆容指南', icon: 'makeup' }
     ],
     expandedSections: {}
   },

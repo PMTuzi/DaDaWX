@@ -2,7 +2,7 @@
 <view class="page-makeup">
   <view class="no-report" wx:if="{{!hasReport}}">
     <view class="empty-state">
-      <text class="empty-icon">💄</text>
+      <view class="empty-icon icon icon-makeup" style="font-size:120rpx;"></view>
       <text class="empty-text">完成AI诊断后解锁专属妆容指南</text>
       <button class="btn-primary" bindtap="onGoDiagnose" style="margin-top: 32rpx;">开始诊断</button>
     </view>
@@ -13,7 +13,7 @@
     <view class="card style-card">
       <view class="card-title">适配妆容风格</view>
       <view class="makeup-style">
-        <text class="style-emoji">💄</text>
+        <view class="style-emoji icon icon-makeup" style="font-size:48rpx;"></view>
         <text class="style-name">{{makeupGuide.style}}</text>
       </view>
     </view>
@@ -76,7 +76,7 @@
       <view class="card-title danger-title">避雷妆容</view>
       <view class="avoid-list">
         <view class="avoid-item" wx:for="{{makeupGuide.avoidMakeup}}" wx:key="*this">
-          <text class="avoid-name">❌ {{item}}</text>
+          <text class="avoid-name"><view class="icon icon-close" style="font-size:24rpx;color:var(--danger);margin-right:4rpx;"></view> {{item}}</text>
         </view>
       </view>
     </view>

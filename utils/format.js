@@ -48,11 +48,11 @@ function getFaceShapeName(shape) {
 
 // 适配度等级
 function getMatchLevel(score) {
-  if (score >= 9) return { text: '高度适配', emoji: '🌟', color: '#27ae60' }
-  if (score >= 8) return { text: '适配', emoji: '✨', color: '#2ecc71' }
-  if (score >= 7) return { text: '较适配', emoji: '👍', color: '#f39c12' }
-  if (score >= 6) return { text: '一般', emoji: '👌', color: '#e67e22' }
-  return { text: '不太适配', emoji: '⚠️', color: '#e74c3c' }
+  if (score >= 9) return { text: '高度适配', icon: 'star-fill', color: '#27ae60' }
+  if (score >= 8) return { text: '适配', icon: 'sparkle', color: '#2ecc71' }
+  if (score >= 7) return { text: '较适配', icon: 'good', color: '#f39c12' }
+  if (score >= 6) return { text: '一般', icon: 'ok', color: '#e67e22' }
+  return { text: '不太适配', icon: 'warning', color: '#e74c3c' }
 }
 
 // 防抖
@@ -72,7 +72,7 @@ function generatePosterData(report) {
     tags: report.basic?.tags || [],
     season: report.skinColor?.season || '',
     mainStyle: report.style?.mainStyle || '',
-    slogan: '国内首款「反种草」AI 形象决策平台'
+    slogan: '国内首款「反种草」AI 形象诊断平台'
   }
 }
 

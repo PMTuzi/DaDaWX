@@ -17,8 +17,8 @@
     <view class="step-item {{index <= currentStep ? 'active' : ''}} {{index < currentStep ? 'done' : ''}}"
       wx:for="{{steps}}" wx:key="index">
       <view class="step-dot">
-        <text wx:if="{{index < currentStep}}">✓</text>
-        <text wx:else>{{item.icon}}</text>
+        <view class="icon icon-checkmark" wx:if="{{index < currentStep}}" style="font-size:24rpx;"></view>
+        <view class="icon icon-{{item.icon}}" wx:else style="font-size:24rpx;"></view>
       </view>
       <view class="step-label">{{item.label}}</view>
     </view>

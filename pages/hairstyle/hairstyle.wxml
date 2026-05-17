@@ -2,7 +2,7 @@
 <view class="page-hairstyle">
   <!-- 诊断提示 -->
   <view class="diagnose-tip" wx:if="{{!hasReport}}" bindtap="onGoDiagnose">
-    <text class="tip-icon">📸</text>
+    <view class="tip-icon icon icon-camera" style="font-size:36rpx;"></view>
     <text class="tip-text">完成AI诊断后，可获得个性化发型推荐</text>
     <text class="tip-arrow">→</text>
   </view>
@@ -29,7 +29,7 @@
   <view class="hairstyle-list">
     <view class="hair-card card" wx:for="{{filteredList}}" wx:key="id" data-id="{{item.id}}" bindtap="onHairstyleDetail">
       <view class="hair-preview">
-        <view class="hair-emoji">{{item.length === 'short' ? '💇‍♀️' : item.length === 'medium' ? '👩‍🦱' : '👩‍🦰'}}</view>
+        <view class="hair-emoji icon icon-hair-{{item.length === 'short' ? 'short' : item.length === 'medium' ? 'medium' : 'long'}}" style="font-size:56rpx;"></view>
         <view class="hair-score-badge" wx:if="{{hasReport}}">
           <text>{{item.score}}</text>
         </view>
@@ -44,14 +44,14 @@
           <text class="tag tag-primary">{{item.length === 'short' ? '短发' : item.length === 'medium' ? '中发' : '长发'}}</text>
           <text class="tag tag-warm">{{item.style === 'sweet' ? '少女' : item.style === 'elegant' ? '御姐' : item.style === 'retro' ? '复古' : '简约'}}</text>
         </view>
-        <text class="hair-care" wx:if="{{item.care}}">💡 打理: {{item.care}}</text>
+        <view class="hair-care" wx:if="{{item.care}}"><view class="icon icon-tip" style="font-size:24rpx;color:var(--warm);margin-right:4rpx;"></view> 打理: {{item.care}}</view>
       </view>
     </view>
   </view>
 
   <!-- 空状态 -->
   <view class="empty-state" wx:if="{{filteredList.length === 0}}">
-    <text class="empty-icon">💇‍♀️</text>
+    <view class="empty-icon icon icon-hair" style="font-size:120rpx;"></view>
     <text class="empty-text">暂无匹配的发型推荐</text>
   </view>
 </view>

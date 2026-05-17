@@ -21,7 +21,7 @@
   </view>
 
   <view class="empty-state" wx:else>
-    <text class="empty-icon">📊</text>
+    <view class="empty-icon icon icon-chart" style="font-size:120rpx;"></view>
     <text class="empty-text">还没有诊断报告</text>
     <button class="btn-primary" bindtap="onGoDiagnose" style="margin-top: 32rpx;">开始诊断</button>
   </view>

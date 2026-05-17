@@ -19,7 +19,7 @@
         <view class="image-label" wx:if="{{type === 'compare'}}">
           款式{{['A','B','C','D'][index]}}
         </view>
-        <view class="image-remove" data-index="{{index}}" bindtap="onRemoveImage">✕</view>
+        <view class="image-remove" data-index="{{index}}" bindtap="onRemoveImage"><view class="icon icon-multiply" style="font-size:20rpx;"></view></view>
       </view>
       <view class="image-add" wx:if="{{images.length < maxImages}}" bindtap="onAddImage">
         <text class="add-icon">+</text>

@@ -21,8 +21,8 @@
   <view class="steps-area">
     <view class="step-item {{item.status}}" wx:for="{{steps}}" wx:key="label">
       <view class="step-icon-wrap">
-        <text class="step-icon" wx:if="{{item.status === 'done'}}">✓</text>
-        <text class="step-icon" wx:elif="{{item.status === 'active'}}">{{item.icon}}</text>
+        <view class="step-icon icon icon-checkmark" wx:if="{{item.status === 'done'}}"></view>
+        <view class="step-icon icon icon-{{item.icon}}" wx:elif="{{item.status === 'active'}}"></view>
         <text class="step-icon" wx:else>○</text>
       </view>
       <text class="step-label">{{item.label}}</text>

@@ -19,7 +19,7 @@
   </view>
 
   <view class="empty-state" wx:else>
-    <text class="empty-icon">❤️</text>
+    <view class="empty-icon icon icon-heart" style="font-size:120rpx;"></view>
     <text class="empty-text">暂无收藏</text>
   </view>
 </view>
