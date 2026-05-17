@@ -1,6 +1,10 @@
 // pages/consult-analyzing/consult-analyzing.js
 const { request, API } = require('../../utils/api')
 
+// 用闭包变量代替实例属性，避免微信小程序 Page 构造器限制
+let _alive = true
+let _timers = []
+
 Page({
   data: {
     type: 'keep',
@@ -12,13 +16,34 @@ Page({
   },
 
   onLoad(options) {
+    _alive = true
+    _timers = []
     const type = options.type || 'keep'
     const steps = this.getSteps(type)
     this.setData({ type, steps })
     this.startAnalysis().catch(err => {
       console.error('[consult-analyzing] 未捕获异常:', err)
-      this.onError(err.message || '分析过程异常')
+      if (_alive) {
+        this.onError(err && err.message ? err.message : '分析过程异常')
+      }
     })
+  },
+
+  onUnload() {
+    _alive = false
+    _timers.forEach(t => clearInterval(t))
+    _timers = []
+  },
+
+  onError(err) {
+    console.error('[consult-analyzing] 页面错误:', err)
+  },
+
+  // 安全的 setData
+  safeSetData(data) {
+    if (_alive) {
+      try { this.setData(data) } catch (e) {}
+    }
   },
 
   getSteps(type) {
@@ -88,17 +113,22 @@ Page({
       const record = this.saveResult(result, consultData)
 
       setTimeout(() => {
-        wx.redirectTo({
-          url: `/pages/consult-result/consult-result?id=${record.id}`,
-          fail: () => {
-            wx.navigateTo({
-              url: `/pages/consult-result/consult-result?id=${record.id}`,
-              fail: () => {
-                wx.switchTab({ url: '/pages/index/index' })
-              }
-            })
-          }
-        })
+        if (!_alive) return
+        try {
+          wx.redirectTo({
+            url: `/pages/consult-result/consult-result?id=${record.id}`,
+            fail: () => {
+              wx.navigateTo({
+                url: `/pages/consult-result/consult-result?id=${record.id}`,
+                fail: () => {
+                  wx.switchTab({ url: '/pages/index/index' })
+                }
+              })
+            }
+          })
+        } catch (e) {
+          console.error('[consult-analyzing] 页面跳转失败:', e)
+        }
       }, 500)
 
     } catch (err) {
@@ -250,7 +280,8 @@ Page({
 
   simulateStep(stepIndex, targetProgress) {
     return new Promise((resolve) => {
-      this.setData({ currentStep: stepIndex })
+      if (!_alive) { resolve(); return }
+      this.safeSetData({ currentStep: stepIndex })
       const startProgress = this.data.progress
       const diff = targetProgress - startProgress
       const steps = 20
@@ -258,67 +289,82 @@ Page({
       let count = 0
 
       const timer = setInterval(() => {
+        if (!_alive) {
+          clearInterval(timer)
+          resolve()
+          return
+        }
         count++
         const newProgress = Math.round(startProgress + increment * count)
-        this.setData({ progress: Math.min(newProgress, targetProgress) })
+        this.safeSetData({ progress: Math.min(newProgress, targetProgress) })
         if (count >= steps) {
           clearInterval(timer)
           resolve()
         }
       }, 80)
+      _timers.push(timer)
     })
   },
 
   saveResult(result, consultData) {
-    const id = 'C' + Date.now()
-    const now = new Date()
-    const createTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+    try {
+      const id = 'C' + Date.now()
+      const now = new Date()
+      const createTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
 
-    const record = {
-      id,
-      type: consultData.type,
-      createTime,
-      category: consultData.category || '',
-      ...result
-    }
-
-    if (result.scores) {
-      if (consultData.type === 'compare') {
-        const topRank = result.rankings && result.rankings[0]
-        record.totalScore = topRank ? topRank.totalScore : '--'
-        record.finalChoiceLabel = result.finalChoice ? result.finalChoice.label : ''
-        record.verdict = record.finalChoiceLabel + ' 最佳'
-      } else {
-        const s = result.scores
-        record.totalScore = Math.round((s.fitScore + s.colorScore + s.qualityScore + s.valueScore) / 4 * 10) / 10
-        record.verdict = result.verdict
+      const record = {
+        id,
+        type: consultData.type,
+        createTime,
+        category: consultData.category || '',
+        ...result
       }
+
+      if (result.scores) {
+        if (consultData.type === 'compare') {
+          const topRank = result.rankings && result.rankings[0]
+          record.totalScore = topRank ? topRank.totalScore : '--'
+          record.finalChoiceLabel = result.finalChoice ? result.finalChoice.label : ''
+          record.verdict = record.finalChoiceLabel + ' 最佳'
+        } else {
+          const s = result.scores
+          record.totalScore = Math.round((s.fitScore + s.colorScore + s.qualityScore + s.valueScore) / 4 * 10) / 10
+          record.verdict = result.verdict
+        }
+      }
+
+      const records = wx.getStorageSync('consultRecords') || []
+      records.unshift(record)
+      if (records.length > 20) records.length = 20
+      wx.setStorageSync('consultRecords', records)
+
+      try { wx.removeStorageSync('consultData') } catch (e) {}
+      try { getApp().globalData.consultData = null } catch (e) {}
+
+      return record
+    } catch (err) {
+      console.error('[consult-analyzing] 保存结果失败:', err)
+      return { id: 'C' + Date.now(), type: consultData.type, ...result }
     }
-
-    const records = wx.getStorageSync('consultRecords') || []
-    records.unshift(record)
-    if (records.length > 20) records.length = 20
-    wx.setStorageSync('consultRecords', records)
-
-    wx.removeStorageSync('consultData')
-    getApp().globalData.consultData = null
-
-    return record
   },
 
   onError(msg) {
-    this.setData({ animating: false, errorMsg: msg })
+    if (!_alive) return
+    this.safeSetData({ animating: false, errorMsg: msg })
     wx.showModal({
       title: '分析失败',
-      content: msg,
+      content: msg || '未知错误',
       confirmText: '重新提交',
       cancelText: '返回',
       success: (res) => {
         if (res.confirm) {
-          wx.navigateBack()
+          wx.navigateBack({ fail: () => wx.switchTab({ url: '/pages/index/index' }) })
         } else {
           wx.switchTab({ url: '/pages/index/index' })
         }
+      },
+      fail: () => {
+        wx.switchTab({ url: '/pages/index/index' })
       }
     })
   }

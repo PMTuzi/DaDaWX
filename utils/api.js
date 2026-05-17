@@ -75,45 +75,100 @@ function request(url, options = {}) {
 }
 
 // 上传图片（开发模式：直接上传到服务器；生产模式：上传到OSS）
-function uploadImage(filePath) {
-  return new Promise((resolve, reject) => {
-    if (ENV === 'development') {
-      // 开发模式：直接上传到服务器
-      wx.uploadFile({
-        url: currentConfig.baseUrl + '/api/upload',
-        filePath,
-        name: 'image',
-        timeout: 30000,
-        success(res) {
-          if (res.statusCode === 200) {
-            try {
-              const data = JSON.parse(res.data)
-              if (data.code === 0) {
-                resolve(data.data.url)
-              } else {
-                reject(new Error(data.message || '上传失败'))
-              }
-            } catch (e) {
-              reject(new Error('上传响应解析失败'))
-            }
-          } else {
-            reject(new Error(`上传失败(${res.statusCode})`))
-          }
-        },
-        fail(err) {
-          console.error('[API] 图片上传失败:', err.errMsg)
-          reject(new Error(err.errMsg || '上传失败'))
-        }
-      })
-    } else {
-      // 生产模式：上传到 OSS
-      uploadToOss(filePath).then(resolve).catch(reject)
+// 统一策略：wx.uploadFile 优先 → 失败降级 base64 → 重试
+async function uploadImage(filePath) {
+  if (ENV === 'development') {
+    // 开发模式：先尝试文件上传，失败则用 base64 上传
+    try {
+      return await uploadFileToServer(filePath)
+    } catch (e) {
+      console.warn('[API] wx.uploadFile 失败，降级为 base64 上传:', e.message)
+      return await uploadImageViaBase64(filePath)
     }
+  } else {
+    // 生产模式：先上传到 OSS，失败则通过服务端 base64 中转
+    try {
+      return await uploadToOss(filePath)
+    } catch (e) {
+      console.warn('[API] OSS 上传失败，降级为服务端 base64 中转:', e.message)
+      try {
+        return await uploadImageViaBase64(filePath)
+      } catch (e2) {
+        console.error('[API] base64 中转也失败:', e2.message)
+        throw new Error('图片上传失败，请检查网络后重试')
+      }
+    }
+  }
+}
+
+// 开发模式：wx.uploadFile 直传服务器
+function uploadFileToServer(filePath) {
+  return new Promise((resolve, reject) => {
+    wx.uploadFile({
+      url: currentConfig.baseUrl + '/api/upload',
+      filePath,
+      name: 'image',
+      timeout: 30000,
+      success(res) {
+        if (res.statusCode === 200) {
+          try {
+            const data = JSON.parse(res.data)
+            if (data.code === 0) {
+              resolve(data.data.url)
+            } else {
+              reject(new Error(data.message || '上传失败'))
+            }
+          } catch (e) {
+            reject(new Error('上传响应解析失败'))
+          }
+        } else {
+          reject(new Error(`上传失败(${res.statusCode})`))
+        }
+      },
+      fail(err) {
+        reject(new Error(err.errMsg || '上传失败'))
+      }
+    })
   })
 }
 
-// 上传图片到 OSS（生产模式）
-function uploadToOss(filePath) {
+// 将本地图片转为 base64
+function imageToBase64(filePath) {
+  return new Promise((resolve, reject) => {
+    wx.getFileSystemManager().readFile({
+      filePath,
+      encoding: 'base64',
+      success(res) {
+        const ext = filePath.toLowerCase().match(/\.(jpg|jpeg|png|webp)$/)
+        const mimeMap = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp' }
+        const mime = ext ? (mimeMap[ext[1]] || 'image/jpeg') : 'image/jpeg'
+        resolve(`data:${mime};base64,${res.data}`)
+      },
+      fail(err) {
+        reject(new Error(err.errMsg || '读取图片失败'))
+      }
+    })
+  })
+}
+
+// 通过 base64 上传图片（更可靠，不受 wx.uploadFile 网络限制）
+async function uploadImageViaBase64(filePath) {
+  const imageBase64 = await imageToBase64(filePath)
+  const ext = filePath.toLowerCase().match(/\.(jpg|jpeg|png|webp)$/)
+  const result = await request('/api/upload-base64', {
+    method: 'POST',
+    data: { imageBase64, ext: ext ? '.' + ext[1] : '.jpg' },
+    timeout: 30000
+  })
+  if (result.code === 0) {
+    return result.data.url
+  }
+  throw new Error(result.message || 'base64上传失败')
+}
+
+// 上传图片到 OSS（生产模式，带重试）
+function uploadToOss(filePath, retryCount = 0) {
+  const MAX_RETRIES = 2
   return new Promise(async (resolve, reject) => {
     try {
       // 1. 获取 OSS 上传凭证
@@ -138,20 +193,29 @@ function uploadToOss(filePath) {
           'x-oss-security-token': securityToken,
           success_action_status: '200'
         },
+        timeout: 30000,
         success(res) {
           if (res.statusCode === 200) {
             resolve(ossUrl)
           } else {
-            reject(new Error('上传失败'))
+            reject(new Error(`OSS上传失败(${res.statusCode})`))
           }
         },
         fail(err) {
-          reject(err)
+          reject(new Error(err.errMsg || 'OSS上传失败'))
         }
       })
     } catch (err) {
       reject(err)
     }
+  }).catch(err => {
+    // 重试逻辑
+    if (retryCount < MAX_RETRIES) {
+      console.warn(`[API] OSS 上传第 ${retryCount + 1} 次失败，重试中...`)
+      return new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)))
+        .then(() => uploadToOss(filePath, retryCount + 1))
+    }
+    throw err
   })
 }
 
@@ -225,6 +289,8 @@ module.exports = {
   API,
   request,
   uploadImage,
+  uploadImageViaBase64,
+  imageToBase64,
   uploadToOss,
   runDiagnosis,
   wxLogin

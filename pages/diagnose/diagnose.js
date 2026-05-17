@@ -1,5 +1,5 @@
 // pages/diagnose/diagnose.js
-const { request, API } = require('../../utils/api')
+const { request, API, uploadImage } = require('../../utils/api')
 
 Page({
   data: {
@@ -18,6 +18,10 @@ Page({
     }
   },
 
+  onError(err) {
+    console.error('[diagnose] 页面错误:', err)
+  },
+
   // 切换照片类型
   onSwitchType(e) {
     this.setData({ photoType: e.currentTarget.dataset.type })
@@ -25,31 +29,71 @@ Page({
 
   // 拍照
   onTakePhoto() {
-    const that = this
-    wx.chooseMedia({
-      count: 1,
-      mediaType: ['image'],
-      sourceType: ['camera'],
-      camera: 'front',
-      sizeType: ['compressed'],
-      success(res) {
-        that.setData({ photoUrl: res.tempFiles[0].tempFilePath, guideVisible: false })
-      }
-    })
+    try {
+      wx.chooseMedia({
+        count: 1,
+        mediaType: ['image'],
+        sourceType: ['camera'],
+        camera: 'front',
+        success: (res) => {
+          try {
+            this.setData({ photoUrl: res.tempFiles[0].tempFilePath, guideVisible: false })
+          } catch (e) {
+            console.error('[diagnose] 拍照回调出错:', e)
+          }
+        },
+        fail: (err) => {
+          if (err.errMsg && err.errMsg.indexOf('cancel') > -1) return
+          console.warn('[diagnose] chooseMedia 拍照失败:', err.errMsg)
+        }
+      })
+    } catch (e) {
+      // chooseMedia 不可用时降级
+      wx.chooseImage({
+        count: 1,
+        sourceType: ['camera'],
+        success: (res) => {
+          try {
+            this.setData({ photoUrl: res.tempFilePaths[0], guideVisible: false })
+          } catch (e2) {}
+        },
+        fail: () => {}
+      })
+    }
   },
 
   // 从相册选择
   onChooseFromAlbum() {
-    const that = this
-    wx.chooseMedia({
-      count: 1,
-      mediaType: ['image'],
-      sourceType: ['album'],
-      sizeType: ['compressed'],
-      success(res) {
-        that.setData({ photoUrl: res.tempFiles[0].tempFilePath, guideVisible: false })
-      }
-    })
+    try {
+      wx.chooseMedia({
+        count: 1,
+        mediaType: ['image'],
+        sourceType: ['album'],
+        success: (res) => {
+          try {
+            this.setData({ photoUrl: res.tempFiles[0].tempFilePath, guideVisible: false })
+          } catch (e) {
+            console.error('[diagnose] 相册选择回调出错:', e)
+          }
+        },
+        fail: (err) => {
+          if (err.errMsg && err.errMsg.indexOf('cancel') > -1) return
+          console.warn('[diagnose] chooseMedia 相册失败:', err.errMsg)
+        }
+      })
+    } catch (e) {
+      // chooseMedia 不可用时降级
+      wx.chooseImage({
+        count: 1,
+        sourceType: ['album'],
+        success: (res) => {
+          try {
+            this.setData({ photoUrl: res.tempFilePaths[0], guideVisible: false })
+          } catch (e2) {}
+        },
+        fail: () => {}
+      })
+    }
   },
 
   // 重新选择
@@ -87,61 +131,36 @@ Page({
     this.setData({ userTags })
   },
 
-  // 上传图片到服务器（避免前端 base64 过大导致真机请求失败）
-  uploadImage(filePath) {
-    return new Promise((resolve, reject) => {
-      const { CONFIG } = require('../../utils/api')
-      wx.uploadFile({
-        url: CONFIG.baseUrl + '/api/upload',
-        filePath,
-        name: 'image',
-        timeout: 30000,
-        success(res) {
-          if (res.statusCode === 200) {
-            try {
-              const data = JSON.parse(res.data)
-              if (data.code === 0) {
-                console.log('[diagnose] 图片上传成功:', data.data.url)
-                resolve(data.data.url)
-              } else {
-                reject(new Error(data.message || '上传失败'))
-              }
-            } catch (e) {
-              reject(new Error('上传响应解析失败'))
-            }
-          } else {
-            reject(new Error(`上传失败(${res.statusCode})`))
-          }
-        },
-        fail(err) {
-          console.error('[diagnose] 图片上传失败:', err.errMsg)
-          reject(new Error(err.errMsg || '上传失败'))
-        }
-      })
-    })
-  },
-
   // 开始分析
-  onStartAnalysis() {
+  async onStartAnalysis() {
     if (!this.data.photoUrl) {
       wx.showToast({ title: '请先上传照片', icon: 'none' })
       return
     }
 
     this.setData({ isUploading: true })
-    const that = this
 
-    // 上传图片到服务器，避免 base64 过大导致真机失败
-    this.uploadImage(this.data.photoUrl).then(imageUrl => {
-      that.setData({ isUploading: false })
+    try {
+      // 使用全局 uploadImage（内置 base64 降级，确保可靠）
+      const imageUrl = await uploadImage(this.data.photoUrl)
+
+      this.setData({ isUploading: false })
 
       wx.navigateTo({
-        url: `/pages/analyzing/analyzing?imageUrl=${encodeURIComponent(imageUrl)}&photoType=${that.data.photoType}&tags=${encodeURIComponent(JSON.stringify(that.data.userTags))}`
+        url: `/pages/analyzing/analyzing?imageUrl=${encodeURIComponent(imageUrl)}&photoType=${this.data.photoType}&tags=${encodeURIComponent(JSON.stringify(this.data.userTags))}`,
+        fail: (err) => {
+          console.error('[diagnose] navigateTo 失败:', err)
+          wx.showToast({ title: '页面跳转失败', icon: 'none' })
+        }
       })
-    }).catch(err => {
+    } catch (err) {
       console.error('[diagnose] 图片上传失败:', err)
-      that.setData({ isUploading: false })
-      wx.showToast({ title: '图片上传失败，请重试', icon: 'none' })
-    })
+      this.setData({ isUploading: false })
+      wx.showModal({
+        title: '上传失败',
+        content: '图片上传失败，请检查网络连接后重试',
+        showCancel: false
+      })
+    }
   }
 })

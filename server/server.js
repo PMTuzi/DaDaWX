@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000
 
 // 中间件
 app.use(cors())
-app.use(express.json({ limit: '10mb' }))
+app.use(express.json({ limit: '20mb' }))
 
 // 静态文件服务（开发模式图片访问）
 const UPLOAD_DIR = path.join(__dirname, 'uploads')
@@ -34,6 +34,31 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
   }
   const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
   res.json({ code: 0, data: { url: fileUrl, filename: req.file.filename } })
+})
+
+// base64 图片上传（wx.uploadFile 不稳定时的可靠替代方案）
+app.post('/api/upload-base64', (req, res) => {
+  try {
+    const { imageBase64, ext } = req.body
+    if (!imageBase64) {
+      return res.status(400).json({ code: -1, message: '缺少 imageBase64' })
+    }
+
+    // 去掉 data:image/xxx;base64, 前缀
+    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '')
+    const buffer = Buffer.from(base64Data, 'base64')
+
+    const fileExt = ext || '.jpg'
+    const filename = `${Date.now()}_${Math.random().toString(36).substr(2, 8)}${fileExt}`
+    const filePath = path.join(UPLOAD_DIR, filename)
+
+    fs.writeFileSync(filePath, buffer)
+    const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${filename}`
+    res.json({ code: 0, data: { url: fileUrl, filename } })
+  } catch (err) {
+    console.error('[upload-base64] 失败:', err.message)
+    res.status(500).json({ code: -1, message: 'base64上传失败' })
+  }
 })
 
 // 路由

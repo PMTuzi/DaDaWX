@@ -1,5 +1,5 @@
 // pages/consult-publish/consult-publish.js
-const { request, API } = require('../../utils/api')
+const { request, API, uploadImage } = require('../../utils/api')
 
 Page({
   data: {
@@ -47,6 +47,10 @@ Page({
 
   onLoad() {
     try { wx.setNavigationBarTitle({ title: '穿搭决策' }) } catch (e) {}
+  },
+
+  onError(err) {
+    console.error('[consult-publish] 页面错误:', err)
   },
 
   // ===== 图片相关 =====
@@ -150,12 +154,13 @@ Page({
   async autoDetectCategory(imagePath) {
     try { this.setData({ categoryDetected: false }) } catch (e) {}
     try {
-      // 先尝试上传图片，失败则用本地路径
-      let imageUrl = imagePath
+      // 上传图片（内置 base64 降级）
+      let imageUrl
       try {
-        imageUrl = await this.uploadImage(imagePath)
+        imageUrl = await uploadImage(imagePath)
       } catch (e) {
-        // 上传失败，用本地路径
+        console.warn('[consult-publish] 图片上传失败，跳过AI类别识别:', e.message)
+        return
       }
 
       const result = await request(API.detectCategory, {
@@ -322,15 +327,20 @@ Page({
     this.setData({ submitting: true })
 
     try {
-      // 上传图片到服务器，失败时用本地路径兜底
+      // 上传图片到服务器（api.js 的 uploadImage 内置了 base64 降级，确保可靠）
       const imageDataList = []
       for (const img of this.data.images) {
         try {
-          const url = await this.uploadImage(img.path)
+          const url = await uploadImage(img.path)
           imageDataList.push({ imageUrl: url })
         } catch (uploadErr) {
-          console.warn('[consult-publish] 图片上传失败，使用本地路径:', uploadErr.message)
-          imageDataList.push({ imageUrl: img.path })
+          console.error('[consult-publish] 图片上传彻底失败:', uploadErr.message)
+          wx.showModal({
+            title: '上传失败',
+            content: '图片上传失败，请检查网络后重试',
+            showCancel: false
+          })
+          return
         }
       }
 
@@ -377,36 +387,5 @@ Page({
     } finally {
       this.setData({ submitting: false })
     }
-  },
-
-  uploadImage(filePath) {
-    return new Promise((resolve, reject) => {
-      const { CONFIG } = require('../../utils/api')
-      wx.uploadFile({
-        url: CONFIG.baseUrl + '/api/upload',
-        filePath,
-        name: 'image',
-        timeout: 30000,
-        success(res) {
-          if (res.statusCode === 200) {
-            try {
-              const data = JSON.parse(res.data)
-              if (data.code === 0) {
-                resolve(data.data.url)
-              } else {
-                reject(new Error(data.message || '上传失败'))
-              }
-            } catch (e) {
-              reject(new Error('上传响应解析失败'))
-            }
-          } else {
-            reject(new Error(`上传失败(${res.statusCode})`))
-          }
-        },
-        fail(err) {
-          reject(new Error(err.errMsg || '上传失败'))
-        }
-      })
-    })
   }
 })
