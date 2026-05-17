@@ -662,4 +662,58 @@ ${userInfo.reason ? `- 纠结原因：${userInfo.reason}` : ''}
   }
 }
 
-module.exports = { analyzeVision, generateReport, analyzeClothingVision, generateSingleConsult, generateCompareConsult }
+/**
+ * 服装类别快速识别（轻量级，只返回类别）
+ * images: [{ imageBase64?: string, imageUrl?: string }]
+ */
+async function detectCategory(images) {
+  const prompt = `请识别这件服饰的类别，只能从以下选项中选择一个返回：上衣、裤子、半裙、连衣裙、外套、衬衫、T恤、针织衫、卫衣、风衣、大衣、羽绒服、牛仔、其他
+
+直接返回类别名称，不要输出任何其他文字。`
+
+  const content = []
+  for (const img of images) {
+    if (img.imageBase64) {
+      content.push({
+        type: 'image_url',
+        image_url: { url: img.imageBase64.startsWith('data:') ? img.imageBase64 : `data:image/jpeg;base64,${img.imageBase64}` }
+      })
+    } else if (img.imageUrl) {
+      content.push({
+        type: 'image_url',
+        image_url: { url: img.imageUrl }
+      })
+    }
+  }
+  content.push({ type: 'text', text: prompt })
+
+  try {
+    const response = await axios.post(
+      BASE_URL,
+      {
+        model: process.env.QWEN_VL_MODEL || 'qwen-vl-max',
+        messages: [{ role: 'user', content }],
+        temperature: 0.1,
+        top_p: 0.8,
+        max_tokens: 20
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${QWEN_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 30000
+      }
+    )
+
+    const result = response.data?.choices?.[0]?.message?.content?.trim()
+    if (!result) throw new Error('VL模型返回为空')
+    console.log('[穿搭咨询] 类别识别结果:', result)
+    return result
+  } catch (err) {
+    console.error('服装类别识别失败:', err.response?.data || err.message)
+    throw new Error(err.response?.data?.error?.message || err.message)
+  }
+}
+
+module.exports = { analyzeVision, generateReport, analyzeClothingVision, generateSingleConsult, generateCompareConsult, detectCategory }

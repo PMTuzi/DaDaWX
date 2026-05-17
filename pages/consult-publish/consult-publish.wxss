@@ -43,6 +43,15 @@
   color: #e74c3c;
 }
 
+.ai-badge {
+  font-size: 20rpx;
+  color: #e8a87c;
+  background: rgba(232, 168, 124, 0.12);
+  padding: 2rpx 12rpx;
+  border-radius: 8rpx;
+  margin-left: 12rpx;
+}
+
 .label-hint {
   font-size: 22rpx;
   color: #999;

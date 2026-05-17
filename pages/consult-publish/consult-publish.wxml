@@ -41,10 +41,11 @@
       <view class="section-label">
         <text class="label-text">服饰类别</text>
         <text class="label-required">*</text>
+        <text class="ai-badge" wx:if="{{categoryDetected}}">AI识别</text>
       </view>
       <picker mode="selector" range="{{categoryOptions}}" value="{{categoryIndex}}" bindchange="onCategoryChange">
         <view class="picker-value {{category ? '' : 'placeholder'}}">
-          {{category || '请选择服饰类别'}}
+          {{category || '上传图片后AI自动识别'}}
           <text class="picker-arrow">▼</text>
         </view>
       </picker>

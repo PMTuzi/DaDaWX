@@ -3,7 +3,7 @@ const express = require('express')
 const router = express.Router()
 const fs = require('fs')
 const path = require('path')
-const { analyzeClothingVision, generateSingleConsult, generateCompareConsult } = require('../services/qwen')
+const { analyzeClothingVision, generateSingleConsult, generateCompareConsult, detectCategory } = require('../services/qwen')
 const { validateSingleResult, validateCompareResult, safeMergeSingleResult, safeMergeCompareResult } = require('../utils/consult-schema')
 
 // 将本地服务器URL转为base64（兼容局域网IP）
@@ -111,6 +111,23 @@ router.post('/generate-compare-consult', async (req, res) => {
     console.error('[穿搭咨询] 多选一决策失败:', err.message)
     const merged = safeMergeCompareResult(null)
     res.json({ code: 0, data: merged })
+  }
+})
+
+// 服饰类别快速识别
+router.post('/detect-category', async (req, res) => {
+  try {
+    const { images } = req.body
+    if (!images || !Array.isArray(images) || images.length === 0) {
+      return res.status(400).json({ code: -1, message: '请上传至少一张图片' })
+    }
+
+    const resolvedImages = images.map(resolveLocalImage)
+    const category = await detectCategory(resolvedImages)
+    res.json({ code: 0, data: { category } })
+  } catch (err) {
+    console.error('[穿搭咨询] 类别识别失败:', err.message)
+    res.status(500).json({ code: -1, message: err.message || '类别识别失败' })
   }
 })
 

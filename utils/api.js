@@ -38,6 +38,7 @@ const API = {
   analyzeClothingVision: '/api/consult/analyze-clothing-vision',
   generateSingleConsult: '/api/consult/generate-single-consult',
   generateCompareConsult: '/api/consult/generate-compare-consult',
+  detectCategory: '/api/consult/detect-category',
 }
 
 // HTTP 请求封装

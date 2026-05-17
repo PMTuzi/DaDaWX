@@ -5,6 +5,9 @@ App({
     logs.unshift(Date.now())
     wx.setStorageSync('logs', logs)
   },
+  onError(err) {
+    console.error('[App] 全局错误:', err)
+  },
   globalData: {
     userInfo: null,
     latestReport: null,

@@ -1,4 +1,5 @@
 // pages/consult-publish/consult-publish.js
+const { request, API } = require('../../utils/api')
 
 Page({
   data: {
@@ -10,9 +11,10 @@ Page({
     category: '',
     categoryIndex: -1,
     categoryOptions: ['上衣', '裤子', '半裙', '连衣裙', '外套', '衬衫', 'T恤', '针织衫', '卫衣', '风衣', '大衣', '羽绒服', '牛仔', '其他'],
+    categoryDetected: false, // AI是否已识别类别
     priceRange: '',
     priceRangeIndex: -1,
-    priceRangeOptions: ['50元以下', '50-100元', '100-200元', '200-500元', '500-1000元', '1000-2000元', '2000元以上'],
+    priceRangeOptions: ['100元以下', '100-300元', '300-500元', '500-1000元', '1000元以上'],
     // 身型特点（多选 0-3）
     bodyFeatures: [],
     bodyFeatureOptions: ['肩宽', '窄肩', '微胖', '偏瘦', '腿粗', '腿短', '腰粗', '小个子', '高个子', '手臂粗'],
@@ -44,7 +46,7 @@ Page({
   },
 
   onLoad() {
-    wx.setNavigationBarTitle({ title: '穿搭决策' })
+    try { wx.setNavigationBarTitle({ title: '穿搭决策' }) } catch (e) {}
   },
 
   // ===== 图片相关 =====
@@ -52,42 +54,133 @@ Page({
     const remaining = this.data.maxImages - this.data.images.length
     if (remaining <= 0) return
 
-    wx.chooseMedia({
-      count: remaining,
-      mediaType: ['image'],
-      sourceType: ['album', 'camera'],
-      camera: 'front',
-      sizeType: ['compressed'],
-      success: (res) => {
-        const newImages = []
-        res.tempFiles.forEach(f => {
-          if (f.size < 5 * 1024) {
-            wx.showToast({ title: '图片太小，请重新选择', icon: 'none' })
-            return
-          }
-          newImages.push({
-            path: f.tempFilePath,
-            thumb: f.tempFilePath,
-            size: f.size
-          })
-        })
-        if (newImages.length === 0) return
+    try {
+      wx.chooseMedia({
+        count: remaining,
+        mediaType: ['image'],
+        sourceType: ['album', 'camera'],
+        success: (res) => {
+          try {
+            const newImages = []
+            res.tempFiles.forEach(f => {
+              if (f.size < 5 * 1024) {
+                wx.showToast({ title: '图片太小，请重新选择', icon: 'none' })
+                return
+              }
+              newImages.push({
+                path: f.tempFilePath,
+                thumb: f.tempFilePath,
+                size: f.size
+              })
+            })
+            if (newImages.length === 0) return
 
-        const images = [...this.data.images, ...newImages]
-        this.setData({ images })
+            const images = [...this.data.images, ...newImages]
+            this.setData({ images })
 
-        // 多张图片时动态扩展 priceList
-        if (images.length > 1) {
-          const pl = [...this.data.priceList]
-          const pli = [...this.data.priceListIndexes]
-          while (pl.length < images.length) {
-            pl.push('')
-            pli.push(-1)
+            // 多张图片时动态扩展 priceList
+            if (images.length > 1) {
+              const pl = [...this.data.priceList]
+              const pli = [...this.data.priceListIndexes]
+              while (pl.length < images.length) {
+                pl.push('')
+                pli.push(-1)
+              }
+              this.setData({ priceList: pl, priceListIndexes: pli })
+            }
+
+            // 单张图片时自动识别类别
+            if (images.length === 1 && !this.data.category) {
+              this.autoDetectCategory(images[0].path).catch(err => {
+                console.warn('[consult-publish] autoDetectCategory 未捕获:', err)
+              })
+            }
+          } catch (e) {
+            console.error('[consult-publish] 选择图片回调出错:', e)
+            wx.showToast({ title: '图片处理失败', icon: 'none' })
           }
-          this.setData({ priceList: pl, priceListIndexes: pli })
+        },
+        fail: (err) => {
+          // 用户取消选择不算错误
+          if (err.errMsg && err.errMsg.indexOf('cancel') > -1) return
+          console.warn('[consult-publish] chooseMedia 失败:', err.errMsg)
+        }
+      })
+    } catch (e) {
+      // chooseMedia API 不可用时的兼容
+      console.warn('[consult-publish] chooseMedia 不可用，尝试 chooseImage:', e)
+      wx.chooseImage({
+        count: remaining,
+        sourceType: ['album', 'camera'],
+        success: (res) => {
+          try {
+            const newImages = res.tempFiles.map(f => ({
+              path: f.tempFilePath,
+              thumb: f.tempFilePath,
+              size: f.size
+            }))
+            if (newImages.length === 0) return
+
+            const images = [...this.data.images, ...newImages]
+            this.setData({ images })
+
+            if (images.length > 1) {
+              const pl = [...this.data.priceList]
+              const pli = [...this.data.priceListIndexes]
+              while (pl.length < images.length) {
+                pl.push('')
+                pli.push(-1)
+              }
+              this.setData({ priceList: pl, priceListIndexes: pli })
+            }
+
+            if (images.length === 1 && !this.data.category) {
+              this.autoDetectCategory(images[0].path).catch(() => {})
+            }
+          } catch (e2) {
+            console.error('[consult-publish] chooseImage 回调出错:', e2)
+          }
+        },
+        fail: () => {}
+      })
+    }
+  },
+
+  // AI自动识别服饰类别
+  async autoDetectCategory(imagePath) {
+    try { this.setData({ categoryDetected: false }) } catch (e) {}
+    try {
+      // 先尝试上传图片，失败则用本地路径
+      let imageUrl = imagePath
+      try {
+        imageUrl = await this.uploadImage(imagePath)
+      } catch (e) {
+        // 上传失败，用本地路径
+      }
+
+      const result = await request(API.detectCategory, {
+        method: 'POST',
+        data: { images: [{ imageUrl }] },
+        timeout: 15000
+      })
+
+      if (result && result.code === 0 && result.data && result.data.category) {
+        const detected = result.data.category
+        const options = this.data.categoryOptions
+        const matchIndex = options.findIndex(opt => detected.includes(opt) || opt.includes(detected))
+        if (matchIndex > -1) {
+          try {
+            this.setData({
+              category: options[matchIndex],
+              categoryIndex: matchIndex,
+              categoryDetected: true
+            })
+          } catch (e) {}
         }
       }
-    })
+    } catch (err) {
+      console.warn('[consult-publish] 类别识别失败:', err && err.message)
+    }
   },
 
   onRemoveImage(e) {
@@ -118,7 +211,8 @@ Page({
   onCategoryChange(e) {
     this.setData({
       categoryIndex: e.detail.value,
-      category: this.data.categoryOptions[e.detail.value]
+      category: this.data.categoryOptions[e.detail.value],
+      categoryDetected: false
     })
   },
 
