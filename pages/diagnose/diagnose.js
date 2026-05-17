@@ -30,6 +30,7 @@ Page({
       count: 1,
       mediaType: ['image'],
       sourceType: ['camera'],
+      camera: 'front',
       sizeType: ['compressed'],
       success(res) {
         that.setData({ photoUrl: res.tempFiles[0].tempFilePath, guideVisible: false })
@@ -86,63 +87,37 @@ Page({
     this.setData({ userTags })
   },
 
-  // 将图片转为 base64（先压缩，确保不超过微信请求限制）
-  imageToBase64(filePath) {
+  // 上传图片到服务器（避免前端 base64 过大导致真机请求失败）
+  uploadImage(filePath) {
     return new Promise((resolve, reject) => {
-      // 微信 wx.request POST body 上限约 1MB，base64 需控制在 800KB 以内
-      const MAX_BASE64_SIZE = 800 * 1024
-
-      const tryCompress = (quality, attempt) => {
-        wx.compressImage({
-          src: filePath,
-          quality,
-          success: (compressRes) => {
-            const compressedPath = compressRes.tempFilePath
-            wx.getFileSystemManager().readFile({
-              filePath: compressedPath,
-              encoding: 'base64',
-              success(res) {
-                const ext = compressedPath.split('.').pop().toLowerCase()
-                const mimeMap = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp' }
-                const mime = mimeMap[ext] || 'image/jpeg'
-                const base64Str = `data:${mime};base64,${res.data}`
-                console.log(`[diagnose] 压缩质量:${quality} base64大小:${(base64Str.length / 1024).toFixed(0)}KB (尝试${attempt})`)
-
-                if (base64Str.length > MAX_BASE64_SIZE && attempt < 3) {
-                  // 仍然太大，继续降低质量
-                  console.log(`[diagnose] base64过大，降低质量重试`)
-                  tryCompress(Math.max(10, quality - 20), attempt + 1)
-                } else {
-                  resolve(base64Str)
-                }
-              },
-              fail: reject
-            })
-          },
-          fail: () => {
-            if (attempt < 3) {
-              // 压缩失败，直接读取原图
-              wx.getFileSystemManager().readFile({
-                filePath,
-                encoding: 'base64',
-                success(res) {
-                  const ext = filePath.split('.').pop().toLowerCase()
-                  const mimeMap = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp' }
-                  const mime = mimeMap[ext] || 'image/jpeg'
-                  const base64Str = `data:${mime};base64,${res.data}`
-                  console.log(`[diagnose] 原图base64大小:${(base64Str.length / 1024).toFixed(0)}KB`)
-                  resolve(base64Str)
-                },
-                fail: reject
-              })
-            } else {
-              reject(new Error('图片压缩失败'))
+      const { CONFIG } = require('../../utils/api')
+      wx.uploadFile({
+        url: CONFIG.baseUrl + '/api/upload',
+        filePath,
+        name: 'image',
+        timeout: 30000,
+        success(res) {
+          if (res.statusCode === 200) {
+            try {
+              const data = JSON.parse(res.data)
+              if (data.code === 0) {
+                console.log('[diagnose] 图片上传成功:', data.data.url)
+                resolve(data.data.url)
+              } else {
+                reject(new Error(data.message || '上传失败'))
+              }
+            } catch (e) {
+              reject(new Error('上传响应解析失败'))
             }
+          } else {
+            reject(new Error(`上传失败(${res.statusCode})`))
           }
-        })
-      }
-
-      tryCompress(50, 1)
+        },
+        fail(err) {
+          console.error('[diagnose] 图片上传失败:', err.errMsg)
+          reject(new Error(err.errMsg || '上传失败'))
+        }
+      })
     })
   },
 
@@ -156,18 +131,17 @@ Page({
     this.setData({ isUploading: true })
     const that = this
 
-    // 直接转 base64，通过 storage 传递给 analyzing 页面
-    this.imageToBase64(this.data.photoUrl).then(base64Str => {
-      wx.setStorageSync('tempImageBase64', base64Str)
+    // 上传图片到服务器，避免 base64 过大导致真机失败
+    this.uploadImage(this.data.photoUrl).then(imageUrl => {
       that.setData({ isUploading: false })
 
       wx.navigateTo({
-        url: `/pages/analyzing/analyzing?hasBase64=1&photoType=${that.data.photoType}&tags=${encodeURIComponent(JSON.stringify(that.data.userTags))}`
+        url: `/pages/analyzing/analyzing?imageUrl=${encodeURIComponent(imageUrl)}&photoType=${that.data.photoType}&tags=${encodeURIComponent(JSON.stringify(that.data.userTags))}`
       })
     }).catch(err => {
-      console.error('[diagnose] base64转换失败:', err)
+      console.error('[diagnose] 图片上传失败:', err)
       that.setData({ isUploading: false })
-      wx.showToast({ title: '图片处理失败，请重试', icon: 'none' })
+      wx.showToast({ title: '图片上传失败，请重试', icon: 'none' })
     })
   }
 })

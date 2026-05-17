@@ -26,11 +26,11 @@ Page({
   onLoad(options) {
     const imageUrl = decodeURIComponent(options.imageUrl || '')
     const ossUrl = decodeURIComponent(options.ossUrl || '')
-    // 从 storage 读取 base64（由 diagnose 页面存入）
+    // 从 globalData 读取 base64（由 diagnose 页面存入，避免 storage 1MB 限制）
     let imageBase64 = ''
     if (options.hasBase64 === '1') {
-      imageBase64 = wx.getStorageSync('tempImageBase64') || ''
-      wx.removeStorageSync('tempImageBase64')
+      imageBase64 = getApp().globalData.tempImageBase64 || ''
+      getApp().globalData.tempImageBase64 = ''
     }
     this.setData({
       imageUrl,

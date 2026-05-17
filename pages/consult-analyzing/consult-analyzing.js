@@ -40,7 +40,7 @@ Page({
   },
 
   async startAnalysis() {
-    const consultData = wx.getStorageSync('consultData')
+    const consultData = getApp().globalData.consultData || wx.getStorageSync('consultData')
     if (!consultData || !consultData.images || consultData.images.length === 0) {
       this.onError('未找到咨询数据，请重新提交')
       return
@@ -186,6 +186,7 @@ Page({
     wx.setStorageSync('consultRecords', records)
 
     wx.removeStorageSync('consultData')
+    getApp().globalData.consultData = null
 
     return record
   },

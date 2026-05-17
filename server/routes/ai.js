@@ -15,20 +15,20 @@ router.post('/analyze-vision', async (req, res) => {
     // 优先使用 base64
     let imageInput = imageBase64
 
-    // 如果是本地服务器URL，读取文件转base64
+    // 如果是本地服务器URL（localhost 或局域网IP），读取文件转base64
     if (!imageInput && imageUrl) {
-      const localhostMatch = imageUrl.match(/\/uploads\/(.+)$/)
-      if (localhostMatch) {
+      const localMatch = imageUrl.match(/\/uploads\/(.+)$/)
+      if (localMatch) {
         const fs = require('fs')
         const path = require('path')
-        const filePath = path.join(__dirname, '..', 'uploads', localhostMatch[1])
+        const filePath = path.join(__dirname, '..', 'uploads', localMatch[1])
         if (fs.existsSync(filePath)) {
           const fileBuffer = fs.readFileSync(filePath)
           const ext = path.extname(filePath).toLowerCase()
           const mimeMap = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp' }
           const mime = mimeMap[ext] || 'image/jpeg'
           imageInput = `data:${mime};base64,${fileBuffer.toString('base64')}`
-          console.log(`[AI] 本地图片转base64: ${localhostMatch[1]}, 大小: ${(fileBuffer.length / 1024).toFixed(1)}KB`)
+          console.log(`[AI] 本地图片转base64: ${localMatch[1]}, 大小: ${(fileBuffer.length / 1024).toFixed(1)}KB`)
         }
       }
     }

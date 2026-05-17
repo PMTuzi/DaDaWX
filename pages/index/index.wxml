@@ -80,25 +80,4 @@
     </view>
   </view>
 
-  <!-- 用户案例轮播 -->
-  <view class="cases-section">
-    <view class="section-title">用户案例</view>
-    <swiper class="case-swiper" indicator-dots indicator-color="rgba(0,0,0,0.2)" indicator-active-color="#e8a87c" circular autoplay interval="4000">
-      <swiper-item wx:for="{{cases}}" wx:key="name">
-        <view class="case-card card">
-          <view class="case-avatar">{{item.avatar}}</view>
-          <view class="case-info">
-            <text class="case-name">{{item.name}}</text>
-            <view class="case-score">
-              <text class="case-score-num">{{item.score}}</text>
-              <text class="case-score-label">综合评分</text>
-            </view>
-            <view class="case-tags">
-              <text class="tag tag-warm" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
-            </view>
-          </view>
-        </view>
-      </swiper-item>
-    </swiper>
-  </view>
 </view>

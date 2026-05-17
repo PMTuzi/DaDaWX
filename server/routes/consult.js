@@ -1,8 +1,31 @@
 // 穿搭咨询路由
 const express = require('express')
 const router = express.Router()
+const fs = require('fs')
+const path = require('path')
 const { analyzeClothingVision, generateSingleConsult, generateCompareConsult } = require('../services/qwen')
 const { validateSingleResult, validateCompareResult, safeMergeSingleResult, safeMergeCompareResult } = require('../utils/consult-schema')
+
+// 将本地服务器URL转为base64（兼容局域网IP）
+function resolveLocalImage(img) {
+  // 已经是 base64，直接返回
+  if (img.imageBase64) return img
+  if (!img.imageUrl) return img
+
+  const localMatch = img.imageUrl.match(/\/uploads\/(.+)$/)
+  if (localMatch) {
+    const filePath = path.join(__dirname, '..', 'uploads', localMatch[1])
+    if (fs.existsSync(filePath)) {
+      const fileBuffer = fs.readFileSync(filePath)
+      const ext = path.extname(filePath).toLowerCase()
+      const mimeMap = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp' }
+      const mime = mimeMap[ext] || 'image/jpeg'
+      return { imageBase64: `data:${mime};base64,${fileBuffer.toString('base64')}` }
+    }
+  }
+  // 非本地URL，保留原样
+  return img
+}
 
 // 服饰视觉分析
 router.post('/analyze-clothing-vision', async (req, res) => {
@@ -12,7 +35,8 @@ router.post('/analyze-clothing-vision', async (req, res) => {
       return res.status(400).json({ code: -1, message: '请上传至少一张图片' })
     }
 
-    const result = await analyzeClothingVision(images, consultType)
+    const resolvedImages = images.map(resolveLocalImage)
+    const result = await analyzeClothingVision(resolvedImages, consultType)
     res.json({ code: 0, data: { features: result } })
   } catch (err) {
     console.error('[穿搭咨询] 视觉分析失败:', err.message)

@@ -1,5 +1,4 @@
 // pages/consult-publish/consult-publish.js
-const MAX_BASE64_SIZE = 800 * 1024
 
 Page({
   data: {
@@ -85,6 +84,7 @@ Page({
       count: remaining,
       mediaType: ['image'],
       sourceType: ['album', 'camera'],
+      camera: 'front',
       sizeType: ['compressed'],
       success: (res) => {
         const newImages = []
@@ -246,11 +246,11 @@ Page({
     this.setData({ submitting: true })
 
     try {
-      // 图片转base64
+      // 上传图片到服务器（避免 base64 过大导致真机请求失败）
       const imageDataList = []
       for (const img of this.data.images) {
-        const base64 = await this.imageToBase64(img.path)
-        imageDataList.push({ imageBase64: base64 })
+        const url = await this.uploadImage(img.path)
+        imageDataList.push({ imageUrl: url })
       }
 
       // 组装咨询数据
@@ -272,7 +272,8 @@ Page({
         consultData.reason = this.data.reason
       }
 
-      wx.setStorageSync('consultData', consultData)
+      // 用 globalData 传递大图片数据，避免 storage 1MB 限制
+      getApp().globalData.consultData = consultData
 
       wx.navigateTo({
         url: `/pages/consult-analyzing/consult-analyzing?type=${this.data.type}`
@@ -285,38 +286,34 @@ Page({
     }
   },
 
-  imageToBase64(filePath) {
+  uploadImage(filePath) {
     return new Promise((resolve, reject) => {
-      const tryCompress = (quality, attempt) => {
-        wx.compressImage({
-          src: filePath,
-          quality,
-          success: (compRes) => {
-            wx.getFileSystemManager().readFile({
-              filePath: compRes.tempFilePath,
-              encoding: 'base64',
-              success: (readRes) => {
-                let base64Str = readRes.data
-                if (base64Str.length > MAX_BASE64_SIZE && attempt < 3) {
-                  tryCompress(Math.max(10, quality - 20), attempt + 1)
-                } else {
-                  resolve(base64Str)
-                }
-              },
-              fail: reject
-            })
-          },
-          fail: () => {
-            wx.getFileSystemManager().readFile({
-              filePath,
-              encoding: 'base64',
-              success: (readRes) => resolve(readRes.data),
-              fail: reject
-            })
+      const { CONFIG } = require('../../utils/api')
+      wx.uploadFile({
+        url: CONFIG.baseUrl + '/api/upload',
+        filePath,
+        name: 'image',
+        timeout: 30000,
+        success(res) {
+          if (res.statusCode === 200) {
+            try {
+              const data = JSON.parse(res.data)
+              if (data.code === 0) {
+                resolve(data.data.url)
+              } else {
+                reject(new Error(data.message || '上传失败'))
+              }
+            } catch (e) {
+              reject(new Error('上传响应解析失败'))
+            }
+          } else {
+            reject(new Error(`上传失败(${res.statusCode})`))
           }
-        })
-      }
-      tryCompress(50, 1)
+        },
+        fail(err) {
+          reject(new Error(err.errMsg || '上传失败'))
+        }
+      })
     })
   }
 })

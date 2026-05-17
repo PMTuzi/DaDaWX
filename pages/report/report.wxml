@@ -31,33 +31,32 @@
   <!-- 板块内容 -->
   <swiper class="section-content" current="{{currentSection}}" bindchange="onSwiperChange">
 
-    <!-- 板块1: 综合评分 -->
+    <!-- 板块1: 综合建议 -->
     <swiper-item>
       <view class="section-body">
-        <view class="card">
-          <view class="card-title">综合形象评分</view>
-          <view class="score-breakdown">
-            <view class="breakdown-item">
-              <text class="bd-label">面部</text>
-              <view class="score-bar"><view class="score-bar-inner" style="width: 87%"></view></view>
-              <text class="bd-score">35%</text>
-            </view>
-            <view class="breakdown-item">
-              <text class="bd-label">肤色</text>
-              <view class="score-bar"><view class="score-bar-inner" style="width: 75%"></view></view>
-              <text class="bd-score">30%</text>
-            </view>
-            <view class="breakdown-item">
-              <text class="bd-label">风格</text>
-              <view class="score-bar"><view class="score-bar-inner" style="width: 67%"></view></view>
-              <text class="bd-score">20%</text>
-            </view>
-            <view class="breakdown-item">
-              <text class="bd-label">身形</text>
-              <view class="score-bar"><view class="score-bar-inner" style="width: 50%"></view></view>
-              <text class="bd-score">15%</text>
+        <view class="card summary-card">
+          <view class="card-title">核心结论</view>
+          <text class="summary-text">{{report.summary.coreConclusion}}</text>
+        </view>
+
+        <view class="card summary-card">
+          <view class="card-title">改造优先级</view>
+          <text class="summary-text">{{report.summary.priorityAdvice}}</text>
+        </view>
+
+        <view class="card summary-card" wx:if="{{report.summary.dailyTips && report.summary.dailyTips.length}}">
+          <view class="card-title">日常小贴士</view>
+          <view class="tips-list">
+            <view class="tip-item" wx:for="{{report.summary.dailyTips}}" wx:key="*this">
+              <text class="tip-bullet">💡</text>
+              <text class="tip-text">{{item}}</text>
             </view>
           </view>
+        </view>
+
+        <!-- 重新诊断 -->
+        <view class="card">
+          <button class="btn-primary" bindtap="onReDiagnose">重新诊断</button>
         </view>
       </view>
     </swiper-item>
@@ -487,35 +486,6 @@
       </view>
     </swiper-item>
 
-    <!-- 板块9: 总结建议 -->
-    <swiper-item>
-      <view class="section-body">
-        <view class="card summary-card">
-          <view class="card-title">核心结论</view>
-          <text class="summary-text">{{report.summary.coreConclusion}}</text>
-        </view>
-
-        <view class="card summary-card">
-          <view class="card-title">改造优先级</view>
-          <text class="summary-text">{{report.summary.priorityAdvice}}</text>
-        </view>
-
-        <view class="card summary-card" wx:if="{{report.summary.dailyTips && report.summary.dailyTips.length}}">
-          <view class="card-title">日常小贴士</view>
-          <view class="tips-list">
-            <view class="tip-item" wx:for="{{report.summary.dailyTips}}" wx:key="*this">
-              <text class="tip-bullet">💡</text>
-              <text class="tip-text">{{item}}</text>
-            </view>
-          </view>
-        </view>
-
-        <!-- 重新诊断 -->
-        <view class="card">
-          <button class="btn-primary" bindtap="onReDiagnose">重新诊断</button>
-        </view>
-      </view>
-    </swiper-item>
   </swiper>
 
   <!-- 底部分享栏 -->
