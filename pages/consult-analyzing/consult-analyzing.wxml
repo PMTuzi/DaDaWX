@@ -1,0 +1,32 @@
+<!--pages/consult-analyzing/consult-analyzing.wxml-->
+<view class="page-analyzing">
+  <!-- 进度环 -->
+  <view class="progress-ring">
+    <view class="ring-container">
+      <view class="ring-bg"></view>
+      <view class="ring-progress" style="background: conic-gradient(var(--accent) {{progress * 3.6}}deg, #eee {{progress * 3.6}}deg)"></view>
+      <view class="ring-inner">
+        <text class="ring-num">{{progress}}</text>
+        <text class="ring-unit">%</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 步骤列表 -->
+  <view class="steps-list">
+    <view class="step-item {{index <= currentStep ? 'active' : ''}} {{index < currentStep ? 'done' : ''}}"
+      wx:for="{{steps}}" wx:key="index">
+      <view class="step-dot">
+        <text wx:if="{{index < currentStep}}">✓</text>
+        <text wx:else>{{item.icon}}</text>
+      </view>
+      <view class="step-label">{{item.label}}</view>
+    </view>
+  </view>
+
+  <!-- 提示文案 -->
+  <view class="analyzing-tip">
+    <text class="tip-text">AI正在深度分析中，请稍候...</text>
+    <text class="tip-sub">通常需要30-60秒</text>
+  </view>
+</view>

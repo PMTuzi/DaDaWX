@@ -42,12 +42,14 @@ const aiRoutes = require('./routes/ai')
 const reportRoutes = require('./routes/report')
 const userRoutes = require('./routes/user')
 const favoriteRoutes = require('./routes/favorite')
+const consultRoutes = require('./routes/consult')
 
 app.use('/api/oss', ossRoutes)
 app.use('/api/ai', aiRoutes)
 app.use('/api/report', reportRoutes)
 app.use('/api/user', userRoutes)
 app.use('/api/favorite', favoriteRoutes)
+app.use('/api/consult', consultRoutes)
 
 // 首页
 app.get('/', (req, res) => {
@@ -63,6 +65,9 @@ app.get('/', (req, res) => {
       '报告列表': 'GET /api/report/list/all',
       '收藏切换': 'POST /api/favorite/toggle',
       '收藏列表': 'GET /api/favorite/list',
+      '穿搭视觉分析': 'POST /api/consult/analyze-clothing-vision',
+      '单品决策': 'POST /api/consult/generate-single-consult',
+      '多选一决策': 'POST /api/consult/generate-compare-consult',
       '健康检查': 'GET /api/health'
     }
   })

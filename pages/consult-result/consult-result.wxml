@@ -1,0 +1,195 @@
+<!--pages/consult-result/consult-result.wxml-->
+<view class="page-result" wx:if="{{record}}">
+  <!-- 顶部决策结论 -->
+  <view class="verdict-section {{record.verdict === '建议退货' || record.verdict === '建议不买' ? 'verdict-reject' : 'verdict-accept'}}">
+    <view class="verdict-label">{{isCompare ? '最优推荐' : 'AI决策'}}</view>
+    <view class="verdict-text">{{record.verdict}}</view>
+    <view class="verdict-score" wx:if="{{record.totalScore}}">
+      <text class="score-big">{{record.totalScore}}</text>
+      <text class="score-max">/10</text>
+    </view>
+  </view>
+
+  <!-- ===== 单品模式 ===== -->
+  <block wx:if="{{!isCompare}}">
+    <!-- 雷达图 -->
+    <view class="card radar-card">
+      <view class="card-title">4维评分雷达图</view>
+      <canvas type="2d" id="radarCanvas" class="radar-canvas"></canvas>
+    </view>
+
+    <!-- 各维度详情 -->
+    <view class="card">
+      <view class="card-title">各维度分析</view>
+      <view class="dimension-list">
+        <!-- 版型适合度 -->
+        <view class="dimension-item">
+          <view class="dim-header">
+            <text class="dim-name">✂️ 版型适合度</text>
+            <text class="dim-score">{{record.scores.fitScore}}/10</text>
+          </view>
+          <view class="score-bar">
+            <view class="score-bar-inner" style="width: {{record.scores.fitScore * 10}}%"></view>
+          </view>
+          <view class="dim-detail" wx:if="{{record.details && record.details.fitScore}}">
+            <view class="detail-pros">👍 {{record.details.fitScore.pros}}</view>
+            <view class="detail-cons">⚠️ {{record.details.fitScore.cons}}</view>
+          </view>
+        </view>
+        <!-- 颜色匹配度 -->
+        <view class="dimension-item">
+          <view class="dim-header">
+            <text class="dim-name">🎨 颜色匹配度</text>
+            <text class="dim-score">{{record.scores.colorScore}}/10</text>
+          </view>
+          <view class="score-bar">
+            <view class="score-bar-inner" style="width: {{record.scores.colorScore * 10}}%"></view>
+          </view>
+          <view class="dim-detail" wx:if="{{record.details && record.details.colorScore}}">
+            <view class="detail-pros">👍 {{record.details.colorScore.pros}}</view>
+            <view class="detail-cons">⚠️ {{record.details.colorScore.cons}}</view>
+          </view>
+        </view>
+        <!-- 质感做工 -->
+        <view class="dimension-item">
+          <view class="dim-header">
+            <text class="dim-name">💎 质感做工</text>
+            <text class="dim-score">{{record.scores.qualityScore}}/10</text>
+          </view>
+          <view class="score-bar">
+            <view class="score-bar-inner" style="width: {{record.scores.qualityScore * 10}}%"></view>
+          </view>
+          <view class="dim-detail" wx:if="{{record.details && record.details.qualityScore}}">
+            <view class="detail-pros">👍 {{record.details.qualityScore.pros}}</view>
+            <view class="detail-cons">⚠️ {{record.details.qualityScore.cons}}</view>
+          </view>
+        </view>
+        <!-- 性价比 -->
+        <view class="dimension-item">
+          <view class="dim-header">
+            <text class="dim-name">💰 性价比</text>
+            <text class="dim-score">{{record.scores.valueScore}}/10</text>
+          </view>
+          <view class="score-bar">
+            <view class="score-bar-inner" style="width: {{record.scores.valueScore * 10}}%"></view>
+          </view>
+          <view class="dim-detail" wx:if="{{record.details && record.details.valueScore}}">
+            <view class="detail-pros">👍 {{record.details.valueScore.pros}}</view>
+            <view class="detail-cons">⚠️ {{record.details.valueScore.cons}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 穿搭优化建议 -->
+    <view class="card" wx:if="{{record.tips && record.tips.length > 0}}">
+      <view class="card-title">穿搭优化建议</view>
+      <view class="tips-list">
+        <view class="tip-item" wx:for="{{record.tips}}" wx:key="*this">
+          <text class="tip-num">{{index + 1}}</text>
+          <text class="tip-text">{{item}}</text>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- ===== 对比模式 ===== -->
+  <block wx:if="{{isCompare}}">
+    <!-- 最终推荐 -->
+    <view class="card final-choice-card" wx:if="{{record.finalChoice}}">
+      <view class="card-title">🏆 最终推荐</view>
+      <view class="final-choice">
+        <view class="choice-label">{{record.finalChoice.label}}</view>
+        <view class="choice-reason">{{record.finalChoice.reason}}</view>
+      </view>
+    </view>
+
+    <!-- 雷达图 -->
+    <view class="card radar-card">
+      <view class="card-title">6维评分雷达图（{{record.rankings[0].label}}）</view>
+      <canvas type="2d" id="radarCanvas" class="radar-canvas"></canvas>
+    </view>
+
+    <!-- 排名 -->
+    <view class="card">
+      <view class="card-title">综合排名</view>
+      <view class="rank-list">
+        <view class="rank-item {{index === 0 ? 'rank-top' : ''}}" wx:for="{{record.rankings}}" wx:key="index">
+          <view class="rank-badge">{{index + 1}}</view>
+          <text class="rank-label">{{item.label}}</text>
+          <text class="rank-score">{{item.totalScore}}分</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 横向对比表格 -->
+    <view class="card">
+      <view class="card-title">6维横向对比</view>
+      <view class="compare-table">
+        <view class="table-header">
+          <view class="table-cell cell-dim" wx:for="{{compareHeaders}}" wx:key="*this">
+            {{item}}
+          </view>
+        </view>
+        <view class="table-row" wx:for="{{compareRows}}" wx:key="dimension">
+          <view class="table-cell cell-dim">{{item.dimension}}</view>
+          <view class="table-cell" wx:for="{{item.values}}" wx:key="*this"
+            style="color: {{item >= 8 ? '#27ae60' : item >= 6 ? '#f39c12' : '#e74c3c'}}">
+            {{item}}
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 各款优缺点 -->
+    <view class="card" wx:if="{{record.comparisons}}">
+      <view class="card-title">各款优缺点</view>
+      <view class="comparison-list">
+        <view class="comparison-item" wx:for="{{record.comparisons}}" wx:key="index">
+          <view class="comp-label">{{item.label}}</view>
+          <view class="comp-pros">👍 {{item.pros}}</view>
+          <view class="comp-cons">⚠️ {{item.cons}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 最佳场景 -->
+    <view class="card" wx:if="{{record.bestScenarios}}">
+      <view class="card-title">最佳使用场景</view>
+      <view class="scenario-list">
+        <view class="scenario-item" wx:for="{{record.bestScenarios}}" wx:key="index">
+          <text class="scenario-label">{{item.label}}</text>
+          <text class="scenario-desc">{{item.scenario}}</text>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- ===== 搭搭评论（通用） ===== -->
+  <view class="card dada-comment-card" wx:if="{{record.dadaComment}}">
+    <view class="card-title">💬 搭搭说</view>
+    <view class="dada-avatar">🐱</view>
+    <view class="dada-comment">{{record.dadaComment}}</view>
+  </view>
+
+  <!-- ===== 穿搭建议（通用） ===== -->
+  <view class="card" wx:if="{{record.outfitAdvice && record.outfitAdvice.length > 0}}">
+    <view class="card-title">👗 搭配建议</view>
+    <view class="advice-list">
+      <view class="advice-item" wx:for="{{record.outfitAdvice}}" wx:key="type">
+        <view class="advice-icon">{{item.icon}}</view>
+        <view class="advice-content">
+          <view class="advice-title">{{item.title}}</view>
+          <view class="advice-desc">{{item.description}}</view>
+          <view class="advice-reason">{{item.reason}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部操作 -->
+  <view class="bottom-actions safe-bottom">
+    <button class="btn-outline action-btn" bindtap="onConsultAgain">再次咨询</button>
+    <button class="btn-primary action-btn" bindtap="onBackHome">返回首页</button>
+  </view>
+</view>

@@ -10,7 +10,10 @@
     "pages/makeup/makeup",
     "pages/mine/mine",
     "pages/reports/reports",
-    "pages/favorites/favorites"
+    "pages/favorites/favorites",
+    "pages/consult-publish/consult-publish",
+    "pages/consult-analyzing/consult-analyzing",
+    "pages/consult-result/consult-result"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -30,12 +33,6 @@
         "text": "首页",
         "iconPath": "images/tab-home.png",
         "selectedIconPath": "images/tab-home-active.png"
-      },
-      {
-        "pagePath": "pages/hairstyle/hairstyle",
-        "text": "发型",
-        "iconPath": "images/tab-hair.png",
-        "selectedIconPath": "images/tab-hair-active.png"
       },
       {
         "pagePath": "pages/outfit/outfit",

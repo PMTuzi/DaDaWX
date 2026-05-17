@@ -1,58 +1,54 @@
 <!--pages/outfit/outfit.wxml-->
 <view class="page-outfit">
-  <view class="diagnose-tip" wx:if="{{!hasReport}}" bindtap="onGoDiagnose">
-    <text class="tip-icon">📸</text>
-    <text class="tip-text">完成AI诊断后，可获得个性化穿搭推荐</text>
+  <!-- 顶部标题 -->
+  <view class="page-header">
+    <view class="header-title">穿搭决策</view>
+    <view class="header-subtitle">AI帮你做最明智的穿搭选择</view>
+  </view>
+
+  <!-- 三大功能卡片 -->
+  <view class="consult-cards">
+    <view class="consult-card" wx:for="{{consultCards}}" wx:key="type"
+      data-type="{{item.type}}" bindtap="onCardTap">
+      <view class="card-bg" style="background: {{item.gradient}}"></view>
+      <view class="card-content">
+        <view class="card-icon">{{item.icon}}</view>
+        <view class="card-title">{{item.title}}</view>
+        <view class="card-subtitle">{{item.subtitle}}</view>
+      </view>
+      <view class="card-arrow">→</view>
+    </view>
+  </view>
+
+  <!-- 新手提示 -->
+  <view class="beginner-tip" wx:if="{{!hasReport}}" bindtap="onGoDiagnose">
+    <view class="tip-badge">新</view>
+    <text class="tip-text">完成AI形象诊断后，穿搭决策将更精准匹配你的风格</text>
     <text class="tip-arrow">→</text>
   </view>
 
-  <!-- 场景筛选 -->
-  <scroll-view class="filter-bar" scroll-x enhanced show-scrollbar="{{false}}">
-    <view class="filter-item {{currentScene === item.key ? 'active' : ''}}"
-      wx:for="{{scenes}}" wx:key="key"
-      data-key="{{item.key}}" bindtap="onFilterScene">
-      {{item.name}}
+  <!-- 历史记录 -->
+  <view class="history-section" wx:if="{{showHistory}}">
+    <view class="section-header">
+      <view class="section-title">最近咨询</view>
     </view>
-  </scroll-view>
-
-  <!-- 穿搭方案列表 -->
-  <view class="outfit-list">
-    <view class="outfit-card card" wx:for="{{filteredList}}" wx:key="id">
-      <view class="outfit-header">
-        <view class="outfit-name">{{item.name}}</view>
-        <view class="outfit-score" wx:if="{{hasReport}}">
-          <text class="score-num">{{item.score}}</text>
-          <text class="score-label">适配</text>
+    <view class="history-list">
+      <view class="history-item card" wx:for="{{recentConsults}}" wx:key="id"
+        data-id="{{item.id}}" bindtap="onViewResult">
+        <view class="history-info">
+          <view class="history-type">
+            <text class="type-tag {{item.type === 'compare' ? 'tag-compare' : 'tag-single'}}">
+              {{item.type === 'buy' ? '买不买' : item.type === 'keep' ? '留不留' : '选哪个'}}
+            </text>
+          </view>
+          <view class="history-verdict">{{item.verdict || item.finalChoiceLabel || ''}}</view>
+          <view class="history-time">{{item.createTime}}</view>
+        </view>
+        <view class="history-score">
+          <text class="score-num">{{item.totalScore || '--'}}</text>
+          <text class="score-unit">分</text>
         </view>
       </view>
-
-      <!-- 色彩预览 -->
-      <view class="color-preview">
-        <view class="color-dot" wx:for="{{item.colors}}" wx:key="*this" style="background: {{item}}"></view>
-      </view>
-
-      <!-- 单品清单 -->
-      <view class="items-list">
-        <view class="item-tag" wx:for="{{item.items}}" wx:for-item="itemName" wx:key="*this">
-          {{itemName}}
-        </view>
-      </view>
-
-      <!-- 适配理由 -->
-      <view class="match-reason">
-        <text class="reason-icon">✨</text>
-        <text class="reason-text">{{item.matchReason}}</text>
-      </view>
-
-      <!-- 场景标签 -->
-      <view class="scene-tag">
-        <text class="tag tag-primary">{{item.scene === 'daily' ? '日常' : item.scene === 'work' ? '职场' : item.scene === 'date' ? '约会' : '休闲'}}</text>
-      </view>
     </view>
-  </view>
-
-  <view class="empty-state" wx:if="{{filteredList.length === 0}}">
-    <text class="empty-icon">👗</text>
-    <text class="empty-text">暂无匹配的穿搭方案</text>
   </view>
 </view>

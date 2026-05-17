@@ -1,0 +1,177 @@
+<!--pages/consult-publish/consult-publish.wxml-->
+<view class="page-publish">
+  <!-- 场景描述 -->
+  <view class="scene-header">
+    <view class="scene-title">{{typeName}}</view>
+    <view class="scene-desc">{{typeDesc}}</view>
+  </view>
+
+  <!-- 图片上传 -->
+  <view class="section">
+    <view class="section-label">
+      <text class="label-text">上传图片</text>
+      <text class="label-hint">{{type === 'compare' ? '（2-4张对比图）' : '（1-3张实物图）'}}</text>
+    </view>
+    <view class="image-grid">
+      <view class="image-item" wx:for="{{images}}" wx:key="path">
+        <image class="image-thumb" src="{{item.thumb}}" mode="aspectFill"
+          data-index="{{index}}" bindtap="onPreviewImage" />
+        <view class="image-label" wx:if="{{type === 'compare'}}">
+          款式{{['A','B','C','D'][index]}}
+        </view>
+        <view class="image-remove" data-index="{{index}}" bindtap="onRemoveImage">✕</view>
+      </view>
+      <view class="image-add" wx:if="{{images.length < maxImages}}" bindtap="onAddImage">
+        <text class="add-icon">+</text>
+        <text class="add-text">添加图片</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ===== Type A 表单：单品决策 ===== -->
+  <block wx:if="{{type !== 'compare'}}">
+    <!-- 服饰类别（必填） -->
+    <view class="section">
+      <view class="section-label">
+        <text class="label-text">服饰类别</text>
+        <text class="label-required">*</text>
+      </view>
+      <picker mode="selector" range="{{categoryOptions}}" value="{{categoryIndex}}" bindchange="onCategoryChange">
+        <view class="picker-value {{category ? '' : 'placeholder'}}">
+          {{category || '请选择服饰类别'}}
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 价格区间（必填） -->
+    <view class="section">
+      <view class="section-label">
+        <text class="label-text">价格区间</text>
+        <text class="label-required">*</text>
+      </view>
+      <picker mode="selector" range="{{priceRangeOptions}}" value="{{priceRangeIndex}}" bindchange="onPriceRangeChange">
+        <view class="picker-value {{priceRange ? '' : 'placeholder'}}">
+          {{priceRange || '请选择价格区间'}}
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 身型特点（多选 0-3） -->
+    <view class="section">
+      <view class="section-label">
+        <text class="label-text">身型特点</text>
+        <text class="label-hint">（选填，最多3项）</text>
+      </view>
+      <view class="tag-group">
+        <view class="tag-option {{bodyFeatures.indexOf(item) > -1 ? 'active' : ''}}"
+          wx:for="{{bodyFeatureOptions}}" wx:key="*this"
+          data-value="{{item}}" bindtap="onBodyFeatureTap">
+          {{item}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 穿着场景（多选 0-2） -->
+    <view class="section">
+      <view class="section-label">
+        <text class="label-text">穿着场景</text>
+        <text class="label-hint">（选填，最多2项）</text>
+      </view>
+      <view class="tag-group">
+        <view class="tag-option {{wearScenes.indexOf(item) > -1 ? 'active' : ''}}"
+          wx:for="{{wearSceneOptions}}" wx:key="*this"
+          data-value="{{item}}" bindtap="onWearSceneTap">
+          {{item}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 穿搭困扰（单选） -->
+    <view class="section">
+      <view class="section-label">
+        <text class="label-text">穿搭困扰</text>
+        <text class="label-hint">（选填）</text>
+      </view>
+      <picker mode="selector" range="{{troubleOptions}}" value="{{troubleIndex}}" bindchange="onTroubleChange">
+        <view class="picker-value {{trouble ? '' : 'placeholder'}}">
+          {{trouble || '请选择你的穿搭困扰'}}
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+  </block>
+
+  <!-- ===== Type B 表单：多选一决策 ===== -->
+  <block wx:if="{{type === 'compare'}}">
+    <!-- 对比场景（必填） -->
+    <view class="section">
+      <view class="section-label">
+        <text class="label-text">对比场景</text>
+        <text class="label-required">*</text>
+      </view>
+      <picker mode="selector" range="{{compareSceneOptions}}" value="{{compareSceneIndex}}" bindchange="onCompareSceneChange">
+        <view class="picker-value {{compareScene ? '' : 'placeholder'}}">
+          {{compareScene || '请选择对比场景'}}
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 各款价格 -->
+    <view class="section">
+      <view class="section-label">
+        <text class="label-text">各款式价格</text>
+        <text class="label-hint">（选填）</text>
+      </view>
+      <view class="price-list">
+        <view class="price-row" wx:for="{{priceList}}" wx:key="index">
+          <text class="price-label">款式{{['A','B','C','D'][index]}}</text>
+          <picker mode="selector" range="{{priceRangeOptions}}" value="{{priceListIndexes[index]}}" data-index="{{index}}" bindchange="onPriceListChange">
+            <view class="picker-value small {{item ? '' : 'placeholder'}}">
+              {{item || '选择价格'}}
+              <text class="picker-arrow">▼</text>
+            </view>
+          </picker>
+        </view>
+      </view>
+    </view>
+
+    <!-- 风格差异（多选 0-3） -->
+    <view class="section">
+      <view class="section-label">
+        <text class="label-text">风格差异</text>
+        <text class="label-hint">（选填，最多3项）</text>
+      </view>
+      <view class="tag-group">
+        <view class="tag-option {{styleDiff.indexOf(item) > -1 ? 'active' : ''}}"
+          wx:for="{{styleDiffOptions}}" wx:key="*this"
+          data-value="{{item}}" bindtap="onStyleDiffTap">
+          {{item}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 纠结原因（单选） -->
+    <view class="section">
+      <view class="section-label">
+        <text class="label-text">纠结原因</text>
+        <text class="label-hint">（选填）</text>
+      </view>
+      <picker mode="selector" range="{{reasonOptions}}" value="{{reasonIndex}}" bindchange="onReasonChange">
+        <view class="picker-value {{reason ? '' : 'placeholder'}}">
+          {{reason || '请选择纠结原因'}}
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+  </block>
+
+  <!-- 提交按钮 -->
+  <view class="submit-area safe-bottom">
+    <button class="btn-primary submit-btn" bindtap="onSubmit" disabled="{{submitting}}">
+      {{submitting ? '处理中...' : '提交AI分析'}}
+    </button>
+  </view>
+</view>

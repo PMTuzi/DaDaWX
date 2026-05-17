@@ -5,128 +5,199 @@
   padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
 }
 
-.diagnose-tip {
+.page-header {
+  padding: 40rpx 32rpx 24rpx;
+}
+
+.header-title {
+  font-size: 44rpx;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin-bottom: 8rpx;
+}
+
+.header-subtitle {
+  font-size: 26rpx;
+  color: #999;
+}
+
+/* 功能卡片 */
+.consult-cards {
+  padding: 0 32rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.consult-card {
+  position: relative;
+  border-radius: 24rpx;
+  overflow: hidden;
+  padding: 36rpx 32rpx;
+  display: flex;
+  align-items: center;
+  min-height: 140rpx;
+}
+
+.card-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.12;
+  border-radius: 24rpx;
+}
+
+.card-content {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+.card-icon {
+  font-size: 48rpx;
+  margin-bottom: 8rpx;
+}
+
+.card-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 4rpx;
+}
+
+.card-subtitle {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.card-arrow {
+  font-size: 36rpx;
+  color: #ccc;
+  position: relative;
+  z-index: 1;
+}
+
+.consult-card:active {
+  transform: scale(0.98);
+  transition: transform 0.15s;
+}
+
+/* 新手提示 */
+.beginner-tip {
   display: flex;
   align-items: center;
   gap: 12rpx;
-  margin: 24rpx 24rpx 0;
+  margin: 32rpx 32rpx 0;
   padding: 20rpx 24rpx;
   background: rgba(232, 168, 124, 0.1);
   border-radius: 16rpx;
 }
 
-.tip-icon { font-size: 36rpx; }
-.tip-text { flex: 1; font-size: 24rpx; color: #e8a87c; }
-.tip-arrow { font-size: 28rpx; color: #e8a87c; }
-
-.filter-bar {
-  white-space: nowrap;
-  padding: 20rpx 24rpx;
-}
-
-.filter-item {
-  display: inline-block;
-  padding: 12rpx 28rpx;
-  border-radius: 32rpx;
-  font-size: 26rpx;
-  color: #999;
-  background: #ffffff;
-  margin-right: 16rpx;
-  transition: all 0.3s;
-}
-
-.filter-item.active {
-  background: #1a1a2e;
-  color: #ffffff;
+.tip-badge {
+  background: #e8a87c;
+  color: #fff;
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
   font-weight: 600;
+  flex-shrink: 0;
 }
 
-.outfit-list {
-  padding: 0 24rpx 24rpx;
+.tip-text {
+  flex: 1;
+  font-size: 24rpx;
+  color: #e8a87c;
+  line-height: 1.5;
 }
 
-.outfit-card {
-  padding: 28rpx;
+.tip-arrow {
+  font-size: 28rpx;
+  color: #e8a87c;
+  flex-shrink: 0;
 }
 
-.outfit-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16rpx;
+/* 历史记录 */
+.history-section {
+  margin-top: 40rpx;
+  padding: 0 32rpx;
 }
 
-.outfit-name {
-  font-size: 32rpx;
+.section-header {
+  margin-bottom: 20rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
   font-weight: 700;
   color: #1a1a2e;
 }
 
-.outfit-score {
+.history-list {
   display: flex;
-  align-items: baseline;
-  gap: 4rpx;
+  flex-direction: column;
+  gap: 16rpx;
 }
 
-.score-num {
-  font-size: 32rpx;
-  font-weight: 800;
-  color: #27ae60;
+.history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx;
 }
 
-.score-label {
+.history-info {
+  flex: 1;
+}
+
+.history-type {
+  margin-bottom: 8rpx;
+}
+
+.type-tag {
+  display: inline-block;
+  padding: 4rpx 16rpx;
+  border-radius: 12rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.tag-single {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+.tag-compare {
+  background: rgba(79, 172, 254, 0.1);
+  color: #4facfe;
+}
+
+.history-verdict {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 4rpx;
+}
+
+.history-time {
   font-size: 22rpx;
   color: #999;
 }
 
-.color-preview {
+.history-score {
   display: flex;
-  gap: 12rpx;
-  margin-bottom: 20rpx;
+  align-items: baseline;
+  gap: 2rpx;
 }
 
-.color-dot {
-  width: 48rpx;
-  height: 48rpx;
-  border-radius: 50%;
-  border: 2rpx solid rgba(0,0,0,0.06);
+.score-num {
+  font-size: 40rpx;
+  font-weight: 800;
+  color: #27ae60;
 }
 
-.items-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx;
-  margin-bottom: 16rpx;
-}
-
-.item-tag {
-  padding: 8rpx 20rpx;
-  background: rgba(26, 26, 46, 0.06);
-  border-radius: 16rpx;
-  font-size: 24rpx;
-  color: #666;
-}
-
-.match-reason {
-  display: flex;
-  gap: 8rpx;
-  padding: 16rpx;
-  background: rgba(232, 168, 124, 0.06);
-  border-radius: 12rpx;
-  margin-bottom: 12rpx;
-}
-
-.reason-icon {
-  font-size: 24rpx;
-  flex-shrink: 0;
-}
-
-.reason-text {
-  font-size: 24rpx;
-  color: #666;
-  line-height: 1.6;
-}
-
-.scene-tag {
-  margin-top: 4rpx;
+.score-unit {
+  font-size: 22rpx;
+  color: #999;
 }

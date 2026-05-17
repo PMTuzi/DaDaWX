@@ -1,0 +1,143 @@
+/* pages/consult-analyzing/consult-analyzing.wxss */
+.page-analyzing {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1a1a2e 0%, #2d2d4a 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60rpx 32rpx;
+}
+
+/* 进度环 */
+.progress-ring {
+  margin-bottom: 60rpx;
+}
+
+.ring-container {
+  position: relative;
+  width: 240rpx;
+  height: 240rpx;
+}
+
+.ring-bg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+}
+
+.ring-progress {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  transition: background 0.3s;
+}
+
+.ring-inner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 50%;
+  background: #1a1a2e;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4rpx;
+  padding-top: 8rpx;
+}
+
+.ring-num {
+  font-size: 64rpx;
+  font-weight: 800;
+  color: #e8a87c;
+}
+
+.ring-unit {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 步骤列表 */
+.steps-list {
+  width: 100%;
+  max-width: 500rpx;
+  margin-bottom: 48rpx;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 16rpx 0;
+  opacity: 0.4;
+  transition: all 0.3s;
+}
+
+.step-item.active {
+  opacity: 1;
+}
+
+.step-item.done {
+  opacity: 0.7;
+}
+
+.step-dot {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+
+.step-item.active .step-dot {
+  background: rgba(232, 168, 124, 0.2);
+  border: 2rpx solid #e8a87c;
+  color: #e8a87c;
+}
+
+.step-item.done .step-dot {
+  background: rgba(39, 174, 96, 0.2);
+  color: #27ae60;
+}
+
+.step-label {
+  font-size: 28rpx;
+  color: rgba(255,255,255,0.8);
+}
+
+.step-item.active .step-label {
+  color: #e8a87c;
+  font-weight: 600;
+}
+
+.step-item.done .step-label {
+  color: rgba(255,255,255,0.5);
+}
+
+/* 提示 */
+.analyzing-tip {
+  text-align: center;
+}
+
+.tip-text {
+  display: block;
+  font-size: 28rpx;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 8rpx;
+}
+
+.tip-sub {
+  font-size: 24rpx;
+  color: rgba(255,255,255,0.3);
+}

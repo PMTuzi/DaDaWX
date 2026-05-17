@@ -34,6 +34,10 @@ const API = {
   getFavorites: '/api/favorite/list',
   // 用户登录
   login: '/api/user/login',
+  // 穿搭咨询
+  analyzeClothingVision: '/api/consult/analyze-clothing-vision',
+  generateSingleConsult: '/api/consult/generate-single-consult',
+  generateCompareConsult: '/api/consult/generate-compare-consult',
 }
 
 // HTTP 请求封装
