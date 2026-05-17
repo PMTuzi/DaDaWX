@@ -343,13 +343,29 @@ Page({
 
       if (result.scores) {
         if (consultData.type === 'compare') {
+          // 对比模式：totalScore可能是6维总和(0-60)或平均分(0-10)，归一化到0-10
+          if (result.rankings && result.rankings.length > 0) {
+            result.rankings.forEach(r => {
+              if (r.totalScore > 10) {
+                // 6维总和，取平均
+                r.totalScore = Math.round(r.totalScore / 6 * 10) / 10
+              }
+            })
+          }
+          if (result.scores && Array.isArray(result.scores)) {
+            result.scores.forEach(s => {
+              if (s.totalScore > 10) {
+                s.totalScore = Math.round(s.totalScore / 6 * 10) / 10
+              }
+            })
+          }
           const topRank = result.rankings && result.rankings[0]
-          record.totalScore = topRank ? topRank.totalScore : '--'
+          record.totalScore = topRank ? Math.min(topRank.totalScore, 10) : '--'
           record.finalChoiceLabel = result.finalChoice ? result.finalChoice.label : ''
           record.verdict = record.finalChoiceLabel + ' 最佳'
         } else {
           const s = result.scores
-          record.totalScore = Math.round((s.fitScore + s.colorScore + s.qualityScore + s.valueScore) / 4 * 10) / 10
+          record.totalScore = Math.min(Math.round((s.fitScore + s.colorScore + s.qualityScore + s.valueScore) / 4 * 10) / 10, 10)
           record.verdict = result.verdict
         }
       }

@@ -256,12 +256,12 @@
 }
 
 .tag-single {
-  background: rgba(102, 126, 234, 0.1);
+  background: transparent;
   color: #667eea;
 }
 
 .tag-compare {
-  background: rgba(79, 172, 254, 0.1);
+  background: transparent;
   color: #4facfe;
 }
 

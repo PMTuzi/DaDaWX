@@ -27,8 +27,8 @@ const FALLBACK_SINGLE_RESULT = {
 
 const FALLBACK_COMPARE_RESULT = {
   rankings: [
-    { index: 0, label: '款式A', totalScore: 42 },
-    { index: 1, label: '款式B', totalScore: 36 }
+    { index: 0, label: '款式A', totalScore: 7.0 },
+    { index: 1, label: '款式B', totalScore: 6.0 }
   ],
   scores: [
     { index: 0, label: '款式A', slimScore: 7, versatileScore: 7, occasionScore: 7, qualityScore: 7, valueScore: 7, durableScore: 7 },
