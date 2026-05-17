@@ -1,0 +1,7 @@
+node_modules/
+server/node_modules/
+server/uploads/
+.env
+*.log
+.DS_Store
+.codebuddy/

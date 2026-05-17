@@ -1,0 +1,73 @@
+<!--pages/mine/mine.wxml-->
+<view class="page-mine">
+  <!-- 用户信息 -->
+  <view class="user-header">
+    <view class="user-info" wx:if="{{userInfo}}">
+      <image class="user-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" />
+      <view class="user-detail">
+        <text class="user-name">{{userInfo.nickName}}</text>
+        <text class="user-stat">已诊断 {{reportCount}} 次</text>
+      </view>
+    </view>
+    <view class="user-login" wx:else bindtap="onGetUserProfile">
+      <view class="avatar-placeholder">👤</view>
+      <text class="login-text">点击登录</text>
+    </view>
+  </view>
+
+  <!-- 统计 -->
+  <view class="stats-bar">
+    <view class="stat-item" bindtap="onGoReports">
+      <text class="stat-num">{{reportCount}}</text>
+      <text class="stat-label">诊断报告</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item" bindtap="onGoFavorites">
+      <text class="stat-num">{{favoriteCount}}</text>
+      <text class="stat-label">收藏</text>
+    </view>
+  </view>
+
+  <!-- 功能列表 -->
+  <view class="menu-section">
+    <view class="menu-item" bindtap="onGoReports">
+      <text class="menu-icon">📊</text>
+      <text class="menu-text">我的报告</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="onGoFavorites">
+      <text class="menu-icon">❤️</text>
+      <text class="menu-text">我的收藏</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="onGoDiagnose">
+      <text class="menu-icon">📸</text>
+      <text class="menu-text">开始诊断</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <view class="menu-section">
+    <view class="menu-item" bindtap="onContact">
+      <text class="menu-icon">💬</text>
+      <text class="menu-text">在线客服</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="onAbout">
+      <text class="menu-icon">ℹ️</text>
+      <text class="menu-text">关于我们</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="onPrivacy">
+      <text class="menu-icon">🔒</text>
+      <text class="menu-text">隐私协议</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <view class="menu-section" wx:if="{{userInfo}}">
+    <view class="menu-item logout" bindtap="onLogout">
+      <text class="menu-text">退出登录</text>
+    </view>
+  </view>
+</view>

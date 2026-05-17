@@ -1,0 +1,57 @@
+/* pages/favorites/favorites.wxss */
+.page-favorites {
+  min-height: 100vh;
+  background: #f5f5f7;
+}
+
+.tab-bar {
+  display: flex;
+  background: #ffffff;
+  padding: 16rpx 24rpx;
+  gap: 16rpx;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: #999;
+  transition: all 0.3s;
+}
+
+.tab-item.active {
+  background: #1a1a2e;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.favorites-list {
+  padding: 24rpx;
+}
+
+.fav-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx;
+}
+
+.fav-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-right: 12rpx;
+}
+
+.fav-type {
+  font-size: 22rpx;
+  color: #999;
+}
+
+.fav-remove {
+  font-size: 24rpx;
+  color: #e74c3c;
+  padding: 8rpx 16rpx;
+}

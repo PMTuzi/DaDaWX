@@ -1,0 +1,707 @@
+/* pages/report/report.wxss */
+.page-report {
+  min-height: 100vh;
+  background: #f5f5f7;
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+}
+
+.report-header {
+  background: linear-gradient(135deg, #1a1a2e, #2d2d4a);
+  padding: 48rpx 32rpx;
+  text-align: center;
+}
+
+.score-display {
+  margin-bottom: 20rpx;
+}
+
+.score-big {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+}
+
+.score-number {
+  font-size: 96rpx;
+  font-weight: 800;
+  color: #e8a87c;
+  line-height: 1;
+}
+
+.score-max {
+  font-size: 32rpx;
+  color: rgba(255, 255, 255, 0.5);
+  margin-left: 8rpx;
+}
+
+.score-level {
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-top: 8rpx;
+}
+
+.score-tags {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-bottom: 20rpx;
+}
+
+.score-desc {
+  text-align: left;
+  max-width: 600rpx;
+  margin: 0 auto;
+}
+
+.desc-item {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.8;
+}
+
+.section-nav {
+  white-space: nowrap;
+  background: #ffffff;
+  padding: 16rpx 16rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.nav-item {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12rpx 20rpx;
+  border-radius: 16rpx;
+  font-size: 22rpx;
+  color: #999999;
+  transition: all 0.3s;
+}
+
+.nav-item.active {
+  background: rgba(232, 168, 124, 0.12);
+  color: #e8a87c;
+  font-weight: 600;
+}
+
+.nav-icon {
+  font-size: 32rpx;
+  margin-bottom: 4rpx;
+}
+
+.nav-name {
+  font-size: 20rpx;
+}
+
+.section-content {
+  height: calc(100vh - 480rpx);
+}
+
+.section-body {
+  padding: 24rpx;
+}
+
+.card-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 20rpx;
+}
+
+.card-subtitle {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 12rpx;
+}
+
+.danger-title {
+  color: #e74c3c;
+}
+
+/* 评分细分 */
+.score-breakdown {
+  margin-top: 12rpx;
+}
+
+.breakdown-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.bd-label {
+  width: 80rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.bd-score {
+  width: 80rpx;
+  text-align: right;
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 脸型 */
+.shape-score {
+  display: flex;
+  align-items: baseline;
+}
+
+.shape-score-num {
+  font-size: 56rpx;
+  font-weight: 800;
+  color: #e8a87c;
+}
+
+.shape-score-max {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.feature-bars, .fit-list {
+  margin-top: 8rpx;
+}
+
+.feature-item, .fit-item, .attr-item, .sub-style {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.fi-label, .fit-name, .attr-label, .ss-name {
+  width: 140rpx;
+  font-size: 26rpx;
+  color: #666;
+  flex-shrink: 0;
+}
+
+.fi-score, .fit-score, .attr-score, .ss-score {
+  width: 60rpx;
+  text-align: right;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #e8a87c;
+  flex-shrink: 0;
+}
+
+/* 发型列表 */
+.haircut-list {
+  margin-top: 8rpx;
+}
+
+.haircut-item {
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.haircut-item:last-child {
+  border-bottom: none;
+}
+
+.haircut-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.haircut-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.haircut-score {
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.haircut-detail {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 避雷列表 */
+.avoid-list {
+  margin-top: 8rpx;
+}
+
+.avoid-item {
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.avoid-item:last-child {
+  border-bottom: none;
+}
+
+.avoid-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #e74c3c;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.avoid-reason {
+  font-size: 24rpx;
+  color: #999;
+  padding-left: 32rpx;
+}
+
+/* 领型 */
+.collar-list {
+  margin-top: 8rpx;
+}
+
+.collar-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.collar-name {
+  width: 80rpx;
+  font-size: 26rpx;
+  color: #666;
+  flex-shrink: 0;
+}
+
+.collar-score {
+  width: 60rpx;
+  text-align: right;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #e8a87c;
+  flex-shrink: 0;
+}
+
+/* 肤色 */
+.season-badge {
+  background: rgba(232, 168, 124, 0.08);
+  border-radius: 16rpx;
+  padding: 20rpx;
+  margin-top: 16rpx;
+  text-align: center;
+}
+
+.season-name {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #e8a87c;
+  margin-bottom: 8rpx;
+}
+
+.season-detail {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.color-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+  margin-top: 8rpx;
+}
+
+.color-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.color-swatch {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 16rpx;
+  border: 2rpx solid rgba(0,0,0,0.06);
+}
+
+.color-name {
+  font-size: 22rpx;
+  color: #666;
+  font-weight: 500;
+}
+
+.color-hex {
+  font-size: 18rpx;
+  color: #999;
+}
+
+.color-reason {
+  font-size: 18rpx;
+  color: #e74c3c;
+}
+
+.haircolor-list {
+  margin-top: 8rpx;
+}
+
+.haircolor-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.haircolor-item:last-child {
+  border-bottom: none;
+}
+
+.hc-name {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #1a1a2e;
+}
+
+.hc-detail {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 风格 */
+.style-score-display {
+  display: flex;
+  align-items: baseline;
+}
+
+.ss-num {
+  font-size: 48rpx;
+  font-weight: 800;
+  color: #e8a87c;
+}
+
+.ss-max {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.style-features {
+  display: flex;
+  gap: 24rpx;
+  margin-top: 8rpx;
+}
+
+.sf-item {
+  flex: 1;
+  background: rgba(232, 168, 124, 0.06);
+  border-radius: 16rpx;
+  padding: 20rpx;
+  text-align: center;
+}
+
+.sf-label {
+  display: block;
+  font-size: 22rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+}
+
+.sf-value {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.advice-list {
+  margin-top: 8rpx;
+}
+
+.advice-item {
+  display: flex;
+  margin-bottom: 12rpx;
+}
+
+.ad-label {
+  font-size: 26rpx;
+  color: #999;
+  margin-right: 12rpx;
+  flex-shrink: 0;
+}
+
+.ad-value {
+  font-size: 26rpx;
+  color: #333;
+  flex: 1;
+}
+
+.scene-list {
+  margin-top: 8rpx;
+}
+
+.scene-item {
+  background: rgba(232, 168, 124, 0.06);
+  border-radius: 16rpx;
+  padding: 20rpx;
+  margin-bottom: 16rpx;
+}
+
+.scene-name {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #e8a87c;
+  margin-bottom: 8rpx;
+}
+
+.scene-desc {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.6;
+}
+
+/* 身形 */
+.body-result {
+  display: flex;
+  gap: 24rpx;
+  margin-top: 8rpx;
+}
+
+.body-attr {
+  flex: 1;
+  background: rgba(232, 168, 124, 0.06);
+  border-radius: 16rpx;
+  padding: 20rpx;
+  text-align: center;
+}
+
+.ba-label {
+  display: block;
+  font-size: 22rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+}
+
+.ba-value {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+/* 穿搭单品 */
+.item-list {
+  margin-top: 8rpx;
+}
+
+.outfit-item {
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.outfit-item:last-child {
+  border-bottom: none;
+}
+
+.oi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.oi-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.oi-score {
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.oi-detail {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
+}
+
+/* TOP发型 */
+.top-hair-list {
+  margin-top: 8rpx;
+}
+
+.top-hair-item {
+  display: flex;
+  gap: 20rpx;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.top-hair-item:last-child {
+  border-bottom: none;
+}
+
+.th-rank {
+  width: 56rpx;
+  height: 56rpx;
+  background: linear-gradient(135deg, #e8a87c, #d4a574);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.th-info {
+  flex: 1;
+}
+
+.th-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+
+.th-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.th-score {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #27ae60;
+}
+
+.th-detail {
+  font-size: 24rpx;
+  color: #999;
+  line-height: 1.8;
+}
+
+/* 备选发型 */
+.alt-hair-list {
+  margin-top: 8rpx;
+}
+
+.alt-hair-item {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.alt-hair-item:last-child {
+  border-bottom: none;
+}
+
+.ah-name {
+  flex: 1;
+  font-size: 28rpx;
+  color: #1a1a2e;
+}
+
+.ah-style {
+  font-size: 24rpx;
+  color: #999;
+  margin-right: 16rpx;
+}
+
+.ah-score {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #e8a87c;
+}
+
+/* 妆容 */
+.makeup-section {
+  margin-top: 8rpx;
+}
+
+.mu-item {
+  display: flex;
+  margin-bottom: 16rpx;
+}
+
+.mu-label {
+  width: 140rpx;
+  font-size: 26rpx;
+  color: #999;
+  flex-shrink: 0;
+}
+
+.mu-value {
+  font-size: 26rpx;
+  color: #333;
+  flex: 1;
+}
+
+/* 总结 */
+.summary-card {
+  text-align: left;
+}
+
+.summary-text {
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.8;
+}
+
+.tips-list {
+  margin-top: 8rpx;
+}
+
+.tip-item {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.tip-bullet {
+  font-size: 28rpx;
+  flex-shrink: 0;
+}
+
+.tip-text {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.6;
+}
+
+/* 底部分享栏 */
+.share-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  background: #ffffff;
+  padding: 16rpx 32rpx;
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.06);
+  gap: 24rpx;
+}
+
+.share-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  padding: 20rpx;
+  border-radius: 48rpx;
+  background: rgba(232, 168, 124, 0.1);
+  font-size: 28rpx;
+  color: #e8a87c;
+  font-weight: 600;
+  border: none;
+}
+
+.share-btn::after {
+  border: none;
+}
+
+.share-icon {
+  font-size: 32rpx;
+}

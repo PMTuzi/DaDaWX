@@ -1,0 +1,28 @@
+<!--pages/reports/reports.wxml-->
+<view class="page-reports">
+  <view class="reports-list" wx:if="{{reports.length > 0}}">
+    <view class="report-item card" wx:for="{{reports}}" wx:key="id">
+      <view class="report-main" data-id="{{item.id}}" bindtap="onViewReport">
+        <view class="report-score">
+          <text class="score-num">{{item.basic.overallScore}}</text>
+          <text class="score-max">/10</text>
+        </view>
+        <view class="report-info">
+          <view class="report-tags">
+            <text class="tag tag-warm" wx:for="{{item.basic.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+          </view>
+          <text class="report-time">{{item.createTime}}</text>
+        </view>
+      </view>
+      <view class="report-actions">
+        <text class="action-delete" data-id="{{item.id}}" bindtap="onDeleteReport">删除</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty-state" wx:else>
+    <text class="empty-icon">📊</text>
+    <text class="empty-text">还没有诊断报告</text>
+    <button class="btn-primary" bindtap="onGoDiagnose" style="margin-top: 32rpx;">开始诊断</button>
+  </view>
+</view>

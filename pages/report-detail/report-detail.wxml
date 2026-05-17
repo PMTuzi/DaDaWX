@@ -1,0 +1,14 @@
+<!--pages/report-detail/report-detail.wxml-->
+<view class="page-detail" wx:if="{{report}}">
+  <view class="detail-header">
+    <text class="detail-title">{{sectionName}}</text>
+  </view>
+  <view class="detail-body">
+    <view class="detail-content">
+      <!-- 根据不同section展示不同内容，复用report页卡片组件 -->
+      <view class="card">
+        <text class="detail-json">{{report[section]}}</text>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,59 @@
+/* pages/reports/reports.wxss */
+.page-reports {
+  min-height: 100vh;
+  background: #f5f5f7;
+  padding: 24rpx;
+}
+
+.report-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx;
+}
+
+.report-main {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  flex: 1;
+}
+
+.report-score {
+  display: flex;
+  align-items: baseline;
+}
+
+.score-num {
+  font-size: 48rpx;
+  font-weight: 800;
+  color: #e8a87c;
+}
+
+.score-max {
+  font-size: 22rpx;
+  color: #999;
+}
+
+.report-info {
+  flex: 1;
+}
+
+.report-tags {
+  margin-bottom: 8rpx;
+}
+
+.report-time {
+  font-size: 22rpx;
+  color: #999;
+}
+
+.report-actions {
+  flex-shrink: 0;
+}
+
+.action-delete {
+  font-size: 24rpx;
+  color: #e74c3c;
+  padding: 8rpx 16rpx;
+}

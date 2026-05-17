@@ -1,0 +1,104 @@
+<!--pages/index/index.wxml-->
+<view class="page-index">
+  <!-- 顶部品牌区 -->
+  <view class="header">
+    <view class="brand-area">
+      <view class="logo">搭搭</view>
+      <view class="slogan">{{slogan}}</view>
+    </view>
+
+    <!-- 如果有最新报告，展示摘要 -->
+    <view class="report-summary card" wx:if="{{hasReport}}" bindtap="onViewReport">
+      <view class="summary-header">
+        <text class="summary-title">最新诊断报告</text>
+        <text class="summary-date">{{latestReport.createTime}}</text>
+      </view>
+      <view class="summary-score">
+        <view class="score-circle" style="border-color: {{scoreLevel.color}}">
+          <text class="score-num">{{latestReport.basic.overallScore}}</text>
+          <text class="score-unit">/10</text>
+        </view>
+        <view class="score-info">
+          <view class="score-level" style="color: {{scoreLevel.color}}">{{scoreLevel.text}}</view>
+          <view class="score-tags">
+            <text class="tag tag-warm" wx:for="{{latestReport.basic.tags}}" wx:key="*this">{{item}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="summary-advantage">{{latestReport.basic.advantages}}</view>
+    </view>
+  </view>
+
+  <!-- 核心入口 -->
+  <view class="action-area">
+    <view class="diagnose-btn btn-primary" bindtap="onStartDiagnose">
+      <view class="btn-icon">📸</view>
+      <view class="btn-text">
+        <text class="btn-main">立即诊断</text>
+        <text class="btn-sub">拍照上传 → AI 分析 → 生成报告</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 功能简介 -->
+  <view class="feature-intro">
+    <view class="feature-steps">
+      <view class="step">
+        <view class="step-icon">📸</view>
+        <text class="step-text">拍照上传</text>
+      </view>
+      <view class="step-arrow">→</view>
+      <view class="step">
+        <view class="step-icon">🤖</view>
+        <text class="step-text">AI 分析</text>
+      </view>
+      <view class="step-arrow">→</view>
+      <view class="step">
+        <view class="step-icon">📋</view>
+        <text class="step-text">生成报告</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 快捷入口 -->
+  <view class="quick-entries">
+    <view class="entry-item" bindtap="onGoHairStyle">
+      <view class="entry-icon">💇‍♀️</view>
+      <text class="entry-name">发型推荐</text>
+    </view>
+    <view class="entry-item" bindtap="onGoOutfit">
+      <view class="entry-icon">👗</view>
+      <text class="entry-name">穿搭灵感</text>
+    </view>
+    <view class="entry-item" bindtap="onGoMakeup">
+      <view class="entry-icon">💄</view>
+      <text class="entry-name">妆容指南</text>
+    </view>
+    <view class="entry-item" bindtap="onViewHistory">
+      <view class="entry-icon">📊</view>
+      <text class="entry-name">历史报告</text>
+    </view>
+  </view>
+
+  <!-- 用户案例轮播 -->
+  <view class="cases-section">
+    <view class="section-title">用户案例</view>
+    <swiper class="case-swiper" indicator-dots indicator-color="rgba(0,0,0,0.2)" indicator-active-color="#e8a87c" circular autoplay interval="4000">
+      <swiper-item wx:for="{{cases}}" wx:key="name">
+        <view class="case-card card">
+          <view class="case-avatar">{{item.avatar}}</view>
+          <view class="case-info">
+            <text class="case-name">{{item.name}}</text>
+            <view class="case-score">
+              <text class="case-score-num">{{item.score}}</text>
+              <text class="case-score-label">综合评分</text>
+            </view>
+            <view class="case-tags">
+              <text class="tag tag-warm" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+            </view>
+          </view>
+        </view>
+      </swiper-item>
+    </swiper>
+  </view>
+</view>

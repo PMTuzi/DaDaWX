@@ -1,0 +1,84 @@
+<!--pages/makeup/makeup.wxml-->
+<view class="page-makeup">
+  <view class="no-report" wx:if="{{!hasReport}}">
+    <view class="empty-state">
+      <text class="empty-icon">💄</text>
+      <text class="empty-text">完成AI诊断后解锁专属妆容指南</text>
+      <button class="btn-primary" bindtap="onGoDiagnose" style="margin-top: 32rpx;">开始诊断</button>
+    </view>
+  </view>
+
+  <view class="has-report" wx:else>
+    <!-- 妆容风格 -->
+    <view class="card style-card">
+      <view class="card-title">适配妆容风格</view>
+      <view class="makeup-style">
+        <text class="style-emoji">💄</text>
+        <text class="style-name">{{makeupGuide.style}}</text>
+      </view>
+    </view>
+
+    <!-- 底妆建议 -->
+    <view class="card" wx:if="{{makeupGuide.foundation}}">
+      <view class="card-title">底妆建议</view>
+      <view class="makeup-items">
+        <view class="mu-row" wx:if="{{makeupGuide.foundation.tone}}">
+          <text class="mu-label">粉底色调</text>
+          <text class="mu-value">{{makeupGuide.foundation.tone}}</text>
+        </view>
+        <view class="mu-row" wx:if="{{makeupGuide.foundation.shade}}">
+          <text class="mu-label">色号选择</text>
+          <text class="mu-value">{{makeupGuide.foundation.shade}}</text>
+        </view>
+        <view class="mu-row" wx:if="{{makeupGuide.foundation.concealer}}">
+          <text class="mu-label">遮瑕重点</text>
+          <text class="mu-value">{{makeupGuide.foundation.concealer}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 眉眼妆容 -->
+    <view class="card" wx:if="{{makeupGuide.eyeBrow}}">
+      <view class="card-title">眉眼妆容</view>
+      <view class="makeup-items">
+        <view class="mu-row" wx:if="{{makeupGuide.eyeBrow.shape}}">
+          <text class="mu-label">眉形建议</text>
+          <text class="mu-value">{{makeupGuide.eyeBrow.shape}}</text>
+        </view>
+        <view class="mu-row" wx:if="{{makeupGuide.eyeBrow.shadow}}">
+          <text class="mu-label">眼影色调</text>
+          <text class="mu-value">{{makeupGuide.eyeBrow.shadow}}</text>
+        </view>
+        <view class="mu-row" wx:if="{{makeupGuide.eyeBrow.eyeliner}}">
+          <text class="mu-label">眼线风格</text>
+          <text class="mu-value">{{makeupGuide.eyeBrow.eyeliner}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 唇妆推荐 -->
+    <view class="card" wx:if="{{makeupGuide.lipRecommend}}">
+      <view class="card-title">唇妆推荐</view>
+      <view class="lip-area">
+        <view class="lip-item" wx:if="{{makeupGuide.lipRecommend.destiny}}">
+          <text class="lip-label">本命色</text>
+          <text class="lip-color">{{makeupGuide.lipRecommend.destiny}}</text>
+        </view>
+        <view class="lip-item" wx:if="{{makeupGuide.lipRecommend.daily}}">
+          <text class="lip-label">日常色</text>
+          <text class="lip-color">{{makeupGuide.lipRecommend.daily}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 避雷妆容 -->
+    <view class="card" wx:if="{{makeupGuide.avoidMakeup && makeupGuide.avoidMakeup.length}}">
+      <view class="card-title danger-title">避雷妆容</view>
+      <view class="avoid-list">
+        <view class="avoid-item" wx:for="{{makeupGuide.avoidMakeup}}" wx:key="*this">
+          <text class="avoid-name">❌ {{item}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

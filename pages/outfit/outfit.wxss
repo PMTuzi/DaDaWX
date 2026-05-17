@@ -1,0 +1,132 @@
+/* pages/outfit/outfit.wxss */
+.page-outfit {
+  min-height: 100vh;
+  background: #f5f5f7;
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+}
+
+.diagnose-tip {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin: 24rpx 24rpx 0;
+  padding: 20rpx 24rpx;
+  background: rgba(232, 168, 124, 0.1);
+  border-radius: 16rpx;
+}
+
+.tip-icon { font-size: 36rpx; }
+.tip-text { flex: 1; font-size: 24rpx; color: #e8a87c; }
+.tip-arrow { font-size: 28rpx; color: #e8a87c; }
+
+.filter-bar {
+  white-space: nowrap;
+  padding: 20rpx 24rpx;
+}
+
+.filter-item {
+  display: inline-block;
+  padding: 12rpx 28rpx;
+  border-radius: 32rpx;
+  font-size: 26rpx;
+  color: #999;
+  background: #ffffff;
+  margin-right: 16rpx;
+  transition: all 0.3s;
+}
+
+.filter-item.active {
+  background: #1a1a2e;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.outfit-list {
+  padding: 0 24rpx 24rpx;
+}
+
+.outfit-card {
+  padding: 28rpx;
+}
+
+.outfit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.outfit-name {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.outfit-score {
+  display: flex;
+  align-items: baseline;
+  gap: 4rpx;
+}
+
+.score-num {
+  font-size: 32rpx;
+  font-weight: 800;
+  color: #27ae60;
+}
+
+.score-label {
+  font-size: 22rpx;
+  color: #999;
+}
+
+.color-preview {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: 20rpx;
+}
+
+.color-dot {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  border: 2rpx solid rgba(0,0,0,0.06);
+}
+
+.items-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.item-tag {
+  padding: 8rpx 20rpx;
+  background: rgba(26, 26, 46, 0.06);
+  border-radius: 16rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.match-reason {
+  display: flex;
+  gap: 8rpx;
+  padding: 16rpx;
+  background: rgba(232, 168, 124, 0.06);
+  border-radius: 12rpx;
+  margin-bottom: 12rpx;
+}
+
+.reason-icon {
+  font-size: 24rpx;
+  flex-shrink: 0;
+}
+
+.reason-text {
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.6;
+}
+
+.scene-tag {
+  margin-top: 4rpx;
+}

@@ -1,0 +1,106 @@
+/* pages/makeup/makeup.wxss */
+.page-makeup {
+  min-height: 100vh;
+  background: #f5f5f7;
+  padding: 24rpx;
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+}
+
+.style-card {
+  text-align: center;
+}
+
+.makeup-style {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+  padding: 24rpx 0;
+}
+
+.style-emoji {
+  font-size: 80rpx;
+}
+
+.style-name {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #e8a87c;
+}
+
+.makeup-items {
+  margin-top: 8rpx;
+}
+
+.mu-row {
+  display: flex;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.mu-row:last-child {
+  border-bottom: none;
+}
+
+.mu-label {
+  width: 160rpx;
+  font-size: 26rpx;
+  color: #999;
+  flex-shrink: 0;
+}
+
+.mu-value {
+  flex: 1;
+  font-size: 26rpx;
+  color: #333;
+}
+
+.lip-area {
+  display: flex;
+  gap: 24rpx;
+  margin-top: 8rpx;
+}
+
+.lip-item {
+  flex: 1;
+  background: rgba(232, 168, 124, 0.06);
+  border-radius: 16rpx;
+  padding: 20rpx;
+  text-align: center;
+}
+
+.lip-label {
+  display: block;
+  font-size: 22rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+}
+
+.lip-color {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #e8a87c;
+}
+
+.danger-title {
+  color: #e74c3c;
+}
+
+.avoid-list {
+  margin-top: 8rpx;
+}
+
+.avoid-item {
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.avoid-item:last-child {
+  border-bottom: none;
+}
+
+.avoid-name {
+  font-size: 26rpx;
+  color: #e74c3c;
+}

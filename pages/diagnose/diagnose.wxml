@@ -1,0 +1,77 @@
+<!--pages/diagnose/diagnose.wxml-->
+<view class="page-diagnose">
+  <!-- 照片类型切换 -->
+  <view class="type-switch">
+    <view class="type-item {{photoType === 'face' ? 'active' : ''}}" data-type="face" bindtap="onSwitchType">人脸照</view>
+    <view class="type-item {{photoType === 'fullbody' ? 'active' : ''}}" data-type="fullbody" bindtap="onSwitchType">全身照</view>
+  </view>
+
+  <!-- 照片上传区 -->
+  <view class="photo-area">
+    <view class="photo-preview" wx:if="{{photoUrl}}">
+      <image src="{{photoUrl}}" mode="aspectFill" class="preview-img" />
+      <view class="rechoose" bindtap="onRechoose">
+        <text>重新选择</text>
+      </view>
+    </view>
+
+    <view class="photo-upload" wx:else>
+      <!-- 拍照 -->
+      <view class="upload-btn camera-btn" bindtap="onTakePhoto">
+        <view class="upload-icon">📸</view>
+        <text class="upload-text">拍摄照片</text>
+      </view>
+      <!-- 相册 -->
+      <view class="upload-btn album-btn" bindtap="onChooseFromAlbum">
+        <view class="upload-icon">🖼️</view>
+        <text class="upload-text">从相册选择</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 拍照引导 -->
+  <view class="guide-section" wx:if="{{guideVisible}}">
+    <view class="guide-title">📸 拍照小贴士</view>
+    <view class="guide-tips" wx:if="{{photoType === 'face'}}">
+      <view class="guide-tip">✅ 正对镜头，面部完整</view>
+      <view class="guide-tip">✅ 光线均匀，避免逆光</view>
+      <view class="guide-tip">✅ 素颜或淡妆效果更佳</view>
+      <view class="guide-tip">✅ 头发不遮挡面部轮廓</view>
+    </view>
+    <view class="guide-tips" wx:else>
+      <view class="guide-tip">✅ 站姿端正，全身入镜</view>
+      <view class="guide-tip">✅ 服装合身，体现身形</view>
+      <view class="guide-tip">✅ 光线充足，画面清晰</view>
+      <view class="guide-tip">✅ 自然站姿，双臂放松</view>
+    </view>
+  </view>
+
+  <!-- 用户标签 -->
+  <view class="tags-section">
+    <view class="tags-header">
+      <text class="tags-title">补充标签（可选）</text>
+      <text class="tags-add" bindtap="onShowTagInput">+ 添加</text>
+    </view>
+    <view class="tags-list" wx:if="{{userTags.length > 0}}">
+      <view class="user-tag" wx:for="{{userTags}}" wx:key="*this">
+        <text>{{item}}</text>
+        <text class="tag-remove" data-index="{{index}}" bindtap="onRemoveTag">×</text>
+      </view>
+    </view>
+    <view class="tags-empty" wx:else>
+      <text>添加标签可帮助AI更精准分析，如：圆脸、冷白皮、高个子</text>
+    </view>
+
+    <view class="tag-input-area" wx:if="{{showTagInput}}">
+      <input class="tag-input" placeholder="输入标签，如：大眼睛" value="{{tagInput}}" bindinput="onTagInput" bindconfirm="onAddTag" confirm-type="done" />
+      <view class="tag-input-btn" bindtap="onAddTag">添加</view>
+    </view>
+  </view>
+
+  <!-- 开始分析按钮 -->
+  <view class="action-area safe-bottom">
+    <button class="btn-primary start-btn" bindtap="onStartAnalysis" disabled="{{isUploading || !photoUrl}}" loading="{{isUploading}}">
+      {{isUploading ? '上传中...' : '开始 AI 诊断'}}
+    </button>
+  </view>
+</view>

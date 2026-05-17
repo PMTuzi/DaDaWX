@@ -1,0 +1,57 @@
+<!--pages/hairstyle/hairstyle.wxml-->
+<view class="page-hairstyle">
+  <!-- 诊断提示 -->
+  <view class="diagnose-tip" wx:if="{{!hasReport}}" bindtap="onGoDiagnose">
+    <text class="tip-icon">📸</text>
+    <text class="tip-text">完成AI诊断后，可获得个性化发型推荐</text>
+    <text class="tip-arrow">→</text>
+  </view>
+
+  <!-- 长度筛选 -->
+  <scroll-view class="filter-bar" scroll-x enhanced show-scrollbar="{{false}}">
+    <view class="filter-item {{currentLength === item.key ? 'active' : ''}}"
+      wx:for="{{lengths}}" wx:key="key"
+      data-key="{{item.key}}" bindtap="onFilterLength">
+      {{item.name}}
+    </view>
+  </scroll-view>
+
+  <!-- 风格筛选 -->
+  <scroll-view class="filter-bar style-filter" scroll-x enhanced show-scrollbar="{{false}}">
+    <view class="filter-item {{currentStyle === item.key ? 'active' : ''}}"
+      wx:for="{{styles}}" wx:key="key"
+      data-key="{{item.key}}" bindtap="onFilterStyle">
+      {{item.name}}
+    </view>
+  </scroll-view>
+
+  <!-- 发型列表 -->
+  <view class="hairstyle-list">
+    <view class="hair-card card" wx:for="{{filteredList}}" wx:key="id" data-id="{{item.id}}" bindtap="onHairstyleDetail">
+      <view class="hair-preview">
+        <view class="hair-emoji">{{item.length === 'short' ? '💇‍♀️' : item.length === 'medium' ? '👩‍🦱' : '👩‍🦰'}}</view>
+        <view class="hair-score-badge" wx:if="{{hasReport}}">
+          <text>{{item.score}}</text>
+        </view>
+      </view>
+      <view class="hair-info">
+        <view class="hair-name-row">
+          <text class="hair-name">{{item.name}}</text>
+          <text class="hair-match" wx:if="{{hasReport}}">适配度 {{item.score * 10}}%</text>
+        </view>
+        <text class="hair-desc">{{item.desc}}</text>
+        <view class="hair-tags">
+          <text class="tag tag-primary">{{item.length === 'short' ? '短发' : item.length === 'medium' ? '中发' : '长发'}}</text>
+          <text class="tag tag-warm">{{item.style === 'sweet' ? '少女' : item.style === 'elegant' ? '御姐' : item.style === 'retro' ? '复古' : '简约'}}</text>
+        </view>
+        <text class="hair-care" wx:if="{{item.care}}">💡 打理: {{item.care}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{filteredList.length === 0}}">
+    <text class="empty-icon">💇‍♀️</text>
+    <text class="empty-text">暂无匹配的发型推荐</text>
+  </view>
+</view>

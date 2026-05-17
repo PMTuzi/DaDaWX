@@ -1,0 +1,154 @@
+/* pages/analyzing/analyzing.wxss */
+.page-analyzing {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1a1a2e 0%, #2d2d4a 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 32rpx;
+}
+
+.animation-area {
+  margin-bottom: 48rpx;
+}
+
+.scan-circle {
+  position: relative;
+  width: 280rpx;
+  height: 280rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scan-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2rpx solid rgba(232, 168, 124, 0.3);
+}
+
+.ring-1 {
+  width: 100%;
+  height: 100%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.ring-2 {
+  width: 80%;
+  height: 80%;
+  animation: pulse 2s ease-in-out infinite 0.5s;
+  border-color: rgba(232, 168, 124, 0.5);
+}
+
+.ring-3 {
+  width: 60%;
+  height: 60%;
+  animation: pulse 2s ease-in-out infinite 1s;
+  border-color: rgba(232, 168, 124, 0.7);
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.5; }
+}
+
+.scan-center {
+  position: relative;
+  z-index: 1;
+  width: 120rpx;
+  height: 120rpx;
+  background: rgba(232, 168, 124, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scan-percent {
+  font-size: 40rpx;
+  font-weight: 800;
+  color: #e8a87c;
+}
+
+.progress-bar {
+  width: 80%;
+  height: 8rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4rpx;
+  overflow: hidden;
+  margin-bottom: 60rpx;
+}
+
+.progress-inner {
+  height: 100%;
+  background: linear-gradient(90deg, #e8a87c, #d4a574);
+  border-radius: 4rpx;
+  transition: width 0.3s ease;
+}
+
+.steps-area {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 24rpx;
+  padding: 32rpx;
+  margin-bottom: 40rpx;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0;
+  opacity: 0.4;
+}
+
+.step-item.active,
+.step-item.done {
+  opacity: 1;
+}
+
+.step-icon-wrap {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.step-icon {
+  font-size: 28rpx;
+  color: #e8a87c;
+}
+
+.step-item.done .step-icon {
+  color: #27ae60;
+}
+
+.step-label {
+  flex: 1;
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.step-status {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.step-status.active {
+  color: #e8a87c;
+}
+
+.step-item.done .step-status {
+  color: #27ae60;
+}
+
+.tip-area {
+  text-align: center;
+}
+
+.tip-text {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.4);
+}

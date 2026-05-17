@@ -1,0 +1,57 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/diagnose/diagnose",
+    "pages/analyzing/analyzing",
+    "pages/report/report",
+    "pages/report-detail/report-detail",
+    "pages/hairstyle/hairstyle",
+    "pages/outfit/outfit",
+    "pages/makeup/makeup",
+    "pages/mine/mine",
+    "pages/reports/reports",
+    "pages/favorites/favorites"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#1a1a2e",
+    "navigationBarTitleText": "搭搭",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f5f7"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#1a1a2e",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/tab-home.png",
+        "selectedIconPath": "images/tab-home-active.png"
+      },
+      {
+        "pagePath": "pages/hairstyle/hairstyle",
+        "text": "发型",
+        "iconPath": "images/tab-hair.png",
+        "selectedIconPath": "images/tab-hair-active.png"
+      },
+      {
+        "pagePath": "pages/outfit/outfit",
+        "text": "穿搭",
+        "iconPath": "images/tab-outfit.png",
+        "selectedIconPath": "images/tab-outfit-active.png"
+      },
+      {
+        "pagePath": "pages/mine/mine",
+        "text": "我的",
+        "iconPath": "images/tab-mine.png",
+        "selectedIconPath": "images/tab-mine-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

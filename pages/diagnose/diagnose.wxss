@@ -1,0 +1,211 @@
+/* pages/diagnose/diagnose.wxss */
+.page-diagnose {
+  min-height: 100vh;
+  background: #f5f5f7;
+  padding-bottom: calc(140rpx + env(safe-area-inset-bottom));
+}
+
+.type-switch {
+  display: flex;
+  padding: 24rpx 32rpx;
+  gap: 16rpx;
+}
+
+.type-item {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  background: #ffffff;
+  color: #999999;
+  transition: all 0.3s;
+}
+
+.type-item.active {
+  background: #1a1a2e;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.photo-area {
+  padding: 0 32rpx;
+}
+
+.photo-preview {
+  position: relative;
+  border-radius: 24rpx;
+  overflow: hidden;
+  height: 560rpx;
+  background: #ffffff;
+}
+
+.preview-img {
+  width: 100%;
+  height: 100%;
+}
+
+.rechoose {
+  position: absolute;
+  bottom: 20rpx;
+  right: 20rpx;
+  background: rgba(0, 0, 0, 0.6);
+  color: #ffffff;
+  padding: 12rpx 24rpx;
+  border-radius: 24rpx;
+  font-size: 24rpx;
+}
+
+.photo-upload {
+  display: flex;
+  gap: 20rpx;
+  height: 320rpx;
+}
+
+.upload-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  border-radius: 24rpx;
+  border: 2rpx dashed #cccccc;
+  background: #ffffff;
+  transition: all 0.3s;
+}
+
+.upload-btn:active {
+  transform: scale(0.98);
+  border-color: #e8a87c;
+}
+
+.upload-icon {
+  font-size: 64rpx;
+}
+
+.upload-text {
+  font-size: 26rpx;
+  color: #666666;
+}
+
+.guide-section {
+  margin: 24rpx 32rpx;
+  background: #ffffff;
+  border-radius: 20rpx;
+  padding: 28rpx;
+}
+
+.guide-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+  color: #1a1a2e;
+}
+
+.guide-tip {
+  font-size: 26rpx;
+  color: #666666;
+  line-height: 2;
+}
+
+.tags-section {
+  margin: 24rpx 32rpx;
+  background: #ffffff;
+  border-radius: 20rpx;
+  padding: 28rpx;
+}
+
+.tags-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.tags-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.tags-add {
+  font-size: 26rpx;
+  color: #e8a87c;
+  font-weight: 500;
+}
+
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.user-tag {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 8rpx 20rpx;
+  background: rgba(232, 168, 124, 0.12);
+  color: #e8a87c;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+}
+
+.tag-remove {
+  font-size: 28rpx;
+  color: #e8a87c;
+  padding: 0 4rpx;
+}
+
+.tags-empty {
+  font-size: 24rpx;
+  color: #999999;
+  line-height: 1.6;
+}
+
+.tag-input-area {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 16rpx;
+  align-items: center;
+}
+
+.tag-input {
+  flex: 1;
+  height: 64rpx;
+  background: #f5f5f7;
+  border-radius: 12rpx;
+  padding: 0 20rpx;
+  font-size: 26rpx;
+}
+
+.tag-input-btn {
+  padding: 12rpx 24rpx;
+  background: #e8a87c;
+  color: #ffffff;
+  border-radius: 12rpx;
+  font-size: 26rpx;
+  flex-shrink: 0;
+}
+
+.action-area {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20rpx 32rpx;
+  background: #ffffff;
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.06);
+}
+
+.start-btn {
+  width: 100%;
+  height: 88rpx;
+  font-size: 32rpx;
+}
+
+.start-btn[disabled] {
+  opacity: 0.5;
+}

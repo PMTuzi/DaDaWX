@@ -1,0 +1,137 @@
+/* pages/hairstyle/hairstyle.wxss */
+.page-hairstyle {
+  min-height: 100vh;
+  background: #f5f5f7;
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+}
+
+.diagnose-tip {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin: 24rpx 24rpx 0;
+  padding: 20rpx 24rpx;
+  background: rgba(232, 168, 124, 0.1);
+  border-radius: 16rpx;
+}
+
+.tip-icon {
+  font-size: 36rpx;
+}
+
+.tip-text {
+  flex: 1;
+  font-size: 24rpx;
+  color: #e8a87c;
+}
+
+.tip-arrow {
+  font-size: 28rpx;
+  color: #e8a87c;
+}
+
+.filter-bar {
+  white-space: nowrap;
+  padding: 20rpx 24rpx 0;
+}
+
+.style-filter {
+  padding-top: 12rpx;
+  padding-bottom: 8rpx;
+}
+
+.filter-item {
+  display: inline-block;
+  padding: 12rpx 28rpx;
+  border-radius: 32rpx;
+  font-size: 26rpx;
+  color: #999;
+  background: #ffffff;
+  margin-right: 16rpx;
+  transition: all 0.3s;
+}
+
+.filter-item.active {
+  background: #1a1a2e;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.hairstyle-list {
+  padding: 16rpx 24rpx;
+}
+
+.hair-card {
+  display: flex;
+  gap: 24rpx;
+  padding: 24rpx;
+}
+
+.hair-preview {
+  position: relative;
+  width: 140rpx;
+  height: 140rpx;
+  background: rgba(232, 168, 124, 0.08);
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hair-emoji {
+  font-size: 64rpx;
+}
+
+.hair-score-badge {
+  position: absolute;
+  top: -8rpx;
+  right: -8rpx;
+  background: linear-gradient(135deg, #e8a87c, #d4a574);
+  color: #fff;
+  font-size: 20rpx;
+  font-weight: 700;
+  padding: 4rpx 12rpx;
+  border-radius: 16rpx;
+}
+
+.hair-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.hair-name-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.hair-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.hair-match {
+  font-size: 22rpx;
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.hair-desc {
+  font-size: 24rpx;
+  color: #666;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 12rpx;
+}
+
+.hair-care {
+  font-size: 22rpx;
+  color: #999;
+  display: block;
+  margin-top: 8rpx;
+}

@@ -1,0 +1,58 @@
+<!--pages/outfit/outfit.wxml-->
+<view class="page-outfit">
+  <view class="diagnose-tip" wx:if="{{!hasReport}}" bindtap="onGoDiagnose">
+    <text class="tip-icon">📸</text>
+    <text class="tip-text">完成AI诊断后，可获得个性化穿搭推荐</text>
+    <text class="tip-arrow">→</text>
+  </view>
+
+  <!-- 场景筛选 -->
+  <scroll-view class="filter-bar" scroll-x enhanced show-scrollbar="{{false}}">
+    <view class="filter-item {{currentScene === item.key ? 'active' : ''}}"
+      wx:for="{{scenes}}" wx:key="key"
+      data-key="{{item.key}}" bindtap="onFilterScene">
+      {{item.name}}
+    </view>
+  </scroll-view>
+
+  <!-- 穿搭方案列表 -->
+  <view class="outfit-list">
+    <view class="outfit-card card" wx:for="{{filteredList}}" wx:key="id">
+      <view class="outfit-header">
+        <view class="outfit-name">{{item.name}}</view>
+        <view class="outfit-score" wx:if="{{hasReport}}">
+          <text class="score-num">{{item.score}}</text>
+          <text class="score-label">适配</text>
+        </view>
+      </view>
+
+      <!-- 色彩预览 -->
+      <view class="color-preview">
+        <view class="color-dot" wx:for="{{item.colors}}" wx:key="*this" style="background: {{item}}"></view>
+      </view>
+
+      <!-- 单品清单 -->
+      <view class="items-list">
+        <view class="item-tag" wx:for="{{item.items}}" wx:for-item="itemName" wx:key="*this">
+          {{itemName}}
+        </view>
+      </view>
+
+      <!-- 适配理由 -->
+      <view class="match-reason">
+        <text class="reason-icon">✨</text>
+        <text class="reason-text">{{item.matchReason}}</text>
+      </view>
+
+      <!-- 场景标签 -->
+      <view class="scene-tag">
+        <text class="tag tag-primary">{{item.scene === 'daily' ? '日常' : item.scene === 'work' ? '职场' : item.scene === 'date' ? '约会' : '休闲'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty-state" wx:if="{{filteredList.length === 0}}">
+    <text class="empty-icon">👗</text>
+    <text class="empty-text">暂无匹配的穿搭方案</text>
+  </view>
+</view>

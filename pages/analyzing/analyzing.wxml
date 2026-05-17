@@ -1,0 +1,38 @@
+<!--pages/analyzing/analyzing.wxml-->
+<view class="page-analyzing">
+  <!-- 动画区域 -->
+  <view class="animation-area">
+    <view class="scan-circle">
+      <view class="scan-ring ring-1"></view>
+      <view class="scan-ring ring-2"></view>
+      <view class="scan-ring ring-3"></view>
+      <view class="scan-center">
+        <text class="scan-percent">{{progress}}%</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 进度条 -->
+  <view class="progress-bar">
+    <view class="progress-inner" style="width: {{progress}}%"></view>
+  </view>
+
+  <!-- 步骤列表 -->
+  <view class="steps-area">
+    <view class="step-item {{item.status}}" wx:for="{{steps}}" wx:key="label">
+      <view class="step-icon-wrap">
+        <text class="step-icon" wx:if="{{item.status === 'done'}}">✓</text>
+        <text class="step-icon" wx:elif="{{item.status === 'active'}}">{{item.icon}}</text>
+        <text class="step-icon" wx:else>○</text>
+      </view>
+      <text class="step-label">{{item.label}}</text>
+      <text class="step-status" wx:if="{{item.status === 'done'}}">完成</text>
+      <text class="step-status active" wx:elif="{{item.status === 'active'}}">分析中...</text>
+    </view>
+  </view>
+
+  <!-- 提示文字 -->
+  <view class="tip-area">
+    <text class="tip-text">AI 正在分析您的形象特征，请耐心等待...</text>
+  </view>
+</view>
