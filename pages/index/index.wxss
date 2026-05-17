@@ -1,15 +1,25 @@
 /* pages/index/index.wxss */
 .page-index {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
-  background: linear-gradient(180deg, #1a1a2e 0%, #2d2d4a 40%, #f5f5f7 40%);
+  background: #f5f5f7;
   padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
 }
 
 .header {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   padding: 48rpx 32rpx 80rpx;
+  background: linear-gradient(180deg, #1a1a2e, #2d2d4a);
 }
 
 .brand-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   text-align: center;
   margin-bottom: 40rpx;
 }
@@ -107,6 +117,7 @@
 }
 
 .action-area {
+  flex-shrink: 0;
   padding: 0 32rpx;
   margin-top: -40rpx;
   position: relative;
@@ -143,6 +154,7 @@
 }
 
 .feature-intro {
+  flex-shrink: 0;
   padding: 40rpx 32rpx 0;
 }
 
@@ -189,6 +201,7 @@
 
 /* 穿搭决策入口 */
 .outfit-entry {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
