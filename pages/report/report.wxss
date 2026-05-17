@@ -99,6 +99,9 @@
 
 .section-body {
   padding: 24rpx;
+  padding-bottom: calc(140rpx + env(safe-area-inset-bottom));
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .card-title {

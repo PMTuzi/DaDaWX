@@ -95,8 +95,8 @@ Page({
     }
   },
 
-  // 返回首页重新诊断
+  // 重新诊断
   onReDiagnose() {
-    wx.switchTab({ url: '/pages/index/index' })
+    wx.redirectTo({ url: '/pages/diagnose/diagnose' })
   }
 })

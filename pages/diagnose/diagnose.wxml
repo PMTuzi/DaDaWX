@@ -16,15 +16,10 @@
     </view>
 
     <view class="photo-upload" wx:else>
-      <!-- 拍照 -->
-      <view class="upload-btn camera-btn" bindtap="onTakePhoto">
+      <view class="upload-btn" bindtap="onChoosePhoto">
         <view class="upload-icon icon icon-camera"></view>
-        <text class="upload-text">拍摄照片</text>
-      </view>
-      <!-- 相册 -->
-      <view class="upload-btn album-btn" bindtap="onChooseFromAlbum">
-        <view class="upload-icon icon icon-image"></view>
-        <text class="upload-text">从相册选择</text>
+        <text class="upload-text">上传照片</text>
+        <text class="upload-hint">拍照或从相册选择</text>
       </view>
     </view>
   </view>
@@ -43,6 +38,15 @@
       <view class="guide-tip"><view class="icon icon-check" style="font-size:28rpx;color:var(--success);margin-right:8rpx;"></view> 服装合身，体现身形</view>
       <view class="guide-tip"><view class="icon icon-check" style="font-size:28rpx;color:var(--success);margin-right:8rpx;"></view> 光线充足，画面清晰</view>
       <view class="guide-tip"><view class="icon icon-check" style="font-size:28rpx;color:var(--success);margin-right:8rpx;"></view> 自然站姿，双臂放松</view>
+    </view>
+  </view>
+
+  <!-- 性别选择 -->
+  <view class="gender-section">
+    <text class="gender-label">性别</text>
+    <view class="gender-switch">
+      <view class="gender-item {{gender === 'female' ? 'active' : ''}}" data-gender="female" bindtap="onSwitchGender">女</view>
+      <view class="gender-item {{gender === 'male' ? 'active' : ''}}" data-gender="male" bindtap="onSwitchGender">男</view>
     </view>
   </view>
 

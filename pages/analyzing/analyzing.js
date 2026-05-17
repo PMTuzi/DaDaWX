@@ -52,6 +52,7 @@ Page({
         ossUrl,
         imageBase64,
         photoType: options.photoType || 'face',
+        gender: options.gender || 'female',
         userTags
       })
     } catch (e) {
@@ -144,6 +145,7 @@ Page({
             imageUrl: this.data.imageUrl || this.data.ossUrl,
             visualFeatures: visionResult.data.features,
             userTags: this.data.userTags,
+            gender: this.data.gender,
             quantMetrics: visionResult.data.metrics
           },
           timeout: 120000
@@ -165,6 +167,7 @@ Page({
                 imageUrl: this.data.imageUrl || this.data.ossUrl,
                 visualFeatures: visionResult.data.features,
                 userTags: this.data.userTags,
+                gender: this.data.gender,
                 quantMetrics: visionResult.data.metrics,
                 isRetry: true
               }

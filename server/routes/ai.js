@@ -65,11 +65,11 @@ router.post('/analyze-vision', async (req, res) => {
  */
 router.post('/generate-report', async (req, res) => {
   try {
-    const { imageUrl, visualFeatures, userTags, quantMetrics, isRetry } = req.body
+    const { imageUrl, visualFeatures, userTags, gender, quantMetrics, isRetry } = req.body
 
-    console.log(`[AI] 开始生成报告${isRetry ? '(重试)' : ''}`)
+    console.log(`[AI] 开始生成报告${isRetry ? '(重试)' : ''}, 性别: ${gender || '未指定'}`)
 
-    const report = await generateReport(visualFeatures, userTags || [], quantMetrics || {})
+    const report = await generateReport(visualFeatures, userTags || [], quantMetrics || {}, gender)
 
     // 校验输出格式
     if (!validateReport(report)) {

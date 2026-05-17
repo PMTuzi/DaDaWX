@@ -105,8 +105,12 @@ async function analyzeVision(imageInput, photoType = 'face') {
  * 调用通义千问（文本模型）
  * 生成结构化形象报告
  */
-async function generateReport(visualFeatures, userTags = [], quantMetrics = {}) {
+async function generateReport(visualFeatures, userTags = [], quantMetrics = {}, gender = 'female') {
+  const genderLabel = gender === 'male' ? '男性' : '女性'
   const prompt = `你是一位拥有20年经验的高级形象顾问AI，请根据以下用户的视觉特征分析数据，生成一份专业、详细、可落地的形象诊断报告。
+
+## 用户性别
+${genderLabel}
 
 ## 用户视觉特征数据
 ${JSON.stringify(visualFeatures, null, 2)}
@@ -256,7 +260,7 @@ ${JSON.stringify(quantMetrics, null, 2)}
         ],
         temperature: 0.3,
         top_p: 0.85,
-        max_tokens: 8000
+        max_tokens: 8192
       },
       {
         headers: {

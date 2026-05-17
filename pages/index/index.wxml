@@ -1,8 +1,8 @@
 <!--pages/index/index.wxml-->
 <view class="page-index">
   <!-- 顶部品牌区 -->
-  <view class="header">
-    <view class="brand-area">
+  <view class="header {{hasReport ? 'header-diagnosed' : ''}}">
+    <view class="brand-area {{hasReport ? 'brand-area-small' : ''}}">
       <view class="logo">搭搭</view>
       <view class="slogan">{{slogan}}</view>
     </view>
@@ -10,7 +10,7 @@
     <!-- 如果有最新报告，展示摘要 -->
     <view class="report-summary card" wx:if="{{hasReport}}" bindtap="onViewReport">
       <view class="summary-header">
-        <text class="summary-title">最新诊断报告</text>
+        <text class="summary-title">形象诊断报告</text>
         <text class="summary-date">{{latestReport.createTime}}</text>
       </view>
       <view class="summary-score">
@@ -31,17 +31,38 @@
 
   <!-- 核心入口 -->
   <view class="action-area">
-    <view class="diagnose-btn btn-primary" bindtap="onStartDiagnose">
-      <view class="btn-icon icon icon-camera"></view>
-      <view class="btn-text">
-        <text class="btn-main">立即诊断</text>
-        <text class="btn-sub">拍照上传 → AI 分析 → 生成报告</text>
+    <!-- 未诊断：形象诊断为主按钮，穿搭决策为次入口 -->
+    <block wx:if="{{!hasReport}}">
+      <view class="diagnose-btn btn-primary" bindtap="onStartDiagnose">
+        <view class="btn-icon icon icon-camera"></view>
+        <view class="btn-text">
+          <text class="btn-main">立即诊断</text>
+          <text class="btn-sub">拍照上传 → AI 分析 → 生成报告</text>
+        </view>
       </view>
+    </block>
+    <!-- 已诊断：穿搭决策为主按钮，形象诊断为次入口 -->
+    <block wx:else>
+      <view class="diagnose-btn btn-primary" bindtap="onGoOutfit">
+        <view class="btn-icon icon icon-dress"></view>
+        <view class="btn-text">
+          <text class="btn-main">穿搭决策</text>
+          <text class="btn-sub">基于诊断报告，AI 智能评分对比</text>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- Banner广告 -->
+  <view class="banner-ad" bindtap="onBannerTap">
+    <image class="banner-image" src="{{bannerImage}}" mode="aspectFill" wx:if="{{bannerImage}}"></image>
+    <view class="banner-placeholder" wx:else>
+      <text class="banner-placeholder-text">广告位</text>
     </view>
   </view>
 
   <!-- 功能简介 -->
-  <view class="feature-intro">
+  <view class="feature-intro" wx:if="{{!hasReport}}">
     <view class="feature-steps">
       <view class="step">
         <view class="step-icon icon icon-camera"></view>
@@ -60,8 +81,8 @@
     </view>
   </view>
 
-  <!-- 穿搭决策入口 -->
-  <view class="outfit-entry" bindtap="onGoOutfit">
+  <!-- 未诊断：穿搭决策为次入口 -->
+  <view class="outfit-entry" wx:if="{{!hasReport}}" bindtap="onGoOutfit">
     <view class="outfit-entry-left">
       <view class="outfit-entry-icon icon icon-dress"></view>
       <view class="outfit-entry-info">

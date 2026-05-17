@@ -11,7 +11,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 48rpx 32rpx 80rpx;
+  padding: 60rpx 32rpx 40rpx;
   background: linear-gradient(180deg, #1a1a2e, #2d2d4a);
 }
 
@@ -21,7 +21,22 @@
   flex-direction: column;
   justify-content: center;
   text-align: center;
-  margin-bottom: 40rpx;
+  margin-bottom: 24rpx;
+}
+
+.header-diagnosed {
+  padding-top: 32rpx;
+  padding-bottom: 28rpx;
+}
+
+.brand-area-small {
+  flex: 0;
+  margin-bottom: 20rpx;
+  margin-top: 40rpx;
+}
+
+.header-diagnosed .report-summary {
+  margin-bottom: 20rpx;
 }
 
 .logo {
@@ -132,6 +147,7 @@
   box-shadow: 0 12rpx 40rpx rgba(232, 168, 124, 0.35);
 }
 
+
 .btn-icon {
   font-size: 56rpx;
   flex-shrink: 0;
@@ -205,11 +221,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 32rpx 32rpx 0;
+  margin: 32rpx 32rpx 40rpx;
   padding: 32rpx;
   background: #ffffff;
   border-radius: 24rpx;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
+}
+
+.outfit-entry-bottom {
+  margin-bottom: 120rpx;
 }
 
 .outfit-entry:active {
@@ -328,4 +348,34 @@
 .case-score-label {
   font-size: 22rpx;
   color: #999999;
+}
+
+/* Banner广告 */
+.banner-ad {
+  flex-shrink: 0;
+  margin: 24rpx 32rpx 40rpx;
+  border-radius: 20rpx;
+  overflow: hidden;
+  height: 240rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
+}
+
+.banner-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f0e6dc, #e8ddd4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.banner-placeholder-text {
+  font-size: 28rpx;
+  color: rgba(26, 26, 46, 0.25);
+  letter-spacing: 8rpx;
 }

@@ -4,6 +4,7 @@ const { request, API, uploadImage } = require('../../utils/api')
 Page({
   data: {
     photoType: 'face', // face | fullbody
+    gender: 'female', // female | male
     photoUrl: '',
     isUploading: false,
     userTags: [],
@@ -27,65 +28,36 @@ Page({
     this.setData({ photoType: e.currentTarget.dataset.type })
   },
 
-  // 拍照
-  onTakePhoto() {
+  // 切换性别
+  onSwitchGender(e) {
+    this.setData({ gender: e.currentTarget.dataset.gender })
+  },
+
+  // 选择照片（拍照或相册）
+  onChoosePhoto() {
     try {
       wx.chooseMedia({
         count: 1,
         mediaType: ['image'],
-        sourceType: ['camera'],
+        sourceType: ['album', 'camera'],
         camera: 'front',
         success: (res) => {
           try {
             this.setData({ photoUrl: res.tempFiles[0].tempFilePath, guideVisible: false })
           } catch (e) {
-            console.error('[diagnose] 拍照回调出错:', e)
+            console.error('[diagnose] 选择照片回调出错:', e)
           }
         },
         fail: (err) => {
           if (err.errMsg && err.errMsg.indexOf('cancel') > -1) return
-          console.warn('[diagnose] chooseMedia 拍照失败:', err.errMsg)
+          console.warn('[diagnose] chooseMedia 失败:', err.errMsg)
         }
       })
     } catch (e) {
       // chooseMedia 不可用时降级
       wx.chooseImage({
         count: 1,
-        sourceType: ['camera'],
-        success: (res) => {
-          try {
-            this.setData({ photoUrl: res.tempFilePaths[0], guideVisible: false })
-          } catch (e2) {}
-        },
-        fail: () => {}
-      })
-    }
-  },
-
-  // 从相册选择
-  onChooseFromAlbum() {
-    try {
-      wx.chooseMedia({
-        count: 1,
-        mediaType: ['image'],
-        sourceType: ['album'],
-        success: (res) => {
-          try {
-            this.setData({ photoUrl: res.tempFiles[0].tempFilePath, guideVisible: false })
-          } catch (e) {
-            console.error('[diagnose] 相册选择回调出错:', e)
-          }
-        },
-        fail: (err) => {
-          if (err.errMsg && err.errMsg.indexOf('cancel') > -1) return
-          console.warn('[diagnose] chooseMedia 相册失败:', err.errMsg)
-        }
-      })
-    } catch (e) {
-      // chooseMedia 不可用时降级
-      wx.chooseImage({
-        count: 1,
-        sourceType: ['album'],
+        sourceType: ['album', 'camera'],
         success: (res) => {
           try {
             this.setData({ photoUrl: res.tempFilePaths[0], guideVisible: false })
@@ -147,7 +119,7 @@ Page({
       this.setData({ isUploading: false })
 
       wx.navigateTo({
-        url: `/pages/analyzing/analyzing?imageUrl=${encodeURIComponent(imageUrl)}&photoType=${this.data.photoType}&tags=${encodeURIComponent(JSON.stringify(this.data.userTags))}`,
+        url: `/pages/analyzing/analyzing?imageUrl=${encodeURIComponent(imageUrl)}&photoType=${this.data.photoType}&gender=${this.data.gender}&tags=${encodeURIComponent(JSON.stringify(this.data.userTags))}`,
         fail: (err) => {
           console.error('[diagnose] navigateTo 失败:', err)
           wx.showToast({ title: '页面跳转失败', icon: 'none' })

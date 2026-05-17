@@ -2,7 +2,8 @@
 .page-detail {
   min-height: 100vh;
   background: #f5f5f7;
-  padding: 24rpx;
+  padding: 24rpx 24rpx calc(24rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
 }
 
 .detail-header {

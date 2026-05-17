@@ -7,7 +7,8 @@ Page({
     slogan: '国内首款「反种草」AI 形象诊断平台',
     hasReport: false,
     latestReport: null,
-    scoreLevel: null
+    scoreLevel: null,
+    bannerImage: ''
   },
 
   onLoad() {
@@ -63,5 +64,10 @@ Page({
   // 快捷入口
   onGoOutfit() {
     wx.navigateTo({ url: '/pages/outfit/outfit' })
+  },
+
+  // Banner点击
+  onBannerTap() {
+    // TODO: 跳转广告链接
   }
 })

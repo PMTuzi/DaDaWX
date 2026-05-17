@@ -33,7 +33,7 @@
 
     <!-- 板块1: 综合建议 -->
     <swiper-item>
-      <view class="section-body">
+      <scroll-view class="section-body" scroll-y enhanced show-scrollbar="{{false}}">
         <view class="card summary-card">
           <view class="card-title">核心结论</view>
           <text class="summary-text">{{report.summary.coreConclusion}}</text>
@@ -58,12 +58,12 @@
         <view class="card">
           <button class="btn-primary" bindtap="onReDiagnose">重新诊断</button>
         </view>
-      </view>
+      </scroll-view>
     </swiper-item>
 
     <!-- 板块2: 脸型分析 -->
     <swiper-item>
-      <view class="section-body">
+      <scroll-view class="section-body" scroll-y enhanced show-scrollbar="{{false}}">
         <view class="card">
           <view class="card-title">脸型判定: {{report.faceShape.type}}</view>
           <view class="shape-score">
@@ -128,12 +128,12 @@
             </view>
           </view>
         </view>
-      </view>
+      </scroll-view>
     </swiper-item>
 
     <!-- 板块3: 肤色诊断 -->
     <swiper-item>
-      <view class="section-body">
+      <scroll-view class="section-body" scroll-y enhanced show-scrollbar="{{false}}">
         <view class="card">
           <view class="card-title">肤色属性: {{report.skinColor.type}}</view>
           <view class="skin-attrs">
@@ -192,12 +192,12 @@
             </view>
           </view>
         </view>
-      </view>
+      </scroll-view>
     </swiper-item>
 
     <!-- 板块4: 风格基因 -->
     <swiper-item>
-      <view class="section-body">
+      <scroll-view class="section-body" scroll-y enhanced show-scrollbar="{{false}}">
         <view class="card">
           <view class="card-title">核心风格: {{report.style.mainStyle}}</view>
           <view class="style-score-display">
@@ -258,12 +258,12 @@
             </view>
           </view>
         </view>
-      </view>
+      </scroll-view>
     </swiper-item>
 
     <!-- 板块5: 身形适配 -->
     <swiper-item>
-      <view class="section-body">
+      <scroll-view class="section-body" scroll-y enhanced show-scrollbar="{{false}}">
         <view class="card">
           <view class="card-title">身形推导结果</view>
           <view class="body-result">
@@ -319,12 +319,12 @@
             </view>
           </view>
         </view>
-      </view>
+      </scroll-view>
     </swiper-item>
 
     <!-- 板块6: 穿搭推荐 -->
     <swiper-item>
-      <view class="section-body">
+      <scroll-view class="section-body" scroll-y enhanced show-scrollbar="{{false}}">
         <view class="card">
           <view class="card-title">适配基础款</view>
           <view class="item-list">
@@ -354,12 +354,12 @@
             </view>
           </view>
         </view>
-      </view>
+      </scroll-view>
     </swiper-item>
 
     <!-- 板块7: 发型推荐 -->
     <swiper-item>
-      <view class="section-body">
+      <scroll-view class="section-body" scroll-y enhanced show-scrollbar="{{false}}">
         <view class="card">
           <view class="card-title">TOP 推荐发型</view>
           <view class="top-hair-list">
@@ -415,12 +415,12 @@
             </view>
           </view>
         </view>
-      </view>
+      </scroll-view>
     </swiper-item>
 
     <!-- 板块8: 妆容指南 -->
     <swiper-item>
-      <view class="section-body">
+      <scroll-view class="section-body" scroll-y enhanced show-scrollbar="{{false}}">
         <view class="card">
           <view class="card-title">适配妆容: {{report.makeup.style}}</view>
         </view>
@@ -483,7 +483,7 @@
             </view>
           </view>
         </view>
-      </view>
+      </scroll-view>
     </swiper-item>
 
   </swiper>
