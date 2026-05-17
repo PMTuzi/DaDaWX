@@ -22,9 +22,9 @@
       <text class="stat-label">诊断报告</text>
     </view>
     <view class="stat-divider"></view>
-    <view class="stat-item" bindtap="onGoFavorites">
-      <text class="stat-num">{{favoriteCount}}</text>
-      <text class="stat-label">收藏</text>
+    <view class="stat-item" bindtap="onGoConsultHistory">
+      <text class="stat-num">{{consultCount}}</text>
+      <text class="stat-label">穿搭决策</text>
     </view>
   </view>
 
