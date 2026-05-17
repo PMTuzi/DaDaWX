@@ -2,12 +2,9 @@
 
 Page({
   data: {
-    type: 'keep', // buy | keep | compare
-    typeName: '留不留',
-    typeDesc: '退货还是留下？AI帮你做决定',
     // 图片
     images: [],
-    maxImages: 3,
+    maxImages: 4,
     minImages: 1,
     // ===== 单品标签 =====
     category: '',
@@ -43,36 +40,11 @@ Page({
     reasonOptions: ['不知道哪件更显瘦', '不确定哪件更百搭', '不知道哪件质感更好', '价格差异大不知怎么选', '都喜欢不知道选哪件'],
     // 状态
     submitting: false,
-    imageErrors: [] // 图片校验错误
+    imageErrors: []
   },
 
-  onLoad(options) {
-    const type = options.type || 'keep'
-    this.initByType(type)
-  },
-
-  initByType(type) {
-    const typeMap = {
-      buy: { name: '买不买', desc: '想买又犹豫？AI帮你看值不值', max: 3, min: 1 },
-      keep: { name: '留不留', desc: '退货还是留下？AI帮你做决定', max: 3, min: 1 },
-      compare: { name: '选哪个', desc: '几件纠结选哪件？AI帮你横向对比', max: 4, min: 2 }
-    }
-    const config = typeMap[type] || typeMap.keep
-    this.setData({
-      type,
-      typeName: config.name,
-      typeDesc: config.desc,
-      maxImages: config.max,
-      minImages: config.min
-    })
-    wx.setNavigationBarTitle({ title: config.name })
-
-    if (type === 'compare') {
-      this.setData({
-        priceList: ['', ''],
-        priceListIndexes: [-1, -1]
-      })
-    }
+  onLoad() {
+    wx.setNavigationBarTitle({ title: '穿搭决策' })
   },
 
   // ===== 图片相关 =====
@@ -89,7 +61,6 @@ Page({
       success: (res) => {
         const newImages = []
         res.tempFiles.forEach(f => {
-          // 前端图片校验：尺寸检测 <5KB 拦截
           if (f.size < 5 * 1024) {
             wx.showToast({ title: '图片太小，请重新选择', icon: 'none' })
             return
@@ -105,8 +76,8 @@ Page({
         const images = [...this.data.images, ...newImages]
         this.setData({ images })
 
-        // Type B 动态扩展 priceList
-        if (this.data.type === 'compare') {
+        // 多张图片时动态扩展 priceList
+        if (images.length > 1) {
           const pl = [...this.data.priceList]
           const pli = [...this.data.priceListIndexes]
           while (pl.length < images.length) {
@@ -124,6 +95,15 @@ Page({
     const images = [...this.data.images]
     images.splice(idx, 1)
     this.setData({ images })
+
+    // 同步 priceList
+    if (images.length > 1) {
+      const pl = [...this.data.priceList]
+      const pli = [...this.data.priceListIndexes]
+      pl.splice(idx, 1)
+      pli.splice(idx, 1)
+      this.setData({ priceList: pl, priceListIndexes: pli })
+    }
   },
 
   onPreviewImage(e) {
@@ -221,13 +201,15 @@ Page({
     if (this.data.submitting) return
 
     // 校验图片
-    if (this.data.images.length < this.data.minImages) {
-      wx.showToast({ title: `请上传至少${this.data.minImages}张图片`, icon: 'none' })
+    if (this.data.images.length < 1) {
+      wx.showToast({ title: '请上传至少1张图片', icon: 'none' })
       return
     }
 
+    const isCompare = this.data.images.length > 1
+
     // 单品必填校验
-    if (this.data.type !== 'compare') {
+    if (!isCompare) {
       if (!this.data.category) {
         wx.showToast({ title: '请选择服饰类别', icon: 'none' }); return
       }
@@ -237,7 +219,7 @@ Page({
     }
 
     // 对比必填校验
-    if (this.data.type === 'compare') {
+    if (isCompare) {
       if (!this.data.compareScene) {
         wx.showToast({ title: '请选择对比场景', icon: 'none' }); return
       }
@@ -246,20 +228,28 @@ Page({
     this.setData({ submitting: true })
 
     try {
-      // 上传图片到服务器（避免 base64 过大导致真机请求失败）
+      // 上传图片到服务器，失败时用本地路径兜底
       const imageDataList = []
       for (const img of this.data.images) {
-        const url = await this.uploadImage(img.path)
-        imageDataList.push({ imageUrl: url })
+        try {
+          const url = await this.uploadImage(img.path)
+          imageDataList.push({ imageUrl: url })
+        } catch (uploadErr) {
+          console.warn('[consult-publish] 图片上传失败，使用本地路径:', uploadErr.message)
+          imageDataList.push({ imageUrl: img.path })
+        }
       }
+
+      // 根据图片数量自动决定类型
+      const type = isCompare ? 'compare' : 'buy'
 
       // 组装咨询数据
       const consultData = {
-        type: this.data.type,
+        type,
         images: imageDataList,
       }
 
-      if (this.data.type !== 'compare') {
+      if (!isCompare) {
         consultData.category = this.data.category
         consultData.priceRange = this.data.priceRange
         consultData.bodyFeatures = this.data.bodyFeatures
@@ -272,15 +262,24 @@ Page({
         consultData.reason = this.data.reason
       }
 
-      // 用 globalData 传递大图片数据，避免 storage 1MB 限制
+      // 同时用 globalData 和 storage 传递数据，确保可靠
       getApp().globalData.consultData = consultData
+      wx.setStorageSync('consultData', consultData)
 
       wx.navigateTo({
-        url: `/pages/consult-analyzing/consult-analyzing?type=${this.data.type}`
+        url: `/pages/consult-analyzing/consult-analyzing?type=${type}`,
+        fail: (err) => {
+          console.error('[consult-publish] navigateTo 失败:', err)
+          wx.showToast({ title: '页面跳转失败', icon: 'none' })
+        }
       })
     } catch (err) {
-      console.error('提交失败:', err)
-      wx.showToast({ title: '图片处理失败，请重试', icon: 'none' })
+      console.error('[consult-publish] 提交失败:', err)
+      wx.showModal({
+        title: '提交失败',
+        content: err.message || '图片上传失败，请检查网络后重试',
+        showCancel: false
+      })
     } finally {
       this.setData({ submitting: false })
     }

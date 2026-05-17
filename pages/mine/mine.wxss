@@ -135,6 +135,16 @@
   color: #cccccc;
 }
 
+.menu-badge {
+  background: #e8a87c;
+  color: #fff;
+  font-size: 20rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 16rpx;
+  margin-right: 12rpx;
+  font-weight: 600;
+}
+
 .menu-item.logout {
   justify-content: center;
 }

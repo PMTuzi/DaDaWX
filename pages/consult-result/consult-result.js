@@ -26,7 +26,8 @@ Page({
     const records = wx.getStorageSync('consultRecords') || []
     const record = records.find(r => r.id === id)
     if (!record) {
-      wx.showToast({ title: '未找到记录', icon: 'none' })
+      wx.showToast({ title: '未找到记录，即将返回', icon: 'none', duration: 2000 })
+      setTimeout(() => wx.switchTab({ url: '/pages/index/index' }), 2000)
       return
     }
 
@@ -172,11 +173,11 @@ Page({
   },
 
   onConsultAgain() {
-    wx.navigateBack()
+    wx.navigateTo({ url: '/pages/consult-publish/consult-publish' })
   },
 
   onBackHome() {
-    wx.switchTab({ url: '/pages/outfit/outfit' })
+    wx.switchTab({ url: '/pages/index/index' })
   },
 
   onShareAppMessage() {

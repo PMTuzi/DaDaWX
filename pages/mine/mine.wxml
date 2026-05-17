@@ -32,7 +32,13 @@
   <view class="menu-section">
     <view class="menu-item" bindtap="onGoReports">
       <view class="menu-icon icon icon-chart" style="font-size:36rpx;"></view>
-      <text class="menu-text">我的报告</text>
+      <text class="menu-text">形象诊断报告</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="onGoConsultHistory">
+      <view class="menu-icon icon icon-dress" style="font-size:36rpx;"></view>
+      <text class="menu-text">穿搭决策记录</text>
+      <text class="menu-badge" wx:if="{{consultCount > 0}}">{{consultCount}}</text>
       <text class="menu-arrow">›</text>
     </view>
   </view>

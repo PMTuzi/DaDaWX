@@ -60,21 +60,16 @@
     </view>
   </view>
 
-  <!-- 快捷入口 -->
-  <view class="quick-entries">
-    <view class="entry-item" bindtap="onGoHairStyle">
-      <view class="entry-icon icon icon-hair"></view>
-      <text class="entry-name">发型推荐</text>
+  <!-- 穿搭决策入口 -->
+  <view class="outfit-entry" bindtap="onGoOutfit">
+    <view class="outfit-entry-left">
+      <view class="outfit-entry-icon icon icon-dress"></view>
+      <view class="outfit-entry-info">
+        <text class="outfit-entry-title">穿搭决策</text>
+        <text class="outfit-entry-desc">上传衣物照片，AI帮你评分对比</text>
+      </view>
     </view>
-    <view class="entry-item" bindtap="onGoOutfit">
-      <view class="entry-icon icon icon-dress"></view>
-      <text class="entry-name">穿搭灵感</text>
-    </view>
-    <view class="entry-item" bindtap="onGoMakeup">
-      <view class="entry-icon icon icon-makeup"></view>
-      <text class="entry-name">妆容指南</text>
-    </view>
-
+    <text class="outfit-entry-arrow">→</text>
   </view>
 
 </view>

@@ -187,6 +187,57 @@
   gap: 20rpx;
 }
 
+/* 穿搭决策入口 */
+.outfit-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 32rpx 32rpx 0;
+  padding: 32rpx;
+  background: #ffffff;
+  border-radius: 24rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
+}
+
+.outfit-entry:active {
+  transform: scale(0.98);
+  transition: transform 0.15s;
+}
+
+.outfit-entry-left {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.outfit-entry-icon {
+  font-size: 56rpx;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.outfit-entry-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.outfit-entry-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.outfit-entry-desc {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.outfit-entry-arrow {
+  font-size: 36rpx;
+  color: #ccc;
+}
+
 .entry-item {
   flex: 1;
   display: flex;

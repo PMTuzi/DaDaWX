@@ -4,29 +4,6 @@ const app = getApp()
 Page({
   data: {
     hasReport: false,
-    consultCards: [
-      {
-        type: 'buy',
-        title: '买不买',
-        subtitle: '想买又犹豫？AI帮你看值不值',
-        icon: 'shopping',
-        gradient: 'linear-gradient(135deg, #667eea, #764ba2)'
-      },
-      {
-        type: 'keep',
-        title: '留不留',
-        subtitle: '退货还是留下？AI帮你做决定',
-        icon: 'thinking',
-        gradient: 'linear-gradient(135deg, #f093fb, #f5576c)'
-      },
-      {
-        type: 'compare',
-        title: '选哪个',
-        subtitle: '几件纠结选哪件？AI帮你横向对比',
-        icon: 'balance',
-        gradient: 'linear-gradient(135deg, #4facfe, #00f2fe)'
-      }
-    ],
     recentConsults: [],
     showHistory: false
   },
@@ -54,10 +31,10 @@ Page({
     })
   },
 
-  onCardTap(e) {
-    const type = e.currentTarget.dataset.type
+  // 开始穿搭决策 - 统一入口
+  onStartConsult() {
     wx.navigateTo({
-      url: `/pages/consult-publish/consult-publish?type=${type}`
+      url: '/pages/consult-publish/consult-publish'
     })
   },
 

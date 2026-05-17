@@ -4,7 +4,8 @@ Page({
     userInfo: null,
     hasReport: false,
     reportCount: 0,
-    favoriteCount: 0
+    favoriteCount: 0,
+    consultCount: 0
   },
 
   onLoad() {
@@ -19,11 +20,13 @@ Page({
     const userInfo = wx.getStorageSync('userInfo')
     const reports = wx.getStorageSync('reports') || []
     const favorites = wx.getStorageSync('favorites') || []
+    const consults = wx.getStorageSync('consultRecords') || []
     this.setData({
       userInfo,
       hasReport: reports.length > 0,
       reportCount: reports.length,
-      favoriteCount: favorites.length
+      favoriteCount: favorites.length,
+      consultCount: consults.length
     })
   },
 
@@ -39,6 +42,10 @@ Page({
 
   onGoReports() {
     wx.navigateTo({ url: '/pages/reports/reports' })
+  },
+
+  onGoConsultHistory() {
+    wx.navigateTo({ url: '/pages/outfit/outfit' })
   },
 
   onGoFavorites() {

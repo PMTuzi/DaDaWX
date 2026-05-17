@@ -1,35 +1,41 @@
 <!--pages/consult-publish/consult-publish.wxml-->
+<wxs src="../../utils/helpers.wxs" module="h" />
 <view class="page-publish">
   <!-- 场景描述 -->
   <view class="scene-header">
-    <view class="scene-title">{{typeName}}</view>
-    <view class="scene-desc">{{typeDesc}}</view>
+    <view class="scene-title">穿搭决策</view>
+    <view class="scene-desc">上传1张图片 → 评分评估 | 上传多张图片 → 对比排名</view>
   </view>
 
   <!-- 图片上传 -->
   <view class="section">
     <view class="section-label">
       <text class="label-text">上传图片</text>
-      <text class="label-hint">{{type === 'compare' ? '（2-4张对比图）' : '（1-3张实物图）'}}</text>
+      <text class="label-hint">（1-4张，多张自动进入对比模式）</text>
     </view>
     <view class="image-grid">
       <view class="image-item" wx:for="{{images}}" wx:key="path">
         <image class="image-thumb" src="{{item.thumb}}" mode="aspectFill"
           data-index="{{index}}" bindtap="onPreviewImage" />
-        <view class="image-label" wx:if="{{type === 'compare'}}">
+        <view class="image-label" wx:if="{{images.length > 1}}">
           款式{{['A','B','C','D'][index]}}
         </view>
         <view class="image-remove" data-index="{{index}}" bindtap="onRemoveImage"><view class="icon icon-multiply" style="font-size:20rpx;"></view></view>
       </view>
-      <view class="image-add" wx:if="{{images.length < maxImages}}" bindtap="onAddImage">
+      <view class="image-add" wx:if="{{images.length < 4}}" bindtap="onAddImage">
         <text class="add-icon">+</text>
         <text class="add-text">添加图片</text>
       </view>
     </view>
+    <!-- 模式提示 -->
+    <view class="mode-hint" wx:if="{{images.length > 1}}">
+      <view class="mode-tag">对比模式</view>
+      <text class="mode-text">将对比各款式的评分排名</text>
+    </view>
   </view>
 
-  <!-- ===== Type A 表单：单品决策 ===== -->
-  <block wx:if="{{type !== 'compare'}}">
+  <!-- ===== 单品评估表单（1张图片时显示） ===== -->
+  <view wx:if="{{images.length <= 1}}">
     <!-- 服饰类别（必填） -->
     <view class="section">
       <view class="section-label">
@@ -65,9 +71,9 @@
         <text class="label-hint">（选填，最多3项）</text>
       </view>
       <view class="tag-group">
-        <view class="tag-option {{bodyFeatures.indexOf(item) > -1 ? 'active' : ''}}"
-          wx:for="{{bodyFeatureOptions}}" wx:key="*this"
-          data-value="{{item}}" bindtap="onBodyFeatureTap">
+        <view class="tag-option {{h.includes(bodyFeatures, item) ? 'active' : ''}}"
+          wx:for="{{bodyFeatureOptions}}" wx:key="index"
+          data-value="{{item}}" bindtap="onBodyFeatureTap" hover-class="tag-option-hover">
           {{item}}
         </view>
       </view>
@@ -80,9 +86,9 @@
         <text class="label-hint">（选填，最多2项）</text>
       </view>
       <view class="tag-group">
-        <view class="tag-option {{wearScenes.indexOf(item) > -1 ? 'active' : ''}}"
-          wx:for="{{wearSceneOptions}}" wx:key="*this"
-          data-value="{{item}}" bindtap="onWearSceneTap">
+        <view class="tag-option {{h.includes(wearScenes, item) ? 'active' : ''}}"
+          wx:for="{{wearSceneOptions}}" wx:key="index"
+          data-value="{{item}}" bindtap="onWearSceneTap" hover-class="tag-option-hover">
           {{item}}
         </view>
       </view>
@@ -101,10 +107,10 @@
         </view>
       </picker>
     </view>
-  </block>
+  </view>
 
-  <!-- ===== Type B 表单：多选一决策 ===== -->
-  <block wx:if="{{type === 'compare'}}">
+  <!-- ===== 对比表单（多张图片时显示） ===== -->
+  <view wx:if="{{images.length > 1}}">
     <!-- 对比场景（必填） -->
     <view class="section">
       <view class="section-label">
@@ -145,9 +151,9 @@
         <text class="label-hint">（选填，最多3项）</text>
       </view>
       <view class="tag-group">
-        <view class="tag-option {{styleDiff.indexOf(item) > -1 ? 'active' : ''}}"
-          wx:for="{{styleDiffOptions}}" wx:key="*this"
-          data-value="{{item}}" bindtap="onStyleDiffTap">
+        <view class="tag-option {{h.includes(styleDiff, item) ? 'active' : ''}}"
+          wx:for="{{styleDiffOptions}}" wx:key="index"
+          data-value="{{item}}" bindtap="onStyleDiffTap" hover-class="tag-option-hover">
           {{item}}
         </view>
       </view>
@@ -166,7 +172,7 @@
         </view>
       </picker>
     </view>
-  </block>
+  </view>
 
   <!-- 提交按钮 -->
   <view class="submit-area safe-bottom">

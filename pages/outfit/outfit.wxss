@@ -29,6 +29,69 @@
   gap: 24rpx;
 }
 
+/* 统一入口卡片 */
+.unified-card {
+  position: relative;
+  border-radius: 24rpx;
+  overflow: hidden;
+  margin: 0 32rpx;
+  padding: 44rpx 32rpx;
+  display: flex;
+  align-items: center;
+}
+
+.unified-card .card-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.12;
+  border-radius: 24rpx;
+}
+
+.unified-card .card-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.unified-card .card-icon {
+  color: #667eea;
+}
+
+.unified-card .card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.unified-card .card-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.unified-card .card-subtitle {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.unified-card .card-arrow {
+  font-size: 36rpx;
+  color: #ccc;
+  position: relative;
+  z-index: 1;
+}
+
+.unified-card:active {
+  transform: scale(0.98);
+  transition: transform 0.15s;
+}
+
 .consult-card {
   position: relative;
   border-radius: 24rpx;

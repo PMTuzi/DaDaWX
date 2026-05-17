@@ -61,15 +61,7 @@ Page({
   },
 
   // 快捷入口
-  onGoHairStyle() {
-    wx.switchTab({ url: '/pages/hairstyle/hairstyle' })
-  },
-
   onGoOutfit() {
-    wx.switchTab({ url: '/pages/outfit/outfit' })
-  },
-
-  onGoMakeup() {
-    wx.navigateTo({ url: '/pages/makeup/makeup' })
+    wx.navigateTo({ url: '/pages/outfit/outfit' })
   }
 })

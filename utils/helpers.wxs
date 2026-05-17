@@ -1,0 +1,12 @@
+// WXS 辅助函数 - WXML 模板中可调用
+function includes(arr, val) {
+  if (!arr) return false
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] === val) return true
+  }
+  return false
+}
+
+module.exports = {
+  includes: includes
+}
