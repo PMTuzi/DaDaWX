@@ -154,19 +154,32 @@ Page({
   async autoDetectCategory(imagePath) {
     try { this.setData({ categoryDetected: false }) } catch (e) {}
     try {
-      // 上传图片（内置 base64 降级）
+      // 上传图片（内置 base64 降级），失败则用 base64 直传
       let imageUrl
+      let imageBase64
       try {
         imageUrl = await uploadImage(imagePath)
       } catch (e) {
-        console.warn('[consult-publish] 图片上传失败，跳过AI类别识别:', e.message)
-        return
+        console.warn('[consult-publish] 图片上传失败，尝试base64识别:', e.message)
+        try {
+          const { imageToBase64 } = require('../../utils/api')
+          imageBase64 = await imageToBase64(imagePath)
+        } catch (e2) {
+          console.warn('[consult-publish] base64转换也失败，跳过AI类别识别')
+          return
+        }
+      }
+
+      const data = { timeout: 15000 }
+      if (imageUrl) {
+        data.data = { images: [{ imageUrl }] }
+      } else {
+        data.data = { images: [{ imageBase64 }] }
       }
 
       const result = await request(API.detectCategory, {
         method: 'POST',
-        data: { images: [{ imageUrl }] },
-        timeout: 15000
+        ...data
       })
 
       if (result && result.code === 0 && result.data && result.data.category) {
@@ -295,6 +308,21 @@ Page({
     })
   },
 
+  // 将临时图片保存到持久化目录，确保跨页面/跨会话可用
+  async saveImageToLocal(tempPath) {
+    try {
+      const fs = wx.getFileSystemManager()
+      const ext = tempPath.match(/\.(jpg|jpeg|png|webp)$/i) ? tempPath.match(/\.(jpg|jpeg|png|webp)$/i)[0] : '.jpg'
+      const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 8)}${ext}`
+      const destPath = `${wx.env.USER_DATA_PATH}/${fileName}`
+      fs.saveFileSync(tempPath, destPath)
+      return destPath
+    } catch (e) {
+      console.warn('[consult-publish] 保存本地图片失败，使用临时路径:', e.message)
+      return tempPath
+    }
+  },
+
   // ===== 提交 =====
   async onSubmit() {
     if (this.data.submitting) return
@@ -327,20 +355,20 @@ Page({
     this.setData({ submitting: true })
 
     try {
-      // 上传图片到服务器（api.js 的 uploadImage 内置了 base64 降级，确保可靠）
+      // 1. 将临时图片保存到持久化本地目录（确保图片始终可显示）
       const imageDataList = []
       for (const img of this.data.images) {
+        const localPath = await this.saveImageToLocal(img.path)
+        imageDataList.push({ localPath })
+      }
+
+      // 2. 尝试上传到服务器（用于AI分析），失败不阻断流程
+      for (let i = 0; i < this.data.images.length; i++) {
         try {
-          const url = await uploadImage(img.path)
-          imageDataList.push({ imageUrl: url })
+          const url = await uploadImage(this.data.images[i].path)
+          imageDataList[i].imageUrl = url
         } catch (uploadErr) {
-          console.error('[consult-publish] 图片上传彻底失败:', uploadErr.message)
-          wx.showModal({
-            title: '上传失败',
-            content: '图片上传失败，请检查网络后重试',
-            showCancel: false
-          })
-          return
+          console.warn('[consult-publish] 图片上传失败，使用本地路径:', uploadErr.message)
         }
       }
 
@@ -381,7 +409,7 @@ Page({
       console.error('[consult-publish] 提交失败:', err)
       wx.showModal({
         title: '提交失败',
-        content: err.message || '图片上传失败，请检查网络后重试',
+        content: err.message || '请检查网络后重试',
         showCancel: false
       })
     } finally {

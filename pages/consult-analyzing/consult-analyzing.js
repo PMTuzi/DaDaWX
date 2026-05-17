@@ -1,5 +1,5 @@
 // pages/consult-analyzing/consult-analyzing.js
-const { request, API } = require('../../utils/api')
+const { request, API, imageToBase64 } = require('../../utils/api')
 
 // 用闭包变量代替实例属性，避免微信小程序 Page 构造器限制
 let _alive = true
@@ -226,10 +226,28 @@ Page({
 
   async callVisionAnalysis(consultData) {
     const isCompare = consultData.type === 'compare'
+    // 构建图片数据：优先用 imageUrl，没有则将 localPath 转 base64
+    const imagesForApi = []
+    for (const img of consultData.images) {
+      if (img.imageUrl) {
+        imagesForApi.push({ imageUrl: img.imageUrl })
+      } else if (img.localPath) {
+        try {
+          const base64 = await imageToBase64(img.localPath)
+          imagesForApi.push({ imageBase64: base64 })
+        } catch (e) {
+          console.warn('[consult-analyzing] 本地图片转base64失败:', e.message)
+        }
+      }
+    }
+    if (imagesForApi.length === 0) {
+      throw new Error('没有可用的图片数据')
+    }
+
     const result = await request(API.analyzeClothingVision, {
       method: 'POST',
       data: {
-        images: consultData.images,
+        images: imagesForApi,
         consultType: isCompare ? 'compare' : 'single'
       },
       timeout: 120000
@@ -317,8 +335,11 @@ Page({
         type: consultData.type,
         createTime,
         category: consultData.category || '',
-        ...result
+        ...result,
+        images: consultData.images || []
       }
+
+      console.log('[consult-analyzing] 保存记录, images数量:', (record.images || []).length)
 
       if (result.scores) {
         if (consultData.type === 'compare') {
@@ -344,7 +365,7 @@ Page({
       return record
     } catch (err) {
       console.error('[consult-analyzing] 保存结果失败:', err)
-      return { id: 'C' + Date.now(), type: consultData.type, ...result }
+      return { id: 'C' + Date.now(), type: consultData.type, ...result, images: consultData.images || [] }
     }
   },
 

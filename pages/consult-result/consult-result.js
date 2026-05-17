@@ -172,6 +172,22 @@ Page({
     })
   },
 
+  onPreviewImage(e) {
+    const url = e.currentTarget.dataset.url
+    const images = this.data.record.images || []
+    const urls = images.map(img => img.localPath || img.imageUrl).filter(u => u)
+    if (urls.length === 0) return
+    wx.previewImage({
+      current: url,
+      urls
+    })
+  },
+
+  onImageError(e) {
+    const idx = e.currentTarget.dataset.index || 0
+    console.warn('[consult-result] 图片加载失败, index:', idx)
+  },
+
   onConsultAgain() {
     wx.navigateTo({ url: '/pages/consult-publish/consult-publish' })
   },

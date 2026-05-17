@@ -31,6 +31,12 @@ Page({
     })
   },
 
+  onThumbError(e) {
+    const idx = e.currentTarget.dataset.index
+    const key = `recentConsults[${idx}].images`
+    this.setData({ [key]: [] })
+  },
+
   // 开始穿搭决策 - 统一入口
   onStartConsult() {
     wx.navigateTo({

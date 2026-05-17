@@ -206,12 +206,41 @@
 .history-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 24rpx;
+  gap: 20rpx;
+}
+
+.history-item.card-accept {
+  border-left: 6rpx solid #27ae60;
+}
+
+.history-item.card-reject {
+  border-left: 6rpx solid #e74c3c;
+}
+
+.history-thumb-wrap {
+  width: 96rpx;
+  height: 96rpx;
+  flex-shrink: 0;
+}
+
+.history-thumb {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 12rpx;
+  background: #eee;
+}
+
+.history-thumb-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f0f0f0, #e8e8e8);
 }
 
 .history-info {
   flex: 1;
+  min-width: 0;
 }
 
 .history-type {
@@ -243,6 +272,14 @@
   margin-bottom: 4rpx;
 }
 
+.verdict-positive {
+  color: #27ae60;
+}
+
+.verdict-negative {
+  color: #e74c3c;
+}
+
 .history-time {
   font-size: 22rpx;
   color: #999;
@@ -257,7 +294,14 @@
 .score-num {
   font-size: 40rpx;
   font-weight: 800;
+}
+
+.score-positive {
   color: #27ae60;
+}
+
+.score-negative {
+  color: #e74c3c;
 }
 
 .score-unit {

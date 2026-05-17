@@ -39,6 +39,22 @@
   color: #e74c3c;
 }
 
+/* 用户上传图片 */
+.user-images {
+  display: flex;
+  justify-content: center;
+  gap: 16rpx;
+  margin-bottom: 24rpx;
+}
+
+.user-image {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 16rpx;
+  border: 4rpx solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+}
+
 .verdict-score {
   display: flex;
   align-items: baseline;
@@ -49,7 +65,14 @@
 .score-big {
   font-size: 72rpx;
   font-weight: 800;
-  color: #1a1a2e;
+}
+
+.score-accept {
+  color: #27ae60;
+}
+
+.score-reject {
+  color: #e74c3c;
 }
 
 .score-max {
@@ -135,7 +158,16 @@
 }
 
 .detail-cons {
-  color: #f39c12;
+  color: #e74c3c;
+}
+
+/* 评分进度条颜色区分 */
+.bar-positive {
+  background: linear-gradient(90deg, #27ae60, #2ecc71) !important;
+}
+
+.bar-negative {
+  background: linear-gradient(90deg, #e74c3c, #c0392b) !important;
 }
 
 /* 穿搭优化建议 */
@@ -303,7 +335,7 @@
 
 .comp-cons {
   font-size: 24rpx;
-  color: #f39c12;
+  color: #e74c3c;
 }
 
 /* 最佳场景 */

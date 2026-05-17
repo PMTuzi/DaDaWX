@@ -32,19 +32,26 @@
       <view class="section-title">最近咨询</view>
     </view>
     <view class="history-list">
-      <view class="history-item card" wx:for="{{recentConsults}}" wx:key="id"
+      <view class="history-item card {{item.verdict === '建议退货' || item.verdict === '建议不买' ? 'card-reject' : 'card-accept'}}" wx:for="{{recentConsults}}" wx:key="id"
         data-id="{{item.id}}" bindtap="onViewResult">
+        <view class="history-thumb-wrap">
+          <image class="history-thumb" wx:if="{{item.images && item.images.length && (item.images[0].localPath || item.images[0].imageUrl)}}"
+            src="{{item.images[0].localPath || item.images[0].imageUrl}}" mode="aspectFill" binderror="onThumbError" data-index="{{index}}"></image>
+          <view class="history-thumb history-thumb-placeholder" wx:else>
+            <view class="icon icon-dress" style="font-size:36rpx;color:#ccc;"></view>
+          </view>
+        </view>
         <view class="history-info">
           <view class="history-type">
             <text class="type-tag {{item.type === 'compare' ? 'tag-compare' : 'tag-single'}}">
               {{item.type === 'compare' ? '多款对比' : '单品评估'}}
             </text>
           </view>
-          <view class="history-verdict">{{item.verdict || item.finalChoiceLabel || ''}}</view>
+          <view class="history-verdict {{item.verdict === '建议退货' || item.verdict === '建议不买' ? 'verdict-negative' : 'verdict-positive'}}">{{item.verdict || item.finalChoiceLabel || ''}}</view>
           <view class="history-time">{{item.createTime}}</view>
         </view>
         <view class="history-score">
-          <text class="score-num">{{item.totalScore || '--'}}</text>
+          <text class="score-num {{item.verdict === '建议退货' || item.verdict === '建议不买' ? 'score-negative' : 'score-positive'}}">{{item.totalScore || '--'}}</text>
           <text class="score-unit">分</text>
         </view>
       </view>
