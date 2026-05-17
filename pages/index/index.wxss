@@ -172,7 +172,7 @@
 .action-area {
   flex-shrink: 0;
   padding: 0 32rpx;
-  margin-top: -40rpx;
+  margin-top: -74rpx;
   position: relative;
   z-index: 10;
 }
