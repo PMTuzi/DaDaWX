@@ -74,10 +74,7 @@
       <view class="entry-icon">💄</view>
       <text class="entry-name">妆容指南</text>
     </view>
-    <view class="entry-item" bindtap="onViewHistory">
-      <view class="entry-icon">📊</view>
-      <text class="entry-name">历史报告</text>
-    </view>
+
   </view>
 
 </view>
