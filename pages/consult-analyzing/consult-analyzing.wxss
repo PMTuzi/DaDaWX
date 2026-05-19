@@ -9,6 +9,7 @@
 }
 
 .animation-area {
+  
   margin-bottom: 48rpx;
 }
 
