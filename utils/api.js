@@ -8,7 +8,7 @@ const CONFIG = {
     aliyunOssRegion: 'oss-cn-hangzhou',
   },
   development: {
-    baseUrl: 'http://172.21.242.182:3000',
+    baseUrl: 'http://localhost:3000',
     aliyunOssBucket: 'dada-photos-dev',
     aliyunOssRegion: 'oss-cn-hangzhou',
   }

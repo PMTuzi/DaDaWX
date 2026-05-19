@@ -45,37 +45,47 @@ const BASE_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/complet
 
 /**
  * 步骤1: 视觉大模型 - 深度面部特征提取
- * 包含：三庭五眼、骨相皮相、皮肤状态、发型分析等
+ * 关键改进：要求模型必须基于照片具体特征做差异化判断，
+ * 评分必须反映真实差异，禁止给"安全分"
  */
 async function analyzeVision(imageInput, photoType = 'face') {
-  const prompt = `你是一位顶级形象分析AI，请仔细观察这张${photoType === 'face' ? '人脸正面' : '全身'}照片，进行深度面部特征提取，以JSON格式输出：
+  const prompt = `你是一位顶级形象分析AI，请仔细观察这张${photoType === 'face' ? '人脸正面' : '全身'}照片。
+
+【重要】你必须严格基于这张照片的具体特征做判断，不同人的评分必须有明显差异！
+- 如果脸型偏圆就给round，偏方就给square，不要默认给oval
+- 如果颧骨明显、下颌清晰，boneStructure给8+；如果面部平坦柔和，给5-6
+- 皮肤明度和纯度必须反映真实观察：偏白给8+，偏黄暗给4-5
+- 五官特征必须具体描述（不要写"适中"、"中等"这种模糊词），例如：杏眼要写杏眼，丹凤眼要写丹凤眼
+- 每个score必须是0-10的具体数字，不同照片的评分差异要明显
+
+以JSON格式输出：
 
 {
   "faceShape": {
-    "type": "oval/round/square/long/diamond/heart",
-    "score": 0-10,
-    "smoothness": 0-10,
-    "boneStructure": 0-10,
-    "proportion": 0-10,
+    "type": "oval/round/square/long/diamond/heart（必须精确判定，不要默认oval）",
+    "score": 0-10（脸型和谐度，必须体现差异）,
+    "smoothness": 0-10（面部线条流畅度）,
+    "boneStructure": 0-10（骨骼感强度，骨骼明显=高分，肉感=低分）,
+    "proportion": 0-10（五官比例协调度）,
     "boneType": "骨相型/皮相型/骨皮均衡",
-    "boneDesc": "骨相特点详细描述(颧骨/下颌/眉骨等)",
+    "boneDesc": "2-3句骨相特点详细描述（必须具体说颧骨高不高、下颌宽不宽等，不要写'面部骨骼线条适中'）",
     "faceWidth": "宽/适中/窄",
     "faceLength": "长/适中/短"
   },
   "threeCourtsFiveEyes": {
-    "upperCourt": "上庭比例描述(发际线到眉骨)",
-    "middleCourt": "中庭比例描述(眉骨到鼻底)",
-    "lowerCourt": "下庭比例描述(鼻底到下巴)",
+    "upperCourt": "上庭比例描述(发际线到眉骨)——必须写具体是偏长/偏短/适中",
+    "middleCourt": "中庭比例描述(眉骨到鼻底)——同上",
+    "lowerCourt": "下庭比例描述(鼻底到下巴)——同上",
     "courtBalance": "均衡/上长/中长/下长",
     "leftEyeWidth": "左眼宽度比例",
     "rightEyeWidth": "右眼宽度比例",
-    "interEyeDistance": "两眼间距描述",
+    "interEyeDistance": "两眼间距描述——必须写宽/窄/标准",
     "eyeBalance": "均衡/眼距宽/眼距窄"
   },
   "skinStatus": {
-    "undertone": "cool/warm/neutral",
-    "brightness": 0-10,
-    "purity": 0-10,
+    "undertone": "cool/warm/neutral（必须判定，不要默认warm）",
+    "brightness": 0-10（肤色明度，白=高分，暗沉=低分，必须体现差异）,
+    "purity": 0-10（肤色纯度，干净=高分，暗黄=低分，必须体现差异）,
     "spots": "none/few/moderate/many",
     "spotDesc": "斑点详细描述(位置/类型/程度)",
     "darkCircles": "none/mild/moderate/severe",
@@ -88,30 +98,30 @@ async function analyzeVision(imageInput, photoType = 'face') {
   },
   "hairStatus": {
     "currentLength": "短/中/长/无法判断",
-    "currentStyle": "当前发型描述",
+    "currentStyle": "当前发型具体描述（如：黑色中长直发/棕色波浪卷发等）",
     "hairVolume": "多/适中/少",
     "hairTexture": "细软/适中/粗硬",
     "hairCondition": "健康/一般/受损",
-    "faceFraming": "当前发型对脸型的修饰效果描述"
+    "faceFraming": "当前发型对脸型的修饰效果具体描述"
   },
   "features": {
-    "eyeShape": "详细描述(杏眼/桃花眼/丹凤眼/圆眼等)",
+    "eyeShape": "必须具体描述（杏眼/桃花眼/丹凤眼/圆眼/细长眼等，不要写'适中'）",
     "eyeSize": "大/适中/小",
     "eyeSpacing": "宽/适中/窄",
-    "noseShape": "详细描述(挺直/小巧/圆润/鹰钩等)",
+    "noseShape": "必须具体描述（挺直/小巧/圆润/鹰钩/肉感鼻等）",
     "noseSize": "大/适中/小",
-    "lipShape": "详细描述(薄唇/厚唇/上薄下厚/微笑唇等)",
+    "lipShape": "必须具体描述（薄唇/厚唇/上薄下厚/微笑唇/M字唇等）",
     "lipSize": "大/适中/小",
-    "eyebrowShape": "详细描述(平眉/挑眉/弯眉/粗眉等)",
+    "eyebrowShape": "必须具体描述（平眉/挑眉/弯眉/粗眉/柳叶眉等）",
     "eyebrowThickness": "粗/适中/细",
-    "jawline": "详细描述(圆润/清晰/方钝/尖削等)",
-    "forehead": "详细描述(宽阔/适中/窄/发际线形状等)",
-    "chinShape": "详细描述(尖/圆/方/微翘等)"
+    "jawline": "必须具体描述（圆润/清晰/方钝/尖削/V字型/U字型等）",
+    "forehead": "必须具体描述（宽阔/适中/窄/发际线M字/圆弧等）",
+    "chinShape": "必须具体描述（尖/圆/方/微翘/后缩等）"
   },
   "styleIndicators": {
-    "mass": "大/中/小",
-    "curve": "直/偏曲/曲",
-    "movement": "动/偏静/静"
+    "mass": "大/中/小（五官存在感）",
+    "curve": "直/偏曲/曲（面部轮廓曲直）",
+    "movement": "动/偏静/静（气质动静）"
   },
   "bodyIndicators": {
     "shoulderType": "描述",
@@ -149,8 +159,8 @@ async function analyzeVision(imageInput, photoType = 'face') {
             { type: 'text', text: prompt }
           ]
         }],
-        temperature: 0.1,
-        top_p: 0.8
+        temperature: 0.3,
+        top_p: 0.9
       },
       {
         headers: {
@@ -176,60 +186,85 @@ async function analyzeVision(imageInput, photoType = 'face') {
  */
 
 // 模块1: 骨相分析
-async function generateBoneAnalysis(visualFeatures, gender = 'female') {
+// 关键改进：如果有图片数据，用VL模型直接看图分析，确保结果差异化
+async function generateBoneAnalysis(visualFeatures, gender = 'female', imageInput = null) {
   const genderLabel = gender === 'male' ? '男性' : '女性'
-  const prompt = `你是一位拥有20年经验的顶级形象顾问AI，请根据以下${genderLabel}用户的面部视觉特征，生成「骨相分析」模块的专业报告。
 
-## 用户视觉特征数据
+  const prompt = `你是一位拥有20年经验的顶级形象顾问AI，请根据以下${genderLabel}的面部视觉特征，生成「骨相分析」模块的专业报告。
+
+【重要规则】
+1. 必须严格基于具体特征做判断，不同人必须有明显差异！
+2. 脸型必须精确判定（如：菱形脸不要写成鹅蛋脸）
+3. 评分必须体现真实差异（颧骨突出就给高分，面部平坦就给低分）
+4. 所有描述必须具体，禁止写"适中""一般""协调"等模糊词
+5. 【文案人称】报告是直接展示给本人的，所有文案使用第二人称"你"来描述，绝对不要出现"用户""该用户"等第三人称表述！例如写"你的颧骨较为突出"而非"该用户的颧骨较为突出"
+
+## 视觉特征数据
 ${JSON.stringify(visualFeatures, null, 2)}
+
+${imageInput ? '【重要】你同时看到了真实照片，请结合照片实际特征做判断，不要只依赖上面的数据。' : ''}
 
 ## 请严格按照以下JSON格式输出：
 
 {
   "title": "骨相分析",
-  "faceType": "脸型名称",
-  "faceScore": 0-10,
+  "faceType": "脸型名称（必须精确：如菱形脸/鹅蛋脸/方圆脸/长脸/心形脸等）",
+  "faceScore": "0-10（必须体现该脸型的真实和谐度）",
   "boneType": "骨相型/皮相型/骨皮均衡",
-  "boneDesc": "骨相特点2-3句详细描述",
+  "boneDesc": "骨相特点2-3句详细描述（必须具体说哪里突出、哪里平缓）",
   "threeCourts": {
-    "upper": "上庭比例分析与修饰建议",
+    "upper": "上庭比例分析与修饰建议（必须写具体比例和修饰方向）",
     "middle": "中庭比例分析与修饰建议",
     "lower": "下庭比例分析与修饰建议",
     "balance": "三庭总体评价与优化方向"
   },
   "fiveEyes": {
-    "analysis": "五眼比例分析",
+    "analysis": "五眼比例分析（必须写具体宽窄情况）",
     "suggestion": "眼距修饰建议(妆容/发型)"
   },
   "faceFeatures": [
-    { "name": "颧骨", "desc": "描述", "score": 0-10 },
-    { "name": "下颌线", "desc": "描述", "score": 0-10 },
-    { "name": "眉骨", "desc": "描述", "score": 0-10 },
-    { "name": "鼻梁", "desc": "描述", "score": 0-10 },
-    { "name": "下巴", "desc": "描述", "score": 0-10 }
+    { "name": "颧骨", "desc": "具体描述（如：颧骨较宽突出/颧骨平缓不显）", "score": "0-10" },
+    { "name": "下颌线", "desc": "具体描述", "score": "0-10" },
+    { "name": "眉骨", "desc": "具体描述", "score": "0-10" },
+    { "name": "鼻梁", "desc": "具体描述", "score": "0-10" },
+    { "name": "下巴", "desc": "具体描述", "score": "0-10" }
   ],
   "suitableHaircuts": [
-    { "name": "发型名", "length": "短/中/长", "outline": "轮廓", "bangs": "刘海建议", "reason": "适合原因", "score": 0-10 }
+    { "name": "具体发型名（如：法式慵懒卷/空气刘海直发等）", "length": "短/中/长", "outline": "轮廓描述", "bangs": "刘海建议", "reason": "针对该脸型的具体适合原因", "score": "0-10" }
   ],
   "avoidHaircuts": [
-    { "name": "避雷发型", "reason": "原因" }
+    { "name": "具体避雷发型", "reason": "针对该脸型为什么不适合" }
   ],
   "suitableCollars": [
-    { "type": "领型", "reason": "原因", "score": 0-10 }
+    { "type": "领型", "reason": "原因", "score": "0-10" }
   ],
-  "keyInsight": "1-2句骨相核心洞察"
+  "keyInsight": "1-2句骨相核心洞察（必须具体，如：颧骨突出是最大特征，应用发型修饰）"
 }
 
 要求：suitableHaircuts至少5个，avoidHaircuts至少3个，suitableCollars至少4个。严格JSON格式。`
 
+  const messages = [
+    { role: 'system', content: '你是顶级形象顾问AI，擅长骨相分析。你必须给出差异化的、具体的分析结果，不要泛泛而谈。所有文案使用"你"来描述，不要出现"用户""该用户"。严格输出JSON格式。' },
+  ]
+
+  // 如果有图片，用VL模型直接看图
+  if (imageInput) {
+    messages.push({
+      role: 'user',
+      content: [
+        { type: 'image_url', image_url: { url: imageInput } },
+        { type: 'text', text: prompt }
+      ]
+    })
+  } else {
+    messages.push({ role: 'user', content: prompt })
+  }
+
   try {
     const response = await axios.post(BASE_URL, {
-      model: process.env.QWEN_TEXT_MODEL || 'qwen-plus',
-      messages: [
-        { role: 'system', content: '你是顶级形象顾问AI，擅长骨相分析。严格输出JSON格式。' },
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.3, top_p: 0.85, max_tokens: 2048
+      model: imageInput ? (process.env.QWEN_VL_MODEL || 'qwen-vl-max') : (process.env.QWEN_TEXT_MODEL || 'qwen-plus'),
+      messages,
+      temperature: 0.4, top_p: 0.9, max_tokens: 2048
     }, {
       headers: { 'Authorization': `Bearer ${QWEN_API_KEY}`, 'Content-Type': 'application/json' },
       timeout: 60000
@@ -244,27 +279,39 @@ ${JSON.stringify(visualFeatures, null, 2)}
 }
 
 // 模块2: 皮肤状态
-async function generateSkinAnalysis(visualFeatures, gender = 'female') {
-  const prompt = `你是一位顶级皮肤科+形象顾问AI，请根据以下面部视觉特征，生成「皮肤状态」模块的专业报告。
+async function generateSkinAnalysis(visualFeatures, gender = 'female', imageInput = null) {
+  const genderLabel = gender === 'male' ? '男性' : '女性'
 
-## 用户视觉特征数据
+  const prompt = `你是一位顶级皮肤科+形象顾问AI，请根据以下${genderLabel}的面部视觉特征，生成「皮肤状态」模块的专业报告。
+
+【重要规则】
+1. 必须严格基于具体特征做判断，不同人必须有明显差异！
+2. 肤色明度必须反映真实观察：偏白给8+，偏黄暗给4-5，不要默认给7
+3. 色彩季型必须精确判定（如冷夏/暖春/柔秋等），不要默认给暖秋
+4. 皮肤问题必须具体到位置和程度，不要泛泛而谈
+5. 所有描述必须具体，禁止写"适中""一般""正常"等模糊词
+6. 【文案人称】报告是直接展示给本人的，所有文案使用第二人称"你"来描述，绝对不要出现"用户""该用户"等第三人称表述！例如写"你的肤色偏暖"而非"该用户肤色偏暖"
+
+## 视觉特征数据
 ${JSON.stringify(visualFeatures, null, 2)}
+
+${imageInput ? '【重要】你同时看到了真实照片，请结合照片实际肤色、肤质做判断，不要只依赖上面的数据。重点观察：肤色明暗、是否有泛红/暗沉、肤质细腻程度等。' : ''}
 
 ## 请严格按照以下JSON格式输出：
 
 {
   "title": "皮肤状态",
-  "skinType": "冷皮/暖皮/中性皮",
-  "brightness": 0-10,
-  "purity": 0-10,
+  "skinType": "冷皮/暖皮/中性皮（必须精确判定，不要默认warm）",
+  "brightness": 0-10（必须体现差异，白=高分，暗沉=低分）,
+  "purity": 0-10（必须体现差异，干净=高分，暗黄=低分）,
   "mass": 0-10,
   "massDesc": "量感描述(大量感=五官立体存在感强适合浓烈色彩, 小量感=五官精致轻盈适合淡雅色彩)",
   "skinAge": "皮肤视觉年龄评估",
-  "overallDesc": "皮肤整体状态2-3句描述",
+  "overallDesc": "皮肤整体状态2-3句描述（必须具体说肤色深浅、有无暗沉、肤质粗细）",
   "problems": [
     { "name": "问题名(如斑点/黑眼圈/毛孔/暗沉/泛红等)", "level": "无/轻微/中等/明显", "area": "位置", "advice": "改善建议" }
   ],
-  "season": "四季色彩季型(如冷夏/暖秋)",
+  "season": "四季色彩季型(如冷夏/暖秋/柔春/净冬等，必须精确)",
   "seasonDetail": "季型详细说明",
   "goodColors": [
     { "name": "颜色名", "hex": "#色值", "usage": "穿搭/妆容使用场景" }
@@ -279,19 +326,32 @@ ${JSON.stringify(visualFeatures, null, 2)}
     { "name": "避雷发色", "reason": "原因" }
   ],
   "skincareAdvice": ["护肤建议1", "建议2", "建议3"],
-  "keyInsight": "1-2句肤色核心洞察"
+  "keyInsight": "1-2句肤色核心洞察（必须具体）"
 }
 
 要求：problems至少3个，goodColors至少8个带真实hex色值，badColors至少4个。严格JSON格式。`
 
+  const messages = [
+    { role: 'system', content: '你是顶级皮肤科+形象顾问AI，擅长肤色诊断。你必须给出差异化的、具体的分析结果，不要泛泛而谈。所有文案使用"你"来描述，不要出现"用户""该用户"。严格输出JSON格式。' },
+  ]
+
+  if (imageInput) {
+    messages.push({
+      role: 'user',
+      content: [
+        { type: 'image_url', image_url: { url: imageInput } },
+        { type: 'text', text: prompt }
+      ]
+    })
+  } else {
+    messages.push({ role: 'user', content: prompt })
+  }
+
   try {
     const response = await axios.post(BASE_URL, {
-      model: process.env.QWEN_TEXT_MODEL || 'qwen-plus',
-      messages: [
-        { role: 'system', content: '你是顶级皮肤科+形象顾问AI。严格输出JSON格式。' },
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.3, top_p: 0.85, max_tokens: 2048
+      model: imageInput ? (process.env.QWEN_VL_MODEL || 'qwen-vl-max') : (process.env.QWEN_TEXT_MODEL || 'qwen-plus'),
+      messages,
+      temperature: 0.4, top_p: 0.9, max_tokens: 2048
     }, {
       headers: { 'Authorization': `Bearer ${QWEN_API_KEY}`, 'Content-Type': 'application/json' },
       timeout: 60000
@@ -306,19 +366,31 @@ ${JSON.stringify(visualFeatures, null, 2)}
 }
 
 // 模块3: 色彩风格
-async function generateColorStyle(visualFeatures, gender = 'female') {
-  const prompt = `你是一位顶级色彩顾问+风格分析师AI，请根据以下面部视觉特征，生成「色彩风格」模块的专业报告。
+async function generateColorStyle(visualFeatures, gender = 'female', imageInput = null) {
+  const genderLabel = gender === 'male' ? '男性' : '女性'
 
-## 用户视觉特征数据
+  const prompt = `你是一位顶级色彩顾问+风格分析师AI，请根据以下${genderLabel}的面部视觉特征，生成「色彩风格」模块的专业报告。
+
+【重要规则】
+1. 必须严格基于具体特征做判断，不同人必须有明显差异！
+2. 主风格必须精确判定（如戏剧型/少年型/优雅型等），不要默认给"自然型"
+3. 量感/曲直/动静必须反映真实特征，不要默认给"中等"
+4. 穿搭建议必须针对实际风格特征
+5. 所有描述必须具体，禁止写"适中""百搭""日常"等模糊词
+6. 【文案人称】报告是直接展示给本人的，所有文案使用第二人称"你"来描述，绝对不要出现"用户""该用户"等第三人称表述！
+
+## 视觉特征数据
 ${JSON.stringify(visualFeatures, null, 2)}
+
+${imageInput ? '【重要】你同时看到了真实照片，请结合照片实际气质、五官风格做判断，不要只依赖上面的数据。重点观察：整体气质是干练还是温柔、五官是锐利还是柔和、量感大小等。' : ''}
 
 ## 请严格按照以下JSON格式输出：
 
 {
   "title": "色彩风格",
-  "mainStyle": "主风格名称",
-  "mainScore": 0-10,
-  "styleDesc": "风格核心特征2-3句描述",
+  "mainStyle": "主风格名称（必须精确：如戏剧型/少年型/优雅型/浪漫型/古典型/自然型/前卫型等）",
+  "mainScore": 0-10（必须体现该风格的真实匹配度）,
+  "styleDesc": "风格核心特征2-3句描述（必须具体说你为什么是这个风格）",
   "subStyles": [
     { "name": "副风格名", "score": 0-10, "desc": "简述" }
   ],
@@ -334,16 +406,16 @@ ${JSON.stringify(visualFeatures, null, 2)}
     "accent": ["点缀色1", "点缀色2"]
   },
   "clothingAdvice": {
-    "silhouette": "版型建议(2-3句)",
-    "material": "材质建议(2-3句)",
-    "pattern": "图案建议(2-3句)",
-    "accessory": "配饰风格建议(2-3句)"
+    "silhouette": "版型建议(2-3句，必须具体)",
+    "material": "材质建议(2-3句，必须具体)",
+    "pattern": "图案建议(2-3句，必须具体)",
+    "accessory": "配饰风格建议(2-3句，必须具体)"
   },
   "sceneAdvice": [
-    { "scene": "职场", "desc": "穿搭方案描述", "keyItems": "关键单品" },
-    { "scene": "日常", "desc": "穿搭方案描述", "keyItems": "关键单品" },
-    { "scene": "约会", "desc": "穿搭方案描述", "keyItems": "关键单品" },
-    { "scene": "休闲", "desc": "穿搭方案描述", "keyItems": "关键单品" }
+    { "scene": "职场", "desc": "穿搭方案描述（必须具体）", "keyItems": "关键单品" },
+    { "scene": "日常", "desc": "穿搭方案描述（必须具体）", "keyItems": "关键单品" },
+    { "scene": "约会", "desc": "穿搭方案描述（必须具体）", "keyItems": "关键单品" },
+    { "scene": "休闲", "desc": "穿搭方案描述（必须具体）", "keyItems": "关键单品" }
   ],
   "outfitItems": [
     { "name": "单品名", "type": "上衣/下装/外套/配饰", "color": "颜色", "material": "材质", "scene": "适配场景", "score": 0-10 }
@@ -351,19 +423,32 @@ ${JSON.stringify(visualFeatures, null, 2)}
   "avoidItems": [
     { "name": "避雷单品", "reason": "原因" }
   ],
-  "keyInsight": "1-2句风格核心洞察"
+  "keyInsight": "1-2句风格核心洞察（必须具体）"
 }
 
 要求：outfitItems至少8个，avoidItems至少3个，sceneAdvice必须4个场景。严格JSON格式。`
 
+  const messages = [
+    { role: 'system', content: '你是顶级色彩顾问+风格分析师AI，擅长个人风格定位。你必须给出差异化的、具体的分析结果，不要泛泛而谈。所有文案使用"你"来描述，不要出现"用户""该用户"。严格输出JSON格式。' },
+  ]
+
+  if (imageInput) {
+    messages.push({
+      role: 'user',
+      content: [
+        { type: 'image_url', image_url: { url: imageInput } },
+        { type: 'text', text: prompt }
+      ]
+    })
+  } else {
+    messages.push({ role: 'user', content: prompt })
+  }
+
   try {
     const response = await axios.post(BASE_URL, {
-      model: process.env.QWEN_TEXT_MODEL || 'qwen-plus',
-      messages: [
-        { role: 'system', content: '你是顶级色彩顾问+风格分析师AI。严格输出JSON格式。' },
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.3, top_p: 0.85, max_tokens: 2048
+      model: imageInput ? (process.env.QWEN_VL_MODEL || 'qwen-vl-max') : (process.env.QWEN_TEXT_MODEL || 'qwen-plus'),
+      messages,
+      temperature: 0.4, top_p: 0.9, max_tokens: 2048
     }, {
       headers: { 'Authorization': `Bearer ${QWEN_API_KEY}`, 'Content-Type': 'application/json' },
       timeout: 60000
@@ -378,11 +463,23 @@ ${JSON.stringify(visualFeatures, null, 2)}
 }
 
 // 模块4: 穿搭风格
-async function generateOutfitStyle(visualFeatures, gender = 'female') {
-  const prompt = `你是一位顶级形象顾问+发型师+化妆师AI，请根据以下面部视觉特征，生成「穿搭风格」模块的专业报告，涵盖发型、妆容和身形。
+async function generateOutfitStyle(visualFeatures, gender = 'female', imageInput = null) {
+  const genderLabel = gender === 'male' ? '男性' : '女性'
 
-## 用户视觉特征数据
+  const prompt = `你是一位顶级形象顾问+发型师+化妆师AI，请根据以下${genderLabel}的面部视觉特征，生成「穿搭风格」模块的专业报告，涵盖发型、妆容和身形。
+
+【重要规则】
+1. 必须严格基于具体特征做判断，不同人必须有明显差异！
+2. 发型推荐必须针对脸型和发质，不要给通用推荐
+3. 妆容建议必须具体到色调和手法，不要写"自然妆"了事
+4. 身形建议必须基于实际特征
+5. 所有描述必须具体，禁止写"适合日常""百搭"等模糊词
+6. 【文案人称】报告是直接展示给本人的，所有文案使用第二人称"你"来描述，绝对不要出现"用户""该用户"等第三人称表述！
+
+## 视觉特征数据
 ${JSON.stringify(visualFeatures, null, 2)}
+
+${imageInput ? '【重要】你同时看到了真实照片，请结合照片实际发型、脸型、身形做判断，不要只依赖上面的数据。重点观察：当前发型如何、脸型实际轮廓、身形大致比例等。' : ''}
 
 ## 请严格按照以下JSON格式输出：
 
@@ -390,7 +487,7 @@ ${JSON.stringify(visualFeatures, null, 2)}
   "title": "穿搭风格",
   "hairRecommend": {
     "top3": [
-      { "name": "发型名", "length": "长度", "layers": "层次描述", "bangs": "刘海建议", "care": "打理要点", "reason": "适合原因", "score": 0-10 }
+      { "name": "发型名", "length": "长度", "layers": "层次描述", "bangs": "刘海建议", "care": "打理要点", "reason": "适合原因（必须具体到脸型特征）", "score": 0-10 }
     ],
     "alternatives": [
       { "name": "备选发型", "length": "长度", "style": "风格", "score": 0-10 }
@@ -399,11 +496,11 @@ ${JSON.stringify(visualFeatures, null, 2)}
       { "name": "适配发色", "detail": "深浅色调描述" }
     ],
     "avoidHair": [
-      { "name": "避雷发型", "reason": "原因" }
+      { "name": "避雷发型", "reason": "原因（必须具体到脸型为什么不适合）" }
     ]
   },
   "makeup": {
-    "style": "适配妆容风格",
+    "style": "适配妆容风格（必须具体：如清透氧气妆/高级感哑光妆/韩式水光妆等）",
     "foundation": { "tone": "粉底色调", "shade": "色号建议", "concealer": "遮瑕重点" },
     "eyeBrow": { "shape": "眉形建议", "shadow": "眼影色调", "eyeliner": "眼线风格" },
     "lipRecommend": { "destiny": "本命口红色号", "daily": "日常口红色号" },
@@ -413,10 +510,10 @@ ${JSON.stringify(visualFeatures, null, 2)}
     "shoulderType": "肩型",
     "bodyRatio": "身形比例",
     "suitableTop": [
-      { "type": "上衣版型", "reason": "原因", "score": 0-10 }
+      { "type": "上衣版型", "reason": "原因（必须具体）", "score": 0-10 }
     ],
     "suitableBottom": [
-      { "type": "下装版型", "reason": "原因", "score": 0-10 }
+      { "type": "下装版型", "reason": "原因（必须具体）", "score": 0-10 }
     ],
     "avoidStyles": [
       { "type": "避雷版型", "reason": "原因" }
@@ -424,23 +521,36 @@ ${JSON.stringify(visualFeatures, null, 2)}
     "tips": ["比例优化技巧1", "技巧2", "技巧3"]
   },
   "summary": {
-    "coreConclusion": "形象定位+适配核心逻辑",
+    "coreConclusion": "形象定位+适配核心逻辑（必须具体说你是什么风格定位）",
     "priorityAdvice": "发型/穿搭/妆容改造优先级建议",
     "dailyTips": ["日常技巧1", "技巧2", "技巧3"]
   },
-  "keyInsight": "1-2句穿搭核心洞察"
+  "keyInsight": "1-2句穿搭核心洞察（必须具体）"
 }
 
 要求：top3发型必须3个，alternatives至少3个，avoidHair至少3个，suitableTop至少3个，suitableBottom至少3个。严格JSON格式。`
 
+  const messages = [
+    { role: 'system', content: '你是顶级形象顾问+发型师+化妆师AI，擅长个人形象定位和改造。你必须给出差异化的、具体的分析结果，不要泛泛而谈。所有文案使用"你"来描述，不要出现"用户""该用户"。严格输出JSON格式。' },
+  ]
+
+  if (imageInput) {
+    messages.push({
+      role: 'user',
+      content: [
+        { type: 'image_url', image_url: { url: imageInput } },
+        { type: 'text', text: prompt }
+      ]
+    })
+  } else {
+    messages.push({ role: 'user', content: prompt })
+  }
+
   try {
     const response = await axios.post(BASE_URL, {
-      model: process.env.QWEN_TEXT_MODEL || 'qwen-plus',
-      messages: [
-        { role: 'system', content: '你是顶级形象顾问+发型师+化妆师AI。严格输出JSON格式。' },
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.3, top_p: 0.85, max_tokens: 2048
+      model: imageInput ? (process.env.QWEN_VL_MODEL || 'qwen-vl-max') : (process.env.QWEN_TEXT_MODEL || 'qwen-plus'),
+      messages,
+      temperature: 0.4, top_p: 0.9, max_tokens: 2048
     }, {
       headers: { 'Authorization': `Bearer ${QWEN_API_KEY}`, 'Content-Type': 'application/json' },
       timeout: 60000
@@ -458,25 +568,25 @@ ${JSON.stringify(visualFeatures, null, 2)}
  * 保留原有的 generateReport（兼容旧接口）
  * 内部调用4个分模块
  */
-async function generateReport(visualFeatures, userTags = [], quantMetrics = {}, gender = 'female') {
+async function generateReport(visualFeatures, userTags = [], quantMetrics = {}, gender = 'female', imageInput = null) {
   console.log('[AI] 开始分模块生成报告...')
   const t0 = Date.now()
 
-  // 并行调用4个模块
+  // 并行调用4个模块（全部传入imageInput让VL模型看图分析）
   const [boneAnalysis, skinAnalysis, colorStyle, outfitStyle] = await Promise.all([
-    generateBoneAnalysis(visualFeatures, gender).catch(err => {
+    generateBoneAnalysis(visualFeatures, gender, imageInput).catch(err => {
       console.error('[AI] 骨相分析失败:', err.message)
       return { title: '骨相分析', error: err.message }
     }),
-    generateSkinAnalysis(visualFeatures, gender).catch(err => {
+    generateSkinAnalysis(visualFeatures, gender, imageInput).catch(err => {
       console.error('[AI] 皮肤分析失败:', err.message)
       return { title: '皮肤状态', error: err.message }
     }),
-    generateColorStyle(visualFeatures, gender).catch(err => {
+    generateColorStyle(visualFeatures, gender, imageInput).catch(err => {
       console.error('[AI] 色彩风格失败:', err.message)
       return { title: '色彩风格', error: err.message }
     }),
-    generateOutfitStyle(visualFeatures, gender).catch(err => {
+    generateOutfitStyle(visualFeatures, gender, imageInput).catch(err => {
       console.error('[AI] 穿搭风格失败:', err.message)
       return { title: '穿搭风格', error: err.message }
     })
@@ -607,12 +717,12 @@ ${isCompare ? `图片中有${images.length}件不同服饰，分别标记为${la
 async function generateSingleConsult(visualFeatures, userInfo = {}, isRetry = false) {
   const sceneLabel = userInfo.consultScene === 'buy' ? '购买决策' : '留存决策'
   const verdictOptions = userInfo.consultScene === 'buy' ? '建议购买 / 建议不买' : '建议自留 / 建议退货'
-  const prompt = `你是一位拥有15年经验的资深时尚买手和穿搭顾问AI，请根据以下服饰视觉特征和用户信息，进行专业的单品决策分析。
+  const prompt = `你是一位拥有15年经验的资深时尚买手和穿搭顾问AI，请根据以下服饰视觉特征和个人信息，进行专业的单品决策分析。
 
 ## 服饰视觉特征
 ${JSON.stringify(visualFeatures, null, 2)}
 
-## 用户填写信息
+## 填写信息
 - 服饰类别：${userInfo.category || '未知'}
 - 价格区间：${userInfo.priceRange || '未知'}
 - 身型特点：${userInfo.bodyFeatures && userInfo.bodyFeatures.length > 0 ? userInfo.bodyFeatures.join('、') : '未选择'}
@@ -673,7 +783,7 @@ async function generateCompareConsult(visualFeatures, userInfo = {}, isRetry = f
 ## 服饰视觉特征（${itemLabels}）
 ${JSON.stringify(visualFeatures, null, 2)}
 
-## 用户补充信息
+## 补充信息
 - 对比场景：${userInfo.compareScene || '未指定'}
 
 ## 请严格按照以下JSON格式输出：

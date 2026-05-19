@@ -47,6 +47,52 @@
             </view>
           </view>
 
+          <!-- AI可视化分析图（iCREDIT API返回的可视化图片） -->
+          <view class="visual-section" wx:if="{{report.visualImages}}">
+            <view class="section-card" wx:if="{{report.visualImages.faceMarkImg}}">
+              <view class="card-title">人脸关键点标注</view>
+              <view class="visual-img-wrap">
+                <image class="visual-img" src="{{report.visualImages.faceMarkImg}}" mode="aspectFit" bindtap="onPreviewImage" data-url="{{report.visualImages.faceMarkImg}}"></image>
+              </view>
+            </view>
+
+            <view class="section-card" wx:if="{{report.visualImages.radarChartImg}}">
+              <view class="card-title">颜值雷达图</view>
+              <view class="visual-img-wrap">
+                <image class="visual-img" src="{{report.visualImages.radarChartImg}}" mode="aspectFit" bindtap="onPreviewImage" data-url="{{report.visualImages.radarChartImg}}"></image>
+              </view>
+            </view>
+
+            <view class="section-card" wx:if="{{report.visualImages.beautyCompareImg}}">
+              <view class="card-title">医美优化模拟</view>
+              <view class="card-subtitle">前后对比效果图</view>
+              <view class="visual-img-wrap">
+                <image class="visual-img" src="{{report.visualImages.beautyCompareImg}}" mode="aspectFit" bindtap="onPreviewImage" data-url="{{report.visualImages.beautyCompareImg}}"></image>
+              </view>
+            </view>
+
+            <view class="section-card" wx:if="{{report.visualImages.defectHeatImg}}">
+              <view class="card-title">面部缺陷热力图</view>
+              <view class="visual-img-wrap">
+                <image class="visual-img" src="{{report.visualImages.defectHeatImg}}" mode="aspectFit" bindtap="onPreviewImage" data-url="{{report.visualImages.defectHeatImg}}"></image>
+              </view>
+            </view>
+
+            <view class="section-card" wx:if="{{report.visualImages.proportionLineImg}}">
+              <view class="card-title">比例尺寸线标注</view>
+              <view class="visual-img-wrap">
+                <image class="visual-img" src="{{report.visualImages.proportionLineImg}}" mode="aspectFit" bindtap="onPreviewImage" data-url="{{report.visualImages.proportionLineImg}}"></image>
+              </view>
+            </view>
+
+            <view class="visual-report-card" wx:if="{{report.visualImages.fullVisualReport}}">
+              <view class="card-title">完整可视化报告</view>
+              <view class="report-link" bindtap="onOpenReport" data-url="{{report.visualImages.fullVisualReport}}">
+                <text class="report-link-text">查看PDF诊断报告 →</text>
+              </view>
+            </view>
+          </view>
+
           <view class="section-card">
             <view class="card-header">
               <text class="card-title">脸型判定</text>

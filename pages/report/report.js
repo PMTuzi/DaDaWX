@@ -44,6 +44,9 @@ Page({
     }
     setTimeout(() => this.drawRadarChart(bone), 400)
     setTimeout(() => this.drawColorTriangle(skin, colorStyle), 500)
+
+    // 延迟生成Seedream杂志风海报（不阻塞页面渲染）
+    setTimeout(() => this._loadPosters(report), 1000)
   },
 
   onTabTap(e) {
@@ -171,18 +174,31 @@ Page({
       ctx.fill()
     }
 
-    // 6. 五官轮廓（使用加密后的密集点）
-    const drawPartDense = (denseData, sparseData, color, lineW) => {
-      const points = denseData?.dense || sparseData
-      if (!points || points.length < 3) return
-      const pts = points.map(p => ({ x: tx(p.x), y: ty(p.y) }))
-      const closed = denseData?.dense ? true : true  // 加密后是闭合的
+    // 5b. 下颌线（iCREDIT API 提供）
+    const jawLinePts = dense?.jawLine?.dense || dp?.jawLine
+    if (jawLinePts && jawLinePts.length > 5) {
+      const pts = jawLinePts.map(p => ({ x: tx(p.x), y: ty(p.y) }))
       ctx.beginPath()
       ctx.moveTo(pts[0].x, pts[0].y)
       for (let i = 1; i < pts.length; i++) {
         ctx.lineTo(pts[i].x, pts[i].y)
       }
-      if (closed) ctx.closePath()
+      ctx.strokeStyle = 'rgba(232, 168, 124, 0.5)'
+      ctx.lineWidth = 1.2
+      ctx.stroke()
+    }
+
+    // 6. 五官轮廓（使用加密后的密集点，兼容旧数据）
+    const drawPartDense = (denseData, sparseData, color, lineW) => {
+      const points = denseData?.dense || sparseData
+      if (!points || points.length < 3) return
+      const pts = points.map(p => ({ x: tx(p.x), y: ty(p.y) }))
+      ctx.beginPath()
+      ctx.moveTo(pts[0].x, pts[0].y)
+      for (let i = 1; i < pts.length; i++) {
+        ctx.lineTo(pts[i].x, pts[i].y)
+      }
+      ctx.closePath()
       ctx.strokeStyle = color
       ctx.lineWidth = lineW || 1.2
       ctx.stroke()
@@ -421,7 +437,7 @@ Page({
     if (totalPts > 500) {
       ctx.fillText(`基于${totalPts}个面部采集点 · Catmull-Rom样条加密`, cw / 2, ch - 6)
     } else {
-      ctx.fillText('基于106个面部关键点 · 阿里云ViIA', cw / 2, ch - 6)
+      ctx.fillText('基于iCREDIT面部属性分析 · 三庭五眼精准测量', cw / 2, ch - 6)
     }
     ctx.textAlign = 'left'
   },
@@ -670,7 +686,28 @@ Page({
     ctx.closePath()
   },
 
-  _loadPosters(report) {},
+  _loadPosters(report) {
+    // 为每个模块生成Seedream杂志风海报
+    const modules = ['bone', 'skin', 'colorStyle', 'outfit']
+    modules.forEach(mod => {
+      request(API.generatePoster, {
+        method: 'POST',
+        data: { module: mod, reportData: report },
+        timeout: 60000
+      }).then(res => {
+        if (res.code === 0 && res.data) {
+          const imageUrl = res.data.imageUrl
+          if (imageUrl) {
+            const posters = this.data.posters
+            posters[mod] = imageUrl
+            this.setData({ posters })
+          }
+        }
+      }).catch(err => {
+        console.warn(`[report] 海报生成失败(${mod}):`, err.message || err)
+      })
+    })
+  },
 
   _extractBoneFromLegacy(report) {
     if (!report.faceShape) return {}
@@ -732,6 +769,46 @@ Page({
       title: `我的AI形象评分 ${report?.basic?.overallScore || ''}分 — 搭搭`,
       path: '/pages/index/index'
     }
+  },
+
+  // 预览可视化图片
+  onPreviewImage(e) {
+    const url = e.currentTarget.dataset.url
+    if (!url) return
+    wx.previewImage({
+      current: url,
+      urls: [url]
+    })
+  },
+
+  // 打开PDF报告
+  onOpenReport(e) {
+    const url = e.currentTarget.dataset.url
+    if (!url) return
+    wx.showModal({
+      title: '查看完整报告',
+      content: '即将打开可视化PDF诊断报告',
+      confirmText: '打开',
+      success: (res) => {
+        if (res.confirm) {
+          wx.openDocument({
+            filePath: url,
+            fail: () => {
+              // 如果不是本地文件，用 webview 打开
+              wx.navigateTo({
+                url: `/pages/webview/webview?url=${encodeURIComponent(url)}`,
+                fail: () => {
+                  wx.setClipboardData({
+                    data: url,
+                    success: () => wx.showToast({ title: '链接已复制', icon: 'success' })
+                  })
+                }
+              })
+            }
+          })
+        }
+      }
+    })
   },
 
   onReDiagnose() {

@@ -113,13 +113,40 @@ Page({
     this.setData({ isUploading: true })
 
     try {
-      // 使用全局 uploadImage（内置 base64 降级，确保可靠）
-      const imageUrl = await uploadImage(this.data.photoUrl)
+      // 并行：上传图片 + 读取base64（确保服务端一定能拿到图片数据）
+      const { request, API, uploadImage, imageToBase64 } = require('../../utils/api')
+      const [imageUrl, imageBase64] = await Promise.all([
+        uploadImage(this.data.photoUrl).catch(err => {
+          console.warn('[diagnose] 图片上传失败，仅用base64:', err.message)
+          return ''
+        }),
+        imageToBase64(this.data.photoUrl).catch(err => {
+          console.warn('[diagnose] base64读取失败:', err.message)
+          return ''
+        })
+      ])
+
+      if (!imageUrl && !imageBase64) {
+        throw new Error('图片数据获取失败')
+      }
+
+      // 保存base64到全局，analyzing页面通过hasBase64=1取回
+      if (imageBase64) {
+        getApp().globalData.tempImageBase64 = imageBase64
+      }
 
       this.setData({ isUploading: false })
 
+      const params = [
+        `imageUrl=${encodeURIComponent(imageUrl)}`,
+        `photoType=${this.data.photoType}`,
+        `gender=${this.data.gender}`,
+        `tags=${encodeURIComponent(JSON.stringify(this.data.userTags))}`,
+        imageBase64 ? 'hasBase64=1' : ''
+      ].filter(Boolean).join('&')
+
       wx.navigateTo({
-        url: `/pages/analyzing/analyzing?imageUrl=${encodeURIComponent(imageUrl)}&photoType=${this.data.photoType}&gender=${this.data.gender}&tags=${encodeURIComponent(JSON.stringify(this.data.userTags))}`,
+        url: `/pages/analyzing/analyzing?${params}`,
         fail: (err) => {
           console.error('[diagnose] navigateTo 失败:', err)
           wx.showToast({ title: '页面跳转失败', icon: 'none' })
