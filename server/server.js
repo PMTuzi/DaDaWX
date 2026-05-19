@@ -82,8 +82,7 @@ app.get('/', (req, res) => {
     name: '搭搭 - AI形象诊断平台',
     version: '1.0.0',
     apiDocs: {
-      '视觉分析': 'POST /api/ai/analyze-vision',
-      '生成报告': 'POST /api/ai/generate-report',
+      '完整分析(VL+Seedream)': 'POST /api/ai/full-analysis',
       'OSS凭证': 'GET /api/oss/token',
       '微信登录': 'POST /api/user/login',
       '报告详情': 'GET /api/report/:id',
@@ -109,6 +108,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ code: -1, message: err.message || '服务器内部错误' })
 })
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`搭搭服务已启动: http://localhost:${PORT}`)
+  console.log(`局域网访问: http://172.21.242.182:${PORT}`)
 })

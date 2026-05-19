@@ -91,3 +91,72 @@
   padding: 4rpx 12rpx;
   border-radius: 8rpx;
 }
+
+/* 底部重新诊断栏 */
+.rediagnose-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 20rpx 32rpx;
+  background: #ffffff;
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.06);
+}
+
+.rd-share-btn {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  background: #F5F0EB;
+  color: #8B7355;
+  font-size: 26rpx;
+  font-weight: 500;
+  padding: 0 24rpx;
+  border-radius: 40rpx;
+  height: 80rpx;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.rd-share-btn.shared {
+  background: #E8F5E9;
+  color: #4CAF50;
+}
+
+.rd-share-icon {
+  font-size: 28rpx;
+}
+
+.rd-share-hint {
+  font-size: 18rpx;
+  opacity: 0.7;
+  font-weight: 400;
+}
+
+.rd-action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  height: 80rpx;
+  background: #C8A97E;
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 600;
+  border-radius: 40rpx;
+}
+
+.rd-action-btn.locked {
+  opacity: 0.4;
+  background: #999;
+}
+
+.rd-lock-icon {
+  font-size: 24rpx;
+}

@@ -1,4 +1,5 @@
 {
-  "navigationBarTitleText": "搭搭分析ing",
-  "navigationBarBackgroundColor": "#1a1a2e"
+  "navigationBarTitleText": "形象风格分析ing",
+  "navigationBarBackgroundColor": "#FAFAF5",
+  "navigationBarTextStyle": "black"
 }

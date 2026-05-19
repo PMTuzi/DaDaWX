@@ -1,22 +1,18 @@
 <!--pages/diagnose/diagnose.wxml-->
 <view class="page-diagnose">
-  <!-- 照片类型切换 -->
-  <view class="type-switch">
-    <view class="type-item {{photoType === 'face' ? 'active' : ''}}" data-type="face" bindtap="onSwitchType">人脸照</view>
-    <view class="type-item {{photoType === 'fullbody' ? 'active' : ''}}" data-type="fullbody" bindtap="onSwitchType">全身照</view>
-  </view>
-
   <!-- 照片上传区 -->
   <view class="photo-area">
-    <view class="photo-preview" wx:if="{{photoUrl}}">
-      <image src="{{photoUrl}}" mode="aspectFill" class="preview-img" />
+    <view class="photo-circle-wrap" wx:if="{{photoUrl}}">
+      <view class="photo-circle">
+        <image src="{{photoUrl}}" mode="aspectFill" class="preview-img" />
+      </view>
       <view class="rechoose" bindtap="onRechoose">
         <text>重新选择</text>
       </view>
     </view>
 
     <view class="photo-upload" wx:else>
-      <view class="upload-btn" bindtap="onChoosePhoto">
+      <view class="upload-circle-btn" bindtap="onChoosePhoto">
         <view class="upload-icon icon icon-camera"></view>
         <text class="upload-text">上传照片</text>
         <text class="upload-hint">拍照或从相册选择</text>
@@ -26,18 +22,11 @@
 
   <!-- 拍照引导 -->
   <view class="guide-section" wx:if="{{guideVisible}}">
-    <view class="guide-title"><view class="icon icon-camera" style="font-size:32rpx;margin-right:8rpx;"></view> 拍照小贴士</view>
-    <view class="guide-tips" wx:if="{{photoType === 'face'}}">
-      <view class="guide-tip"><view class="icon icon-check" style="font-size:28rpx;color:var(--success);margin-right:8rpx;"></view> 正对镜头，面部完整</view>
-      <view class="guide-tip"><view class="icon icon-check" style="font-size:28rpx;color:var(--success);margin-right:8rpx;"></view> 光线均匀，避免逆光</view>
-      <view class="guide-tip"><view class="icon icon-check" style="font-size:28rpx;color:var(--success);margin-right:8rpx;"></view> 素颜或淡妆效果更佳</view>
-      <view class="guide-tip"><view class="icon icon-check" style="font-size:28rpx;color:var(--success);margin-right:8rpx;"></view> 头发不遮挡面部轮廓</view>
-    </view>
-    <view class="guide-tips" wx:else>
-      <view class="guide-tip"><view class="icon icon-check" style="font-size:28rpx;color:var(--success);margin-right:8rpx;"></view> 站姿端正，全身入镜</view>
-      <view class="guide-tip"><view class="icon icon-check" style="font-size:28rpx;color:var(--success);margin-right:8rpx;"></view> 服装合身，体现身形</view>
-      <view class="guide-tip"><view class="icon icon-check" style="font-size:28rpx;color:var(--success);margin-right:8rpx;"></view> 光线充足，画面清晰</view>
-      <view class="guide-tip"><view class="icon icon-check" style="font-size:28rpx;color:var(--success);margin-right:8rpx;"></view> 自然站姿，双臂放松</view>
+    <view class="guide-grid">
+      <view class="guide-cell"><view class="icon icon-check" style="font-size:24rpx;color:#4CAF50;margin-right:6rpx;"></view><text>正对镜头</text></view>
+      <view class="guide-cell"><view class="icon icon-check" style="font-size:24rpx;color:#4CAF50;margin-right:6rpx;"></view><text>光线均匀</text></view>
+      <view class="guide-cell"><view class="icon icon-check" style="font-size:24rpx;color:#4CAF50;margin-right:6rpx;"></view><text>素颜淡妆</text></view>
+      <view class="guide-cell"><view class="icon icon-check" style="font-size:24rpx;color:#4CAF50;margin-right:6rpx;"></view><text>不遮轮廓</text></view>
     </view>
   </view>
 
@@ -47,6 +36,27 @@
     <view class="gender-switch">
       <view class="gender-item {{gender === 'female' ? 'active' : ''}}" data-gender="female" bindtap="onSwitchGender">女</view>
       <view class="gender-item {{gender === 'male' ? 'active' : ''}}" data-gender="male" bindtap="onSwitchGender">男</view>
+    </view>
+  </view>
+
+  <!-- 基本信息 -->
+  <view class="info-section">
+    <view class="info-row">
+      <text class="info-label">年龄<text class="info-required">*</text></text>
+      <input class="info-input" type="number" placeholder="请输入年龄" value="{{age}}" bindinput="onAgeInput" maxlength="3" />
+      <text class="info-unit">岁</text>
+    </view>
+    <view class="info-divider"></view>
+    <view class="info-row">
+      <text class="info-label">身高</text>
+      <input class="info-input" type="digit" placeholder="选填" value="{{height}}" bindinput="onHeightInput" maxlength="5" />
+      <text class="info-unit">cm</text>
+    </view>
+    <view class="info-divider"></view>
+    <view class="info-row">
+      <text class="info-label">体重</text>
+      <input class="info-input" type="digit" placeholder="选填" value="{{weight}}" bindinput="onWeightInput" maxlength="5" />
+      <text class="info-unit">kg</text>
     </view>
   </view>
 

@@ -3,7 +3,7 @@
   <!-- 顶部品牌区 -->
   <view class="header {{hasReport ? 'header-diagnosed' : ''}}">
     <view class="brand-area {{hasReport ? 'brand-area-small' : ''}}">
-      <view class="logo">搭搭</view>
+      <view class="logo">美哒 Meeta</view>
       <view class="slogan">{{slogan}}</view>
     </view>
 

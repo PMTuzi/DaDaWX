@@ -1,7 +1,8 @@
 // pages/reports/reports.js
 Page({
   data: {
-    reports: []
+    reports: [],
+    shared: false
   },
 
   onLoad() {
@@ -41,5 +42,23 @@ Page({
 
   onGoDiagnose() {
     wx.navigateTo({ url: '/pages/diagnose/diagnose' })
+  },
+
+  onReDiagnose() {
+    if (!this.data.shared) {
+      wx.showToast({ title: '请先分享解锁', icon: 'none' })
+      return
+    }
+    wx.navigateTo({ url: '/pages/diagnose/diagnose' })
+  },
+
+  onShareAppMessage() {
+    if (!this.data.shared) {
+      this.setData({ shared: true })
+    }
+    return {
+      title: '我的AI形象诊断报告',
+      path: '/pages/index/index'
+    }
   }
 })

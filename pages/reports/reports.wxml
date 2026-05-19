@@ -29,4 +29,17 @@
     <text class="empty-text">还没有诊断报告</text>
     <button class="btn-primary" bindtap="onGoDiagnose" style="margin-top: 32rpx;">开始诊断</button>
   </view>
+
+  <!-- 底部重新诊断入口 -->
+  <view class="rediagnose-bar safe-bottom">
+    <button class="rd-share-btn {{shared ? 'shared' : ''}}" open-type="share">
+      <text class="rd-share-icon">{{shared ? '✓' : '↗'}}</text>
+      <text>{{shared ? '已分享' : '分享解锁'}}</text>
+      <text class="rd-share-hint" wx:if="{{!shared}}">分享后可重测</text>
+    </button>
+    <button class="rd-action-btn {{shared ? '' : 'locked'}}" bindtap="onReDiagnose">
+      <text class="rd-lock-icon" wx:if="{{!shared}}"></text>
+      <text>重新诊断</text>
+    </button>
+  </view>
 </view>

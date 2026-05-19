@@ -16,15 +16,15 @@
     "pages/consult-result/consult-result"
   ],
   "window": {
-    "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#1a1a2e",
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#FAFAF5",
     "navigationBarTitleText": "",
-    "navigationBarTextStyle": "white",
-    "backgroundColor": "#f5f5f7"
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#FAFAF5"
   },
   "tabBar": {
     "color": "#999999",
-    "selectedColor": "#1a1a2e",
+    "selectedColor": "#C8A97E",
     "backgroundColor": "#ffffff",
     "borderStyle": "white",
     "list": [

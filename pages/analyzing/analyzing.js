@@ -1,6 +1,6 @@
 // pages/analyzing/analyzing.js
+// 新架构：等待全部图片生成完成才跳转
 const { request, API } = require('../../utils/api')
-const { validateReport, safeMergeReport } = require('../../utils/report-schema')
 
 let _alive = true
 let _timers = []
@@ -11,17 +11,15 @@ Page({
     currentStep: 0,
     steps: [
       { label: '图片上传', icon: 'upload', status: 'pending' },
-      { label: '深度面部特征提取', icon: 'eye', status: 'pending' },
-      { label: '骨相分析', icon: 'search', status: 'pending' },
-      { label: '皮肤状态分析', icon: 'palette', status: 'pending' },
-      { label: '色彩风格匹配', icon: 'sparkle', status: 'pending' },
-      { label: '穿搭风格生成', icon: 'dress', status: 'pending' }
+      { label: '深度面部骨相分析', icon: 'eye', status: 'pending' },
+      { label: '色彩形象风格分析', icon: 'search', status: 'pending' },
+      { label: '穿搭妆容风格分析', icon: 'palette', status: 'pending' },
+      { label: '体态气质风格分析', icon: 'sparkle', status: 'pending' },
+      { label: '深度总结', icon: 'heart', status: 'pending' }
     ],
-    ossUrl: '',
     imageUrl: '',
     imageBase64: '',
     photoType: 'face',
-    userTags: [],
     analyzing: true,
     errorMsg: ''
   },
@@ -31,7 +29,6 @@ Page({
     _timers = []
     try {
       const imageUrl = decodeURIComponent(options.imageUrl || '')
-      const ossUrl = decodeURIComponent(options.ossUrl || '')
       let imageBase64 = ''
       if (options.hasBase64 === '1') {
         imageBase64 = getApp().globalData.tempImageBase64 || ''
@@ -41,7 +38,15 @@ Page({
       if (options.tags) {
         try { userTags = JSON.parse(decodeURIComponent(options.tags)) } catch (e) {}
       }
-      this.setData({ imageUrl, ossUrl, imageBase64, photoType: options.photoType || 'face', gender: options.gender || 'female', userTags })
+      this.setData({
+        imageUrl,
+        imageBase64,
+        photoType: options.photoType || 'face',
+        gender: options.gender || 'female',
+        age: options.age || '',
+        height: options.height || '',
+        weight: options.weight || ''
+      })
     } catch (e) {
       console.error('[analyzing] onLoad 参数解析失败:', e)
     }
@@ -72,93 +77,67 @@ Page({
       await this.simulateStep(0, 10)
       this.setStepStatus(0, 'done')
 
-      // 步骤2: 视觉大模型深度特征提取
+      // 步骤2: AI深度面部分析（VL Part1 + Part2）
       this.setStepStatus(1, 'active')
-      const visionData = { photoType: this.data.photoType }
-      if (this.data.imageBase64) {
-        visionData.imageBase64 = this.data.imageBase64
-      }
-      if (this.data.imageUrl) {
-        visionData.imageUrl = this.data.imageUrl
-      }
-      if (this.data.ossUrl) {
-        visionData.ossUrl = this.data.ossUrl
-      }
+      await this.simulateStep(1, 20)
 
-      if (!visionData.imageBase64 && !visionData.imageUrl && !visionData.ossUrl) {
-        throw new Error('没有可用的图片数据，请重新上传照片')
-      }
-
-      const visionResult = await request(API.analyzeVision, {
-        method: 'POST', data: visionData, timeout: 120000
-      })
-      if (visionResult.code !== 0) {
-        throw new Error(visionResult.message || '视觉分析失败')
-      }
-      console.log('[analyzing] 视觉分析API成功')
-
-      await this.simulateStep(1, 25)
-      this.setStepStatus(1, 'done')
-
-      // 步骤3-6: 4个模块并行生成
-      this.setStepStatus(2, 'active')
-      this.setStepStatus(3, 'active')
-      this.setStepStatus(4, 'active')
-      this.setStepStatus(5, 'active')
-
-      let report
-      const reportResult = await request(API.generateReport, {
+      // 步骤3-6: 调用 full-analysis API（包含VL分析+4次Seedream图片生成）
+      // 这一步会耗时较长（可能2-3分钟），等待全部图片生成完成
+      const result = await request(API.fullAnalysis, {
         method: 'POST',
         data: {
-          imageUrl: this.data.imageUrl || this.data.ossUrl,
+          imageUrl: this.data.imageUrl,
           imageBase64: this.data.imageBase64 || '',
-          visualFeatures: visionResult.data.features,
-          userTags: this.data.userTags,
+          photoType: this.data.photoType,
           gender: this.data.gender,
-          quantMetrics: visionResult.data.metrics
+          age: this.data.age ? parseInt(this.data.age) : undefined,
+          height: this.data.height ? parseFloat(this.data.height) : undefined,
+          weight: this.data.weight ? parseFloat(this.data.weight) : undefined
         },
-        timeout: 120000
+        timeout: 300000  // 5分钟超时
       })
 
-      if (reportResult.code !== 0) {
-        throw new Error(reportResult.message || '报告生成失败')
+      if (result.code !== 0) {
+        throw new Error(result.message || '分析失败')
       }
 
-      if (validateReport(reportResult.data)) {
-        report = reportResult.data
-      } else {
-        report = safeMergeReport(reportResult.data)
+      // 检查图片是否全部生成
+      if (!result.data.imageComplete) {
+        console.warn('[analyzing] 部分图片生成失败，但允许查看')
       }
-      console.log('[analyzing] 报告生成API成功')
+
+      const data = result.data
+      await this.simulateStep(1, 40)
+      this.setStepStatus(1, 'done')
+
+      // 逐步标记图片生成步骤完成
+      await this.simulateStep(2, 55)
+      this.setStepStatus(2, 'done')
+
+      await this.simulateStep(3, 70)
+      this.setStepStatus(3, 'done')
+
+      await this.simulateStep(4, 85)
+      this.setStepStatus(4, 'done')
 
       await this.simulateStep(5, 100)
+      this.setStepStatus(5, 'done')
 
-      // 补充元信息
-      report.id = 'R' + Date.now()
-      report.createTime = this.formatNow()
-      report.photoType = this.data.photoType
-      report.photoUrl = this.data.imageUrl || this.data.ossUrl || ''
-      // 保存人脸检测数据（精确关键点 + 三庭五眼比例）
-      const fData = visionResult.data.features
-      if (fData) {
-        if (fData.landmarks) report.landmarks = fData.landmarks
-        if (fData.detailPoints) report.detailPoints = fData.detailPoints
-        if (fData.densifiedPoints) report.densifiedPoints = fData.densifiedPoints
-        if (fData.meshData) report.meshData = fData.meshData
-        if (fData.threeCourtsMeasure) report.threeCourtsMeasure = fData.threeCourtsMeasure
-        if (fData.fiveEyesMeasure) report.fiveEyesMeasure = fData.fiveEyesMeasure
-        // iCREDIT API 额外信息
-        if (fData.faceType) report.faceType = fData.faceType
-        if (fData.pupilDistance) report.pupilDistance = fData.pupilDistance
-        if (fData.faceWidth) report.faceWidth = fData.faceWidth
-        // iCREDIT 可视化图片
-        if (fData.visualImages) report.visualImages = fData.visualImages
+      // 保存报告到本地
+      const report = {
+        id: 'R' + Date.now(),
+        createTime: this.formatNow(),
+        photoType: this.data.photoType,
+        photoUrl: this.data.imageUrl,
+        basic: data.basic,
+        modules: data.modules,
+        images: data.images,
+        imageComplete: data.imageComplete,
+        faceData: data.faceData,
+        visualImages: data.visualImages
       }
 
       this.saveReport(report)
-
-      // 标记所有步骤完成
-      for (let i = 2; i <= 5; i++) this.setStepStatus(i, 'done')
 
       // 跳转报告页
       setTimeout(() => {

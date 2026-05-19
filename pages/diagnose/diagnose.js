@@ -5,6 +5,9 @@ Page({
   data: {
     photoType: 'face', // face | fullbody
     gender: 'female', // female | male
+    age: '',
+    height: '',
+    weight: '',
     photoUrl: '',
     isUploading: false,
     userTags: [],
@@ -31,6 +34,21 @@ Page({
   // 切换性别
   onSwitchGender(e) {
     this.setData({ gender: e.currentTarget.dataset.gender })
+  },
+
+  // 年龄输入
+  onAgeInput(e) {
+    this.setData({ age: e.detail.value })
+  },
+
+  // 身高输入
+  onHeightInput(e) {
+    this.setData({ height: e.detail.value })
+  },
+
+  // 体重输入
+  onWeightInput(e) {
+    this.setData({ weight: e.detail.value })
   },
 
   // 选择照片（拍照或相册）
@@ -109,6 +127,10 @@ Page({
       wx.showToast({ title: '请先上传照片', icon: 'none' })
       return
     }
+    if (!this.data.age || parseInt(this.data.age) <= 0) {
+      wx.showToast({ title: '请输入年龄', icon: 'none' })
+      return
+    }
 
     this.setData({ isUploading: true })
 
@@ -141,6 +163,9 @@ Page({
         `imageUrl=${encodeURIComponent(imageUrl)}`,
         `photoType=${this.data.photoType}`,
         `gender=${this.data.gender}`,
+        `age=${this.data.age}`,
+        this.data.height ? `height=${this.data.height}` : '',
+        this.data.weight ? `weight=${this.data.weight}` : '',
         `tags=${encodeURIComponent(JSON.stringify(this.data.userTags))}`,
         imageBase64 ? 'hasBase64=1' : ''
       ].filter(Boolean).join('&')

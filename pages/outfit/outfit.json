@@ -1,3 +1,5 @@
 {
-  "navigationBarTitleText": "穿搭决策"
+  "navigationBarTitleText": "穿搭决策",
+  "navigationBarBackgroundColor": "#FAFAF5",
+  "navigationBarTextStyle": "black"
 }
