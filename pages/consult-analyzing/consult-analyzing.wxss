@@ -5,7 +5,20 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 180rpx 32rpx 80rpx;
+  padding: 80rpx 32rpx 80rpx;
+}
+
+.top-hint {
+  width: 100%;
+  text-align: center;
+  padding: 20rpx 0 40rpx;
+}
+
+.top-hint-text {
+  font-size: 28rpx;
+  color: #C8A97E;
+  font-weight: 500;
+  letter-spacing: 2rpx;
 }
 
 .animation-area {

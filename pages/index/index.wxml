@@ -78,7 +78,7 @@
         <view class="btn-icon icon icon-dress"></view>
         <view class="btn-text">
           <text class="btn-main">开始穿搭「 反种草 」</text>
-          <text class="btn-sub">基于诊断报告，AI 帮你理性判断</text>
+          <text class="btn-sub">基于风格诊断报告，AI 帮你理性判断</text>
         </view>
       </view>
     </block>

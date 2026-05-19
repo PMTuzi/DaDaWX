@@ -18,7 +18,7 @@ const currentConfig = CONFIG[ENV]
 
 // API 路径
 const API = {
-  // 完整分析（2次VL + 4次Seedream，一次性返回全部数据+图片）
+  // 完整分析（VL即时返回，图片按需生成）
   fullAnalysis: '/api/ai/full-analysis',
   // 图片上传
   upload: '/api/upload',

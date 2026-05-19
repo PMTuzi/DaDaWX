@@ -2,17 +2,29 @@
 <view class="page-result" wx:if="{{record}}">
   <!-- 顶部决策结论 -->
   <view class="verdict-section {{record.verdict === '建议退货' || record.verdict === '建议不买' ? 'verdict-reject' : 'verdict-accept'}}">
+    <view class="verdict-bg-glow"></view>
     <!-- 用户上传图片 -->
     <view class="user-images" wx:if="{{record.images && record.images.length}}">
       <image class="user-image" wx:for="{{record.images}}" wx:key="index"
         src="{{item.localPath || item.imageUrl}}" mode="aspectFill" bindtap="onPreviewImage" data-url="{{item.localPath || item.imageUrl}}"
         binderror="onImageError"></image>
     </view>
-    <view class="verdict-label">{{isCompare ? '最优推荐' : 'AI决策'}}</view>
-    <view class="verdict-text">{{record.verdict}}</view>
-    <view class="verdict-score" wx:if="{{record.totalScore}}">
-      <text class="score-big {{record.verdict === '建议退货' || record.verdict === '建议不买' ? 'score-reject' : 'score-accept'}}">{{record.totalScore}}</text>
-      <text class="score-max">/10</text>
+    <!-- 分数环 -->
+    <view class="score-ring-wrap" wx:if="{{record.totalScore}}">
+      <view class="score-ring {{record.verdict === '建议退货' || record.verdict === '建议不买' ? 'ring-reject' : 'ring-accept'}}">
+        <view class="score-ring-inner">
+          <text class="score-big">{{record.totalScore}}</text>
+          <text class="score-max">/10</text>
+        </view>
+      </view>
+    </view>
+    <!-- 决策标签 -->
+    <view class="verdict-badge {{record.verdict === '建议退货' || record.verdict === '建议不买' ? 'badge-reject' : 'badge-accept'}}">
+      <view class="badge-icon">{{record.verdict === '建议退货' || record.verdict === '建议不买' ? '✕' : '✓'}}</view>
+      <view class="badge-content">
+        <text class="badge-label">{{isCompare ? '最优推荐' : 'AI决策'}}</text>
+        <text class="badge-verdict">{{record.verdict}}</text>
+      </view>
     </view>
   </view>
 

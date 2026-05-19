@@ -167,7 +167,8 @@ Page({
         this.data.height ? `height=${this.data.height}` : '',
         this.data.weight ? `weight=${this.data.weight}` : '',
         `tags=${encodeURIComponent(JSON.stringify(this.data.userTags))}`,
-        imageBase64 ? 'hasBase64=1' : ''
+        imageBase64 ? 'hasBase64=1' : '',
+        `localPhoto=${encodeURIComponent(this.data.photoUrl)}`
       ].filter(Boolean).join('&')
 
       wx.navigateTo({

@@ -1,5 +1,10 @@
 <!--pages/analyzing/analyzing.wxml-->
 <view class="page-analyzing">
+  <!-- 顶部提示 -->
+  <view class="top-hint">
+    <text class="top-hint-text">哒哒努力中，不要离开哦～</text>
+  </view>
+
   <!-- 动画区域 -->
   <view class="animation-area">
     <view class="scan-circle">
@@ -33,6 +38,6 @@
 
   <!-- 提示文字 -->
   <view class="tip-area">
-    <text class="tip-text">AI 正在进行深度面部特征提取与多维度分析，请耐心等待...</text>
+    <text class="tip-text"> 3000亿参数模型正在进行特征提取，请耐心等待...</text>
   </view>
 </view>

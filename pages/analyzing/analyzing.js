@@ -1,5 +1,5 @@
 // pages/analyzing/analyzing.js
-// 新架构：等待全部图片生成完成才跳转
+// 新架构：VL分析即时返回，跳转报告页后异步生图
 const { request, API } = require('../../utils/api')
 
 let _alive = true
@@ -45,7 +45,8 @@ Page({
         gender: options.gender || 'female',
         age: options.age || '',
         height: options.height || '',
-        weight: options.weight || ''
+        weight: options.weight || '',
+        localPhoto: decodeURIComponent(options.localPhoto || '')
       })
     } catch (e) {
       console.error('[analyzing] onLoad 参数解析失败:', e)
@@ -72,7 +73,6 @@ Page({
     if (_alive) { try { this.setData(data) } catch (e) {} }
   },
 
-  // 启动持续缓慢递增的进度（API等待期间不会卡住）
   _startCreep(maxProgress, interval) {
     this._stopCreep()
     this._creepTimer = setInterval(() => {
@@ -94,51 +94,46 @@ Page({
       await this.simulateStep(0, 10)
       this.setStepStatus(0, 'done')
 
-      // 步骤2: AI深度面部分析（VL Part1 + Part2）
+      // 步骤2: AI深度面部分析（VL Part1 + Part2，不再等待Seedream）
       this.setStepStatus(1, 'active')
       await this.simulateStep(1, 20)
 
-      // 启动缓慢递增：API等待期间进度从20缓慢爬到85
-      this._startCreep(85, 2500)
+      // 启动缓慢递增：API等待期间进度从20缓慢爬到80
+      this._startCreep(80, 2500)
 
-      // 步骤3-6: 调用 full-analysis API（包含VL分析+4次Seedream图片生成）
+      // 调用 full-analysis API（仅VL分析，即时返回）
       const result = await request(API.fullAnalysis, {
         method: 'POST',
         data: {
           imageUrl: this.data.imageUrl,
           imageBase64: this.data.imageBase64 || '',
           photoType: this.data.photoType,
+          photoUrl: this.data.imageUrl,
           gender: this.data.gender,
           age: this.data.age ? parseInt(this.data.age) : undefined,
           height: this.data.height ? parseFloat(this.data.height) : undefined,
           weight: this.data.weight ? parseFloat(this.data.weight) : undefined
         },
-        timeout: 300000  // 5分钟超时
+        timeout: 300000  // VL分析含Part1+Part2+重试，最长约5分钟
       })
 
-      // API返回后停止缓慢递增
       this._stopCreep()
 
       if (result.code !== 0) {
         throw new Error(result.message || '分析失败')
       }
 
-      // 检查图片是否全部生成
-      if (!result.data.imageComplete) {
-        console.warn('[analyzing] 部分图片生成失败，但允许查看')
-      }
-
       const data = result.data
       this.setStepStatus(1, 'done')
 
-      // 逐步标记图片生成步骤完成（快速走完剩余进度）
-      await this.simulateStep(2, 55)
+      // 快速走完剩余步骤（不再等待图片生成）
+      await this.simulateStep(2, 50)
       this.setStepStatus(2, 'done')
 
-      await this.simulateStep(3, 70)
+      await this.simulateStep(3, 65)
       this.setStepStatus(3, 'done')
 
-      await this.simulateStep(4, 85)
+      await this.simulateStep(4, 80)
       this.setStepStatus(4, 'done')
 
       await this.simulateStep(5, 100)
@@ -149,16 +144,22 @@ Page({
         id: 'R' + Date.now(),
         createTime: this.formatNow(),
         photoType: this.data.photoType,
-        photoUrl: this.data.imageUrl,
+        photoUrl: this.data.localPhoto || this.data.imageUrl,
         basic: data.basic,
         modules: data.modules,
-        images: data.images,
-        imageComplete: data.imageComplete,
+        images: data.images || {},
+        imageComplete: false,
         faceData: data.faceData,
         visualImages: data.visualImages
       }
 
       this.saveReport(report)
+
+      // 即使页面已卸载，也通知用户结果已保存
+      if (!_alive) {
+        wx.showToast({ title: '诊断完成，请在首页查看', icon: 'none', duration: 3000 })
+        return
+      }
 
       // 跳转报告页
       setTimeout(() => {

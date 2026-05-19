@@ -136,6 +136,12 @@ Page({
 
       const record = this.saveResult(result, consultData)
 
+      // 即使页面已卸载，也通知用户结果已保存
+      if (!_alive) {
+        wx.showToast({ title: '决策完成，请在穿搭页查看', icon: 'none', duration: 3000 })
+        return
+      }
+
       setTimeout(() => {
         if (!_alive) return
         try {

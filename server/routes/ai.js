@@ -1,22 +1,21 @@
-// AI 诊断路由（新架构：2次VL + 4次Seedream）
+// AI 诊断路由（新架构：VL即时返回 + 异步定向生图）
 const express = require('express')
 const router = express.Router()
 const { authRequired } = require('../middleware/auth')
-const { analyzePart1, analyzePart2, generateAllImages } = require('../services/qwen')
+const { analyzePart1, analyzePart2, generateTargetedImages, generateSingleImage } = require('../services/qwen')
 const { detectFaceLandmarks } = require('../services/face-detect')
 const { analyzeFaceVisual } = require('../services/face-visual')
 const reportStore = require('../store/report-store')
 const userStore = require('../store/user-store')
 
 /**
- * 完整分析流程
+ * 完整分析流程（新架构：VL即时返回，不再等待生图）
  * POST /api/ai/full-analysis
  * body: { imageUrl, imageBase64, photoType, gender, age, height, weight }
  * 
  * 流程：
- * 1. 2次VL分析（并行调用人脸检测）
- * 2. 4次Seedream图片生成（并行）
- * 3. 返回全部数据+图片URL
+ * 1. 2次VL分析 + 人脸检测（并行）→ 即时返回数据
+ * 2. 图片生成由前端按需调用 /api/ai/generate-images
  */
 router.post('/full-analysis', authRequired, async (req, res) => {
   const t0 = Date.now()
@@ -47,7 +46,7 @@ router.post('/full-analysis', authRequired, async (req, res) => {
 
     console.log(`[AI] 用户${openid.substring(0, 8)}... 开始完整分析, 类型: ${photoType}, 性别: ${gender}`)
 
-    // ==================== 阶段1: VL分析 ====================
+    // ==================== 阶段1: VL分析（即时返回） ====================
     const [part1Data, faceData, visualData] = await Promise.all([
       analyzePart1(imageInput, photoType, gender, { age, height, weight }).catch(err => {
         console.warn('[AI] VL Part1失败:', err.message)
@@ -103,21 +102,9 @@ router.post('/full-analysis', authRequired, async (req, res) => {
     const styleScore = part1Data.module2_style?.mainScore || 7
     const overallScore = Math.round((faceScore * 0.35 + skinScore * 0.3 + styleScore * 0.2 + 7 * 0.15) * 10) / 10
 
-    console.log(`[AI] 阶段1完成, 耗时: ${Date.now() - t0}ms, 综合评分: ${overallScore}`)
+    console.log(`[AI] VL分析完成, 耗时: ${Date.now() - t0}ms, 综合评分: ${overallScore}`)
 
-    // ==================== 阶段2: Seedream图片生成 ====================
-    console.log('[AI] 阶段2: 生成4张模块图片...')
-    const images = await generateAllImages(analysisData)
-
-    const imageCount = Object.values(images).filter(v => v).length
-    console.log(`[AI] 阶段2完成, 成功${imageCount}/4张, 总耗时: ${Date.now() - t0}ms`)
-
-    // 检查是否全部图片生成成功
-    if (imageCount < 4) {
-      console.warn('[AI] 部分图片生成失败，返回降级结果')
-    }
-
-    // 构建返回数据
+    // ==================== 即时返回（不等待图片生成） ====================
     const result = {
       basic: {
         overallScore,
@@ -133,7 +120,7 @@ router.post('/full-analysis', authRequired, async (req, res) => {
         hairmakeup: part2Data.module3_hairmakeup,
         optimize: part2Data.module4_optimize
       },
-      images,
+      images: {},           // 图片由前端按需生成
       photoUrl: photoUrl || '',
       faceData: faceData ? {
         faceType: faceData.faceType,
@@ -142,14 +129,23 @@ router.post('/full-analysis', authRequired, async (req, res) => {
         fiveEyes: faceData.fiveEyes
       } : null,
       visualImages: visualData || null,
-      imageComplete: imageCount === 4
+      imageComplete: false  // 图片未生成
     }
 
     res.json({ code: 0, data: result })
+    // 图片生成由前端通过 /api/ai/generate-images 按需调用，不再后台重复生图
   } catch (err) {
     console.error('[AI] 完整分析失败:', err.message)
     res.status(500).json({ code: -1, message: '分析失败: ' + err.message })
   }
+})
+
+/**
+ * 按需生成定向图片（已废弃：报告页改用前端渲染雷达图/色块/比例条）
+ * 保留接口兼容性，但不再推荐使用
+ */
+router.post('/generate-images', authRequired, async (req, res) => {
+  res.json({ code: 0, data: { images: {} } })
 })
 
 // ============ 穿搭咨询路由 ============

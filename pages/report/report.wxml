@@ -2,31 +2,32 @@
 <view class="page-report" wx:if="{{report}}">
   <!-- 顶部Tab导航 -->
   <view class="tab-bar">
-    <scroll-view class="tab-scroll" scroll-x enhanced show-scrollbar="{{false}}">
-      <view class="tab-item {{activeTab === 'dna' ? 'active' : ''}}" data-tab="dna" bindtap="onTabTap">
-        <text class="tab-label">面部&骨相</text>
-      </view>
-      <view class="tab-item {{activeTab === 'style' ? 'active' : ''}}" data-tab="style" bindtap="onTabTap">
-        <text class="tab-label">皮肤&风格</text>
-      </view>
-      <view class="tab-item {{activeTab === 'hairmakeup' ? 'active' : ''}}" data-tab="hairmakeup" bindtap="onTabTap">
-        <text class="tab-label">发型&妆容</text>
-      </view>
-      <view class="tab-item {{activeTab === 'optimize' ? 'active' : ''}}" data-tab="optimize" bindtap="onTabTap">
-        <text class="tab-label">颜值&蜕变</text>
-      </view>
-    </scroll-view>
+    <view class="tab-item {{activeTab === 'dna' ? 'active' : ''}}" data-tab="dna" bindtap="onTabTap">
+      <text class="tab-label">面部&骨相</text>
+    </view>
+    <view class="tab-item {{activeTab === 'style' ? 'active' : ''}}" data-tab="style" bindtap="onTabTap">
+      <text class="tab-label">皮肤&风格</text>
+    </view>
+    <view class="tab-item {{activeTab === 'hairmakeup' ? 'active' : ''}}" data-tab="hairmakeup" bindtap="onTabTap">
+      <text class="tab-label">发型&妆容</text>
+    </view>
+    <view class="tab-item {{activeTab === 'optimize' ? 'active' : ''}}" data-tab="optimize" bindtap="onTabTap">
+      <text class="tab-label">颜值&蜕变</text>
+    </view>
   </view>
 
   <!-- 综合评分头部 -->
   <view class="report-header">
-    <view class="user-avatar" wx:if="{{report.photoUrl}}">
-      <image class="avatar-img" src="{{report.photoUrl}}" mode="aspectFill" />
+    <view class="user-avatar" wx:if="{{report.photoUrl || report.visualImages.faceMarkImg}}">
+      <image class="avatar-img" src="{{report.photoUrl || report.visualImages.faceMarkImg}}" mode="aspectFill" binderror="onAvatarError" />
+    </view>
+    <view class="user-avatar avatar-placeholder" wx:else>
+      <text class="avatar-fallback">Me</text>
     </view>
     <view class="header-right">
       <view class="score-display">
-      <text class="score-number">{{report.basic.overallScore}}</text>
-      <text class="score-unit">分</text>
+        <text class="score-number">{{report.basic.overallScore}}</text>
+        <text class="score-unit">分</text>
       </view>
       <view class="score-tags">
         <text class="tag" wx:for="{{report.basic.tags}}" wx:key="*this">{{item}}</text>
@@ -34,13 +35,355 @@
     </view>
   </view>
 
-  <!-- 模块图片 -->
-  <view class="module-content">
-    <view class="image-card" wx:if="{{images[activeTab]}}">
-      <image class="module-image" src="{{images[activeTab]}}" mode="widthFix" bindtap="onImagePreview" data-url="{{images[activeTab]}}"></image>
+  <!-- ==================== 模块1: 面部骨相 ==================== -->
+  <view class="module-content" wx:if="{{activeTab === 'dna' && report.modules.dna}}">
+    <view class="section-card">
+      <view class="section-title">面部骨相诊断</view>
+      <view class="tags-row">
+        <text class="info-tag">{{report.modules.dna.faceType}}</text>
+        <text class="info-tag accent">{{report.modules.dna.boneType}}</text>
+      </view>
+
+      <!-- 骨相雷达图 -->
+      <view class="radar-wrap">
+        <canvas type="2d" id="radar-dna" class="radar-canvas"></canvas>
+      </view>
+
+      <!-- 三庭五眼 -->
+      <view class="sub-section">
+        <view class="sub-title">三庭五眼比例</view>
+        <view class="proportion-bar" wx:if="{{report.modules.dna.threeCourts}}">
+          <view class="prop-segment upper" style="flex:1;">
+            <text class="prop-label">上庭</text>
+            <text class="prop-val">{{report.modules.dna.threeCourts.balance === '上长' ? '偏长' : report.modules.dna.threeCourts.balance === '均衡' ? '均衡' : '偏短'}}</text>
+          </view>
+          <view class="prop-segment middle" style="flex:1;">
+            <text class="prop-label">中庭</text>
+            <text class="prop-val">{{report.modules.dna.threeCourts.balance === '中长' ? '偏长' : '均衡'}}</text>
+          </view>
+          <view class="prop-segment lower" style="flex:1;">
+            <text class="prop-label">下庭</text>
+            <text class="prop-val">{{report.modules.dna.threeCourts.balance === '下长' ? '偏长' : '均衡'}}</text>
+          </view>
+        </view>
+        <view class="insight-text" wx:if="{{report.modules.dna.threeCourts}}">
+          <text>上庭：{{report.modules.dna.threeCourts.upper}}</text>
+        </view>
+        <view class="insight-text" wx:if="{{report.modules.dna.threeCourts}}">
+          <text>中庭：{{report.modules.dna.threeCourts.middle}}</text>
+        </view>
+        <view class="insight-text" wx:if="{{report.modules.dna.threeCourts}}">
+          <text>下庭：{{report.modules.dna.threeCourts.lower}}</text>
+        </view>
+        <view class="insight-text" wx:if="{{report.modules.dna.fiveEyes}}">
+          <text>五眼：{{report.modules.dna.fiveEyes.analysis}}</text>
+        </view>
+      </view>
+
+      <!-- 五官评分 -->
+      <view class="sub-section" wx:if="{{report.modules.dna.faceFeatures}}">
+        <view class="sub-title">五官评分</view>
+        <view class="score-list">
+          <view class="score-row" wx:for="{{report.modules.dna.faceFeatures}}" wx:key="name">
+            <text class="score-name">{{item.name}}</text>
+            <view class="score-bar-wrap">
+              <view class="score-bar-bg">
+                <view class="score-bar-fill" style="width: {{item.score * 10}}%;"></view>
+              </view>
+            </view>
+            <text class="score-val">{{item.score}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 面部线条 -->
+      <view class="sub-section" wx:if="{{report.modules.dna.lineStyle}}">
+        <view class="sub-title">面部线条风格</view>
+        <text class="body-text">{{report.modules.dna.lineStyle}}</text>
+      </view>
+
+      <!-- 洞察 -->
+      <view class="insight-card" wx:if="{{report.modules.dna.keyInsight}}">
+        <text class="insight-icon">✦</text>
+        <text class="insight-content">{{report.modules.dna.keyInsight}}</text>
+      </view>
     </view>
-    <view class="image-loading" wx:else>
-      <text class="loading-text">图片生成失败，请重新诊断</text>
+  </view>
+
+  <!-- ==================== 模块2: 色彩风格 ==================== -->
+  <view class="module-content" wx:if="{{activeTab === 'style' && report.modules.style}}">
+    <view class="section-card">
+      <view class="section-title">色彩风格诊断</view>
+      <view class="tags-row">
+        <text class="info-tag">{{report.modules.style.skinType}}</text>
+        <text class="info-tag accent">{{report.modules.style.season}}</text>
+        <text class="info-tag accent2">{{report.modules.style.mainStyle}}</text>
+      </view>
+
+      <!-- 风格雷达图 -->
+      <view class="radar-wrap">
+        <canvas type="2d" id="radar-style" class="radar-canvas"></canvas>
+      </view>
+
+      <!-- 肤色属性 -->
+      <view class="sub-section">
+        <view class="sub-title">肤色属性</view>
+        <view class="attr-grid">
+          <view class="attr-item">
+            <text class="attr-label">明度</text>
+            <text class="attr-val">{{report.modules.style.brightness}}/10</text>
+          </view>
+          <view class="attr-item">
+            <text class="attr-label">纯度</text>
+            <text class="attr-val">{{report.modules.style.purity}}/10</text>
+          </view>
+          <view class="attr-item">
+            <text class="attr-label">量感</text>
+            <text class="attr-val">{{report.modules.style.mass}}/10</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 本命色卡 -->
+      <view class="sub-section" wx:if="{{report.modules.style.goodColors}}">
+        <view class="sub-title">本命色卡</view>
+        <view class="color-grid">
+          <view class="color-item" wx:for="{{report.modules.style.goodColors}}" wx:key="name">
+            <view class="color-swatch" style="background: {{item.hex}};"></view>
+            <text class="color-name">{{item.name}}</text>
+            <text class="color-usage">{{item.usage}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 避雷色 -->
+      <view class="sub-section" wx:if="{{report.modules.style.badColors && report.modules.style.badColors.length}}">
+        <view class="sub-title warn">避雷色</view>
+        <view class="color-grid warn">
+          <view class="color-item" wx:for="{{report.modules.style.badColors}}" wx:key="name">
+            <view class="color-swatch" style="background: {{item.hex}}; opacity: 0.5;"></view>
+            <text class="color-name">{{item.name}}</text>
+            <text class="color-usage">{{item.reason}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 色彩搭配方案 -->
+      <view class="sub-section" wx:if="{{report.modules.style.colorPalette}}">
+        <view class="sub-title">色彩搭配方案</view>
+        <view class="palette-group">
+          <view class="palette-row" wx:if="{{report.modules.style.colorPalette.primary}}">
+            <text class="palette-label">主色调</text>
+            <view class="palette-tags">
+              <text class="palette-tag" wx:for="{{report.modules.style.colorPalette.primary}}" wx:key="*this">{{item}}</text>
+            </view>
+          </view>
+          <view class="palette-row" wx:if="{{report.modules.style.colorPalette.secondary}}">
+            <text class="palette-label">辅助色</text>
+            <view class="palette-tags">
+              <text class="palette-tag" wx:for="{{report.modules.style.colorPalette.secondary}}" wx:key="*this">{{item}}</text>
+            </view>
+          </view>
+          <view class="palette-row" wx:if="{{report.modules.style.colorPalette.neutral}}">
+            <text class="palette-label">中性色</text>
+            <view class="palette-tags">
+              <text class="palette-tag" wx:for="{{report.modules.style.colorPalette.neutral}}" wx:key="*this">{{item}}</text>
+            </view>
+          </view>
+          <view class="palette-row" wx:if="{{report.modules.style.colorPalette.accent}}">
+            <text class="palette-label">点缀色</text>
+            <view class="palette-tags">
+              <text class="palette-tag" wx:for="{{report.modules.style.colorPalette.accent}}" wx:key="*this">{{item}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 穿搭建议 -->
+      <view class="sub-section" wx:if="{{report.modules.style.clothingAdvice}}">
+        <view class="sub-title">穿搭建议</view>
+        <view class="advice-list">
+          <view class="advice-item" wx:if="{{report.modules.style.clothingAdvice.silhouette}}">
+            <text class="advice-label">版型</text>
+            <text class="advice-text">{{report.modules.style.clothingAdvice.silhouette}}</text>
+          </view>
+          <view class="advice-item" wx:if="{{report.modules.style.clothingAdvice.material}}">
+            <text class="advice-label">材质</text>
+            <text class="advice-text">{{report.modules.style.clothingAdvice.material}}</text>
+          </view>
+          <view class="advice-item" wx:if="{{report.modules.style.clothingAdvice.pattern}}">
+            <text class="advice-label">图案</text>
+            <text class="advice-text">{{report.modules.style.clothingAdvice.pattern}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 洞察 -->
+      <view class="insight-card" wx:if="{{report.modules.style.keyInsight}}">
+        <text class="insight-icon">✦</text>
+        <text class="insight-content">{{report.modules.style.keyInsight}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ==================== 模块3: 发型妆容 ==================== -->
+  <view class="module-content" wx:if="{{activeTab === 'hairmakeup' && report.modules.hairmakeup}}">
+    <view class="section-card">
+      <view class="section-title">发型妆容诊断</view>
+
+      <!-- 发型雷达图 -->
+      <view class="radar-wrap">
+        <canvas type="2d" id="radar-hairmakeup" class="radar-canvas"></canvas>
+      </view>
+
+      <!-- 推荐发型 -->
+      <view class="sub-section" wx:if="{{report.modules.hairmakeup.hairRecommend.top3.length}}">
+        <view class="sub-title">推荐发型 TOP3</view>
+        <view class="hair-list">
+          <view class="hair-card" wx:for="{{report.modules.hairmakeup.hairRecommend.top3}}" wx:key="name">
+            <view class="hair-rank">{{index + 1}}</view>
+            <view class="hair-info">
+              <view class="hair-name-row">
+                <text class="hair-name">{{item.name}}</text>
+                <text class="hair-score">{{item.score}}/10</text>
+              </view>
+              <text class="hair-detail" wx:if="{{item.length}}">{{item.length}} · {{item.bangs || '无刘海'}}</text>
+              <text class="hair-reason">{{item.reason}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 适配发色 -->
+      <view class="sub-section" wx:if="{{report.modules.hairmakeup.hairRecommend.hairColors.length}}">
+        <view class="sub-title">适配发色</view>
+        <view class="color-grid">
+          <view class="color-item" wx:for="{{report.modules.hairmakeup.hairRecommend.hairColors}}" wx:key="name">
+            <view class="color-swatch" style="background: {{item.hex}};" wx:if="{{item.hex}}"></view>
+            <view class="color-swatch hair" wx:else></view>
+            <text class="color-name">{{item.name}}</text>
+            <text class="color-usage">{{item.detail}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 避雷发型 -->
+      <view class="sub-section" wx:if="{{report.modules.hairmakeup.hairRecommend.avoidHair.length}}">
+        <view class="sub-title warn">避雷发型</view>
+        <view class="avoid-list">
+          <view class="avoid-item" wx:for="{{report.modules.hairmakeup.hairRecommend.avoidHair}}" wx:key="name">
+            <text class="avoid-x">✕</text>
+            <view class="avoid-info">
+              <text class="avoid-name">{{item.name}}</text>
+              <text class="avoid-reason">{{item.reason}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 妆容方案 -->
+      <view class="sub-section" wx:if="{{report.modules.hairmakeup.makeup}}">
+        <view class="sub-title">妆容方案 · {{report.modules.hairmakeup.makeup.style}}</view>
+        
+        <view class="makeup-grid" wx:if="{{report.modules.hairmakeup.makeup.foundation}}">
+          <view class="makeup-item">
+            <text class="makeup-label">粉底</text>
+            <text class="makeup-text">{{report.modules.hairmakeup.makeup.foundation.tone}} · {{report.modules.hairmakeup.makeup.foundation.shade}}</text>
+          </view>
+          <view class="makeup-item" wx:if="{{report.modules.hairmakeup.makeup.eyeBrow}}">
+            <text class="makeup-label">眉眼</text>
+            <text class="makeup-text">{{report.modules.hairmakeup.makeup.eyeBrow.shape}} · {{report.modules.hairmakeup.makeup.eyeBrow.shadow}}</text>
+          </view>
+          <view class="makeup-item" wx:if="{{report.modules.hairmakeup.makeup.lipRecommend}}">
+            <text class="makeup-label">唇妆</text>
+            <text class="makeup-text">{{report.modules.hairmakeup.makeup.lipRecommend.destiny}}</text>
+          </view>
+          <view class="makeup-item" wx:if="{{report.modules.hairmakeup.makeup.blush}}">
+            <text class="makeup-label">腮红</text>
+            <text class="makeup-text">{{report.modules.hairmakeup.makeup.blush.color}} · {{report.modules.hairmakeup.makeup.blush.position}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 洞察 -->
+      <view class="insight-card" wx:if="{{report.modules.hairmakeup.keyInsight}}">
+        <text class="insight-icon">✦</text>
+        <text class="insight-content">{{report.modules.hairmakeup.keyInsight}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ==================== 模块4: 颜值蜕变 ==================== -->
+  <view class="module-content" wx:if="{{activeTab === 'optimize' && report.modules.optimize}}">
+    <view class="section-card">
+      <view class="section-title">蜕变建议报告</view>
+
+      <!-- 蜕变雷达图 -->
+      <view class="radar-wrap">
+        <canvas type="2d" id="radar-optimize" class="radar-canvas"></canvas>
+      </view>
+
+      <!-- 优化项目 -->
+      <view class="sub-section" wx:if="{{report.modules.optimize.optimizablePoints.length}}">
+        <view class="sub-title">优化优先级</view>
+        <view class="optimize-list">
+          <view class="optimize-item" wx:for="{{report.modules.optimize.optimizablePoints}}" wx:key="area">
+            <view class="optimize-priority {{item.priority === '高' ? 'high' : item.priority === '中' ? 'mid' : 'low'}}">
+              {{item.priority}}
+            </view>
+            <view class="optimize-info">
+              <view class="optimize-top">
+                <text class="optimize-area">{{item.area}}</text>
+                <text class="optimize-timeline">{{item.timeline}}</text>
+              </view>
+              <text class="optimize-problem">{{item.problem}}</text>
+              <text class="optimize-plan">{{item.conservativePlan}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 3个月路线图 -->
+      <view class="sub-section" wx:if="{{report.modules.optimize.roadmap3m}}">
+        <view class="sub-title">3个月蜕变路线</view>
+        <view class="roadmap">
+          <view class="roadmap-item" wx:if="{{report.modules.optimize.roadmap3m.month1}}">
+            <view class="roadmap-dot"></view>
+            <view class="roadmap-line"></view>
+            <view class="roadmap-content">
+              <text class="roadmap-month">第1个月</text>
+              <text class="roadmap-desc">{{report.modules.optimize.roadmap3m.month1}}</text>
+            </view>
+          </view>
+          <view class="roadmap-item" wx:if="{{report.modules.optimize.roadmap3m.month2}}">
+            <view class="roadmap-dot"></view>
+            <view class="roadmap-line"></view>
+            <view class="roadmap-content">
+              <text class="roadmap-month">第2个月</text>
+              <text class="roadmap-desc">{{report.modules.optimize.roadmap3m.month2}}</text>
+            </view>
+          </view>
+          <view class="roadmap-item" wx:if="{{report.modules.optimize.roadmap3m.month3}}">
+            <view class="roadmap-dot"></view>
+            <view class="roadmap-content">
+              <text class="roadmap-month">第3个月</text>
+              <text class="roadmap-desc">{{report.modules.optimize.roadmap3m.month3}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 核心结论 -->
+      <view class="sub-section" wx:if="{{report.modules.optimize.coreConclusion}}">
+        <view class="sub-title">核心结论</view>
+        <text class="body-text">{{report.modules.optimize.coreConclusion}}</text>
+      </view>
+
+      <!-- 洞察 -->
+      <view class="insight-card" wx:if="{{report.modules.optimize.keyInsight}}">
+        <text class="insight-icon">✦</text>
+        <text class="insight-content">{{report.modules.optimize.keyInsight}}</text>
+      </view>
     </view>
   </view>
 

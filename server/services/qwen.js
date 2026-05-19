@@ -167,7 +167,7 @@ async function analyzePart1(imageInput, photoType = 'face', gender = 'female', u
 要求：problems至少3个，goodColors至少8个带真实hex色值，badColors至少4个。
 请严格按照JSON格式输出，不要包含任何其他文字说明。`
 
-  const maxRetries = 2
+  const maxRetries = 1
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       if (attempt > 0) {
@@ -188,7 +188,7 @@ async function analyzePart1(imageInput, photoType = 'face', gender = 'female', u
         top_p: 0.9
       }, {
         headers: { 'Authorization': `Bearer ${QWEN_API_KEY}`, 'Content-Type': 'application/json' },
-        timeout: 120000
+        timeout: 90000
       })
       const content = response.data?.choices?.[0]?.message?.content
       if (!content) throw new Error('VL模型返回为空')
@@ -275,7 +275,7 @@ ${JSON.stringify(part1Data, null, 2)}
 要求：top3发型必须3个，avoidHair至少3个，hairColors至少3个带hex色值，optimizablePoints至少5个。
 请严格按照JSON格式输出，不要包含任何其他文字说明。`
 
-  const maxRetries = 2
+  const maxRetries = 1
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       if (attempt > 0) {
@@ -295,7 +295,7 @@ ${JSON.stringify(part1Data, null, 2)}
         top_p: 0.9
       }, {
         headers: { 'Authorization': `Bearer ${QWEN_API_KEY}`, 'Content-Type': 'application/json' },
-        timeout: 120000
+        timeout: 90000
       })
       const content = response.data?.choices?.[0]?.message?.content
       if (!content) throw new Error('VL模型返回为空')
@@ -462,7 +462,7 @@ function buildOptimizePrompt(data) {
 }
 
 /**
- * 并行生成4张模块图片
+ * 并行生成4张模块图片（旧方案，保留兼容）
  */
 async function generateAllImages(analysisData) {
   const prompts = [
@@ -492,6 +492,190 @@ async function generateAllImages(analysisData) {
     images[r.key] = r.imageUrl || ''
   }
   return images
+}
+
+// ============================================================
+// 定向图片生成（新架构：少量聚焦图片补充数据可视化报告）
+// ============================================================
+
+/**
+ * 构建三庭五眼比例图 prompt
+ */
+function buildThreeCourtsPrompt(data) {
+  const m = data.module1_dna || {}
+  const tc = m.threeCourts || {}
+  const fe = m.fiveEyes || {}
+
+  return `一张精致的面部比例分析示意图，竖版构图，奶白色背景 #FAFAF8。
+
+中央：一张优雅的${m.faceType || ''}脸型轮廓线稿，用极细金色线绘制，面部填充极淡肤色渐变。
+
+三庭标注：用两条水平虚线将面部分为上庭/中庭/下庭三个区域，上庭区域填充极淡金色(10%透明度)，中庭区域填充极淡米色(10%透明度)，下庭区域填充极淡灰色(10%透明度)。
+每个区域右侧用金色箭头+短标签标注：
+上庭：${tc.balance === '上长' ? '偏长 ↑' : tc.balance === '均衡' ? '均衡 ✓' : '偏短 ↓'}
+中庭：${tc.balance === '中长' ? '偏长 ↑' : tc.balance === '均衡' ? '均衡 ✓' : '偏短 ↓'}
+下庭：${tc.balance === '下长' ? '偏长 ↑' : tc.balance === '均衡' ? '均衡 ✓' : '偏短 ↓'}
+
+五眼标注：在眼部水平位置，用5个等宽竖条标注五眼间距，眼距宽的竖条用淡金色填充，窄的用淡灰色填充。
+下方小字：${fe.analysis || ''}
+
+右侧：极简比例条形图，三段横向比例条对比上/中/下庭长度。
+底部：金色细线 + "${m.faceType || ''} · ${tc.balance || ''}"
+
+整体风格：高级杂志风，极简留白，金色和深灰配色，装饰性细线，数据可视化为主。`
+}
+
+/**
+ * 构建本命色卡 prompt
+ */
+function buildColorCardPrompt(data) {
+  const m = data.module2_style || {}
+  const goodColors = (m.goodColors || []).slice(0, 8)
+  const badColors = (m.badColors || []).slice(0, 4)
+  const cp = m.colorPalette || {}
+
+  return `一张精致的个人色彩诊断色卡图，竖版构图，奶白色背景 #FAFAF8。
+
+顶部：极细金色横线，标题"本命色卡"，副标题"${m.skinType || ''} · ${m.season || ''}"。
+
+上半部分"适配色"：8个饱满的圆角方形色块，2行4列排列，
+${goodColors.map(c => `${c.name}色(#${c.hex?.replace('#', '') || 'ccc'})`).join('、')}，
+每个色块下方极短标签"${goodColors.map(c => c.name).join('/')}"，
+色块要色彩准确鲜艳，有细腻的纸张纹理质感。
+
+下半部分"避雷色"：4个灰度降低的色块，1行4列，带浅红色×边框，
+${badColors.map(c => `${c.name}色`).join('、')}，
+每个色块下方极短标签。
+
+底部：一条"适配度光谱条"——从左到右由暖到冷的渐变色带，标注"${m.skinType || ''}"适配区域。
+
+整体风格：VOGUE杂志色卡内页，极简留白，金色/深灰配色，色彩精准。`
+}
+
+/**
+ * 构建发型推荐图 prompt
+ */
+function buildHairstylePrompt(data) {
+  const m = data.module3_hairmakeup || {}
+  const top3 = (m.hairRecommend?.top3 || []).slice(0, 3)
+  const hairColors = (m.hairRecommend?.hairColors || []).slice(0, 3)
+  const avoidHair = (m.hairRecommend?.avoidHair || []).slice(0, 2)
+
+  return `一张精致的发型推荐示意图，竖版构图，奶白色背景 #FAFAF8。
+
+顶部：极细玫瑰金横线，标题"发型推荐"。
+
+主区域：3张发型造型示意照片竖排，${top3.map((h, i) => `第${i+1}名：${h.name}${h.length || ''}发型${h.bangs ? '，' + h.bangs + '刘海' : ''}的效果照`).join('；')}。
+每张照片下方极简标签+玫瑰金星标评分(${top3.map(h => `${h.score}/10`).join('/')})。
+
+右侧区域"适配发色"：3条发色色带，${hairColors.map(c => `${c.name}(${c.detail || ''})`).join('、')}，每条展示染发后发丝质感色彩。
+
+底部区域"避雷"：2个浅红色打×边框小图标，${avoidHair.map(a => a.name).join('、')}。
+
+整体风格：ELLE杂志发型专题内页，极简留白，玫瑰金/深灰配色，照片为主。`
+}
+
+/**
+ * 用大模型生成需要生图的提示词（让LLM基于分析数据决定生图内容）
+ */
+async function generateImagePrompts(analysisData) {
+  const m1 = analysisData.module1_dna || {}
+  const m2 = analysisData.module2_style || {}
+  const m3 = analysisData.module3_hairmakeup || {}
+
+  const prompt = `你是一位AI形象诊断报告的设计师。基于以下分析数据，请为报告生成3张增补可视化图片的详细生图提示词。这些图片将作为数据驱动报告的视觉补充，让报告更加丰富和美观。
+
+## 分析数据摘要
+- 脸型: ${m1.faceType || '未知'}，骨相型: ${m1.boneType || '未知'}
+- 三庭: ${JSON.stringify(m1.threeCourts || {})}
+- 五眼: ${JSON.stringify(m1.fiveEyes || {})}
+- 肤色类型: ${m2.skinType || '未知'}，季型: ${m2.season || '未知'}
+- 主风格: ${m2.mainStyle || '未知'}
+- 适配色: ${(m2.goodColors || []).slice(0, 5).map(c => c.name + '(' + c.hex + ')').join('、')}
+- 避雷色: ${(m2.badColors || []).slice(0, 3).map(c => c.name).join('、')}
+- 推荐发型: ${(m3.hairRecommend?.top3 || []).map(h => h.name).join('、')}
+- 适配发色: ${(m3.hairRecommend?.hairColors || []).map(c => c.name).join('、')}
+- 妆容风格: ${m3.makeup?.style || '未知'}
+
+请为以下3个维度各生成一个详细的图片生成提示词，每个提示词要包含具体的分析数据，让生图模型能生成准确的可视化：
+
+1. "threeCourts" - 三庭五眼比例可视化：生成一张精致的面部比例标注示意图，必须包含具体的上庭/中庭/下庭比例数据
+2. "colorCard" - 本命色卡：生成一张展示适配色和避雷色的色卡图，必须包含具体的颜色名和色值
+3. "hairstyle" - 发型推荐：生成一张展示推荐发型效果的示意图，必须包含具体的发型名称和适配原因
+
+以JSON格式输出：
+{
+  "imagePrompts": [
+    { "key": "threeCourts", "title": "三庭五眼比例图", "prompt": "详细的图片生成提示词，要包含具体数据" },
+    { "key": "colorCard", "title": "本命色卡", "prompt": "详细的图片生成提示词，要包含具体色值" },
+    { "key": "hairstyle", "title": "发型推荐图", "prompt": "详细的图片生成提示词，要包含具体发型名" }
+  ]
+}
+
+请严格按照JSON格式输出，不要包含任何其他文字说明。`
+
+  try {
+    const response = await axios.post(BASE_URL, {
+      model: process.env.QWEN_TEXT_MODEL || 'qwen-plus',
+      messages: [
+        { role: 'system', content: '你是专业的形象诊断报告设计师，擅长设计精美的数据可视化图片。严格输出JSON格式。' },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.3,
+      top_p: 0.85,
+      max_tokens: 2000
+    }, {
+      headers: { 'Authorization': `Bearer ${QWEN_API_KEY}`, 'Content-Type': 'application/json' },
+      timeout: 30000
+    })
+    const content = response.data?.choices?.[0]?.message?.content
+    if (!content) throw new Error('模型返回为空')
+    const parsed = robustJSONParse(content)
+    return parsed.imagePrompts || []
+  } catch (err) {
+    console.error('[AI] 生成图片提示词失败:', err.message)
+    return null
+  }
+}
+
+/**
+ * 定向生成补充图片（新架构：2-3张聚焦图片，配合数据驱动报告）
+ * 直接用模板提示词，省掉额外的LLM调用，加快速度
+ */
+async function generateTargetedImages(analysisData) {
+  const prompts = [
+    { key: 'threeCourts', prompt: buildThreeCourtsPrompt(analysisData) },
+    { key: 'colorCard', prompt: buildColorCardPrompt(analysisData) },
+    { key: 'hairstyle', prompt: buildHairstylePrompt(analysisData) }
+  ]
+
+  console.log(`[AI] 开始生成${prompts.length}张定向补充图片...`)
+
+  const results = await Promise.all(
+    prompts.map(async ({ key, prompt }) => {
+      try {
+        const imageUrl = await callSeedream(prompt, '1024x1024')
+        console.log(`[AI] 定向图片${key}生成成功`)
+        return { key, imageUrl }
+      } catch (err) {
+        console.error(`[AI] 定向图片${key}生成失败:`, err.message)
+        return { key, imageUrl: null, error: err.message }
+      }
+    })
+  )
+
+  const images = {}
+  for (const r of results) {
+    images[r.key] = r.imageUrl || ''
+  }
+  return images
+}
+
+/**
+ * 生成单张定向图片
+ */
+async function generateSingleImage(prompt, size = '1024x1024') {
+  return callSeedream(prompt, size)
 }
 
 // ============================================================
@@ -693,5 +877,6 @@ async function detectCategory(images) {
 module.exports = {
   analyzePart1, analyzePart2,
   generateAllImages,
+  generateTargetedImages, generateSingleImage, generateImagePrompts,
   analyzeClothingVision, generateSingleConsult, generateCompareConsult, detectCategory
 }
