@@ -3,8 +3,11 @@
   <!-- 顶部品牌区 -->
   <view class="header {{hasReport ? 'header-diagnosed' : ''}}">
     <view class="brand-area {{hasReport ? 'brand-area-small' : ''}}">
-      <view class="logo">美哒 Meeta</view>
-      <view class="slogan">{{slogan}}</view>
+      <image class="brand-logo" src="/images/logo.png" mode="aspectFit"></image>
+      <view class="brand-text">
+        <view class="logo">美哒 Meeta</view>
+        <view class="slogan">{{slogan}}</view>
+      </view>
     </view>
 
     <!-- 如果有最新报告，展示摘要 -->
