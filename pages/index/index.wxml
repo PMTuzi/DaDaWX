@@ -57,6 +57,15 @@
         </view>
       </view>
     </block>
+
+    <!-- 实时动态轮播 -->
+    <view class="live-ticker">
+      <swiper class="ticker-swiper" vertical autoplay circular interval="3000" duration="500">
+        <swiper-item wx:for="{{tickerList}}" wx:key="index">
+          <text class="ticker-text">{{item}}</text>
+        </swiper-item>
+      </swiper>
+    </view>
   </view>
 
   <!-- Banner广告 -->
