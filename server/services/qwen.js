@@ -1,6 +1,65 @@
 // 通义千问 API 服务（OpenAI 兼容模式）
 const axios = require('axios')
 
+/**
+ * 健壮的 JSON 解析：尝试修复 LLM 输出的常见 JSON 错误
+ */
+function robustJSONParse(str) {
+  // 1. 直接解析
+  try { return JSON.parse(str) } catch (_) {}
+
+  // 2. 提取 JSON 块（去除 markdown 代码块包裹）
+  const codeBlockMatch = str.match(/```(?:json)?\s*([\s\S]*?)```/)
+  if (codeBlockMatch) {
+    try { return JSON.parse(codeBlockMatch[1].trim()) } catch (_) {}
+  }
+
+  // 3. 提取第一个 { 到最后一个 } 之间的内容
+  const jsonMatch = str.match(/\{[\s\S]*\}/)
+  if (!jsonMatch) throw new Error('无法提取JSON')
+  let json = jsonMatch[0]
+
+  // 4. 尝试直接解析
+  try { return JSON.parse(json) } catch (_) {}
+
+  // 5. 修复常见问题：尾部截断 — 补全缺失的括号
+  let fixed = json
+  const openBraces = (fixed.match(/\{/g) || []).length
+  const closeBraces = (fixed.match(/\}/g) || []).length
+  const openBrackets = (fixed.match(/\[/g) || []).length
+  const closeBrackets = (fixed.match(/\]/g) || []).length
+
+  // 补全缺失的括号
+  for (let i = 0; i < openBrackets - closeBrackets; i++) fixed += ']'
+  for (let i = 0; i < openBraces - closeBraces; i++) fixed += '}'
+
+  try { return JSON.parse(fixed) } catch (_) {}
+
+  // 6. 移除尾部可能的逗号（trailing comma）
+  fixed = fixed.replace(/,\s*([\]}])/g, '$1')
+  try { return JSON.parse(fixed) } catch (_) {}
+
+  // 7. 修复缺少逗号的数组元素（在数字/字符串/对象之间）
+  fixed = fixed.replace(/(\d|"|')\s*\n\s*(["{\[\d])/g, '$1,\n$2')
+  try { return JSON.parse(fixed) } catch (_) {}
+
+  // 8. 最后的尝试：截断到最后一个完整的键值对
+  let lastValid = json.lastIndexOf('",')
+  if (lastValid > 0) {
+    let truncated = json.substring(0, lastValid + 1)
+    // 补全括号
+    const ob = (truncated.match(/\{/g) || []).length
+    const cb = (truncated.match(/\}/g) || []).length
+    const obr = (truncated.match(/\[/g) || []).length
+    const cbr = (truncated.match(/\]/g) || []).length
+    for (let i = 0; i < obr - cbr; i++) truncated += ']'
+    for (let i = 0; i < ob - cb; i++) truncated += '}'
+    try { return JSON.parse(truncated) } catch (_) {}
+  }
+
+  throw new Error('JSON解析失败，已尝试所有修复方案')
+}
+
 const QWEN_API_KEY = process.env.QWEN_API_KEY
 // 使用 OpenAI 兼容接口
 const BASE_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions'
@@ -90,11 +149,7 @@ async function analyzeVision(imageInput, photoType = 'face') {
 
     console.log('[AI] VL模型原始返回:', content.substring(0, 200))
 
-    // 解析JSON
-    const jsonMatch = content.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) throw new Error('VL模型输出格式异常')
-
-    return JSON.parse(jsonMatch[0])
+    return robustJSONParse(content)
   } catch (err) {
     console.error('通义千问-VL调用失败:', err.response?.data || err.message)
     throw new Error(err.response?.data?.error?.message || err.message)
@@ -241,10 +296,10 @@ ${JSON.stringify(quantMetrics, null, 2)}
 }
 
 要求：
-1. suitableHaircuts至少5个，avoidHaircuts至少3个，suitableCollars至少4个
+1. suitableHaircuts至少3个，avoidHaircuts至少2个，suitableCollars至少3个
 2. goodColors至少6个带真实hex色值，badColors至少3个
-3. recommended单品至少10个，avoidItems至少5个
-4. top3发型必须3个，alternatives至少5个
+3. recommended单品至少6个，avoidItems至少3个
+4. top3发型必须3个，alternatives至少3个
 5. 所有评分必须是0-10的数字，保留一位小数
 6. 报告内容必须专业、具体、可落地，不能有"建议咨询专业人士"等废话
 7. 严格JSON格式，不要输出任何其他文字`
@@ -253,14 +308,14 @@ ${JSON.stringify(quantMetrics, null, 2)}
     const response = await axios.post(
       BASE_URL,
       {
-        model: process.env.QWEN_TEXT_MODEL || 'qwen-max',
+        model: process.env.QWEN_TEXT_MODEL || 'qwen-plus',
         messages: [
           { role: 'system', content: '你是一位专业的形象顾问AI，擅长根据面部特征进行精准的形象分析和穿搭建议。你总是输出严格的JSON格式数据。' },
           { role: 'user', content: prompt }
         ],
         temperature: 0.3,
         top_p: 0.85,
-        max_tokens: 8192
+        max_tokens: 3072
       },
       {
         headers: {
@@ -276,11 +331,7 @@ ${JSON.stringify(quantMetrics, null, 2)}
 
     console.log('[AI] 文本模型原始返回长度:', content.length)
 
-    // 解析JSON
-    const jsonMatch = content.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) throw new Error('文本模型输出格式异常')
-
-    const report = JSON.parse(jsonMatch[0])
+    const report = robustJSONParse(content)
     return report
   } catch (err) {
     console.error('通义千问调用失败:', err.response?.data || err.message)
@@ -385,10 +436,7 @@ ${isCompare ? `图片中有${images.length}件不同服饰，分别标记为${la
 
     console.log('[穿搭咨询] VL模型原始返回:', result.substring(0, 200))
 
-    const jsonMatch = result.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) throw new Error('VL模型输出格式异常')
-
-    const parsed = JSON.parse(jsonMatch[0])
+    const parsed = robustJSONParse(result)
     return parsed.items || parsed
   } catch (err) {
     console.error('穿搭视觉分析失败:', err.response?.data || err.message)
@@ -515,10 +563,7 @@ ${JSON.stringify(visualFeatures, null, 2)}
 
     console.log('[穿搭咨询] 单品决策原始返回长度:', content.length)
 
-    const jsonMatch = content.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) throw new Error('文本模型输出格式异常')
-
-    return JSON.parse(jsonMatch[0])
+    return robustJSONParse(content)
   } catch (err) {
     console.error('单品决策生成失败:', err.response?.data || err.message)
     throw new Error(err.response?.data?.error?.message || err.message)
@@ -656,10 +701,7 @@ ${userInfo.reason ? `- 纠结原因：${userInfo.reason}` : ''}
 
     console.log('[穿搭咨询] 多选一决策原始返回长度:', content.length)
 
-    const jsonMatch = content.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) throw new Error('文本模型输出格式异常')
-
-    return JSON.parse(jsonMatch[0])
+    return robustJSONParse(content)
   } catch (err) {
     console.error('多选一决策生成失败:', err.response?.data || err.message)
     throw new Error(err.response?.data?.error?.message || err.message)

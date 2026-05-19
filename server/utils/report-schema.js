@@ -64,14 +64,18 @@ function validateReport(report) {
 
 function safeMergeReport(report) {
   const result = JSON.parse(JSON.stringify(FALLBACK_REPORT))
-  if (!report) return result
+  if (!report || typeof report !== 'object') return result
   for (const section of Object.keys(result)) {
-    if (report[section] && typeof report[section] === 'object') {
-      if (Array.isArray(result[section])) {
-        result[section] = Array.isArray(report[section]) ? report[section] : result[section]
-      } else {
-        result[section] = { ...result[section], ...report[section] }
-      }
+    if (report[section] && typeof report[section] === 'object' && !Array.isArray(report[section])) {
+      result[section] = { ...result[section], ...report[section] }
+    } else if (report[section] !== undefined) {
+      result[section] = report[section]
+    }
+  }
+  // 同时拷贝报告中有但 schema 中没有的字段
+  for (const key of Object.keys(report)) {
+    if (!result[key]) {
+      result[key] = report[key]
     }
   }
   return result

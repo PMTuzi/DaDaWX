@@ -9,6 +9,7 @@ const { validateReport, safeMergeReport, FALLBACK_REPORT } = require('../utils/r
  * POST /api/ai/analyze-vision
  */
 router.post('/analyze-vision', async (req, res) => {
+  const t0 = Date.now()
   try {
     const { imageUrl, imageBase64, photoType } = req.body
 
@@ -46,6 +47,8 @@ router.post('/analyze-vision', async (req, res) => {
 
     const features = await analyzeVision(imageInput, photoType)
 
+    console.log(`[AI] 视觉分析完成, 耗时: ${Date.now() - t0}ms`)
+
     res.json({
       code: 0,
       data: {
@@ -64,6 +67,7 @@ router.post('/analyze-vision', async (req, res) => {
  * POST /api/ai/generate-report
  */
 router.post('/generate-report', async (req, res) => {
+  const t0 = Date.now()
   try {
     const { imageUrl, visualFeatures, userTags, gender, quantMetrics, isRetry } = req.body
 
@@ -73,25 +77,18 @@ router.post('/generate-report', async (req, res) => {
 
     // 校验输出格式
     if (!validateReport(report)) {
-      console.warn('[AI] 报告格式校验不通过')
-
-      if (!isRetry) {
-        // 首次异常，提示客户端重试
-        return res.json({
-          code: 1,
-          message: '报告格式异常，请重试',
-          data: null
-        })
-      }
-
-      // 重试仍异常，返回兜底结果
+      console.warn('[AI] 报告格式校验不通过, report keys:', report ? Object.keys(report) : 'null')
+      // 校验不通过时用兜底数据补全，而不是拒绝
       const merged = safeMergeReport(report)
+      console.log(`[AI] 报告生成完成(补全), 耗时: ${Date.now() - t0}ms`)
       return res.json({
         code: 0,
         data: merged,
         warning: '部分数据使用兜底值'
       })
     }
+
+    console.log(`[AI] 报告生成完成, 耗时: ${Date.now() - t0}ms`)
 
     res.json({
       code: 0,
