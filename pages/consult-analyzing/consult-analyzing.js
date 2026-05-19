@@ -31,6 +31,7 @@ Page({
 
   onUnload() {
     _alive = false
+    this._stopCreep()
     _timers.forEach(t => clearInterval(t))
     _timers = []
   },
@@ -67,6 +68,22 @@ Page({
     ]
   },
 
+  // 启动持续缓慢递增的进度（API等待期间不会卡住）
+  _startCreep(maxProgress, interval) {
+    this._stopCreep()
+    this._creepTimer = setInterval(() => {
+      if (!_alive || this.data.progress >= maxProgress) return
+      this.safeSetData({ progress: this.data.progress + 1 })
+    }, interval)
+  },
+
+  _stopCreep() {
+    if (this._creepTimer) {
+      clearInterval(this._creepTimer)
+      this._creepTimer = null
+    }
+  },
+
   async startAnalysis() {
     const globalDataConsult = getApp().globalData.consultData
     const storageConsult = wx.getStorageSync('consultData')
@@ -80,6 +97,9 @@ Page({
 
     try {
       await this.simulateStep(0, 15)
+
+      // 启动缓慢递增：API等待期间进度从15缓慢爬到80
+      this._startCreep(80, 2000)
 
       // 视觉分析：优先真实API，失败兜底模拟数据
       let visionResult
@@ -108,6 +128,10 @@ Page({
         console.warn('[consult-analyzing] 决策分析API失败，使用模拟数据:', err.message)
         result = isCompare ? this.getMockCompareResult(consultData) : this.getMockSingleResult(consultData)
       }
+
+      // API都返回后停止缓慢递增
+      this._stopCreep()
+
       await this.simulateStep(5, 100)
 
       const record = this.saveResult(result, consultData)

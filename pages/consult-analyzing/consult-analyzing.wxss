@@ -5,7 +5,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 80rpx 32rpx;
+  padding: 180rpx 32rpx 80rpx;
 }
 
 .animation-area {

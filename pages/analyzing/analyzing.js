@@ -59,6 +59,7 @@ Page({
 
   onUnload() {
     _alive = false
+    this._stopCreep()
     _timers.forEach(t => clearInterval(t))
     _timers = []
   },
@@ -71,6 +72,22 @@ Page({
     if (_alive) { try { this.setData(data) } catch (e) {} }
   },
 
+  // 启动持续缓慢递增的进度（API等待期间不会卡住）
+  _startCreep(maxProgress, interval) {
+    this._stopCreep()
+    this._creepTimer = setInterval(() => {
+      if (!_alive || this.data.progress >= maxProgress) return
+      this.safeSetData({ progress: this.data.progress + 1 })
+    }, interval)
+  },
+
+  _stopCreep() {
+    if (this._creepTimer) {
+      clearInterval(this._creepTimer)
+      this._creepTimer = null
+    }
+  },
+
   async startAnalysis() {
     try {
       // 步骤1: 图片上传
@@ -81,8 +98,10 @@ Page({
       this.setStepStatus(1, 'active')
       await this.simulateStep(1, 20)
 
+      // 启动缓慢递增：API等待期间进度从20缓慢爬到85
+      this._startCreep(85, 2500)
+
       // 步骤3-6: 调用 full-analysis API（包含VL分析+4次Seedream图片生成）
-      // 这一步会耗时较长（可能2-3分钟），等待全部图片生成完成
       const result = await request(API.fullAnalysis, {
         method: 'POST',
         data: {
@@ -97,6 +116,9 @@ Page({
         timeout: 300000  // 5分钟超时
       })
 
+      // API返回后停止缓慢递增
+      this._stopCreep()
+
       if (result.code !== 0) {
         throw new Error(result.message || '分析失败')
       }
@@ -107,10 +129,9 @@ Page({
       }
 
       const data = result.data
-      await this.simulateStep(1, 40)
       this.setStepStatus(1, 'done')
 
-      // 逐步标记图片生成步骤完成
+      // 逐步标记图片生成步骤完成（快速走完剩余进度）
       await this.simulateStep(2, 55)
       this.setStepStatus(2, 'done')
 
