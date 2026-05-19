@@ -94,8 +94,14 @@
 .header-right {
   flex: 1;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   min-width: 0;
+  gap: 10rpx;
+}
+
+.header-top-row {
+  display: flex;
+  align-items: center;
 }
 
 .score-display {
@@ -130,6 +136,21 @@
   border-radius: 20rpx;
   background: #F5F0EB;
   color: #8B7355;
+}
+
+/* 头部摘要 */
+.header-summary {
+  margin-top: 2rpx;
+}
+
+.summary-text {
+  font-size: 22rpx;
+  color: #8B7355;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .info-tag.accent {

@@ -39,6 +39,6 @@
 
   <!-- 提示文字 -->
   <view class="tip-area">
-    <text class="tip-text">3000亿参数模型正在进行深度穿搭特征提取与多维度分析，请耐心等待...</text>
+    <text class="tip-text">3000亿参数模型提取穿搭特征，请耐心等待...</text>
   </view>
 </view>

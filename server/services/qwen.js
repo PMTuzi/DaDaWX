@@ -735,9 +735,46 @@ ${isCompare ? `图片中有${images.length}件不同服饰，分别标记为${la
   }
 }
 
-async function generateSingleConsult(visualFeatures, userInfo = {}, isRetry = false) {
+async function generateSingleConsult(visualFeatures, userInfo = {}, isRetry = false, reportSummary = null) {
   const sceneLabel = userInfo.consultScene === 'buy' ? '购买决策' : '留存决策'
   const verdictOptions = userInfo.consultScene === 'buy' ? '建议购买 / 建议不买' : '建议自留 / 建议退货'
+
+  // 构建形象诊断报告的量身定制信息
+  let reportSection = ''
+  if (reportSummary) {
+    const lines = ['## 该用户的形象诊断报告（必须据此量身定制分析）']
+    if (reportSummary.faceType) lines.push(`- 脸型：${reportSummary.faceType}`)
+    if (reportSummary.boneType) lines.push(`- 骨相类型：${reportSummary.boneType}`)
+    if (reportSummary.lineStyle) lines.push(`- 面部线条：${reportSummary.lineStyle}`)
+    if (reportSummary.dnaInsight) lines.push(`- 骨相洞察：${reportSummary.dnaInsight}`)
+    if (reportSummary.season) lines.push(`- 色彩季型：${reportSummary.season}`)
+    if (reportSummary.skinType) lines.push(`- 肤色类型：${reportSummary.skinType}`)
+    if (reportSummary.mainStyle) lines.push(`- 主风格：${reportSummary.mainStyle}`)
+    if (reportSummary.styleFeatures) {
+      const sf = reportSummary.styleFeatures
+      if (sf.mass) lines.push(`- 量感：${sf.mass}`)
+      if (sf.curve) lines.push(`- 直曲：${sf.curve}`)
+      if (sf.movement) lines.push(`- 动静：${sf.movement}`)
+    }
+    if (reportSummary.clothingAdvice) {
+      const ca = reportSummary.clothingAdvice
+      if (ca.silhouette) lines.push(`- 适配版型：${ca.silhouette}`)
+      if (ca.material) lines.push(`- 适配材质：${ca.material}`)
+      if (ca.pattern) lines.push(`- 适配图案：${ca.pattern}`)
+      if (ca.accessory) lines.push(`- 适配配饰：${ca.accessory}`)
+    }
+    if (reportSummary.goodColors && reportSummary.goodColors.length > 0) {
+      lines.push(`- 适配色系：${reportSummary.goodColors.join('、')}`)
+    }
+    if (reportSummary.badColors && reportSummary.badColors.length > 0) {
+      lines.push(`- 避雷色系：${reportSummary.badColors.join('、')}`)
+    }
+    if (reportSummary.styleInsight) lines.push(`- 风格洞察：${reportSummary.styleInsight}`)
+    if (reportSummary.coreConclusion) lines.push(`- 核心结论：${reportSummary.coreConclusion}`)
+    if (reportSummary.optimizeInsight) lines.push(`- 优化洞察：${reportSummary.optimizeInsight}`)
+    reportSection = lines.join('\n') + '\n\n**重要：请务必结合以上个人形象特征进行针对性分析，评分和建议都要体现"量身定制"。例如：颜色分析要对照适配/避雷色系，版型分析要对照骨相和风格特征。**'
+  }
+
   const prompt = `你是一位拥有15年经验的资深时尚买手和穿搭顾问AI，请根据以下服饰视觉特征和个人信息，进行专业的单品决策分析。
 
 ## 服饰视觉特征
@@ -750,6 +787,8 @@ ${JSON.stringify(visualFeatures, null, 2)}
 - 穿着场景：${userInfo.wearScenes && userInfo.wearScenes.length > 0 ? userInfo.wearScenes.join('、') : '未选择'}
 - 穿搭困扰：${userInfo.trouble || '未选择'}
 - 决策场景：${sceneLabel}
+
+${reportSection}
 
 ## 请严格按照以下JSON格式输出（禁止输出任何其他文字）：
 
@@ -796,9 +835,46 @@ ${JSON.stringify(visualFeatures, null, 2)}
   }
 }
 
-async function generateCompareConsult(visualFeatures, userInfo = {}, isRetry = false) {
+async function generateCompareConsult(visualFeatures, userInfo = {}, isRetry = false, reportSummary = null) {
   const items = Array.isArray(visualFeatures) ? visualFeatures : [visualFeatures]
   const itemLabels = items.map((_, i) => `款式${String.fromCharCode(65 + i)}`).join('、')
+
+  // 构建形象诊断报告的量身定制信息
+  let reportSection = ''
+  if (reportSummary) {
+    const lines = ['## 该用户的形象诊断报告（必须据此量身定制分析）']
+    if (reportSummary.faceType) lines.push(`- 脸型：${reportSummary.faceType}`)
+    if (reportSummary.boneType) lines.push(`- 骨相类型：${reportSummary.boneType}`)
+    if (reportSummary.lineStyle) lines.push(`- 面部线条：${reportSummary.lineStyle}`)
+    if (reportSummary.dnaInsight) lines.push(`- 骨相洞察：${reportSummary.dnaInsight}`)
+    if (reportSummary.season) lines.push(`- 色彩季型：${reportSummary.season}`)
+    if (reportSummary.skinType) lines.push(`- 肤色类型：${reportSummary.skinType}`)
+    if (reportSummary.mainStyle) lines.push(`- 主风格：${reportSummary.mainStyle}`)
+    if (reportSummary.styleFeatures) {
+      const sf = reportSummary.styleFeatures
+      if (sf.mass) lines.push(`- 量感：${sf.mass}`)
+      if (sf.curve) lines.push(`- 直曲：${sf.curve}`)
+      if (sf.movement) lines.push(`- 动静：${sf.movement}`)
+    }
+    if (reportSummary.clothingAdvice) {
+      const ca = reportSummary.clothingAdvice
+      if (ca.silhouette) lines.push(`- 适配版型：${ca.silhouette}`)
+      if (ca.material) lines.push(`- 适配材质：${ca.material}`)
+      if (ca.pattern) lines.push(`- 适配图案：${ca.pattern}`)
+      if (ca.accessory) lines.push(`- 适配配饰：${ca.accessory}`)
+    }
+    if (reportSummary.goodColors && reportSummary.goodColors.length > 0) {
+      lines.push(`- 适配色系：${reportSummary.goodColors.join('、')}`)
+    }
+    if (reportSummary.badColors && reportSummary.badColors.length > 0) {
+      lines.push(`- 避雷色系：${reportSummary.badColors.join('、')}`)
+    }
+    if (reportSummary.styleInsight) lines.push(`- 风格洞察：${reportSummary.styleInsight}`)
+    if (reportSummary.coreConclusion) lines.push(`- 核心结论：${reportSummary.coreConclusion}`)
+    if (reportSummary.optimizeInsight) lines.push(`- 优化洞察：${reportSummary.optimizeInsight}`)
+    reportSection = lines.join('\n') + '\n\n**重要：请务必结合以上个人形象特征进行针对性对比分析，评分和推荐都要体现"量身定制"。哪款更契合用户的脸型、肤色、风格，就给更高分。**'
+  }
+
   const prompt = `你是一位拥有15年经验的资深时尚买手AI，请对以下${items.length}件服饰进行横向对比分析。
 
 ## 服饰视觉特征（${itemLabels}）
@@ -806,6 +882,8 @@ ${JSON.stringify(visualFeatures, null, 2)}
 
 ## 补充信息
 - 对比场景：${userInfo.compareScene || '未指定'}
+
+${reportSection}
 
 ## 请严格按照以下JSON格式输出：
 

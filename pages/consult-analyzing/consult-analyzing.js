@@ -93,6 +93,9 @@ Page({
       return
     }
 
+    // 读取形象诊断报告摘要，用于量身定制分析
+    consultData.reportSummary = this.getReportSummary()
+
     const isCompare = this.data.type === 'compare'
 
     try {
@@ -164,6 +167,42 @@ Page({
     } catch (err) {
       console.error('[consult-analyzing] 分析失败:', err)
       this.onError(err.message || '分析失败，请重试')
+    }
+  },
+
+  // 从本地存储读取形象诊断报告摘要
+  getReportSummary() {
+    try {
+      const reports = wx.getStorageSync('reports') || []
+      if (reports.length === 0) return null
+      const r = reports[0]
+      const m = r.modules || {}
+      return {
+        overallScore: r.basic?.overallScore,
+        tags: r.basic?.tags || [],
+        // 面部&骨相
+        faceType: m.dna?.faceType,
+        boneType: m.dna?.boneType,
+        lineStyle: m.dna?.lineStyle,
+        dnaInsight: m.dna?.keyInsight,
+        // 皮肤&风格
+        season: m.style?.season,
+        skinType: m.style?.skinType,
+        mainStyle: m.style?.mainStyle,
+        styleFeatures: m.style?.styleFeatures,
+        clothingAdvice: m.style?.clothingAdvice,
+        goodColors: (m.style?.goodColors || []).map(c => c.name),
+        badColors: (m.style?.badColors || []).map(c => c.name),
+        styleInsight: m.style?.keyInsight,
+        // 发型&妆容
+        hairmakeupInsight: m.hairmakeup?.keyInsight,
+        // 颜值&蜕变
+        coreConclusion: m.optimize?.coreConclusion,
+        optimizeInsight: m.optimize?.keyInsight
+      }
+    } catch (e) {
+      console.warn('[consult-analyzing] 读取报告摘要失败:', e.message)
+      return null
     }
   },
 
@@ -298,7 +337,8 @@ Page({
         bodyFeatures: consultData.bodyFeatures,
         wearScenes: consultData.wearScenes,
         trouble: consultData.trouble,
-        consultScene: consultData.type
+        consultScene: consultData.type,
+        reportSummary: consultData.reportSummary || null
       },
       timeout: 120000
     })
@@ -316,7 +356,8 @@ Page({
         compareScene: consultData.compareScene,
         priceList: consultData.priceList,
         styleDiff: consultData.styleDiff,
-        reason: consultData.reason
+        reason: consultData.reason,
+        reportSummary: consultData.reportSummary || null
       },
       timeout: 120000
     })

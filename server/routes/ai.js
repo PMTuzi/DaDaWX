@@ -166,8 +166,8 @@ router.post('/consult/analyze-clothing-vision', authRequired, async (req, res) =
 
 router.post('/consult/generate-single-consult', authRequired, async (req, res) => {
   try {
-    const { visualFeatures, userInfo, isRetry } = req.body
-    const data = await generateSingleConsult(visualFeatures, userInfo, isRetry)
+    const { visualFeatures, userInfo, isRetry, reportSummary } = req.body
+    const data = await generateSingleConsult(visualFeatures, userInfo, isRetry, reportSummary)
     res.json({ code: 0, data })
   } catch (err) {
     res.status(500).json({ code: -1, message: err.message })
@@ -176,8 +176,8 @@ router.post('/consult/generate-single-consult', authRequired, async (req, res) =
 
 router.post('/consult/generate-compare-consult', authRequired, async (req, res) => {
   try {
-    const { visualFeatures, userInfo, isRetry } = req.body
-    const data = await generateCompareConsult(visualFeatures, userInfo, isRetry)
+    const { visualFeatures, userInfo, isRetry, reportSummary } = req.body
+    const data = await generateCompareConsult(visualFeatures, userInfo, isRetry, reportSummary)
     res.json({ code: 0, data })
   } catch (err) {
     res.status(500).json({ code: -1, message: err.message })

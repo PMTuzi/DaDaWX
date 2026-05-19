@@ -32,7 +32,7 @@
         </view>
       </view>
       <view class="summary-footer">
-        <text class="summary-conclusion">{{latestReport.summary.coreConclusion || latestReport.basic.advantages}}</text>
+        <text class="summary-conclusion">{{latestReport.modules.optimize.coreConclusion || latestReport.summary.coreConclusion || latestReport.basic.advantages}}</text>
         <text class="summary-date">{{latestReport.createTime}}</text>
       </view>
     </view>

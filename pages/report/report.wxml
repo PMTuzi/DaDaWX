@@ -25,12 +25,17 @@
       <text class="avatar-fallback">Me</text>
     </view>
     <view class="header-right">
-      <view class="score-display">
-        <text class="score-number">{{report.basic.overallScore}}</text>
-        <text class="score-unit">分</text>
+      <view class="header-top-row">
+        <view class="score-display">
+          <text class="score-number">{{report.basic.overallScore}}</text>
+          <text class="score-unit">分</text>
+        </view>
+        <view class="score-tags">
+          <text class="tag" wx:for="{{report.basic.tags}}" wx:key="*this">{{item}}</text>
+        </view>
       </view>
-      <view class="score-tags">
-        <text class="tag" wx:for="{{report.basic.tags}}" wx:key="*this">{{item}}</text>
+      <view class="header-summary" wx:if="{{report.modules.optimize.coreConclusion}}">
+        <text class="summary-text">{{report.modules.optimize.coreConclusion}}</text>
       </view>
     </view>
   </view>

@@ -560,6 +560,10 @@
   align-items: center;
   justify-content: center;
   gap: 6rpx;
+  background: linear-gradient(135deg, #eaacbe, #d4956a) !important;
+  box-shadow: 0 8rpx 28rpx rgba(234, 172, 190, 0.45);
+  font-weight: 700;
+  letter-spacing: 1rpx;
 }
 
 .share-action-icon {

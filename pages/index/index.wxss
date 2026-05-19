@@ -58,8 +58,21 @@
   margin-bottom: 20rpx;
 }
 
+.header-diagnosed .brand-text {
+  margin-top: 20rpx;
+}
+
 .header-diagnosed .report-summary {
+  margin-top: -54rpx;
   margin-bottom: 20rpx;
+}
+
+.header-diagnosed + .action-area {
+  margin-top: -62rpx;
+}
+
+.header-diagnosed + .action-area + .banner-ad {
+  margin-top: -26rpx;
 }
 
 .logo {

@@ -340,11 +340,11 @@
   align-items: center;
   gap: 6rpx;
   padding: 16rpx 32rpx;
-  background: linear-gradient(135deg, #C8A97E, #B8966E);
+  background: linear-gradient(135deg, #eaacbe, #d4956a);
   border-radius: 36rpx;
   flex-shrink: 0;
   margin-left: 24rpx;
-  box-shadow: 0 4rpx 16rpx rgba(200, 169, 126, 0.3);
+  box-shadow: 0 6rpx 20rpx rgba(234, 172, 190, 0.4);
 }
 
 .invite-action-text {
