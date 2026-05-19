@@ -116,9 +116,25 @@ async function analyzeVision(imageInput, photoType = 'face') {
   "bodyIndicators": {
     "shoulderType": "描述",
     "bodyRatio": "描述"
+  },
+  "landmarks": {
+    "hairline": { "y": "发际线Y坐标(占图片高度百分比0-1)" },
+    "eyebrowLeft": { "x": "左眉中心X(0-1)", "y": "左眉中心Y(0-1)" },
+    "eyebrowRight": { "x": "右眉中心X(0-1)", "y": "右眉中心Y(0-1)" },
+    "noseBase": { "y": "鼻底Y坐标(0-1)" },
+    "chin": { "y": "下巴Y坐标(0-1)" },
+    "leftEyeInner": { "x": "左眼内角X(0-1)" },
+    "leftEyeOuter": { "x": "左眼外角X(0-1)" },
+    "rightEyeInner": { "x": "右眼内角X(0-1)" },
+    "rightEyeOuter": { "x": "右眼外角X(0-1)" },
+    "leftTemple": { "x": "左太阳穴X(0-1)" },
+    "rightTemple": { "x": "右太阳穴X(0-1)" },
+    "faceLeft": { "x": "左脸轮廓X(0-1)", "y": "左脸轮廓最宽处Y(0-1)" },
+    "faceRight": { "x": "右脸轮廓X(0-1)", "y": "右脸轮廓最宽处Y(0-1)" }
   }
 }
 
+重要：landmarks 中的坐标是相对于图片宽高的百分比(0-1)，这是用于在用户照片上绘制三庭五眼标注线的关键数据，请尽可能准确估算。
 请严格按照JSON格式输出，不要包含任何其他文字说明。`
 
   try {
@@ -241,6 +257,8 @@ ${JSON.stringify(visualFeatures, null, 2)}
   "skinType": "冷皮/暖皮/中性皮",
   "brightness": 0-10,
   "purity": 0-10,
+  "mass": 0-10,
+  "massDesc": "量感描述(大量感=五官立体存在感强适合浓烈色彩, 小量感=五官精致轻盈适合淡雅色彩)",
   "skinAge": "皮肤视觉年龄评估",
   "overallDesc": "皮肤整体状态2-3句描述",
   "problems": [

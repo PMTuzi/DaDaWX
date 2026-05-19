@@ -135,6 +135,17 @@ Page({
       report.id = 'R' + Date.now()
       report.createTime = this.formatNow()
       report.photoType = this.data.photoType
+      report.photoUrl = this.data.imageUrl || this.data.ossUrl || ''
+      // 保存人脸检测数据（精确关键点 + 三庭五眼比例）
+      const fData = visionResult.data.features
+      if (fData) {
+        if (fData.landmarks) report.landmarks = fData.landmarks
+        if (fData.detailPoints) report.detailPoints = fData.detailPoints
+        if (fData.densifiedPoints) report.densifiedPoints = fData.densifiedPoints
+        if (fData.meshData) report.meshData = fData.meshData
+        if (fData.threeCourtsMeasure) report.threeCourtsMeasure = fData.threeCourtsMeasure
+        if (fData.fiveEyesMeasure) report.fiveEyesMeasure = fData.fiveEyesMeasure
+      }
 
       this.saveReport(report)
 

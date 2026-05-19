@@ -39,9 +39,12 @@
     <swiper-item>
       <scroll-view class="module-scroll" scroll-y enhanced show-scrollbar="{{false}}">
         <view class="module-content">
-          <!-- 海报区 -->
-          <view class="poster-card" wx:if="{{posters.bone}}">
-            <image class="poster-img" src="{{posters.bone}}" mode="aspectFill"></image>
+          <!-- 三庭五眼标注图（Canvas在用户原图上绘制） -->
+          <view class="annotation-card" wx:if="{{report.photoUrl}}">
+            <view class="card-title">三庭五眼标注</view>
+            <view class="canvas-wrap">
+              <canvas type="2d" id="faceAnnotation" class="face-canvas"></canvas>
+            </view>
           </view>
 
           <view class="section-card">
@@ -86,8 +89,16 @@
             </view>
           </view>
 
+          <!-- 面部特征雷达图 -->
+          <view class="section-card" wx:if="{{bone.faceFeatures.length >= 3}}">
+            <view class="card-title">面部特征雷达图</view>
+            <view class="radar-wrap">
+              <canvas type="2d" id="radarChart" class="radar-canvas"></canvas>
+            </view>
+          </view>
+
           <view class="section-card" wx:if="{{bone.faceFeatures.length}}">
-            <view class="card-title">面部特征评分</view>
+            <view class="card-title">特征评分明细</view>
             <view class="feature-list">
               <view class="feature-item" wx:for="{{bone.faceFeatures}}" wx:key="name">
                 <text class="fi-name">{{item.name}}</text>
@@ -140,6 +151,19 @@
         <view class="module-content">
           <view class="poster-card" wx:if="{{posters.skin}}">
             <image class="poster-img" src="{{posters.skin}}" mode="aspectFill"></image>
+          </view>
+
+          <!-- 色彩三维诊断 -->
+          <view class="section-card" wx:if="{{skin.brightness || skin.purity}}">
+            <view class="card-title">色彩三维诊断</view>
+            <view class="color-triangle-wrap">
+              <canvas type="2d" id="colorTriangle" class="color-triangle-canvas"></canvas>
+            </view>
+            <view class="color-three-desc">
+              <text class="ctd-item">明度 <text class="ctd-val">{{skin.brightness}}/10</text></text>
+              <text class="ctd-item">纯度 <text class="ctd-val">{{skin.purity}}/10</text></text>
+              <text class="ctd-item">量感 <text class="ctd-val">{{colorStyle.styleFeatures.mass || '中'}}</text></text>
+            </view>
           </view>
 
           <view class="section-card">

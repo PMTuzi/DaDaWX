@@ -3,6 +3,7 @@ const express = require('express')
 const router = express.Router()
 const { analyzeVision, generateReport, generateBoneAnalysis, generateSkinAnalysis, generateColorStyle, generateOutfitStyle } = require('../services/qwen')
 const { validateReport, safeMergeReport, FALLBACK_REPORT } = require('../utils/report-schema')
+const { detectFaceLandmarks } = require('../services/face-detect')
 
 /**
  * 步骤1: 视觉大模型 - 深度面部特征提取
@@ -37,7 +38,37 @@ router.post('/analyze-vision', async (req, res) => {
 
     console.log(`[AI] 开始视觉分析, 类型: ${photoType}, 方式: ${imageInput.startsWith('data:') ? 'base64' : 'url'}`)
 
-    const features = await analyzeVision(imageInput, photoType)
+    // 并行：VL视觉分析 + 人脸检测（精确关键点）
+    const [features, faceData] = await Promise.all([
+      analyzeVision(imageInput, photoType).catch(err => {
+        console.warn('[AI] VL分析失败:', err.message)
+        return null
+      }),
+      detectFaceLandmarks(
+        imageInput.startsWith('data:') ? null : imageUrl,
+        imageInput.startsWith('data:') ? imageInput : null
+      ).catch(err => {
+        console.warn('[AI] 人脸检测失败:', err.message)
+        return null
+      })
+    ])
+
+    if (!features) throw new Error('视觉分析返回为空')
+
+    // 将人脸检测的精确landmarks合并到features中（覆盖VL模型的估算值）
+    if (faceData) {
+      features.landmarks = faceData.landmarks
+      features.detailPoints = faceData.detailPoints
+      // 加密点云数据（2000+点）
+      features.densifiedPoints = faceData.densifiedPoints
+      // 面网格数据
+      features.meshData = faceData.meshData
+      // 三庭五眼比例数据（精确测量）
+      features.threeCourtsMeasure = faceData.threeCourts
+      features.fiveEyesMeasure = faceData.fiveEyes
+      console.log(`[AI] 人脸检测成功, 三庭: ${faceData.threeCourts.balance}, 五眼: ${faceData.fiveEyes.balance}, 密集点: ${faceData.meshData?.meshPoints?.length || 0}`)
+    }
+
     console.log(`[AI] 视觉分析完成, 耗时: ${Date.now() - t0}ms`)
 
     res.json({
