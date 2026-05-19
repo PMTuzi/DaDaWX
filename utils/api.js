@@ -1,5 +1,5 @@
 // API 基础配置
-const ENV = 'production'
+const ENV = 'development'
 
 const CONFIG = {
   production: {
@@ -39,6 +39,10 @@ const API = {
   generateSingleConsult: '/api/consult/generate-single-consult',
   generateCompareConsult: '/api/consult/generate-compare-consult',
   detectCategory: '/api/consult/detect-category',
+  // AI 生图（杂志风诊断海报）
+  generatePoster: '/api/ai/generate-poster',
+  // 单模块报告生成
+  generateModule: '/api/ai/generate-module',
 }
 
 // HTTP 请求封装

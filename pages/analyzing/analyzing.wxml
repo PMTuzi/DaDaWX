@@ -33,6 +33,6 @@
 
   <!-- 提示文字 -->
   <view class="tip-area">
-    <text class="tip-text">AI 正在分析您的形象特征，请耐心等待...</text>
+    <text class="tip-text">AI 正在进行深度面部特征提取与多维度分析，请耐心等待...</text>
   </view>
 </view>

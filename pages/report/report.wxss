@@ -6,52 +6,83 @@
   flex-direction: column;
 }
 
-/* 固定导航栏 */
-.section-nav-wrap {
+/* Tab导航 */
+.tab-bar {
   flex-shrink: 0;
   background: #ffffff;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
   z-index: 10;
 }
 
-.section-nav {
+.tab-scroll {
   white-space: nowrap;
-  padding: 16rpx;
+  padding: 0 16rpx;
 }
 
+.tab-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24rpx 28rpx;
+  position: relative;
+}
+
+.tab-label {
+  font-size: 28rpx;
+  color: #999;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.tab-item.active .tab-label {
+  color: #1a1a2e;
+  font-weight: 700;
+}
+
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40rpx;
+  height: 6rpx;
+  background: #e8a87c;
+  border-radius: 3rpx;
+}
+
+/* 综合评分头部 */
 .report-header {
   background: linear-gradient(135deg, #1a1a2e, #2d2d4a);
-  padding: 48rpx 32rpx;
+  padding: 40rpx 32rpx;
   text-align: center;
+  flex-shrink: 0;
 }
 
 .score-display {
-  margin-bottom: 20rpx;
-}
-
-.score-big {
   display: flex;
   align-items: baseline;
   justify-content: center;
+  margin-bottom: 8rpx;
 }
 
 .score-number {
-  font-size: 96rpx;
+  font-size: 88rpx;
   font-weight: 800;
   color: #e8a87c;
   line-height: 1;
 }
 
 .score-max {
-  font-size: 32rpx;
-  color: rgba(255, 255, 255, 0.5);
-  margin-left: 8rpx;
+  font-size: 28rpx;
+  color: rgba(255,255,255,0.5);
+  margin-left: 4rpx;
 }
 
 .score-level {
-  font-size: 32rpx;
+  font-size: 28rpx;
   font-weight: 600;
-  margin-top: 8rpx;
+  margin-bottom: 16rpx;
 }
 
 .score-tags {
@@ -59,165 +90,237 @@
   justify-content: center;
   flex-wrap: wrap;
   gap: 12rpx;
-  margin-bottom: 20rpx;
+  margin-bottom: 16rpx;
+}
+
+.score-tags .tag {
+  background: rgba(232,168,124,0.2);
+  color: #e8a87c;
+  font-size: 24rpx;
+  padding: 6rpx 20rpx;
+  border-radius: 20rpx;
 }
 
 .score-desc {
-  text-align: left;
   max-width: 600rpx;
   margin: 0 auto;
 }
 
-.desc-item {
+.desc-advantage {
   font-size: 26rpx;
-  color: rgba(255, 255, 255, 0.8);
-  line-height: 1.8;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.6;
 }
 
-.section-nav {
-  white-space: nowrap;
-  background: #ffffff;
-  padding: 16rpx 16rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
-}
-
-.nav-item {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 12rpx 20rpx;
-  border-radius: 16rpx;
-  font-size: 22rpx;
-  color: #999999;
-  transition: all 0.3s;
-}
-
-.nav-item.active {
-  background: rgba(232, 168, 124, 0.12);
-  color: #e8a87c;
-  font-weight: 600;
-}
-
-.nav-icon {
-  font-size: 32rpx;
-  margin-bottom: 4rpx;
-}
-
-.nav-name {
-  font-size: 20rpx;
-}
-
-/* 整页滚动区 */
-.page-scroll {
+/* Swiper */
+.module-swiper {
   flex: 1;
   height: 0;
 }
 
-/* 板块块 */
-.section-block {
-  padding: 0 24rpx;
+.module-scroll {
+  height: 100%;
 }
 
-.section-header {
+.module-content {
+  padding: 24rpx;
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+}
+
+/* 通用卡片 */
+.section-card {
+  background: #ffffff;
+  border-radius: 20rpx;
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+}
+
+.section-card.danger {
+  border-left: 6rpx solid #e74c3c;
+}
+
+.card-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 8rpx;
-  padding: 28rpx 0 8rpx;
-}
-
-.section-icon {
-  color: #e8a87c;
-}
-
-.section-name {
-  font-size: 30rpx;
-  font-weight: 700;
-  color: #1a1a2e;
+  margin-bottom: 16rpx;
 }
 
 .card-title {
   font-size: 30rpx;
   font-weight: 700;
   color: #1a1a2e;
-  margin-bottom: 20rpx;
-}
-
-.card-subtitle {
-  font-size: 26rpx;
-  font-weight: 600;
-  color: #666;
-  margin-bottom: 12rpx;
-}
-
-.danger-title {
-  color: #e74c3c;
-}
-
-/* 评分细分 */
-.score-breakdown {
-  margin-top: 12rpx;
-}
-
-.breakdown-item {
-  display: flex;
-  align-items: center;
   margin-bottom: 16rpx;
 }
 
-.bd-label {
-  width: 80rpx;
-  font-size: 24rpx;
-  color: #666;
+.card-header .card-title {
+  margin-bottom: 0;
 }
 
-.bd-score {
-  width: 80rpx;
-  text-align: right;
-  font-size: 24rpx;
-  color: #999;
+.card-title.danger {
+  color: #e74c3c;
 }
 
-/* 脸型 */
-.shape-score {
+.card-score-wrap {
   display: flex;
   align-items: baseline;
 }
 
-.shape-score-num {
-  font-size: 56rpx;
+.card-score {
+  font-size: 48rpx;
   font-weight: 800;
   color: #e8a87c;
 }
 
-.shape-score-max {
-  font-size: 24rpx;
+.card-score-max {
+  font-size: 22rpx;
   color: #999;
 }
 
-.feature-bars, .fit-list {
+.card-desc {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.6;
+  margin-top: 12rpx;
+}
+
+/* 海报 */
+.poster-card {
+  border-radius: 20rpx;
+  overflow: hidden;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.08);
+}
+
+.poster-img {
+  width: 100%;
+  height: 600rpx;
+}
+
+/* 脸型 */
+.face-type-badge {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 12rpx;
+}
+
+.face-type-name {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.face-type-bone {
+  font-size: 24rpx;
+  background: rgba(232,168,124,0.12);
+  color: #e8a87c;
+  padding: 6rpx 16rpx;
+  border-radius: 12rpx;
+}
+
+/* 三庭五眼 */
+.court-list {
+  margin-bottom: 20rpx;
+}
+
+.court-item {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.court-item:last-child {
+  border-bottom: none;
+}
+
+.court-label {
+  width: 100rpx;
+  font-size: 26rpx;
+  color: #999;
+  flex-shrink: 0;
+}
+
+.court-value {
+  font-size: 26rpx;
+  color: #333;
+  flex: 1;
+}
+
+.court-item.highlight .court-value {
+  color: #e8a87c;
+  font-weight: 600;
+}
+
+.five-eyes {
+  background: rgba(232,168,124,0.06);
+  border-radius: 16rpx;
+  padding: 20rpx;
+}
+
+.fe-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 8rpx;
+  display: block;
+}
+
+.fe-desc {
+  font-size: 24rpx;
+  color: #666;
+  display: block;
+}
+
+.fe-suggestion {
+  font-size: 24rpx;
+  color: #e8a87c;
+  display: block;
   margin-top: 8rpx;
 }
 
-.feature-item, .fit-item, .attr-item, .sub-style {
-  display: flex;
-  align-items: center;
-  margin-bottom: 16rpx;
+/* 特征评分 */
+.feature-list {
+  margin-top: 8rpx;
 }
 
-.fi-label, .fit-name, .attr-label, .ss-name {
-  width: 140rpx;
+.feature-item {
+  padding: 10rpx 0;
+}
+
+.fi-name {
   font-size: 26rpx;
   color: #666;
-  flex-shrink: 0;
+  display: block;
 }
 
-.fi-score, .fit-score, .attr-score, .ss-score {
-  width: 60rpx;
-  text-align: right;
-  font-size: 26rpx;
+.fi-bar-wrap {
+  height: 8rpx;
+  background: #f0f0f0;
+  border-radius: 4rpx;
+  margin: 8rpx 0;
+  overflow: hidden;
+}
+
+.fi-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #e8a87c, #d4a574);
+  border-radius: 4rpx;
+  transition: width 0.3s;
+}
+
+.fi-score {
+  font-size: 24rpx;
   font-weight: 600;
   color: #e8a87c;
-  flex-shrink: 0;
+  margin-right: 12rpx;
+}
+
+.fi-desc {
+  font-size: 22rpx;
+  color: #999;
+  margin-left: 8rpx;
 }
 
 /* 发型列表 */
@@ -227,34 +330,41 @@
 
 .haircut-item {
   padding: 16rpx 0;
-  border-bottom: 1rpx solid #f0f0f0;
+  border-bottom: 1rpx solid #f5f5f5;
 }
 
 .haircut-item:last-child {
   border-bottom: none;
 }
 
-.haircut-main {
+.hi-main {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8rpx;
 }
 
-.haircut-name {
+.hi-name {
   font-size: 28rpx;
   font-weight: 600;
   color: #1a1a2e;
 }
 
-.haircut-score {
+.hi-score {
   font-size: 28rpx;
   font-weight: 700;
+  color: #27ae60;
 }
 
-.haircut-detail {
+.hi-detail {
   font-size: 24rpx;
   color: #999;
+  margin-top: 4rpx;
+}
+
+.hi-reason {
+  font-size: 24rpx;
+  color: #666;
+  margin-top: 4rpx;
 }
 
 /* 避雷列表 */
@@ -263,8 +373,8 @@
 }
 
 .avoid-item {
-  padding: 16rpx 0;
-  border-bottom: 1rpx solid #f0f0f0;
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
 }
 
 .avoid-item:last-child {
@@ -276,34 +386,57 @@
   font-weight: 600;
   color: #e74c3c;
   display: block;
-  margin-bottom: 4rpx;
 }
 
 .avoid-reason {
   font-size: 24rpx;
   color: #999;
-  padding-left: 32rpx;
+  padding-left: 24rpx;
 }
 
-/* 领型 */
-.collar-list {
-  margin-top: 8rpx;
+/* 洞察卡 */
+.insight-card {
+  background: linear-gradient(135deg, rgba(232,168,124,0.1), rgba(232,168,124,0.05));
+  border-radius: 20rpx;
+  padding: 28rpx;
+  border: 1rpx solid rgba(232,168,124,0.2);
 }
 
-.collar-item {
+.insight-text {
+  font-size: 28rpx;
+  color: #1a1a2e;
+  line-height: 1.8;
+  font-style: italic;
+}
+
+/* 皮肤模块 */
+.skin-type-badge {
+  font-size: 26rpx;
+  background: rgba(232,168,124,0.12);
+  color: #e8a87c;
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  font-weight: 600;
+}
+
+.skin-scores {
+  margin-top: 12rpx;
+}
+
+.skin-score-item {
   display: flex;
   align-items: center;
-  margin-bottom: 16rpx;
+  margin-bottom: 12rpx;
 }
 
-.collar-name {
+.ss-label {
   width: 80rpx;
   font-size: 26rpx;
-  color: #666;
+  color: #999;
   flex-shrink: 0;
 }
 
-.collar-score {
+.ss-val {
   width: 60rpx;
   text-align: right;
   font-size: 26rpx;
@@ -312,20 +445,62 @@
   flex-shrink: 0;
 }
 
-/* 肤色 */
-.season-badge {
-  background: rgba(232, 168, 124, 0.08);
+/* 皮肤问题 */
+.problem-list {
+  margin-top: 8rpx;
+}
+
+.problem-item {
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.problem-item:last-child {
+  border-bottom: none;
+}
+
+.pm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pm-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.pm-level {
+  font-size: 24rpx;
+  color: #e8a87c;
+  font-weight: 500;
+}
+
+.pm-level.good {
+  color: #27ae60;
+}
+
+.pm-area, .pm-advice {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 4rpx;
+  display: block;
+}
+
+/* 四季色彩 */
+.season-box {
+  background: rgba(232,168,124,0.08);
   border-radius: 16rpx;
-  padding: 20rpx;
-  margin-top: 16rpx;
+  padding: 24rpx;
   text-align: center;
 }
 
 .season-name {
-  display: block;
-  font-size: 32rpx;
+  font-size: 36rpx;
   font-weight: 700;
   color: #e8a87c;
+  display: block;
   margin-bottom: 8rpx;
 }
 
@@ -334,96 +509,116 @@
   color: #999;
 }
 
+/* 色卡 */
 .color-palette {
   display: flex;
   flex-wrap: wrap;
-  gap: 20rpx;
-  margin-top: 8rpx;
+  gap: 16rpx;
 }
 
 .color-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8rpx;
+  gap: 6rpx;
+  width: 80rpx;
 }
 
 .color-swatch {
-  width: 80rpx;
-  height: 80rpx;
+  width: 72rpx;
+  height: 72rpx;
   border-radius: 16rpx;
   border: 2rpx solid rgba(0,0,0,0.06);
 }
 
 .color-name {
-  font-size: 22rpx;
+  font-size: 20rpx;
   color: #666;
-  font-weight: 500;
+  text-align: center;
 }
 
-.color-hex {
+.color-usage, .color-reason {
   font-size: 18rpx;
   color: #999;
+  text-align: center;
 }
 
 .color-reason {
-  font-size: 18rpx;
   color: #e74c3c;
 }
 
-.haircolor-list {
+.color-palette.bad .color-swatch {
+  opacity: 0.6;
+}
+
+/* 护肤建议 */
+.tips-list {
   margin-top: 8rpx;
 }
 
-.haircolor-item {
+.tip-item {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12rpx 0;
-  border-bottom: 1rpx solid #f0f0f0;
+  gap: 8rpx;
+  margin-bottom: 12rpx;
 }
 
-.haircolor-item:last-child {
-  border-bottom: none;
-}
-
-.hc-name {
-  font-size: 26rpx;
-  font-weight: 500;
-  color: #1a1a2e;
-}
-
-.hc-detail {
-  font-size: 24rpx;
-  color: #999;
-}
-
-/* 风格 */
-.style-score-display {
-  display: flex;
-  align-items: baseline;
-}
-
-.ss-num {
-  font-size: 48rpx;
-  font-weight: 800;
+.tip-bullet {
+  font-size: 28rpx;
   color: #e8a87c;
+  flex-shrink: 0;
+  font-weight: bold;
 }
 
-.ss-max {
-  font-size: 24rpx;
-  color: #999;
+.tip-text {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.6;
+  flex: 1;
+}
+
+/* 风格模块 */
+.main-style-name {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1a1a2e;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.sub-styles {
+  margin-top: 16rpx;
+}
+
+.sub-style {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.ss-name {
+  width: 120rpx;
+  font-size: 26rpx;
+  color: #666;
+  flex-shrink: 0;
+}
+
+.ss-score {
+  width: 60rpx;
+  text-align: right;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #e8a87c;
+  flex-shrink: 0;
 }
 
 .style-features {
   display: flex;
-  gap: 24rpx;
-  margin-top: 8rpx;
+  gap: 20rpx;
 }
 
 .sf-item {
   flex: 1;
-  background: rgba(232, 168, 124, 0.06);
+  background: rgba(232,168,124,0.06);
   border-radius: 16rpx;
   padding: 20rpx;
   text-align: center;
@@ -443,6 +638,38 @@
   color: #1a1a2e;
 }
 
+/* 色彩方案 */
+.palette-group {
+  margin-bottom: 16rpx;
+}
+
+.pg-label {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+  display: block;
+}
+
+.pg-colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+
+.pg-color {
+  font-size: 24rpx;
+  background: rgba(232,168,124,0.08);
+  color: #666;
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
+}
+
+.pg-color.accent {
+  background: rgba(232,168,124,0.15);
+  color: #e8a87c;
+}
+
+/* 穿搭建议 */
 .advice-list {
   margin-top: 8rpx;
 }
@@ -453,9 +680,9 @@
 }
 
 .ad-label {
+  width: 80rpx;
   font-size: 26rpx;
   color: #999;
-  margin-right: 12rpx;
   flex-shrink: 0;
 }
 
@@ -463,17 +690,19 @@
   font-size: 26rpx;
   color: #333;
   flex: 1;
+  line-height: 1.6;
 }
 
+/* 场景方案 */
 .scene-list {
   margin-top: 8rpx;
 }
 
 .scene-item {
-  background: rgba(232, 168, 124, 0.06);
+  background: rgba(232,168,124,0.06);
   border-radius: 16rpx;
   padding: 20rpx;
-  margin-bottom: 16rpx;
+  margin-bottom: 12rpx;
 }
 
 .scene-name {
@@ -481,25 +710,177 @@
   font-size: 28rpx;
   font-weight: 600;
   color: #e8a87c;
-  margin-bottom: 8rpx;
+  margin-bottom: 6rpx;
 }
 
 .scene-desc {
   font-size: 26rpx;
   color: #666;
+  line-height: 1.5;
+  display: block;
+}
+
+.scene-key {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 6rpx;
+  display: block;
+}
+
+/* 推荐单品 */
+.outfit-list {
+  margin-top: 8rpx;
+}
+
+.outfit-item {
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.outfit-item:last-child {
+  border-bottom: none;
+}
+
+.oi-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.oi-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.oi-score {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #e8a87c;
+}
+
+.oi-tags .tag {
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  margin-right: 8rpx;
+  background: rgba(0,0,0,0.04);
+  color: #666;
+}
+
+.oi-tags .tag.warm {
+  background: rgba(232,168,124,0.12);
+  color: #e8a87c;
+}
+
+.oi-tags .tag.cool {
+  background: rgba(52,152,219,0.1);
+  color: #3498db;
+}
+
+.tag.small {
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+}
+
+/* TOP发型 */
+.top-hair-list {
+  margin-top: 8rpx;
+}
+
+.top-hair-item {
+  display: flex;
+  gap: 16rpx;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.top-hair-item:last-child {
+  border-bottom: none;
+}
+
+.th-rank {
+  width: 48rpx;
+  height: 48rpx;
+  background: linear-gradient(135deg, #e8a87c, #d4a574);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.th-info {
+  flex: 1;
+}
+
+.th-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6rpx;
+}
+
+.th-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.th-score {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #27ae60;
+}
+
+.th-detail {
+  font-size: 24rpx;
+  color: #999;
   line-height: 1.6;
+}
+
+/* 妆容 */
+.makeup-grid {
+  margin-top: 8rpx;
+}
+
+.mu-section {
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.mu-section:last-child {
+  border-bottom: none;
+}
+
+.mu-label {
+  font-size: 26rpx;
+  color: #999;
+  display: block;
+  margin-bottom: 6rpx;
+}
+
+.mu-value {
+  font-size: 26rpx;
+  color: #333;
+  display: block;
+  line-height: 1.5;
 }
 
 /* 身形 */
 .body-result {
   display: flex;
-  gap: 24rpx;
+  gap: 20rpx;
   margin-top: 8rpx;
 }
 
 .body-attr {
   flex: 1;
-  background: rgba(232, 168, 124, 0.06);
+  background: rgba(232,168,124,0.06);
   border-radius: 16rpx;
   padding: 20rpx;
   text-align: center;
@@ -519,192 +900,24 @@
   color: #1a1a2e;
 }
 
-/* 穿搭单品 */
-.item-list {
-  margin-top: 8rpx;
-}
-
-.outfit-item {
-  padding: 20rpx 0;
-  border-bottom: 1rpx solid #f0f0f0;
-}
-
-.outfit-item:last-child {
-  border-bottom: none;
-}
-
-.oi-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12rpx;
-}
-
-.oi-name {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #1a1a2e;
-}
-
-.oi-score {
-  font-size: 28rpx;
-  font-weight: 700;
-}
-
-.oi-detail {
-  font-size: 24rpx;
-  color: #999;
-  margin-top: 8rpx;
-}
-
-/* TOP发型 */
-.top-hair-list {
-  margin-top: 8rpx;
-}
-
-.top-hair-item {
-  display: flex;
-  gap: 20rpx;
-  padding: 20rpx 0;
-  border-bottom: 1rpx solid #f0f0f0;
-}
-
-.top-hair-item:last-child {
-  border-bottom: none;
-}
-
-.th-rank {
-  width: 56rpx;
-  height: 56rpx;
-  background: linear-gradient(135deg, #e8a87c, #d4a574);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28rpx;
-  font-weight: 800;
-  color: #fff;
-  flex-shrink: 0;
-}
-
-.th-info {
-  flex: 1;
-}
-
-.th-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8rpx;
-}
-
-.th-name {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #1a1a2e;
-}
-
-.th-score {
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #27ae60;
-}
-
-.th-detail {
-  font-size: 24rpx;
-  color: #999;
-  line-height: 1.8;
-}
-
-/* 备选发型 */
-.alt-hair-list {
-  margin-top: 8rpx;
-}
-
-.alt-hair-item {
-  display: flex;
-  align-items: center;
-  padding: 16rpx 0;
-  border-bottom: 1rpx solid #f0f0f0;
-}
-
-.alt-hair-item:last-child {
-  border-bottom: none;
-}
-
-.ah-name {
-  flex: 1;
-  font-size: 28rpx;
-  color: #1a1a2e;
-}
-
-.ah-style {
-  font-size: 24rpx;
-  color: #999;
-  margin-right: 16rpx;
-}
-
-.ah-score {
-  font-size: 26rpx;
-  font-weight: 600;
-  color: #e8a87c;
-}
-
-/* 妆容 */
-.makeup-section {
-  margin-top: 8rpx;
-}
-
-.mu-item {
-  display: flex;
-  margin-bottom: 16rpx;
-}
-
-.mu-label {
-  width: 140rpx;
-  font-size: 26rpx;
-  color: #999;
-  flex-shrink: 0;
-}
-
-.mu-value {
-  font-size: 26rpx;
-  color: #333;
-  flex: 1;
-}
-
 /* 总结 */
-.summary-card {
-  text-align: left;
-}
-
 .summary-text {
   font-size: 28rpx;
   color: #333;
   line-height: 1.8;
+  display: block;
+  margin-bottom: 12rpx;
 }
 
-.tips-list {
-  margin-top: 8rpx;
-}
-
-.tip-item {
-  display: flex;
-  gap: 12rpx;
+.priority-text {
+  font-size: 26rpx;
+  color: #e8a87c;
+  font-weight: 600;
+  display: block;
   margin-bottom: 16rpx;
 }
 
-.tip-bullet {
-  font-size: 28rpx;
-  flex-shrink: 0;
-}
-
-.tip-text {
-  font-size: 26rpx;
-  color: #666;
-  line-height: 1.6;
-}
-
-/* 底部分享栏 */
+/* 底部栏 */
 .share-bar {
   position: fixed;
   bottom: 0;
@@ -713,8 +926,9 @@
   display: flex;
   background: #ffffff;
   padding: 16rpx 32rpx;
-  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.06);
-  gap: 24rpx;
+  box-shadow: 0 -4rpx 20rpx rgba(0,0,0,0.06);
+  gap: 16rpx;
+  z-index: 10;
 }
 
 .share-btn {
@@ -725,7 +939,7 @@
   gap: 8rpx;
   padding: 20rpx;
   border-radius: 48rpx;
-  background: rgba(232, 168, 124, 0.1);
+  background: rgba(232,168,124,0.1);
   font-size: 28rpx;
   color: #e8a87c;
   font-weight: 600;
@@ -740,4 +954,24 @@
   font-size: 32rpx;
 }
 
+.rediagnose-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx;
+  border-radius: 48rpx;
+  background: linear-gradient(135deg, #e8a87c, #d4a574);
+  font-size: 28rpx;
+  color: #ffffff;
+  font-weight: 600;
+  border: none;
+}
 
+.rediagnose-btn::after {
+  border: none;
+}
+
+.safe-bottom {
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+}

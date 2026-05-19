@@ -1,494 +1,449 @@
 <!--pages/report/report.wxml-->
 <view class="page-report" wx:if="{{report}}">
-  <!-- 板块导航（固定顶部） -->
-  <view class="section-nav-wrap">
-    <scroll-view class="section-nav" scroll-x enhanced show-scrollbar="{{false}}">
-      <view class="nav-item {{currentSection === index ? 'active' : ''}}"
-        wx:for="{{sections}}" wx:key="key"
-        data-index="{{index}}" bindtap="onSectionTap">
-        <view class="nav-icon icon icon-{{item.icon}}" style="font-size:36rpx;"></view>
-        <text class="nav-name">{{item.name}}</text>
+  <!-- 顶部Tab导航 -->
+  <view class="tab-bar">
+    <scroll-view class="tab-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="tab-item {{activeTab === 'bone' ? 'active' : ''}}" data-tab="bone" bindtap="onTabTap">
+        <text class="tab-label">骨相分析</text>
+      </view>
+      <view class="tab-item {{activeTab === 'skin' ? 'active' : ''}}" data-tab="skin" bindtap="onTabTap">
+        <text class="tab-label">皮肤状态</text>
+      </view>
+      <view class="tab-item {{activeTab === 'colorStyle' ? 'active' : ''}}" data-tab="colorStyle" bindtap="onTabTap">
+        <text class="tab-label">色彩风格</text>
+      </view>
+      <view class="tab-item {{activeTab === 'outfit' ? 'active' : ''}}" data-tab="outfit" bindtap="onTabTap">
+        <text class="tab-label">穿搭风格</text>
       </view>
     </scroll-view>
   </view>
 
-  <!-- 整体滚动内容 -->
-  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}" scroll-into-view="{{scrollTarget}}" scroll-with-animation>
-    <!-- 综合评分头部 -->
-    <view class="report-header">
-      <view class="score-display">
-        <view class="score-big">
-          <text class="score-number">{{report.basic.overallScore}}</text>
-          <text class="score-max">/10</text>
-        </view>
-        <view class="score-level" style="color: {{scoreLevel.color}}">{{scoreLevel.text}}</view>
-      </view>
-      <view class="score-tags">
-        <text class="tag tag-warm" wx:for="{{report.basic.tags}}" wx:key="*this">{{item}}</text>
-      </view>
-      <view class="score-desc">
-        <view class="desc-item advantage"><view class="icon icon-check" style="font-size:28rpx;color:var(--success);margin-right:4rpx;"></view> {{report.basic.advantages}}</view>
-        <view class="desc-item weakness" wx:if="{{report.basic.weaknesses}}"><view class="icon icon-warning" style="font-size:28rpx;color:var(--warm);margin-right:4rpx;"></view> {{report.basic.weaknesses}}</view>
-      </view>
+  <!-- 综合评分头部 -->
+  <view class="report-header">
+    <view class="score-display">
+      <text class="score-number">{{report.basic.overallScore}}</text>
+      <text class="score-max">/10</text>
     </view>
-
-    <!-- 板块1: 综合建议 -->
-    <view id="section-0" class="section-block">
-      <view class="section-header">
-        <view class="section-icon icon icon-note" style="font-size:36rpx;"></view>
-        <text class="section-name">综合建议</text>
-      </view>
-      <view class="card summary-card">
-        <view class="card-title">核心结论</view>
-        <text class="summary-text">{{report.summary.coreConclusion}}</text>
-      </view>
-      <view class="card summary-card">
-        <view class="card-title">改造优先级</view>
-        <text class="summary-text">{{report.summary.priorityAdvice}}</text>
-      </view>
-      <view class="card summary-card" wx:if="{{report.summary.dailyTips && report.summary.dailyTips.length}}">
-        <view class="card-title">日常小贴士</view>
-        <view class="tips-list">
-          <view class="tip-item" wx:for="{{report.summary.dailyTips}}" wx:key="*this">
-            <view class="tip-bullet icon icon-tip" style="font-size:28rpx;color:var(--warm);margin-right:8rpx;"></view>
-            <text class="tip-text">{{item}}</text>
-          </view>
-        </view>
-      </view>
+    <view class="score-level" style="color: {{scoreLevel.color}}">{{scoreLevel.text}}</view>
+    <view class="score-tags">
+      <text class="tag" wx:for="{{report.basic.tags}}" wx:key="*this">{{item}}</text>
     </view>
-
-    <!-- 板块2: 脸型分析 -->
-    <view id="section-1" class="section-block">
-      <view class="section-header">
-        <view class="section-icon icon icon-search" style="font-size:36rpx;"></view>
-        <text class="section-name">脸型分析</text>
-      </view>
-      <view class="card">
-        <view class="card-title">脸型判定: {{report.faceShape.type}}</view>
-        <view class="shape-score">
-          <text class="shape-score-num">{{report.faceShape.score}}</text>
-          <text class="shape-score-max">/10</text>
-        </view>
-        <view class="divider"></view>
-        <view class="card-subtitle">脸型特征</view>
-        <view class="feature-bars">
-          <view class="feature-item">
-            <text class="fi-label">线条流畅度</text>
-            <view class="score-bar"><view class="score-bar-inner" style="width: {{report.faceShape.features.smoothness * 10}}%"></view></view>
-            <text class="fi-score">{{report.faceShape.features.smoothness}}</text>
-          </view>
-          <view class="feature-item">
-            <text class="fi-label">骨骼感</text>
-            <view class="score-bar"><view class="score-bar-inner" style="width: {{report.faceShape.features.boneStructure * 10}}%"></view></view>
-            <text class="fi-score">{{report.faceShape.features.boneStructure}}</text>
-          </view>
-          <view class="feature-item">
-            <text class="fi-label">面部比例</text>
-            <view class="score-bar"><view class="score-bar-inner" style="width: {{report.faceShape.features.proportion * 10}}%"></view></view>
-            <text class="fi-score">{{report.faceShape.features.proportion}}</text>
-          </view>
-        </view>
-      </view>
-      <view class="card">
-        <view class="card-title">适配发型</view>
-        <view class="haircut-list">
-          <view class="haircut-item" wx:for="{{report.faceShape.suitableHaircuts}}" wx:key="name">
-            <view class="haircut-main">
-              <text class="haircut-name">{{item.name}}</text>
-              <text class="haircut-score" style="color: {{item.score >= 9 ? '#27ae60' : '#f39c12'}}">{{item.score}}分</text>
-            </view>
-            <view class="haircut-detail">
-              <text wx:if="{{item.length}}">长度: {{item.length}}</text>
-              <text wx:if="{{item.outline}}"> | 轮廓: {{item.outline}}</text>
-              <text wx:if="{{item.bangs}}"> | 刘海: {{item.bangs}}</text>
-            </view>
-          </view>
-        </view>
-      </view>
-      <view class="card">
-        <view class="card-title danger-title">避雷发型</view>
-        <view class="avoid-list">
-          <view class="avoid-item" wx:for="{{report.faceShape.avoidHaircuts}}" wx:key="name">
-            <text class="avoid-name"><view class="icon icon-close" style="font-size:24rpx;color:var(--danger);margin-right:4rpx;"></view> {{item.name}}</text>
-            <text class="avoid-reason">{{item.reason}}</text>
-          </view>
-        </view>
-      </view>
-      <view class="card">
-        <view class="card-title">适配领型</view>
-        <view class="collar-list">
-          <view class="collar-item" wx:for="{{report.faceShape.suitableCollars}}" wx:key="type">
-            <text class="collar-name">{{item.type}}</text>
-            <view class="score-bar" style="flex:1;margin:0 16rpx"><view class="score-bar-inner" style="width: {{item.score * 10}}%"></view></view>
-            <text class="collar-score">{{item.score}}</text>
-          </view>
-        </view>
-      </view>
+    <view class="score-desc" wx:if="{{report.basic.advantages}}">
+      <text class="desc-advantage">{{report.basic.advantages}}</text>
     </view>
+  </view>
 
-    <!-- 板块3: 肤色诊断 -->
-    <view id="section-2" class="section-block">
-      <view class="section-header">
-        <view class="section-icon icon icon-palette" style="font-size:36rpx;"></view>
-        <text class="section-name">肤色诊断</text>
-      </view>
-      <view class="card">
-        <view class="card-title">肤色属性: {{report.skinColor.type}}</view>
-        <view class="skin-attrs">
-          <view class="attr-item">
-            <text class="attr-label">明度</text>
-            <view class="score-bar" style="flex:1;margin:0 16rpx"><view class="score-bar-inner" style="width: {{report.skinColor.brightness * 10}}%"></view></view>
-            <text class="attr-score">{{report.skinColor.brightness}}</text>
+  <!-- 模块内容（swipe切换） -->
+  <swiper class="module-swiper" current="{{tabIndex}}" bindchange="onSwiperChange">
+    <!-- 骨相分析 -->
+    <swiper-item>
+      <scroll-view class="module-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+        <view class="module-content">
+          <!-- 海报区 -->
+          <view class="poster-card" wx:if="{{posters.bone}}">
+            <image class="poster-img" src="{{posters.bone}}" mode="aspectFill"></image>
           </view>
-          <view class="attr-item">
-            <text class="attr-label">纯度</text>
-            <view class="score-bar" style="flex:1;margin:0 16rpx"><view class="score-bar-inner" style="width: {{report.skinColor.purity * 10}}%"></view></view>
-            <text class="attr-score">{{report.skinColor.purity}}</text>
-          </view>
-        </view>
-        <view class="season-badge">
-          <text class="season-name">{{report.skinColor.season}}</text>
-          <text class="season-detail">{{report.skinColor.seasonDetail}}</text>
-        </view>
-      </view>
-      <view class="card">
-        <view class="card-title">本命色盘</view>
-        <view class="color-palette">
-          <view class="color-item" wx:for="{{report.skinColor.goodColors}}" wx:key="name">
-            <view class="color-swatch" style="background: {{item.hex}}"></view>
-            <text class="color-name">{{item.name}}</text>
-            <text class="color-hex">{{item.hex}}</text>
-          </view>
-        </view>
-      </view>
-      <view class="card">
-        <view class="card-title danger-title">避雷色盘</view>
-        <view class="color-palette bad">
-          <view class="color-item" wx:for="{{report.skinColor.badColors}}" wx:key="name">
-            <view class="color-swatch" style="background: {{item.hex}}"></view>
-            <text class="color-name">{{item.name}}</text>
-            <text class="color-reason">{{item.reason}}</text>
-          </view>
-        </view>
-      </view>
-      <view class="card">
-        <view class="card-title">适配发色</view>
-        <view class="haircolor-list">
-          <view class="haircolor-item" wx:for="{{report.skinColor.goodHairColors}}" wx:key="name">
-            <text class="hc-name"><view class="icon icon-check" style="font-size:24rpx;color:var(--success);margin-right:4rpx;"></view> {{item.name}}</text>
-            <text class="hc-detail">{{item.detail}}</text>
-          </view>
-        </view>
-        <view class="divider"></view>
-        <view class="haircolor-list bad">
-          <view class="haircolor-item" wx:for="{{report.skinColor.badHairColors}}" wx:key="name">
-            <text class="hc-name"><view class="icon icon-close" style="font-size:24rpx;color:var(--danger);margin-right:4rpx;"></view> {{item.name}}</text>
-            <text class="hc-detail">{{item.reason}}</text>
-          </view>
-        </view>
-      </view>
-    </view>
 
-    <!-- 板块4: 风格基因 -->
-    <view id="section-3" class="section-block">
-      <view class="section-header">
-        <view class="section-icon icon icon-sparkle" style="font-size:36rpx;"></view>
-        <text class="section-name">风格基因</text>
-      </view>
-      <view class="card">
-        <view class="card-title">核心风格: {{report.style.mainStyle}}</view>
-        <view class="style-score-display">
-          <text class="ss-num">{{report.style.mainScore}}</text>
-          <text class="ss-max">/10</text>
-        </view>
-        <view class="sub-styles">
-          <view class="sub-style" wx:for="{{report.style.subStyles}}" wx:key="name">
-            <text class="ss-name">{{item.name}}</text>
-            <view class="score-bar" style="flex:1;margin:0 16rpx"><view class="score-bar-inner" style="width: {{item.score * 10}}%"></view></view>
-            <text class="ss-score">{{item.score}}</text>
-          </view>
-        </view>
-      </view>
-      <view class="card">
-        <view class="card-title">风格特征</view>
-        <view class="style-features">
-          <view class="sf-item">
-            <text class="sf-label">量感</text>
-            <text class="sf-value">{{report.style.features.mass}}</text>
-          </view>
-          <view class="sf-item">
-            <text class="sf-label">直曲</text>
-            <text class="sf-value">{{report.style.features.curve}}</text>
-          </view>
-          <view class="sf-item">
-            <text class="sf-label">动静</text>
-            <text class="sf-value">{{report.style.features.movement}}</text>
-          </view>
-        </view>
-      </view>
-      <view class="card" wx:if="{{report.style.clothingAdvice}}">
-        <view class="card-title">适配穿搭建议</view>
-        <view class="advice-list">
-          <view class="advice-item" wx:if="{{report.style.clothingAdvice.silhouette}}">
-            <text class="ad-label">版型:</text>
-            <text class="ad-value">{{report.style.clothingAdvice.silhouette}}</text>
-          </view>
-          <view class="advice-item" wx:if="{{report.style.clothingAdvice.material}}">
-            <text class="ad-label">材质:</text>
-            <text class="ad-value">{{report.style.clothingAdvice.material}}</text>
-          </view>
-          <view class="advice-item" wx:if="{{report.style.clothingAdvice.pattern}}">
-            <text class="ad-label">图案:</text>
-            <text class="ad-value">{{report.style.clothingAdvice.pattern}}</text>
-          </view>
-        </view>
-      </view>
-      <view class="card" wx:if="{{report.style.sceneAdvice && report.style.sceneAdvice.length}}">
-        <view class="card-title">场景穿搭方案</view>
-        <view class="scene-list">
-          <view class="scene-item" wx:for="{{report.style.sceneAdvice}}" wx:key="scene">
-            <view class="scene-name">{{item.scene}}</view>
-            <view class="scene-desc">{{item.desc}}</view>
-          </view>
-        </view>
-      </view>
-    </view>
-
-    <!-- 板块5: 身形适配 -->
-    <view id="section-4" class="section-block">
-      <view class="section-header">
-        <view class="section-icon icon icon-ruler" style="font-size:36rpx;"></view>
-        <text class="section-name">身形适配</text>
-      </view>
-      <view class="card">
-        <view class="card-title">身形推导结果</view>
-        <view class="body-result">
-          <view class="body-attr">
-            <text class="ba-label">肩型</text>
-            <text class="ba-value">{{report.bodyShape.shoulderType}}</text>
-          </view>
-          <view class="body-attr">
-            <text class="ba-label">身形比例</text>
-            <text class="ba-value">{{report.bodyShape.bodyRatio}}</text>
-          </view>
-        </view>
-      </view>
-      <view class="card">
-        <view class="card-title">适配上衣版型</view>
-        <view class="fit-list">
-          <view class="fit-item" wx:for="{{report.bodyShape.suitableTop}}" wx:key="type">
-            <text class="fit-name">{{item.type}}</text>
-            <view class="score-bar" style="flex:1;margin:0 16rpx"><view class="score-bar-inner" style="width: {{item.score * 10}}%"></view></view>
-            <text class="fit-score">{{item.score}}</text>
-          </view>
-        </view>
-      </view>
-      <view class="card">
-        <view class="card-title">适配下装版型</view>
-        <view class="fit-list">
-          <view class="fit-item" wx:for="{{report.bodyShape.suitableBottom}}" wx:key="type">
-            <text class="fit-name">{{item.type}}</text>
-            <view class="score-bar" style="flex:1;margin:0 16rpx"><view class="score-bar-inner" style="width: {{item.score * 10}}%"></view></view>
-            <text class="fit-score">{{item.score}}</text>
-          </view>
-        </view>
-      </view>
-      <view class="card" wx:if="{{report.bodyShape.avoidStyles && report.bodyShape.avoidStyles.length}}">
-        <view class="card-title danger-title">避雷版型</view>
-        <view class="avoid-list">
-          <view class="avoid-item" wx:for="{{report.bodyShape.avoidStyles}}" wx:key="type">
-            <text class="avoid-name"><view class="icon icon-close" style="font-size:24rpx;color:var(--danger);margin-right:4rpx;"></view> {{item.type}}</text>
-            <text class="avoid-reason">{{item.reason}}</text>
-          </view>
-        </view>
-      </view>
-      <view class="card" wx:if="{{report.bodyShape.tips && report.bodyShape.tips.length}}">
-        <view class="card-title">比例优化技巧</view>
-        <view class="tips-list">
-          <view class="tip-item" wx:for="{{report.bodyShape.tips}}" wx:key="*this">
-            <view class="tip-bullet icon icon-tip" style="font-size:28rpx;color:var(--warm);margin-right:8rpx;"></view>
-            <text class="tip-text">{{item}}</text>
-          </view>
-        </view>
-      </view>
-    </view>
-
-    <!-- 板块6: 穿搭推荐 -->
-    <view id="section-5" class="section-block">
-      <view class="section-header">
-        <view class="section-icon icon icon-dress" style="font-size:36rpx;"></view>
-        <text class="section-name">穿搭推荐</text>
-      </view>
-      <view class="card">
-        <view class="card-title">适配基础款</view>
-        <view class="item-list">
-          <view class="outfit-item" wx:for="{{report.outfitItems.recommended}}" wx:key="name">
-            <view class="oi-header">
-              <text class="oi-name">{{item.name}}</text>
-              <text class="oi-score" style="color: {{item.score >= 9 ? '#27ae60' : '#f39c12'}}">{{item.score}}分</text>
-            </view>
-            <view class="oi-tags">
-              <text class="tag tag-primary">{{item.type}}</text>
-              <text class="tag tag-warm">{{item.color}}</text>
-              <text class="tag tag-cool">{{item.scene}}</text>
-            </view>
-            <view class="oi-detail" wx:if="{{item.material}}">
-              <text>材质: {{item.material}}</text>
-            </view>
-          </view>
-        </view>
-      </view>
-      <view class="card" wx:if="{{report.outfitItems.avoidItems && report.outfitItems.avoidItems.length}}">
-        <view class="card-title danger-title">避雷单品</view>
-        <view class="avoid-list">
-          <view class="avoid-item" wx:for="{{report.outfitItems.avoidItems}}" wx:key="name">
-            <text class="avoid-name"><view class="icon icon-close" style="font-size:24rpx;color:var(--danger);margin-right:4rpx;"></view> {{item.name}}</text>
-            <text class="avoid-reason">{{item.reason}}</text>
-          </view>
-        </view>
-      </view>
-    </view>
-
-    <!-- 板块7: 发型推荐 -->
-    <view id="section-6" class="section-block">
-      <view class="section-header">
-        <view class="section-icon icon icon-hair" style="font-size:36rpx;"></view>
-        <text class="section-name">发型推荐</text>
-      </view>
-      <view class="card">
-        <view class="card-title">TOP 推荐发型</view>
-        <view class="top-hair-list">
-          <view class="top-hair-item" wx:for="{{report.hairRecommend.top3}}" wx:key="name" wx:for-index="idx">
-            <view class="th-rank">{{idx + 1}}</view>
-            <view class="th-info">
-              <view class="th-header">
-                <text class="th-name">{{item.name}}</text>
-                <text class="th-score">{{item.score}}分</text>
+          <view class="section-card">
+            <view class="card-header">
+              <text class="card-title">脸型判定</text>
+              <view class="card-score-wrap">
+                <text class="card-score">{{bone.faceScore}}</text>
+                <text class="card-score-max">/10</text>
               </view>
-              <view class="th-detail">
-                <text wx:if="{{item.length}}">长度: {{item.length}}</text>
-                <text wx:if="{{item.layers}}"> | {{item.layers}}</text>
+            </view>
+            <view class="face-type-badge">
+              <text class="face-type-name">{{bone.faceType}}</text>
+              <text class="face-type-bone">{{bone.boneType}}</text>
+            </view>
+            <text class="card-desc" wx:if="{{bone.boneDesc}}">{{bone.boneDesc}}</text>
+          </view>
+
+          <view class="section-card" wx:if="{{bone.threeCourts}}">
+            <view class="card-title">三庭五眼</view>
+            <view class="court-list">
+              <view class="court-item">
+                <text class="court-label">上庭</text>
+                <text class="court-value">{{bone.threeCourts.upper}}</text>
               </view>
-              <view class="th-detail" wx:if="{{item.bangs}}">
-                <text>刘海: {{item.bangs}}</text>
+              <view class="court-item">
+                <text class="court-label">中庭</text>
+                <text class="court-value">{{bone.threeCourts.middle}}</text>
               </view>
-              <view class="th-detail" wx:if="{{item.care}}">
-                <text>打理: {{item.care}}</text>
+              <view class="court-item">
+                <text class="court-label">下庭</text>
+                <text class="court-value">{{bone.threeCourts.lower}}</text>
+              </view>
+              <view class="court-item highlight">
+                <text class="court-label">总体</text>
+                <text class="court-value">{{bone.threeCourts.balance}}</text>
+              </view>
+            </view>
+            <view class="five-eyes" wx:if="{{bone.fiveEyes}}">
+              <text class="fe-title">五眼分析</text>
+              <text class="fe-desc">{{bone.fiveEyes.analysis}}</text>
+              <text class="fe-suggestion" wx:if="{{bone.fiveEyes.suggestion}}">{{bone.fiveEyes.suggestion}}</text>
+            </view>
+          </view>
+
+          <view class="section-card" wx:if="{{bone.faceFeatures.length}}">
+            <view class="card-title">面部特征评分</view>
+            <view class="feature-list">
+              <view class="feature-item" wx:for="{{bone.faceFeatures}}" wx:key="name">
+                <text class="fi-name">{{item.name}}</text>
+                <view class="fi-bar-wrap">
+                  <view class="fi-bar" style="width: {{item.score * 10}}%"></view>
+                </view>
+                <text class="fi-score">{{item.score}}</text>
+                <text class="fi-desc">{{item.desc}}</text>
               </view>
             </view>
           </view>
-        </view>
-      </view>
-      <view class="card">
-        <view class="card-title">备选发型</view>
-        <view class="alt-hair-list">
-          <view class="alt-hair-item" wx:for="{{report.hairRecommend.alternatives}}" wx:key="name">
-            <text class="ah-name">{{item.name}}</text>
-            <text class="ah-style">{{item.style}}</text>
-            <text class="ah-score">{{item.score}}分</text>
-          </view>
-        </view>
-      </view>
-      <view class="card">
-        <view class="card-title">适配发色</view>
-        <view class="haircolor-list">
-          <view class="haircolor-item" wx:for="{{report.hairRecommend.hairColors}}" wx:key="name">
-            <text class="hc-name"><view class="icon icon-check" style="font-size:24rpx;color:var(--success);margin-right:4rpx;"></view> {{item.name}}</text>
-            <text class="hc-detail">{{item.detail}}</text>
-          </view>
-        </view>
-      </view>
-      <view class="card" wx:if="{{report.hairRecommend.avoidHair && report.hairRecommend.avoidHair.length}}">
-        <view class="card-title danger-title">发型避雷</view>
-        <view class="avoid-list">
-          <view class="avoid-item" wx:for="{{report.hairRecommend.avoidHair}}" wx:key="name">
-            <text class="avoid-name"><view class="icon icon-close" style="font-size:24rpx;color:var(--danger);margin-right:4rpx;"></view> {{item.name}}</text>
-            <text class="avoid-reason">{{item.reason}}</text>
-          </view>
-        </view>
-      </view>
-    </view>
 
-    <!-- 板块8: 妆容指南 -->
-    <view id="section-7" class="section-block">
-      <view class="section-header">
-        <view class="section-icon icon icon-makeup" style="font-size:36rpx;"></view>
-        <text class="section-name">妆容指南</text>
-      </view>
-      <view class="card">
-        <view class="card-title">适配妆容: {{report.makeup.style}}</view>
-      </view>
-      <view class="card" wx:if="{{report.makeup.foundation}}">
-        <view class="card-title">底妆建议</view>
-        <view class="makeup-section">
-          <view class="mu-item" wx:if="{{report.makeup.foundation.tone}}">
-            <text class="mu-label">粉底色调</text>
-            <text class="mu-value">{{report.makeup.foundation.tone}}</text>
+          <view class="section-card" wx:if="{{bone.suitableHaircuts.length}}">
+            <view class="card-title">适配发型</view>
+            <view class="haircut-list">
+              <view class="haircut-item" wx:for="{{bone.suitableHaircuts}}" wx:key="name">
+                <view class="hi-main">
+                  <text class="hi-name">{{item.name}}</text>
+                  <text class="hi-score">{{item.score}}分</text>
+                </view>
+                <view class="hi-detail">
+                  <text wx:if="{{item.length}}">{{item.length}}</text>
+                  <text wx:if="{{item.bangs}}"> · 刘海: {{item.bangs}}</text>
+                </view>
+                <text class="hi-reason" wx:if="{{item.reason}}">{{item.reason}}</text>
+              </view>
+            </view>
           </view>
-          <view class="mu-item" wx:if="{{report.makeup.foundation.shade}}">
-            <text class="mu-label">色号选择</text>
-            <text class="mu-value">{{report.makeup.foundation.shade}}</text>
-          </view>
-          <view class="mu-item" wx:if="{{report.makeup.foundation.concealer}}">
-            <text class="mu-label">遮瑕重点</text>
-            <text class="mu-value">{{report.makeup.foundation.concealer}}</text>
-          </view>
-        </view>
-      </view>
-      <view class="card" wx:if="{{report.makeup.eyeBrow}}">
-        <view class="card-title">眉眼妆容</view>
-        <view class="makeup-section">
-          <view class="mu-item" wx:if="{{report.makeup.eyeBrow.shape}}">
-            <text class="mu-label">眉形</text>
-            <text class="mu-value">{{report.makeup.eyeBrow.shape}}</text>
-          </view>
-          <view class="mu-item" wx:if="{{report.makeup.eyeBrow.shadow}}">
-            <text class="mu-label">眼影色调</text>
-            <text class="mu-value">{{report.makeup.eyeBrow.shadow}}</text>
-          </view>
-          <view class="mu-item" wx:if="{{report.makeup.eyeBrow.eyeliner}}">
-            <text class="mu-label">眼线风格</text>
-            <text class="mu-value">{{report.makeup.eyeBrow.eyeliner}}</text>
-          </view>
-        </view>
-      </view>
-      <view class="card" wx:if="{{report.makeup.lipRecommend}}">
-        <view class="card-title">唇妆推荐</view>
-        <view class="makeup-section">
-          <view class="mu-item" wx:if="{{report.makeup.lipRecommend.destiny}}">
-            <text class="mu-label">本命色</text>
-            <text class="mu-value">{{report.makeup.lipRecommend.destiny}}</text>
-          </view>
-          <view class="mu-item" wx:if="{{report.makeup.lipRecommend.daily}}">
-            <text class="mu-label">日常色</text>
-            <text class="mu-value">{{report.makeup.lipRecommend.daily}}</text>
-          </view>
-        </view>
-      </view>
-      <view class="card" wx:if="{{report.makeup.avoidMakeup && report.makeup.avoidMakeup.length}}">
-        <view class="card-title danger-title">避雷妆容</view>
-        <view class="avoid-list">
-          <view class="avoid-item" wx:for="{{report.makeup.avoidMakeup}}" wx:key="*this">
-            <text class="avoid-name"><view class="icon icon-close" style="font-size:24rpx;color:var(--danger);margin-right:4rpx;"></view> {{item}}</text>
-          </view>
-        </view>
-      </view>
-    </view>
 
-    <!-- 重新诊断 -->
-    <view class="card" style="margin: 0 24rpx 32rpx">
-      <button class="btn-primary" bindtap="onReDiagnose">重新诊断</button>
-    </view>
+          <view class="section-card danger" wx:if="{{bone.avoidHaircuts.length}}">
+            <view class="card-title">避雷发型</view>
+            <view class="avoid-list">
+              <view class="avoid-item" wx:for="{{bone.avoidHaircuts}}" wx:key="name">
+                <text class="avoid-name">{{item.name}}</text>
+                <text class="avoid-reason">{{item.reason}}</text>
+              </view>
+            </view>
+          </view>
 
-    <!-- 底部留白 -->
-    <view style="height: calc(120rpx + env(safe-area-inset-bottom))"></view>
-  </scroll-view>
+          <view class="insight-card" wx:if="{{bone.keyInsight}}">
+            <text class="insight-text">{{bone.keyInsight}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </swiper-item>
+
+    <!-- 皮肤状态 -->
+    <swiper-item>
+      <scroll-view class="module-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+        <view class="module-content">
+          <view class="poster-card" wx:if="{{posters.skin}}">
+            <image class="poster-img" src="{{posters.skin}}" mode="aspectFill"></image>
+          </view>
+
+          <view class="section-card">
+            <view class="card-header">
+              <text class="card-title">肤色属性</text>
+              <text class="skin-type-badge">{{skin.skinType}}</text>
+            </view>
+            <view class="skin-scores">
+              <view class="skin-score-item">
+                <text class="ss-label">明度</text>
+                <view class="fi-bar-wrap"><view class="fi-bar" style="width: {{skin.brightness * 10}}%"></view></view>
+                <text class="ss-val">{{skin.brightness}}</text>
+              </view>
+              <view class="skin-score-item">
+                <text class="ss-label">纯度</text>
+                <view class="fi-bar-wrap"><view class="fi-bar" style="width: {{skin.purity * 10}}%"></view></view>
+                <text class="ss-val">{{skin.purity}}</text>
+              </view>
+            </view>
+            <text class="card-desc" wx:if="{{skin.overallDesc}}">{{skin.overallDesc}}</text>
+          </view>
+
+          <view class="section-card" wx:if="{{skin.problems.length}}">
+            <view class="card-title">皮肤问题</view>
+            <view class="problem-list">
+              <view class="problem-item" wx:for="{{skin.problems}}" wx:key="name">
+                <view class="pm-header">
+                  <text class="pm-name">{{item.name}}</text>
+                  <text class="pm-level {{item.level === '无' ? 'good' : ''}}">{{item.level}}</text>
+                </view>
+                <text class="pm-area" wx:if="{{item.area}}">位置: {{item.area}}</text>
+                <text class="pm-advice" wx:if="{{item.advice}}">{{item.advice}}</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="section-card">
+            <view class="card-title">四季色彩季型</view>
+            <view class="season-box">
+              <text class="season-name">{{skin.season}}</text>
+              <text class="season-detail" wx:if="{{skin.seasonDetail}}">{{skin.seasonDetail}}</text>
+            </view>
+          </view>
+
+          <view class="section-card" wx:if="{{skin.goodColors.length}}">
+            <view class="card-title">本命色盘</view>
+            <view class="color-palette">
+              <view class="color-item" wx:for="{{skin.goodColors}}" wx:key="name">
+                <view class="color-swatch" style="background: {{item.hex}}"></view>
+                <text class="color-name">{{item.name}}</text>
+                <text class="color-usage" wx:if="{{item.usage}}">{{item.usage}}</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="section-card danger" wx:if="{{skin.badColors.length}}">
+            <view class="card-title">避雷色盘</view>
+            <view class="color-palette bad">
+              <view class="color-item" wx:for="{{skin.badColors}}" wx:key="name">
+                <view class="color-swatch" style="background: {{item.hex}}"></view>
+                <text class="color-name">{{item.name}}</text>
+                <text class="color-reason">{{item.reason}}</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="section-card" wx:if="{{skin.skincareAdvice.length}}">
+            <view class="card-title">护肤建议</view>
+            <view class="tips-list">
+              <view class="tip-item" wx:for="{{skin.skincareAdvice}}" wx:key="*this">
+                <text class="tip-bullet">·</text>
+                <text class="tip-text">{{item}}</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="insight-card" wx:if="{{skin.keyInsight}}">
+            <text class="insight-text">{{skin.keyInsight}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </swiper-item>
+
+    <!-- 色彩风格 -->
+    <swiper-item>
+      <scroll-view class="module-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+        <view class="module-content">
+          <view class="poster-card" wx:if="{{posters.colorStyle}}">
+            <image class="poster-img" src="{{posters.colorStyle}}" mode="aspectFill"></image>
+          </view>
+
+          <view class="section-card">
+            <view class="card-header">
+              <text class="card-title">核心风格</text>
+              <view class="card-score-wrap">
+                <text class="card-score">{{colorStyle.mainScore}}</text>
+                <text class="card-score-max">/10</text>
+              </view>
+            </view>
+            <text class="main-style-name">{{colorStyle.mainStyle}}</text>
+            <text class="card-desc" wx:if="{{colorStyle.styleDesc}}">{{colorStyle.styleDesc}}</text>
+            <view class="sub-styles" wx:if="{{colorStyle.subStyles.length}}">
+              <view class="sub-style" wx:for="{{colorStyle.subStyles}}" wx:key="name">
+                <text class="ss-name">{{item.name}}</text>
+                <view class="fi-bar-wrap"><view class="fi-bar" style="width: {{item.score * 10}}%"></view></view>
+                <text class="ss-score">{{item.score}}</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="section-card" wx:if="{{colorStyle.styleFeatures}}">
+            <view class="card-title">风格特征</view>
+            <view class="style-features">
+              <view class="sf-item">
+                <text class="sf-label">量感</text>
+                <text class="sf-value">{{colorStyle.styleFeatures.mass}}</text>
+              </view>
+              <view class="sf-item">
+                <text class="sf-label">直曲</text>
+                <text class="sf-value">{{colorStyle.styleFeatures.curve}}</text>
+              </view>
+              <view class="sf-item">
+                <text class="sf-label">动静</text>
+                <text class="sf-value">{{colorStyle.styleFeatures.movement}}</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="section-card" wx:if="{{colorStyle.colorPalette}}">
+            <view class="card-title">色彩搭配方案</view>
+            <view class="palette-group" wx:if="{{colorStyle.colorPalette.primary.length}}">
+              <text class="pg-label">主色调</text>
+              <view class="pg-colors">
+                <text class="pg-color" wx:for="{{colorStyle.colorPalette.primary}}" wx:key="*this">{{item}}</text>
+              </view>
+            </view>
+            <view class="palette-group" wx:if="{{colorStyle.colorPalette.secondary.length}}">
+              <text class="pg-label">辅助色</text>
+              <view class="pg-colors">
+                <text class="pg-color" wx:for="{{colorStyle.colorPalette.secondary}}" wx:key="*this">{{item}}</text>
+              </view>
+            </view>
+            <view class="palette-group" wx:if="{{colorStyle.colorPalette.accent.length}}">
+              <text class="pg-label">点缀色</text>
+              <view class="pg-colors">
+                <text class="pg-color accent" wx:for="{{colorStyle.colorPalette.accent}}" wx:key="*this">{{item}}</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="section-card" wx:if="{{colorStyle.clothingAdvice}}">
+            <view class="card-title">穿搭建议</view>
+            <view class="advice-list">
+              <view class="advice-item" wx:if="{{colorStyle.clothingAdvice.silhouette}}">
+                <text class="ad-label">版型</text>
+                <text class="ad-value">{{colorStyle.clothingAdvice.silhouette}}</text>
+              </view>
+              <view class="advice-item" wx:if="{{colorStyle.clothingAdvice.material}}">
+                <text class="ad-label">材质</text>
+                <text class="ad-value">{{colorStyle.clothingAdvice.material}}</text>
+              </view>
+              <view class="advice-item" wx:if="{{colorStyle.clothingAdvice.pattern}}">
+                <text class="ad-label">图案</text>
+                <text class="ad-value">{{colorStyle.clothingAdvice.pattern}}</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="section-card" wx:if="{{colorStyle.sceneAdvice.length}}">
+            <view class="card-title">场景穿搭方案</view>
+            <view class="scene-list">
+              <view class="scene-item" wx:for="{{colorStyle.sceneAdvice}}" wx:key="scene">
+                <text class="scene-name">{{item.scene}}</text>
+                <text class="scene-desc">{{item.desc}}</text>
+                <text class="scene-key" wx:if="{{item.keyItems}}">关键单品: {{item.keyItems}}</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="section-card" wx:if="{{colorStyle.outfitItems.length}}">
+            <view class="card-title">推荐单品</view>
+            <view class="outfit-list">
+              <view class="outfit-item" wx:for="{{colorStyle.outfitItems}}" wx:key="name">
+                <view class="oi-main">
+                  <text class="oi-name">{{item.name}}</text>
+                  <text class="oi-score">{{item.score}}分</text>
+                </view>
+                <view class="oi-tags">
+                  <text class="tag small">{{item.type}}</text>
+                  <text class="tag small warm">{{item.color}}</text>
+                  <text class="tag small cool" wx:if="{{item.scene}}">{{item.scene}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+
+          <view class="insight-card" wx:if="{{colorStyle.keyInsight}}">
+            <text class="insight-text">{{colorStyle.keyInsight}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </swiper-item>
+
+    <!-- 穿搭风格 -->
+    <swiper-item>
+      <scroll-view class="module-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+        <view class="module-content">
+          <view class="poster-card" wx:if="{{posters.outfit}}">
+            <image class="poster-img" src="{{posters.outfit}}" mode="aspectFill"></image>
+          </view>
+
+          <!-- 发型推荐 -->
+          <view class="section-card" wx:if="{{outfit.hairRecommend.top3.length}}">
+            <view class="card-title">TOP 推荐发型</view>
+            <view class="top-hair-list">
+              <view class="top-hair-item" wx:for="{{outfit.hairRecommend.top3}}" wx:key="name" wx:for-index="idx">
+                <view class="th-rank">{{idx + 1}}</view>
+                <view class="th-info">
+                  <view class="th-header">
+                    <text class="th-name">{{item.name}}</text>
+                    <text class="th-score">{{item.score}}分</text>
+                  </view>
+                  <text class="th-detail" wx:if="{{item.length}}">长度: {{item.length}}</text>
+                  <text class="th-detail" wx:if="{{item.bangs}}">刘海: {{item.bangs}}</text>
+                  <text class="th-detail" wx:if="{{item.care}}">打理: {{item.care}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+
+          <view class="section-card" wx:if="{{outfit.hairRecommend.avoidHair.length}}">
+            <view class="card-title danger">发型避雷</view>
+            <view class="avoid-list">
+              <view class="avoid-item" wx:for="{{outfit.hairRecommend.avoidHair}}" wx:key="name">
+                <text class="avoid-name">{{item.name}}</text>
+                <text class="avoid-reason">{{item.reason}}</text>
+              </view>
+            </view>
+          </view>
+
+          <!-- 妆容 -->
+          <view class="section-card" wx:if="{{outfit.makeup.style}}">
+            <view class="card-title">适配妆容: {{outfit.makeup.style}}</view>
+            <view class="makeup-grid">
+              <view class="mu-section" wx:if="{{outfit.makeup.foundation.tone}}">
+                <text class="mu-label">底妆</text>
+                <text class="mu-value">{{outfit.makeup.foundation.tone}}</text>
+                <text class="mu-value" wx:if="{{outfit.makeup.foundation.concealer}}">遮瑕: {{outfit.makeup.foundation.concealer}}</text>
+              </view>
+              <view class="mu-section" wx:if="{{outfit.makeup.eyeBrow.shape}}">
+                <text class="mu-label">眉眼</text>
+                <text class="mu-value">{{outfit.makeup.eyeBrow.shape}}</text>
+                <text class="mu-value" wx:if="{{outfit.makeup.eyeBrow.shadow}}">{{outfit.makeup.eyeBrow.shadow}}</text>
+              </view>
+              <view class="mu-section" wx:if="{{outfit.makeup.lipRecommend.destiny}}">
+                <text class="mu-label">唇妆</text>
+                <text class="mu-value">本命: {{outfit.makeup.lipRecommend.destiny}}</text>
+                <text class="mu-value" wx:if="{{outfit.makeup.lipRecommend.daily}}">日常: {{outfit.makeup.lipRecommend.daily}}</text>
+              </view>
+            </view>
+          </view>
+
+          <!-- 身形 -->
+          <view class="section-card" wx:if="{{outfit.bodyShape.shoulderType}}">
+            <view class="card-title">身形适配</view>
+            <view class="body-result">
+              <view class="body-attr">
+                <text class="ba-label">肩型</text>
+                <text class="ba-value">{{outfit.bodyShape.shoulderType}}</text>
+              </view>
+              <view class="body-attr">
+                <text class="ba-label">身形比例</text>
+                <text class="ba-value">{{outfit.bodyShape.bodyRatio}}</text>
+              </view>
+            </view>
+          </view>
+
+          <!-- 总结 -->
+          <view class="section-card" wx:if="{{outfit.summary.coreConclusion}}">
+            <view class="card-title">行动建议</view>
+            <text class="summary-text">{{outfit.summary.coreConclusion}}</text>
+            <text class="priority-text" wx:if="{{outfit.summary.priorityAdvice}}">{{outfit.summary.priorityAdvice}}</text>
+            <view class="tips-list" wx:if="{{outfit.summary.dailyTips.length}}">
+              <view class="tip-item" wx:for="{{outfit.summary.dailyTips}}" wx:key="*this">
+                <text class="tip-bullet">·</text>
+                <text class="tip-text">{{item}}</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="insight-card" wx:if="{{outfit.keyInsight}}">
+            <text class="insight-text">{{outfit.keyInsight}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </swiper-item>
+  </swiper>
 
   <!-- 底部分享栏 -->
   <view class="share-bar safe-bottom">
     <button class="share-btn" open-type="share">
-      <view class="share-icon icon icon-link" style="font-size:36rpx;"></view>
+      <text class="share-icon">↗</text>
       <text>分享</text>
     </button>
+    <button class="rediagnose-btn" bindtap="onReDiagnose">重新诊断</button>
   </view>
 </view>
