@@ -35,9 +35,29 @@
     </view>
   </view>
 
+  <!-- 功能简介（紧跟品牌区） -->
+  <view class="feature-intro" wx:if="{{!hasReport}}">
+    <view class="feature-steps">
+      <view class="step">
+        <view class="step-icon icon icon-camera"></view>
+        <text class="step-text">拍照上传</text>
+      </view>
+      <view class="step-arrow">→</view>
+      <view class="step">
+        <view class="step-icon icon icon-ai"></view>
+        <text class="step-text">AI 分析</text>
+      </view>
+      <view class="step-arrow">→</view>
+      <view class="step">
+        <view class="step-icon icon icon-clipboard"></view>
+        <text class="step-text">生成报告</text>
+      </view>
+    </view>
+  </view>
+
   <!-- 核心入口 -->
   <view class="action-area">
-    <!-- 未诊断：形象诊断为主按钮，穿搭决策为次入口 -->
+    <!-- 未诊断：形象诊断为主按钮 -->
     <block wx:if="{{!hasReport}}">
       <view class="diagnose-btn btn-primary" bindtap="onStartDiagnose">
         <view class="btn-icon icon icon-camera"></view>
@@ -47,7 +67,7 @@
         </view>
       </view>
     </block>
-    <!-- 已诊断：穿搭决策为主按钮，形象诊断为次入口 -->
+    <!-- 已诊断：穿搭决策为主按钮 -->
     <block wx:else>
       <view class="diagnose-btn btn-primary" bindtap="onGoOutfit">
         <view class="btn-icon icon icon-dress"></view>
@@ -76,27 +96,7 @@
     </view>
   </view>
 
-  <!-- 功能简介 -->
-  <view class="feature-intro" wx:if="{{!hasReport}}">
-    <view class="feature-steps">
-      <view class="step">
-        <view class="step-icon icon icon-camera"></view>
-        <text class="step-text">拍照上传</text>
-      </view>
-      <view class="step-arrow">→</view>
-      <view class="step">
-        <view class="step-icon icon icon-ai"></view>
-        <text class="step-text">AI 分析</text>
-      </view>
-      <view class="step-arrow">→</view>
-      <view class="step">
-        <view class="step-icon icon icon-clipboard"></view>
-        <text class="step-text">生成报告</text>
-      </view>
-    </view>
-  </view>
-
-  <!-- 未诊断：穿搭决策为次入口 -->
+  <!-- 未诊断：穿搭决策次入口 -->
   <view class="outfit-entry" wx:if="{{!hasReport}}" bindtap="onGoOutfit">
     <view class="outfit-entry-left">
       <view class="outfit-entry-icon icon icon-dress"></view>

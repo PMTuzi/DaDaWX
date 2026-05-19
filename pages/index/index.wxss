@@ -13,7 +13,7 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 40rpx 32rpx 20rpx;
+  padding: 40rpx 32rpx 8rpx;
   background: #FAFAF5;
 }
 
@@ -174,7 +174,7 @@
 .action-area {
   flex-shrink: 0;
   padding: 0 32rpx;
-  margin-top: 8rpx;
+  margin-top: 38rpx;
   position: relative;
   z-index: 10;
 }
@@ -214,7 +214,7 @@
 
 /* 实时动态轮播 */
 .live-ticker {
-  margin-top: 20rpx;
+  margin-top: 16rpx;
   height: 48rpx;
   overflow: hidden;
   border-radius: 24rpx;
@@ -238,7 +238,7 @@
 /* 功能简介 */
 .feature-intro {
   flex-shrink: 0;
-  padding: 40rpx 32rpx 0;
+  padding: 50rpx 32rpx 0;
 }
 
 .feature-steps {
@@ -284,7 +284,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 32rpx 32rpx 40rpx;
+  margin: 2rpx 32rpx 24rpx;
   padding: 32rpx;
   background: #fff;
   border-radius: 24rpx;
@@ -334,7 +334,7 @@
 /* Banner广告 */
 .banner-ad {
   flex-shrink: 0;
-  margin: 24rpx 32rpx 40rpx;
+  margin: 24rpx 32rpx 20rpx;
   border-radius: 20rpx;
   overflow: hidden;
   box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.04);
