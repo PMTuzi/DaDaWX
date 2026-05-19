@@ -196,6 +196,9 @@
   <!-- 底部操作 -->
   <view class="bottom-actions safe-bottom">
     <button class="btn-outline action-btn" bindtap="onConsultAgain">再次咨询</button>
-    <button class="btn-primary action-btn" bindtap="onBackHome">返回首页</button>
+    <button class="btn-primary action-btn share-action-btn" open-type="share">
+      <text class="share-action-icon">↗</text>
+      <text>分享给好友</text>
+    </button>
   </view>
 </view>

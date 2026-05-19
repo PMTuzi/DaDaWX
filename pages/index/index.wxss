@@ -152,9 +152,9 @@
   gap: 16rpx;
 }
 
-.summary-advantage {
+.summary-conclusion {
   font-size: 22rpx;
-  color: #999;
+  color: #8B7355;
   line-height: 1.5;
   flex: 1;
   display: -webkit-box;

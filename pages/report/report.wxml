@@ -20,12 +20,17 @@
 
   <!-- 综合评分头部 -->
   <view class="report-header">
-    <view class="score-display">
-      <text class="score-number">{{report.basic.overallScore}}</text>
-      <text class="score-max">/10</text>
+    <view class="user-avatar" wx:if="{{report.photoUrl}}">
+      <image class="avatar-img" src="{{report.photoUrl}}" mode="aspectFill" />
     </view>
-    <view class="score-tags">
-      <text class="tag" wx:for="{{report.basic.tags}}" wx:key="*this">{{item}}</text>
+    <view class="header-right">
+      <view class="score-display">
+      <text class="score-number">{{report.basic.overallScore}}</text>
+      <text class="score-unit">分</text>
+      </view>
+      <view class="score-tags">
+        <text class="tag" wx:for="{{report.basic.tags}}" wx:key="*this">{{item}}</text>
+      </view>
     </view>
   </view>
 

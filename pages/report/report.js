@@ -137,9 +137,12 @@ Page({
     if (!this.data.shared) {
       this.setData({ shared: true })
     }
+    const report = this.data.report
+    const score = report?.basic?.overallScore || ''
     return {
-      title: '我的AI形象诊断报告',
-      path: '/pages/index/index'
+      title: score ? `我的形象风格AI评分为： ${score}分，快来测测你的风格！` : '我的形象风格AI评分为： ${score}分，快来测测你的风格！',
+      path: '/pages/index/index',
+      imageUrl: '/images/finalbanner2.jpg'
     }
   }
 })

@@ -198,9 +198,11 @@ Page({
 
   onShareAppMessage() {
     const record = this.data.record
+    const score = record?.totalScore || ''
     return {
-      title: record ? `${record.verdict} - 搭搭AI穿搭决策` : '搭搭AI穿搭决策',
-      path: '/pages/outfit/outfit'
+      title: score ? `穿搭评分 ${score}分 - AI帮你不踩雷` : 'AI穿搭决策 - 帮你不踩雷',
+      path: '/pages/outfit/outfit',
+      imageUrl: '/images/finalbanner2.jpg'
     }
   }
 })

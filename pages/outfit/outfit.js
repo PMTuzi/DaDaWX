@@ -53,5 +53,13 @@ Page({
 
   onGoDiagnose() {
     wx.navigateTo({ url: '/pages/diagnose/diagnose' })
+  },
+
+  onShareAppMessage() {
+    return {
+      title: 'AI穿搭决策 - 帮你不踩雷',
+      path: '/pages/outfit/outfit',
+      imageUrl: '/images/finalbanner2.jpg'
+    }
   }
 })

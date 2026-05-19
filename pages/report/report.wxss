@@ -61,6 +61,29 @@
   padding: 32rpx 40rpx;
   background: #fff;
   border-bottom: 1rpx solid #f0f0f0;
+  gap: 28rpx;
+}
+
+.user-avatar {
+  width: 108rpx;
+  height: 108rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 4rpx solid #F0EBE5;
+  box-shadow: 0 4rpx 16rpx rgba(200, 169, 126, 0.15);
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+}
+
+.header-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
 }
 
 .score-display {
@@ -76,10 +99,11 @@
   line-height: 1;
 }
 
-.score-max {
-  font-size: 28rpx;
-  color: #ccc;
+.score-unit {
+  font-size: 24rpx;
+  color: #999;
   margin-left: 4rpx;
+  font-weight: 500;
 }
 
 .score-tags {
