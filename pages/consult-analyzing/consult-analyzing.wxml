@@ -1,32 +1,39 @@
 <!--pages/consult-analyzing/consult-analyzing.wxml-->
 <view class="page-analyzing">
-  <!-- 进度环 -->
-  <view class="progress-ring">
-    <view class="ring-container">
-      <view class="ring-bg"></view>
-      <view class="ring-progress" style="background: conic-gradient(var(--accent) {{progress * 3.6}}deg, #eee {{progress * 3.6}}deg)"></view>
-      <view class="ring-inner">
-        <text class="ring-num">{{progress}}</text>
-        <text class="ring-unit">%</text>
+  <!-- 动画区域 -->
+  <view class="animation-area">
+    <view class="scan-circle">
+      <view class="scan-ring ring-1"></view>
+      <view class="scan-ring ring-2"></view>
+      <view class="scan-ring ring-3"></view>
+      <view class="scan-center">
+        <text class="scan-percent">{{progress}}%</text>
       </view>
     </view>
+  </view>
+
+  <!-- 进度条 -->
+  <view class="progress-bar">
+    <view class="progress-inner" style="width: {{progress}}%"></view>
   </view>
 
   <!-- 步骤列表 -->
-  <view class="steps-list">
-    <view class="step-item {{index <= currentStep ? 'active' : ''}} {{index < currentStep ? 'done' : ''}}"
+  <view class="steps-area">
+    <view class="step-item {{index < currentStep ? 'done' : ''}} {{index === currentStep ? 'active' : ''}}"
       wx:for="{{steps}}" wx:key="index">
-      <view class="step-dot">
-        <view class="icon icon-checkmark" wx:if="{{index < currentStep}}" style="font-size:24rpx;"></view>
-        <view class="icon icon-{{item.icon}}" wx:else style="font-size:24rpx;"></view>
+      <view class="step-icon-wrap">
+        <view class="step-icon icon icon-checkmark" wx:if="{{index < currentStep}}"></view>
+        <view class="step-icon icon icon-{{item.icon}}" wx:elif="{{index === currentStep}}"></view>
+        <text class="step-icon" wx:else>○</text>
       </view>
-      <view class="step-label">{{item.label}}</view>
+      <text class="step-label">{{item.label}}</text>
+      <text class="step-status" wx:if="{{index < currentStep}}">完成</text>
+      <text class="step-status active" wx:elif="{{index === currentStep}}">分析中...</text>
     </view>
   </view>
 
-  <!-- 提示文案 -->
-  <view class="analyzing-tip">
-    <text class="tip-text">AI正在深度分析中，请稍候...</text>
-    <text class="tip-sub">通常需要30-60秒</text>
+  <!-- 提示文字 -->
+  <view class="tip-area">
+    <text class="tip-text">AI 正在进行深度穿搭特征提取与多维度分析，请耐心等待...</text>
   </view>
 </view>

@@ -75,7 +75,7 @@ Page({
 
   onShareAppMessage() {
     return {
-      title: '搭搭AI - 你的「反种草」形象诊断师',
+      title: '美哒AI - 你的「反种草」形象诊断师',
       path: '/pages/index/index',
       imageUrl: '/images/finalbanner1.jpg'
     }

@@ -1,143 +1,155 @@
 /* pages/consult-analyzing/consult-analyzing.wxss */
 .page-analyzing {
   min-height: 100vh;
-  background: linear-gradient(180deg, #1a1a2e 0%, #2d2d4a 100%);
+  background: #FAFAF5;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 60rpx 32rpx;
+  padding: 80rpx 32rpx;
 }
 
-/* 进度环 */
-.progress-ring {
+.animation-area {
+  margin-bottom: 48rpx;
+}
+
+.scan-circle {
+  position: relative;
+  width: 280rpx;
+  height: 280rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scan-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2rpx solid rgba(200, 169, 126, 0.3);
+}
+
+.ring-1 {
+  width: 100%;
+  height: 100%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.ring-2 {
+  width: 80%;
+  height: 80%;
+  animation: pulse 2s ease-in-out infinite 0.5s;
+  border-color: rgba(200, 169, 126, 0.5);
+}
+
+.ring-3 {
+  width: 60%;
+  height: 60%;
+  animation: pulse 2s ease-in-out infinite 1s;
+  border-color: rgba(200, 169, 126, 0.7);
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.5; }
+}
+
+.scan-center {
+  position: relative;
+  z-index: 1;
+  width: 120rpx;
+  height: 120rpx;
+  background: rgba(200, 169, 126, 0.15);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scan-percent {
+  font-size: 40rpx;
+  font-weight: 800;
+  color: #C8A97E;
+}
+
+.progress-bar {
+  width: 80%;
+  height: 8rpx;
+  background: #F0EBE5;
+  border-radius: 4rpx;
+  overflow: hidden;
   margin-bottom: 60rpx;
 }
 
-.ring-container {
-  position: relative;
-  width: 240rpx;
-  height: 240rpx;
-}
-
-.ring-bg {
-  position: absolute;
-  width: 100%;
+.progress-inner {
   height: 100%;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.08);
+  background: linear-gradient(90deg, #C8A97E, #B8966E);
+  border-radius: 4rpx;
+  transition: width 0.3s ease;
 }
 
-.ring-progress {
-  position: absolute;
+.steps-area {
   width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  transition: background 0.3s;
-}
-
-.ring-inner {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 180rpx;
-  height: 180rpx;
-  border-radius: 50%;
-  background: #1a1a2e;
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 4rpx;
-  padding-top: 8rpx;
-}
-
-.ring-num {
-  font-size: 64rpx;
-  font-weight: 800;
-  color: #e8a87c;
-}
-
-.ring-unit {
-  font-size: 24rpx;
-  color: #999;
-}
-
-/* 步骤列表 */
-.steps-list {
-  width: 100%;
-  max-width: 500rpx;
-  margin-bottom: 48rpx;
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  margin-bottom: 40rpx;
+  border: 1rpx solid #F0EBE5;
 }
 
 .step-item {
   display: flex;
   align-items: center;
-  gap: 20rpx;
   padding: 16rpx 0;
   opacity: 0.4;
-  transition: all 0.3s;
 }
 
-.step-item.active {
+.step-item.active,
+.step-item.done {
   opacity: 1;
 }
 
-.step-item.done {
-  opacity: 0.7;
-}
-
-.step-dot {
-  width: 56rpx;
-  height: 56rpx;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.1);
+.step-icon-wrap {
+  width: 48rpx;
+  height: 48rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24rpx;
+  margin-right: 20rpx;
   flex-shrink: 0;
-  transition: all 0.3s;
 }
 
-.step-item.active .step-dot {
-  background: rgba(232, 168, 124, 0.2);
-  border: 2rpx solid #e8a87c;
-  color: #e8a87c;
+.step-icon {
+  font-size: 28rpx;
+  color: #C8A97E;
 }
 
-.step-item.done .step-dot {
-  background: rgba(39, 174, 96, 0.2);
+.step-item.done .step-icon {
   color: #27ae60;
 }
 
 .step-label {
+  flex: 1;
   font-size: 28rpx;
-  color: rgba(255,255,255,0.8);
+  color: #333333;
 }
 
-.step-item.active .step-label {
-  color: #e8a87c;
-  font-weight: 600;
+.step-status {
+  font-size: 24rpx;
+  color: #999999;
 }
 
-.step-item.done .step-label {
-  color: rgba(255,255,255,0.5);
+.step-status.active {
+  color: #C8A97E;
 }
 
-/* 提示 */
-.analyzing-tip {
+.step-item.done .step-status {
+  color: #27ae60;
+}
+
+.tip-area {
   text-align: center;
 }
 
 .tip-text {
-  display: block;
-  font-size: 28rpx;
-  color: rgba(255,255,255,0.6);
-  margin-bottom: 8rpx;
-}
-
-.tip-sub {
   font-size: 24rpx;
-  color: rgba(255,255,255,0.3);
+  color: #999999;
 }
