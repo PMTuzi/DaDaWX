@@ -23,22 +23,45 @@ const API = {
   // 图片上传
   upload: '/api/upload',
   uploadBase64: '/api/upload-base64',
-  // 报告列表
+  // 报告
   getReportList: '/api/report/list',
-  // 收藏/取消收藏
+  getReportLatest: '/api/report/latest',
+  saveReport: '/api/report/save',
+  deleteReport: '/api/report/:id',
+  // 收藏
   toggleFavorite: '/api/favorite/toggle',
-  // 收藏列表
   getFavorites: '/api/favorite/list',
-  // 用户登录
+  // 用户
   login: '/api/user/login',
+  getProfile: '/api/user/profile',
+  updateProfile: '/api/user/profile',
   // 穿搭咨询
   analyzeClothingVision: '/api/consult/analyze-clothing-vision',
   generateSingleConsult: '/api/consult/generate-single-consult',
   generateCompareConsult: '/api/consult/generate-compare-consult',
   detectCategory: '/api/consult/detect-category',
+  getConsultList: '/api/consult/list',
 }
 
-// HTTP 请求封装
+// 登录重试锁
+let _loginPromise = null
+
+/**
+ * 确保已登录（自动静默登录）
+ */
+async function ensureLogin() {
+  const token = wx.getStorageSync('token')
+  if (token) return token
+
+  if (_loginPromise) return _loginPromise
+
+  _loginPromise = wxLogin().finally(() => {
+    _loginPromise = null
+  })
+  return _loginPromise
+}
+
+// HTTP 请求封装（带401自动重登）
 function request(url, options = {}) {
   return new Promise((resolve, reject) => {
     const token = wx.getStorageSync('token')
@@ -56,8 +79,18 @@ function request(url, options = {}) {
         if (res.statusCode === 200) {
           resolve(res.data)
         } else if (res.statusCode === 401) {
+          // Token 过期，自动重新登录后重试一次
           wx.removeStorageSync('token')
-          reject({ code: 401, message: '请重新登录' })
+          if (options._retried) {
+            // 已经重试过，不再重登
+            reject({ code: 401, message: '请重新登录' })
+          } else {
+            ensureLogin().then(() => {
+              request(url, { ...options, _retried: true }).then(resolve).catch(reject)
+            }).catch(() => {
+              reject({ code: 401, message: '登录失败，请重试' })
+            })
+          }
         } else {
           reject(res.data || { code: res.statusCode, message: `请求失败(${res.statusCode})` })
         }
@@ -205,17 +238,48 @@ function wxLogin() {
     wx.login({
       success(res) {
         if (res.code) {
-          request(API.login, { method: 'POST', data: { code: res.code } }).then(data => {
-            if (data.code === 0) {
-              wx.setStorageSync('token', data.data.token)
-              wx.setStorageSync('userInfo', data.data.userInfo)
-              resolve(data.data)
-            } else { reject(data) }
-          }).catch(reject)
+          // 登录接口不带 token
+          wx.request({
+            url: currentConfig.baseUrl + API.login,
+            method: 'POST',
+            data: { code: res.code },
+            header: { 'Content-Type': 'application/json' },
+            timeout: 10000,
+            success(loginRes) {
+              if (loginRes.statusCode === 200 && loginRes.data.code === 0) {
+                wx.setStorageSync('token', loginRes.data.data.token)
+                wx.setStorageSync('userInfo', loginRes.data.data.userInfo)
+                resolve(loginRes.data.data)
+              } else {
+                reject({ code: -1, message: loginRes.data?.message || '登录失败' })
+              }
+            },
+            fail(err) {
+              reject({ code: -1, message: err.errMsg || '登录请求失败' })
+            }
+          })
         } else { reject(new Error('微信登录失败')) }
       },
       fail: reject
     })
+  })
+}
+
+// 运行诊断（封装完整流程）
+async function runDiagnosis(imageUrl, imageBase64, photoType, gender, options = {}) {
+  return request(API.fullAnalysis, {
+    method: 'POST',
+    data: {
+      imageUrl,
+      imageBase64,
+      photoType,
+      gender,
+      age: options.age,
+      height: options.height,
+      weight: options.weight,
+      photoUrl: options.photoUrl || imageUrl
+    },
+    timeout: 300000
   })
 }
 
@@ -227,5 +291,7 @@ module.exports = {
   uploadImageViaBase64,
   imageToBase64,
   uploadToOss,
-  wxLogin
+  wxLogin,
+  ensureLogin,
+  runDiagnosis
 }

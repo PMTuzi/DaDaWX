@@ -1,9 +1,12 @@
 // AI 诊断路由（新架构：2次VL + 4次Seedream）
 const express = require('express')
 const router = express.Router()
+const { authRequired } = require('../middleware/auth')
 const { analyzePart1, analyzePart2, generateAllImages } = require('../services/qwen')
 const { detectFaceLandmarks } = require('../services/face-detect')
 const { analyzeFaceVisual } = require('../services/face-visual')
+const reportStore = require('../store/report-store')
+const userStore = require('../store/user-store')
 
 /**
  * 完整分析流程
@@ -15,10 +18,11 @@ const { analyzeFaceVisual } = require('../services/face-visual')
  * 2. 4次Seedream图片生成（并行）
  * 3. 返回全部数据+图片URL
  */
-router.post('/full-analysis', async (req, res) => {
+router.post('/full-analysis', authRequired, async (req, res) => {
   const t0 = Date.now()
   try {
-    const { imageUrl, imageBase64, photoType, gender, age, height, weight } = req.body
+    const { imageUrl, imageBase64, photoType, gender, age, height, weight, photoUrl } = req.body
+    const openid = req.user.openid
     let imageInput = imageBase64 || null
 
     // 准备图片数据
@@ -41,11 +45,9 @@ router.post('/full-analysis', async (req, res) => {
 
     if (!imageInput) return res.status(400).json({ code: -1, message: '缺少图片数据' })
 
-    console.log(`[AI] 开始完整分析, 类型: ${photoType}, 性别: ${gender}, 年龄: ${age || '未填'}${height ? ', 身高: ' + height + 'cm' : ''}${weight ? ', 体重: ' + weight + 'kg' : ''}`)
+    console.log(`[AI] 用户${openid.substring(0, 8)}... 开始完整分析, 类型: ${photoType}, 性别: ${gender}`)
 
     // ==================== 阶段1: VL分析 ====================
-    // Part1 + 人脸检测并行
-    console.log('[AI] 阶段1: VL分析 + 人脸检测...')
     const [part1Data, faceData, visualData] = await Promise.all([
       analyzePart1(imageInput, photoType, gender, { age, height, weight }).catch(err => {
         console.warn('[AI] VL Part1失败:', err.message)
@@ -132,6 +134,7 @@ router.post('/full-analysis', async (req, res) => {
         optimize: part2Data.module4_optimize
       },
       images,
+      photoUrl: photoUrl || '',
       faceData: faceData ? {
         faceType: faceData.faceType,
         landmarks: faceData.landmarks,
@@ -149,11 +152,12 @@ router.post('/full-analysis', async (req, res) => {
   }
 })
 
-// ============ 穿搭咨询路由（保留不变） ============
+// ============ 穿搭咨询路由 ============
 
 const { analyzeClothingVision, generateSingleConsult, generateCompareConsult, detectCategory } = require('../services/qwen')
+const consultStore = require('../store/consult-store')
 
-router.post('/consult/analyze-clothing-vision', async (req, res) => {
+router.post('/consult/analyze-clothing-vision', authRequired, async (req, res) => {
   try {
     const { images, consultType } = req.body
     if (!images || !images.length) return res.status(400).json({ code: -1, message: '缺少图片' })
@@ -164,7 +168,7 @@ router.post('/consult/analyze-clothing-vision', async (req, res) => {
   }
 })
 
-router.post('/consult/generate-single-consult', async (req, res) => {
+router.post('/consult/generate-single-consult', authRequired, async (req, res) => {
   try {
     const { visualFeatures, userInfo, isRetry } = req.body
     const data = await generateSingleConsult(visualFeatures, userInfo, isRetry)
@@ -174,7 +178,7 @@ router.post('/consult/generate-single-consult', async (req, res) => {
   }
 })
 
-router.post('/consult/generate-compare-consult', async (req, res) => {
+router.post('/consult/generate-compare-consult', authRequired, async (req, res) => {
   try {
     const { visualFeatures, userInfo, isRetry } = req.body
     const data = await generateCompareConsult(visualFeatures, userInfo, isRetry)
@@ -184,7 +188,7 @@ router.post('/consult/generate-compare-consult', async (req, res) => {
   }
 })
 
-router.post('/consult/detect-category', async (req, res) => {
+router.post('/consult/detect-category', authRequired, async (req, res) => {
   try {
     const { images } = req.body
     if (!images || !images.length) return res.status(400).json({ code: -1, message: '缺少图片' })
@@ -195,7 +199,7 @@ router.post('/consult/detect-category', async (req, res) => {
   }
 })
 
-// 图片上传
+// 图片上传（不需要鉴权，但会记录用户）
 const multer = require('multer')
 const path = require('path')
 const fs = require('fs')

@@ -1,57 +1,104 @@
 // 报告路由
 const express = require('express')
 const router = express.Router()
-
-// 内存存储（生产环境使用数据库）
-let reports = []
+const { authRequired } = require('../middleware/auth')
+const reportStore = require('../store/report-store')
+const userStore = require('../store/user-store')
 
 /**
- * 获取报告详情
- * GET /api/report/:id
+ * 保存报告
+ * POST /api/report/save
  */
-router.get('/:id', (req, res) => {
-  const report = reports.find(r => r.id === req.params.id)
-  if (!report) {
-    return res.status(404).json({ code: -1, message: '报告不存在' })
+router.post('/save', authRequired, (req, res) => {
+  try {
+    const report = req.body
+    const openid = req.user.openid
+    const saved = reportStore.saveReport(openid, report)
+    userStore.incrementReportCount(openid)
+    res.json({ code: 0, data: { id: saved.id } })
+  } catch (err) {
+    console.error('[报告] 保存失败:', err.message)
+    res.status(500).json({ code: -1, message: '保存失败' })
   }
-  res.json({ code: 0, data: report })
 })
 
 /**
  * 获取报告列表
  * GET /api/report/list
  */
-router.get('/list/all', (req, res) => {
-  const list = reports.map(r => ({
-    id: r.id,
-    createTime: r.createTime,
-    overallScore: r.basic?.overallScore,
-    tags: r.basic?.tags
-  }))
-  res.json({ code: 0, data: list })
+router.get('/list', authRequired, (req, res) => {
+  try {
+    const list = reportStore.getReportList(req.user.openid)
+    res.json({ code: 0, data: list })
+  } catch (err) {
+    console.error('[报告] 获取列表失败:', err.message)
+    res.status(500).json({ code: -1, message: '获取失败' })
+  }
 })
 
 /**
- * 保存报告
- * POST /api/report/save
+ * 获取所有报告（兼容旧接口）
+ * GET /api/report/list/all
  */
-router.post('/save', (req, res) => {
-  const report = req.body
-  report.id = report.id || 'R' + Date.now()
-  report.createTime = report.createTime || new Date().toISOString()
-  reports.unshift(report)
-  // 最多保留50份
-  if (reports.length > 50) reports = reports.slice(0, 50)
-  res.json({ code: 0, data: { id: report.id } })
+router.get('/list/all', authRequired, (req, res) => {
+  try {
+    const list = reportStore.getReportList(req.user.openid)
+    res.json({ code: 0, data: list })
+  } catch (err) {
+    console.error('[报告] 获取列表失败:', err.message)
+    res.status(500).json({ code: -1, message: '获取失败' })
+  }
+})
+
+/**
+ * 获取最新报告
+ * GET /api/report/latest
+ */
+router.get('/latest', authRequired, (req, res) => {
+  try {
+    const report = reportStore.getLatestReport(req.user.openid)
+    if (!report) {
+      return res.json({ code: 0, data: null })
+    }
+    res.json({ code: 0, data: report })
+  } catch (err) {
+    console.error('[报告] 获取最新失败:', err.message)
+    res.status(500).json({ code: -1, message: '获取失败' })
+  }
+})
+
+/**
+ * 获取报告详情
+ * GET /api/report/:id
+ */
+router.get('/:id', authRequired, (req, res) => {
+  try {
+    const report = reportStore.getReport(req.user.openid, req.params.id)
+    if (!report) {
+      return res.status(404).json({ code: -1, message: '报告不存在' })
+    }
+    res.json({ code: 0, data: report })
+  } catch (err) {
+    console.error('[报告] 获取详情失败:', err.message)
+    res.status(500).json({ code: -1, message: '获取失败' })
+  }
 })
 
 /**
  * 删除报告
  * DELETE /api/report/:id
  */
-router.delete('/:id', (req, res) => {
-  reports = reports.filter(r => r.id !== req.params.id)
-  res.json({ code: 0, message: '已删除' })
+router.delete('/:id', authRequired, (req, res) => {
+  try {
+    const deleted = reportStore.deleteReport(req.user.openid, req.params.id)
+    if (!deleted) {
+      return res.status(404).json({ code: -1, message: '报告不存在' })
+    }
+    res.json({ code: 0, message: '已删除' })
+  } catch (err) {
+    console.error('[报告] 删除失败:', err.message)
+    res.status(500).json({ code: -1, message: '删除失败' })
+  }
 })
 
 module.exports = router

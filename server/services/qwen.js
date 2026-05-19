@@ -313,7 +313,7 @@ ${JSON.stringify(part1Data, null, 2)}
 // Seedream 图片生成（4次并行）
 // ============================================================
 
-async function callSeedream(prompt, size = '1024x1792') {
+async function callSeedream(prompt, size = '1920x1920') {
   if (!VOLCENGINE_API_KEY) throw new Error('未配置VOLCENGINE_API_KEY')
 
   const response = await axios.post(
