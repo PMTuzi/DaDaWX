@@ -15,8 +15,9 @@ const PORT = process.env.PORT || 3000
 const JWT_SECRET = process.env.JWT_SECRET || 'dada_jwt_secret_2026'
 const isProd = process.env.NODE_ENV === 'production'
 
-// 云托管位于反向代理之后，需要信任 X-Forwarded-* 才能拿到 https 协议和真实 host
-app.set('trust proxy', true)
+// 云托管位于反向代理之后，信任 1 跳代理（云托管网关），让 X-Forwarded-Proto 生效
+// 用 1 而非 true，避免 express-rate-limit v8 因"过度信任"抛 ValidationError 导致 500
+app.set('trust proxy', 1)
 
 // ===== 安全中间件 =====
 // 开发环境禁用 helmet（微信开发者工具模拟器不兼容某些安全头）
