@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@cloudbase/node-sdk": "^3.18.1",
+    "ali-oss": "^6.20.0",
     "axios": "^1.6.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",

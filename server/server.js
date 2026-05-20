@@ -92,9 +92,11 @@ if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true })
 const DATA_DIR = path.join(__dirname, 'data')
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true })
 
-// 上传目录静态托管：返回的图片 URL 直接走云托管公网域名供前端/AI 访问
-// 注意：云托管容器为临时文件系统，重启后图片会丢失（够展示即可）
+// 上传目录静态托管：OSS 配置缺失时降级使用，云托管容器为临时文件系统重启会丢失
 app.use('/uploads', express.static(UPLOAD_DIR, { maxAge: '7d' }))
+
+// OSS 工具
+const oss = require('./utils/oss')
 
 // 文件上传（multer 错误处理）
 const storage = multer.diskStorage({
@@ -115,9 +117,9 @@ const upload = multer({
   }
 })
 
-// 上传路由（带限流，仅写本地，返回 HTTPS 公网 URL）
+// 上传路由：优先 OSS，失败/未配置降级本地静态
 app.post('/api/upload', uploadLimiter, (req, res, next) => {
-  upload.single('image')(req, res, (err) => {
+  upload.single('image')(req, res, async (err) => {
     if (err) {
       if (err.code === 'LIMIT_FILE_SIZE') {
         return res.status(400).json({ code: -1, message: '图片不能超过10MB' })
@@ -127,27 +129,44 @@ app.post('/api/upload', uploadLimiter, (req, res, next) => {
     if (!req.file) {
       return res.status(400).json({ code: -1, message: '未收到文件' })
     }
+    try {
+      if (oss.isConfigured()) {
+        const buffer = fs.readFileSync(req.file.path)
+        const { url } = await oss.uploadBuffer(req.file.filename, buffer)
+        try { fs.unlinkSync(req.file.path) } catch (e) {}
+        return res.json({ code: 0, data: { url, filename: req.file.filename } })
+      }
+    } catch (ossErr) {
+      console.warn('[upload] OSS 上传失败，降级本地:', ossErr.message)
+    }
     const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
     res.json({ code: 0, data: { url: fileUrl, filename: req.file.filename } })
   })
 })
 
-// Base64 上传（带限流 + 大小校验，仅写本地）
-app.post('/api/upload-base64', uploadLimiter, (req, res) => {
+// Base64 上传：优先 OSS，失败/未配置降级本地
+app.post('/api/upload-base64', uploadLimiter, async (req, res) => {
   try {
     const { imageBase64, ext } = req.body
     if (!imageBase64) {
       return res.status(400).json({ code: -1, message: '缺少 imageBase64' })
     }
-
     const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '')
     const buffer = Buffer.from(base64Data, 'base64')
     if (buffer.length > 10 * 1024 * 1024) {
       return res.status(400).json({ code: -1, message: '图片不能超过10MB' })
     }
-
     const fileExt = ext && ['.jpg', '.jpeg', '.png', '.webp', '.avif'].includes(ext.toLowerCase()) ? ext : '.jpg'
     const filename = `${Date.now()}_${uuidv4().substr(0, 8)}${fileExt}`
+
+    if (oss.isConfigured()) {
+      try {
+        const { url } = await oss.uploadBuffer(filename, buffer)
+        return res.json({ code: 0, data: { url, filename } })
+      } catch (ossErr) {
+        console.warn('[upload-base64] OSS 上传失败，降级本地:', ossErr.message)
+      }
+    }
     const filePath = path.join(UPLOAD_DIR, filename)
     fs.writeFileSync(filePath, buffer)
     const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${filename}`
