@@ -15,7 +15,6 @@ Page({
       { label: '深度总结', icon: 'heart', status: 'pending' }
     ],
     imageUrl: '',
-    imageBase64: '',
     photoType: 'face',
     analyzing: true,
     errorMsg: ''
@@ -26,18 +25,12 @@ Page({
     this._timers = []
     try {
       const imageUrl = decodeURIComponent(options.imageUrl || '')
-      let imageBase64 = ''
-      if (options.hasBase64 === '1') {
-        imageBase64 = getApp().globalData.tempImageBase64 || ''
-        getApp().globalData.tempImageBase64 = ''
-      }
       let userTags = []
       if (options.tags) {
         try { userTags = JSON.parse(decodeURIComponent(options.tags)) } catch (e) {}
       }
       this.setData({
         imageUrl,
-        imageBase64,
         photoType: options.photoType || 'face',
         gender: options.gender || 'female',
         age: options.age || '',
@@ -101,7 +94,6 @@ Page({
       // 异步任务模式：提交 → 轮询
       const result = await runDiagnosis(
         this.data.imageUrl,
-        this.data.imageBase64 || '',
         this.data.photoType,
         this.data.gender,
         {

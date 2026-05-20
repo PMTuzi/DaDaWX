@@ -173,35 +173,22 @@ Page({
         return
       }
 
-      // 上传图片（内置 base64 降级），失败则用 base64 直传
+      // 仅 OSS 直传：失败就跳过分类识别（不阻塞用户继续操作）
       let imageUrl
-      let imageBase64
       try {
         imageUrl = await Promise.race([
           uploadImage(safePath),
           new Promise((_, reject) => setTimeout(() => reject(new Error('上传超时')), 15000))
         ])
       } catch (e) {
-        console.warn('[consult-publish] 图片上传失败，尝试base64识别:', e.message)
-        try {
-          const { imageToBase64 } = require('../../utils/api')
-          imageBase64 = await imageToBase64(safePath)
-        } catch (e2) {
-          console.warn('[consult-publish] base64转换也失败，跳过AI类别识别')
-          return
-        }
-      }
-
-      const data = { timeout: 15000 }
-      if (imageUrl) {
-        data.data = { images: [{ imageUrl }] }
-      } else {
-        data.data = { images: [{ imageBase64 }] }
+        console.warn('[consult-publish] OSS 上传失败，跳过AI类别识别:', e.message)
+        return
       }
 
       const result = await request(API.detectCategory, {
         method: 'POST',
-        ...data
+        timeout: 15000,
+        data: { images: [{ imageUrl }] }
       })
 
       if (result && result.code === 0 && result.data && result.data.category) {

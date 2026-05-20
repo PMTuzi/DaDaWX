@@ -7,7 +7,6 @@ const { analyzeClothingVision, generateSingleConsult, generateCompareConsult, de
 const reportStore = require('../store/report-store')
 const userStore = require('../store/user-store')
 const consultStore = require('../store/consult-store')
-const { resolveImageUrl } = require('../utils/cloud-storage')
 
 // ============ 异步任务存储（内存） ============
 const tasks = new Map()
@@ -28,11 +27,11 @@ setInterval(() => {
  * 立即返回 taskId，后台执行分析
  */
 router.post('/start-analysis', authRequired, async (req, res) => {
-  const { imageUrl, imageBase64, photoType, gender, age, height, weight, photoUrl } = req.body
+  const { imageUrl, photoType, gender, age, height, weight, photoUrl } = req.body
   const openid = req.user.openid
 
-  if (!imageBase64 && !imageUrl) {
-    return res.status(400).json({ code: -1, message: '缺少图片数据' })
+  if (!imageUrl || !/^https?:\/\//.test(imageUrl)) {
+    return res.status(400).json({ code: -1, message: '缺少图片 URL（仅支持 OSS 直传后的 HTTP(S) URL）' })
   }
 
   const taskId = 'T' + Date.now() + '_' + Math.random().toString(36).substr(2, 8)
@@ -55,44 +54,7 @@ router.post('/start-analysis', authRequired, async (req, res) => {
   ;(async () => {
     try {
       const task = tasks.get(taskId)
-      let imageInput = imageBase64 || null
-
-      // 准备图片数据
-      if (!imageInput && imageUrl) {
-        task.step = '解析图片'; task.progress = 5
-        if (imageUrl.startsWith('cloud://')) {
-          try {
-            const tempUrl = await resolveImageUrl(imageUrl)
-            imageInput = tempUrl || imageUrl
-          } catch (e) {
-            console.warn('[AI] 云存储URL解析失败:', e.message)
-            imageInput = imageUrl
-          }
-        } else if (imageUrl.startsWith('http')) {
-          imageInput = imageUrl
-        } else {
-          const fs = require('fs')
-          const path = require('path')
-          const localMatch = imageUrl.match(/\/uploads\/(.+)$/)
-          if (localMatch) {
-            const filePath = path.join(__dirname, '..', 'uploads', localMatch[1])
-            if (fs.existsSync(filePath)) {
-              const fileBuffer = fs.readFileSync(filePath)
-              const ext = path.extname(filePath).toLowerCase()
-              const mimeMap = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp' }
-              const mime = mimeMap[ext] || 'image/jpeg'
-              imageInput = `data:${mime};base64,${fileBuffer.toString('base64')}`
-            }
-          }
-          if (!imageInput) imageInput = imageUrl
-        }
-      }
-
-      if (!imageInput) {
-        task.status = 'failed'
-        task.error = '图片数据解析失败'
-        return
-      }
+      const imageInput = imageUrl
 
       // Part1 分析
       task.step = '深度面部骨相分析'; task.progress = 10
@@ -197,40 +159,13 @@ router.get('/task/:taskId', authRequired, (req, res) => {
 router.post('/full-analysis', authRequired, async (req, res) => {
   const t0 = Date.now()
   try {
-    const { imageUrl, imageBase64, photoType, gender, age, height, weight, photoUrl } = req.body
+    const { imageUrl, photoType, gender, age, height, weight, photoUrl } = req.body
     const openid = req.user.openid
-    let imageInput = imageBase64 || null
 
-    if (!imageInput && imageUrl) {
-      if (imageUrl.startsWith('cloud://')) {
-        try {
-          const tempUrl = await resolveImageUrl(imageUrl)
-          imageInput = tempUrl || imageUrl
-        } catch (e) {
-          console.warn('[AI] 云存储URL解析失败:', e.message)
-          imageInput = imageUrl
-        }
-      } else if (imageUrl.startsWith('http')) {
-        imageInput = imageUrl
-      } else {
-        const localMatch = imageUrl.match(/\/uploads\/(.+)$/)
-        if (localMatch) {
-          const fs = require('fs')
-          const path = require('path')
-          const filePath = path.join(__dirname, '..', 'uploads', localMatch[1])
-          if (fs.existsSync(filePath)) {
-            const fileBuffer = fs.readFileSync(filePath)
-            const ext = path.extname(filePath).toLowerCase()
-            const mimeMap = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp' }
-            const mime = mimeMap[ext] || 'image/jpeg'
-            imageInput = `data:${mime};base64,${fileBuffer.toString('base64')}`
-          }
-        }
-        if (!imageInput) imageInput = imageUrl
-      }
+    if (!imageUrl || !/^https?:\/\//.test(imageUrl)) {
+      return res.status(400).json({ code: -1, message: '缺少图片 URL（仅支持 OSS 直传后的 HTTP(S) URL）' })
     }
-
-    if (!imageInput) return res.status(400).json({ code: -1, message: '缺少图片数据' })
+    const imageInput = imageUrl
 
     const part1Data = await analyzePart1(imageInput, photoType, gender, { age, height, weight }).catch(err => {
       console.warn('[AI] VL Part1失败:', err.message)

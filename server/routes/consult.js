@@ -2,14 +2,11 @@
 const express = require('express')
 const router = express.Router()
 const { authRequired } = require('../middleware/auth')
-const fs = require('fs')
-const path = require('path')
 const crypto = require('crypto')
 const { analyzeClothingVision, generateSingleConsult, generateCompareConsult, detectCategory } = require('../services/qwen')
 const { validateSingleResult, validateCompareResult, safeMergeSingleResult, safeMergeCompareResult } = require('../utils/consult-schema')
 const consultStore = require('../store/consult-store')
 const userStore = require('../store/user-store')
-const { resolveImageUrl } = require('../utils/cloud-storage')
 
 // === Vision features 内存缓存：避免 compare/single 请求体超 callContainer 1MB 限制 ===
 const visionCache = new Map()  // sessionId -> { features, expireAt }
@@ -31,41 +28,12 @@ setInterval(() => {
   for (const [k, v] of visionCache.entries()) if (v.expireAt < now) visionCache.delete(k)
 }, 5 * 60 * 1000).unref?.()
 
-// 将本地服务器URL转为base64（兼容局域网IP和云存储URL）- 异步版
+// 仅 OSS 直传 → 必须是 http(s) URL（前端已统一）
 async function resolveLocalImage(img) {
-  if (img.imageBase64) return img
-  if (!img.imageUrl) return img
-
-  // 云存储 fileID，获取临时链接
-  if (img.imageUrl.startsWith('cloud://')) {
-    try {
-      const tempUrl = await resolveImageUrl(img.imageUrl)
-      return { ...img, imageUrl: tempUrl || img.imageUrl }
-    } catch (e) {
-      console.warn('[consult] 云存储URL解析失败:', e.message)
-      return img
-    }
+  if (!img || !img.imageUrl || !/^https?:\/\//.test(img.imageUrl)) {
+    throw new Error('图片必须是 OSS 直传后的 HTTP(S) URL')
   }
-
-  // 远程 URL，直接传递
-  if (img.imageUrl.startsWith('http')) return img
-
-  // 本地文件
-  const localMatch = img.imageUrl.match(/\/uploads\/(.+)$/)
-  if (localMatch) {
-    const filePath = path.join(__dirname, '..', 'uploads', localMatch[1])
-    try {
-      await fs.promises.access(filePath)
-      const fileBuffer = await fs.promises.readFile(filePath)
-      const ext = path.extname(filePath).toLowerCase()
-      const mimeMap = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp' }
-      const mime = mimeMap[ext] || 'image/jpeg'
-      return { imageBase64: `data:${mime};base64,${fileBuffer.toString('base64')}` }
-    } catch (e) {
-      // 文件不存在，使用原始 URL
-    }
-  }
-  return img
+  return { imageUrl: img.imageUrl }
 }
 
 // 服饰视觉分析

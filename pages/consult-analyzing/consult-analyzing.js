@@ -1,5 +1,5 @@
 // pages/consult-analyzing/consult-analyzing.js
-const { request, API, imageToBase64, checkServerReachable } = require('../../utils/api')
+const { request, API, checkServerReachable } = require('../../utils/api')
 
 // 用闭包变量代替实例属性，避免微信小程序 Page 构造器限制
 // 实例级状态

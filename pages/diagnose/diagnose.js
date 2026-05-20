@@ -145,32 +145,24 @@ Page({
 
     try {
       // 先持久化本地副本，避免微信清理 http://tmp 路径导致后续读取失败
-      const { request, API, uploadImage, imageToBase64, saveLocalPhoto } = require('../../utils/api')
+      const { uploadImage, saveLocalPhoto } = require('../../utils/api')
       const savedPhoto = await saveLocalPhoto(this.data.photoUrl)
       const sourcePath = savedPhoto || this.data.photoUrl
 
-      // 优先 OSS 直传：拿到 https URL 就跳过 base64（避免 callContainer 1MB 限制）
-      const imageUrl = await uploadImage(sourcePath).catch(err => {
-        console.warn('[diagnose] 图片上传失败:', err.message)
-        return ''
-      })
-
-      // 只有 OSS 上传失败时才回退 base64（作为 AI 接口的备用图源）
-      let imageBase64 = ''
+      // 仅 OSS 直传，失败直接报错（架构已纯 OSS 化）
+      let imageUrl = ''
+      let lastErr
+      for (let i = 0; i < 2; i++) {
+        try {
+          imageUrl = await uploadImage(sourcePath)
+          if (imageUrl && /^https?:\/\//.test(imageUrl)) break
+        } catch (err) {
+          lastErr = err
+          console.warn(`[diagnose] OSS 上传失败 (第${i + 1}次):`, err && err.message)
+        }
+      }
       if (!imageUrl || !/^https?:\/\//.test(imageUrl)) {
-        imageBase64 = await imageToBase64(sourcePath).catch(err => {
-          console.warn('[diagnose] base64读取失败:', err.message)
-          return ''
-        })
-      }
-
-      if (!imageUrl && !imageBase64) {
-        throw new Error('图片数据获取失败')
-      }
-
-      // 保存base64到全局，analyzing页面通过hasBase64=1取回
-      if (imageBase64) {
-        getApp().globalData.tempImageBase64 = imageBase64
+        throw new Error((lastErr && lastErr.message) || '图片上传失败，请检查网络')
       }
 
       this.setData({ isUploading: false })
@@ -183,7 +175,6 @@ Page({
         this.data.height ? `height=${this.data.height}` : '',
         this.data.weight ? `weight=${this.data.weight}` : '',
         `tags=${encodeURIComponent(JSON.stringify(this.data.userTags))}`,
-        imageBase64 ? 'hasBase64=1' : '',
         `localPhoto=${encodeURIComponent(savedPhoto || this.data.photoUrl)}`
       ].filter(Boolean).join('&')
 

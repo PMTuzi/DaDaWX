@@ -53,7 +53,6 @@ App({
   globalData: {
     userInfo: null,
     latestReport: null,
-    reports: [],
-    tempImageBase64: '' // 大图 base64 用 globalData 传递，避免 storage 1MB 限制
+    reports: []
   }
 })

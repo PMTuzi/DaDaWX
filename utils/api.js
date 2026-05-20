@@ -10,9 +10,6 @@ const API = {
   startAnalysis: '/api/ai/start-analysis',
   // 同步分析（旧接口，可能超时）
   fullAnalysis: '/api/ai/full-analysis',
-  // 图片上传
-  upload: '/api/upload',
-  uploadBase64: '/api/upload-base64',
   // 报告
   getReportList: '/api/report/list',
   getReportLatest: '/api/report/latest',
@@ -170,14 +167,13 @@ function request(url, options = {}) {
   })
 }
 
-// 上传图片：优先 OSS 直传（不受 callContainer 1MB 限制），失败降级 base64 经云托管中转
+// 上传图片：仅 OSS 直传（架构简化，不再有任何降级路径）
 async function uploadImage(filePath) {
   try {
     return await uploadImageViaOSS(filePath)
   } catch (err) {
-    _ossTokenCache = null  // 任何失败都清缓存，下次重新取最新凭证
-    console.warn('[API] OSS 直传失败，降级 base64 经云托管:', err && err.message)
-    return await uploadImageViaBase64(filePath)
+    _ossTokenCache = null  // 失败清缓存，下次重新取凭证
+    throw err
   }
 }
 
@@ -255,82 +251,6 @@ function saveLocalPhoto(tempFilePath) {
   })
 }
 
-// callContainer 请求体限制 100KB，base64 图片需留余量，上限 90KB
-const BASE64_MAX_KB = 90
-
-function imageToBase64(filePath, maxKb) {
-  const limit = maxKb || BASE64_MAX_KB
-  return new Promise((resolve, reject) => {
-    _compressAndToBase64(filePath, limit, 5, resolve, reject)
-  })
-}
-
-// 迭代压缩：逐步降低质量直到 base64 不超限
-function _compressAndToBase64(filePath, maxKb, retries, resolve, reject) {
-  const qualityMap = [60, 40, 25, 15, 8]
-  const quality = qualityMap[5 - retries] || 8
-  wx.compressImage({
-    src: filePath,
-    quality,
-    success: (compressRes) => {
-      _readAndCheckBase64(compressRes.tempFilePath, maxKb, (base64Str, sizeKb) => {
-        if (sizeKb <= maxKb || retries <= 1) {
-          resolve(base64Str)
-        } else {
-          console.log(`[API] base64 ${sizeKb}KB 超限${maxKb}KB，继续压缩 quality=${qualityMap[5-retries+1]}`)
-          _compressAndToBase64(compressRes.tempFilePath, maxKb, retries - 1, resolve, reject)
-        }
-      }, reject)
-    },
-    fail: () => {
-      _readAndCheckBase64(filePath, maxKb, (base64Str) => {
-        resolve(base64Str)
-      }, reject)
-    }
-  })
-}
-
-function _readAndCheckBase64(filePath, maxKb, resolve, reject) {
-  wx.getFileSystemManager().readFile({
-    filePath,
-    encoding: 'base64',
-    success(res) {
-      const ext = filePath.toLowerCase().match(/\.(jpg|jpeg|png|webp)$/)
-      const mimeMap = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp' }
-      const mime = ext ? (mimeMap[ext[1]] || 'image/jpeg') : 'image/jpeg'
-      const base64Data = res.data
-      const sizeKb = Math.ceil(base64Data.length * 3 / 4 / 1024)
-      resolve(`data:${mime};base64,${base64Data}`, sizeKb)
-    },
-    fail(err) {
-      reject(new Error(err.errMsg || '读取图片失败'))
-    }
-  })
-}
-
-async function uploadImageViaBase64(filePath) {
-  const imageBase64 = await imageToBase64(filePath)
-  if (!imageBase64) {
-    throw new Error('图片base64转换失败')
-  }
-  const ext = filePath.toLowerCase().match(/\.(jpg|jpeg|png|webp)$/)
-  try {
-    const result = await callContainer({
-      path: '/api/upload-base64',
-      method: 'POST',
-      data: { imageBase64, ext: ext ? '.' + ext[1] : '.jpg' },
-      header: { 'Content-Type': 'application/json' },
-      timeout: 60000
-    })
-    const data = result.data
-    if (result.statusCode === 200 && data && data.code === 0) return data.data.url
-    throw new Error((data && data.message) || 'base64上传失败')
-  } catch (err) {
-    // 不标记服务器不可达，避免影响后续 API 调用
-    throw new Error(err.errMsg || err.message || 'base64上传失败')
-  }
-}
-
 // 微信登录
 function wxLogin() {
   return new Promise((resolve, reject) => {
@@ -361,7 +281,7 @@ function wxLogin() {
 }
 
 // 运行诊断（异步任务模式，解决 callContainer 超时问题）
-async function runDiagnosis(imageUrl, imageBase64, photoType, gender, options = {}) {
+async function runDiagnosis(imageUrl, photoType, gender, options = {}) {
   // 确保已登录
   const token = await ensureLogin()
 
@@ -370,7 +290,6 @@ async function runDiagnosis(imageUrl, imageBase64, photoType, gender, options = 
     method: 'POST',
     data: {
       imageUrl,
-      imageBase64,
       photoType,
       gender,
       age: options.age,
@@ -433,8 +352,6 @@ module.exports = {
   API,
   request,
   uploadImage,
-  uploadImageViaBase64,
-  imageToBase64,
   saveLocalPhoto,
   wxLogin,
   ensureLogin,

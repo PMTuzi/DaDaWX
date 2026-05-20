@@ -4,7 +4,6 @@ require('dotenv').config({ path: require('path').resolve(__dirname, '.env.produc
 require('dotenv').config()  // 本地 .env 若存在则补充/覆盖（生产环境无该文件）
 const express = require('express')
 const cors = require('cors')
-const multer = require('multer')
 const path = require('path')
 const fs = require('fs')
 const jwt = require('jsonwebtoken')
@@ -66,7 +65,7 @@ const aiLimiter = rateLimit({
   message: { code: 429, message: 'AI分析请求过于频繁，请稍后再试' }
 })
 
-// 上传接口限流：每IP每分钟30次
+// 上传接口限流：保留给 /api/oss/token（前端取凭证时限流）
 const uploadLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 30,
@@ -81,8 +80,8 @@ app.use(globalLimiter)
 // ===== 全局请求超时 =====
 // 普通接口 30s，AI 接口由路由自行设置更长超时
 app.use((req, res, next) => {
-  // AI / 上传 / 咨询 全部用 5 分钟，避免 30s 网关超时返回 -606001
-  const longTimeoutPaths = ['/api/ai/', '/api/consult/', '/api/upload', '/api/upload-base64']
+  // AI / 咨询 全部用 5 分钟，避免 30s 网关超时返回 -606001
+  const longTimeoutPaths = ['/api/ai/', '/api/consult/']
   const isLong = longTimeoutPaths.some(p => req.path.startsWith(p))
   const timeout = isLong ? 300000 : 30000
   req.setTimeout(timeout)
@@ -90,96 +89,12 @@ app.use((req, res, next) => {
   next()
 })
 
-// 确保数据目录和上传目录存在
-const UPLOAD_DIR = path.join(__dirname, 'uploads')
-if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true })
+// 数据目录
 const DATA_DIR = path.join(__dirname, 'data')
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true })
 
-// 上传目录静态托管：OSS 配置缺失时降级使用，云托管容器为临时文件系统重启会丢失
-app.use('/uploads', express.static(UPLOAD_DIR, { maxAge: '7d' }))
-
 // OSS 工具
 const oss = require('./utils/oss')
-
-// 文件上传（multer 错误处理）
-const storage = multer.diskStorage({
-  destination: UPLOAD_DIR,
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname) || '.jpg'
-    cb(null, `${Date.now()}_${uuidv4().substr(0, 8)}${ext}`)
-  }
-})
-const upload = multer({
-  storage,
-  limits: { fileSize: 10 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    const allowed = ['.jpg', '.jpeg', '.png', '.webp', '.avif']
-    const ext = path.extname(file.originalname).toLowerCase()
-    if (allowed.includes(ext)) cb(null, true)
-    else cb(new Error('不支持的图片格式'))
-  }
-})
-
-// 上传路由：优先 OSS，失败/未配置降级本地静态
-app.post('/api/upload', uploadLimiter, (req, res, next) => {
-  upload.single('image')(req, res, async (err) => {
-    if (err) {
-      if (err.code === 'LIMIT_FILE_SIZE') {
-        return res.status(400).json({ code: -1, message: '图片不能超过10MB' })
-      }
-      return res.status(400).json({ code: -1, message: err.message || '上传失败' })
-    }
-    if (!req.file) {
-      return res.status(400).json({ code: -1, message: '未收到文件' })
-    }
-    try {
-      if (oss.isConfigured()) {
-        const buffer = fs.readFileSync(req.file.path)
-        const { url } = await oss.uploadBuffer(req.file.filename, buffer)
-        try { fs.unlinkSync(req.file.path) } catch (e) {}
-        return res.json({ code: 0, data: { url, filename: req.file.filename } })
-      }
-    } catch (ossErr) {
-      console.warn('[upload] OSS 上传失败，降级本地:', ossErr.message)
-    }
-    const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
-    res.json({ code: 0, data: { url: fileUrl, filename: req.file.filename } })
-  })
-})
-
-// Base64 上传：优先 OSS，失败/未配置降级本地
-app.post('/api/upload-base64', uploadLimiter, async (req, res) => {
-  try {
-    const { imageBase64, ext } = req.body
-    if (!imageBase64) {
-      return res.status(400).json({ code: -1, message: '缺少 imageBase64' })
-    }
-    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '')
-    const buffer = Buffer.from(base64Data, 'base64')
-    if (buffer.length > 10 * 1024 * 1024) {
-      return res.status(400).json({ code: -1, message: '图片不能超过10MB' })
-    }
-    const fileExt = ext && ['.jpg', '.jpeg', '.png', '.webp', '.avif'].includes(ext.toLowerCase()) ? ext : '.jpg'
-    const filename = `${Date.now()}_${uuidv4().substr(0, 8)}${fileExt}`
-
-    if (oss.isConfigured()) {
-      try {
-        const { url } = await oss.uploadBuffer(filename, buffer)
-        return res.json({ code: 0, data: { url, filename } })
-      } catch (ossErr) {
-        console.warn('[upload-base64] OSS 上传失败，降级本地:', ossErr.message)
-      }
-    }
-    const filePath = path.join(UPLOAD_DIR, filename)
-    fs.writeFileSync(filePath, buffer)
-    const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${filename}`
-    res.json({ code: 0, data: { url: fileUrl, filename } })
-  } catch (err) {
-    console.error('[upload-base64] 失败:', err.message)
-    res.status(500).json({ code: -1, message: 'base64上传失败' })
-  }
-})
 
 // 健康检查端点（客户端连通性探测用，不限流）
 app.head('/api/health', (req, res) => res.status(200).end())
@@ -202,7 +117,7 @@ app.use('/api/ai', aiLimiter, aiRoutes)
 app.use('/api/report', reportRoutes)
 app.use('/api/favorite', favoriteRoutes)
 app.use('/api/consult', aiLimiter, consultRoutes)
-app.use('/api/oss', ossRoutes)
+app.use('/api/oss', uploadLimiter, ossRoutes)
 
 // 首页
 app.get('/', (req, res) => {
@@ -215,8 +130,7 @@ app.get('/', (req, res) => {
       '用户信息': 'GET /api/user/profile (需鉴权)',
       '更新用户': 'PUT /api/user/profile (需鉴权)',
       '完整分析(VL)': 'POST /api/ai/full-analysis (需鉴权)',
-      '图片上传': 'POST /api/upload (无需鉴权)',
-      'Base64上传': 'POST /api/upload-base64 (无需鉴权)',
+      'OSS 直传凭证': 'GET /api/oss/token (无需鉴权)',
       '报告列表': 'GET /api/report/list (需鉴权)',
       '报告详情': 'GET /api/report/:id (需鉴权)',
       '最新报告': 'GET /api/report/latest (需鉴权)',
@@ -240,12 +154,6 @@ app.use((err, req, res, next) => {
   if (err.name === 'UnauthorizedError') {
     return res.status(401).json({ code: 401, message: '请先登录' })
   }
-  if (err.name === 'MulterError') {
-    if (err.code === 'LIMIT_FILE_SIZE') {
-      return res.status(400).json({ code: -1, message: '文件大小超过限制' })
-    }
-    return res.status(400).json({ code: -1, message: '文件上传失败' })
-  }
   console.error('Server Error:', err)
   res.status(500).json({ code: -1, message: '服务器内部错误' })
 })
@@ -253,7 +161,7 @@ app.use((err, req, res, next) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`搭搭服务已启动: http://localhost:${PORT}`)
   console.log(`鉴权模式: JWT Bearer Token`)
-  console.log(`限流: 全局200/min, AI 20/min, 上传30/min`)
+  console.log(`限流: 全局200/min, AI 20/min, OSS凭证30/min`)
   console.log(`数据存储: ${DATA_DIR}`)
-  console.log(`OSS 配置: ${oss.isConfigured() ? '已启用 ' + (process.env.OSS_BUCKET) + '@' + (process.env.OSS_REGION) : '未配置（降级本地静态托管）'}`)
+  console.log(`OSS 配置: ${oss.isConfigured() ? '已启用 ' + (process.env.OSS_BUCKET) + '@' + (process.env.OSS_REGION) : '未配置（请在环境变量中配置）'}`)
 })

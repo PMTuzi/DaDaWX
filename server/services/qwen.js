@@ -350,9 +350,7 @@ ${isCompare ? `图片中有${images.length}个不同单品，分别标记为${la
 
   const content = []
   for (const img of images) {
-    if (img.imageBase64) {
-      content.push({ type: 'image_url', image_url: { url: img.imageBase64.startsWith('data:') ? img.imageBase64 : `data:image/jpeg;base64,${img.imageBase64}` } })
-    } else if (img.imageUrl) {
+    if (img.imageUrl) {
       content.push({ type: 'image_url', image_url: { url: img.imageUrl } })
     }
   }
@@ -617,8 +615,7 @@ async function detectCategory(images) {
   const prompt = `请识别这个穿搭单品的类别，只能从以下选项中选择一个返回：上衣、裤子、半裙、连衣裙、外套、衬衫、T恤、针织衫、卫衣、风衣、大衣、羽绒服、牛仔、口红/唇釉、腮红、眼影、帽子、围巾、领带、耳环、项链、手链/手镯、包包、鞋子、腰带、手表、墨镜、其他\n\n直接返回类别名称，不要输出任何其他文字。`
   const content = []
   for (const img of images) {
-    if (img.imageBase64) content.push({ type: 'image_url', image_url: { url: img.imageBase64.startsWith('data:') ? img.imageBase64 : `data:image/jpeg;base64,${img.imageBase64}` } })
-    else if (img.imageUrl) content.push({ type: 'image_url', image_url: { url: img.imageUrl } })
+    if (img.imageUrl) content.push({ type: 'image_url', image_url: { url: img.imageUrl } })
   }
   content.push({ type: 'text', text: prompt })
   try {
