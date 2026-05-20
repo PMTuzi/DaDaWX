@@ -42,12 +42,14 @@ if (isProd) {
 app.use(express.json({ limit: '20mb' }))
 
 // ===== 限流配置 =====
+// validate:false 关闭所有内置校验，避免 trust proxy 误报抛 500
 // 全局限流：每IP每分钟200次
 const globalLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 200,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: false,
   message: { code: 429, message: '请求过于频繁，请稍后再试' },
   skip: (req) => req.path === '/api/health' // 健康检查不限流
 })
@@ -58,6 +60,7 @@ const aiLimiter = rateLimit({
   max: 20,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: false,
   message: { code: 429, message: 'AI分析请求过于频繁，请稍后再试' }
 })
 
@@ -67,6 +70,7 @@ const uploadLimiter = rateLimit({
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: false,
   message: { code: 429, message: '上传请求过于频繁，请稍后再试' }
 })
 
