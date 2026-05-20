@@ -81,20 +81,9 @@ router.post('/generate-single-consult', authRequired, async (req, res) => {
 
     let finalResult
     if (!validateSingleResult(result)) {
-      try {
-        const retryResult = await generateSingleConsult(visualFeatures, {
-          category, priceRange, bodyFeatures, wearScenes, trouble, consultScene
-        }, true, reportSummary || null)
-        if (validateSingleResult(retryResult)) {
-          finalResult = retryResult
-        }
-      } catch (e) {
-        console.error('[穿搭咨询] 重试失败:', e.message)
-      }
-      if (!finalResult) {
-        // AI 两次都失败：直接报错而非返回兜底假数据
-        return res.status(502).json({ code: -1, message: 'AI 分析失败，请稍后重试', aiError: true })
-      }
+      // 验证失败不再服务端重试（callContainer 网关 60s 硬超时，重试会触发 102002）
+      console.warn('[穿搭咨询] 单品 AI 输出验证失败，直接返回错误')
+      return res.status(502).json({ code: -1, message: 'AI 分析格式异常，请重试', aiError: true })
     } else {
       finalResult = result
     }
@@ -134,19 +123,8 @@ router.post('/generate-compare-consult', authRequired, async (req, res) => {
 
     let finalResult
     if (!validateCompareResult(result)) {
-      try {
-        const retryResult = await generateCompareConsult(visualFeatures, {
-          compareScene, priceList, styleDiff, reason
-        }, true, reportSummary || null)
-        if (validateCompareResult(retryResult)) {
-          finalResult = retryResult
-        }
-      } catch (e) {
-        console.error('[穿搭咨询] 重试失败:', e.message)
-      }
-      if (!finalResult) {
-        return res.status(502).json({ code: -1, message: 'AI 分析失败，请稍后重试', aiError: true })
-      }
+      console.warn('[穿搭咨询] 多选一 AI 输出验证失败，直接返回错误')
+      return res.status(502).json({ code: -1, message: 'AI 分析格式异常，请重试', aiError: true })
     } else {
       finalResult = result
     }

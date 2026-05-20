@@ -489,10 +489,10 @@ ${reportSection}
         { role: 'system', content: '你是专业的时尚买手AI，必须给出明确结论。严格输出JSON格式。' },
         { role: 'user', content: prompt }
       ],
-      temperature: isRetry ? 0.5 : 0.3, top_p: 0.85, max_tokens: 4000
+      temperature: isRetry ? 0.5 : 0.3, top_p: 0.85, max_tokens: 2000
     }, {
       headers: { 'Authorization': `Bearer ${QWEN_API_KEY}`, 'Content-Type': 'application/json' },
-      timeout: 60000
+      timeout: 45000
     })
     const content = response.data?.choices?.[0]?.message?.content
     if (!content) throw new Error('模型返回为空')
@@ -599,10 +599,10 @@ ${reportSection}
         { role: 'system', content: '你是专业的时尚买手AI，必须给出明确排名。严格输出JSON格式。' },
         { role: 'user', content: prompt }
       ],
-      temperature: isRetry ? 0.5 : 0.3, top_p: 0.85, max_tokens: 4000
+      temperature: isRetry ? 0.5 : 0.3, top_p: 0.85, max_tokens: 2000
     }, {
       headers: { 'Authorization': `Bearer ${QWEN_API_KEY}`, 'Content-Type': 'application/json' },
-      timeout: 60000
+      timeout: 45000
     })
     const content = response.data?.choices?.[0]?.message?.content
     if (!content) throw new Error('模型返回为空')
