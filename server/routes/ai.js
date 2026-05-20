@@ -1,19 +1,198 @@
-// AI 诊断路由（新架构：VL即时返回 + 异步定向生图）
+// AI 诊断路由（异步任务模式：避免 callContainer 超时）
 const express = require('express')
 const router = express.Router()
 const { authRequired } = require('../middleware/auth')
 const { analyzePart1, analyzePart2 } = require('../services/qwen')
+const { analyzeClothingVision, generateSingleConsult, generateCompareConsult, detectCategory } = require('../services/qwen')
 const reportStore = require('../store/report-store')
 const userStore = require('../store/user-store')
+const consultStore = require('../store/consult-store')
+const { resolveImageUrl } = require('../utils/cloud-storage')
+
+// ============ 异步任务存储（内存） ============
+const tasks = new Map()
+
+// 清理超过30分钟的已完成任务
+setInterval(() => {
+  const now = Date.now()
+  for (const [id, task] of tasks) {
+    if (task.status === 'done' || task.status === 'failed') {
+      if (now - task.createdAt > 30 * 60 * 1000) tasks.delete(id)
+    }
+  }
+}, 5 * 60 * 1000)
 
 /**
- * 完整分析流程（新架构：VL即时返回，不再等待生图）
+ * 异步启动完整分析
+ * POST /api/ai/start-analysis
+ * 立即返回 taskId，后台执行分析
+ */
+router.post('/start-analysis', authRequired, async (req, res) => {
+  const { imageUrl, imageBase64, photoType, gender, age, height, weight, photoUrl } = req.body
+  const openid = req.user.openid
+
+  if (!imageBase64 && !imageUrl) {
+    return res.status(400).json({ code: -1, message: '缺少图片数据' })
+  }
+
+  const taskId = 'T' + Date.now() + '_' + Math.random().toString(36).substr(2, 8)
+
+  // 初始化任务
+  tasks.set(taskId, {
+    status: 'processing',
+    progress: 0,
+    step: '初始化',
+    result: null,
+    error: null,
+    openid,
+    createdAt: Date.now()
+  })
+
+  // 立即返回 taskId
+  res.json({ code: 0, data: { taskId } })
+
+  // 后台执行分析
+  ;(async () => {
+    try {
+      const task = tasks.get(taskId)
+      let imageInput = imageBase64 || null
+
+      // 准备图片数据
+      if (!imageInput && imageUrl) {
+        task.step = '解析图片'; task.progress = 5
+        if (imageUrl.startsWith('cloud://')) {
+          try {
+            const tempUrl = await resolveImageUrl(imageUrl)
+            imageInput = tempUrl || imageUrl
+          } catch (e) {
+            console.warn('[AI] 云存储URL解析失败:', e.message)
+            imageInput = imageUrl
+          }
+        } else if (imageUrl.startsWith('http')) {
+          imageInput = imageUrl
+        } else {
+          const fs = require('fs')
+          const path = require('path')
+          const localMatch = imageUrl.match(/\/uploads\/(.+)$/)
+          if (localMatch) {
+            const filePath = path.join(__dirname, '..', 'uploads', localMatch[1])
+            if (fs.existsSync(filePath)) {
+              const fileBuffer = fs.readFileSync(filePath)
+              const ext = path.extname(filePath).toLowerCase()
+              const mimeMap = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp' }
+              const mime = mimeMap[ext] || 'image/jpeg'
+              imageInput = `data:${mime};base64,${fileBuffer.toString('base64')}`
+            }
+          }
+          if (!imageInput) imageInput = imageUrl
+        }
+      }
+
+      if (!imageInput) {
+        task.status = 'failed'
+        task.error = '图片数据解析失败'
+        return
+      }
+
+      // Part1 分析
+      task.step = '深度面部骨相分析'; task.progress = 10
+      console.log(`[AI] 任务${taskId} 开始Part1, 用户${openid.substring(0, 8)}...`)
+
+      const part1Data = await analyzePart1(imageInput, photoType, gender, { age, height, weight }).catch(err => {
+        console.warn('[AI] VL Part1失败:', err.message)
+        return null
+      })
+
+      if (!part1Data) {
+        task.status = 'failed'
+        task.error = '视觉分析返回为空'
+        return
+      }
+
+      // Part2 分析
+      task.step = '色彩形象风格分析'; task.progress = 40
+      console.log(`[AI] 任务${taskId} 开始Part2`)
+
+      const part2Data = await analyzePart2(imageInput, part1Data, gender, { age, height, weight }).catch(err => {
+        console.warn('[AI] VL Part2失败:', err.message)
+        return {
+          module3_hairmakeup: { title: '发型&妆容', hairRecommend: { top3: [], alternatives: [], hairColors: [], avoidHair: [] }, makeup: { style: '待分析' }, keyInsight: '' },
+          module4_optimize: { title: '颜值优化诊断', optimizablePoints: [], priorityOrder: '', roadmap3m: {}, coreConclusion: '', keyInsight: '' }
+        }
+      })
+
+      // 计算评分
+      task.step = '生成报告'; task.progress = 80
+      const faceScore = part1Data.module1_dna?.faceScore || 7
+      const skinScore = ((part1Data.module2_style?.brightness || 7) + (part1Data.module2_style?.purity || 7)) / 2
+      const styleScore = part1Data.module2_style?.mainScore || 7
+      const overallScore = Math.round((faceScore * 0.35 + skinScore * 0.3 + styleScore * 0.2 + 7 * 0.15) * 10) / 10
+
+      const result = {
+        basic: {
+          overallScore,
+          tags: [
+            part1Data.module1_dna?.faceType || '待分析',
+            part1Data.module2_style?.season || '待分析',
+            part1Data.module2_style?.mainStyle || '待分析'
+          ]
+        },
+        modules: {
+          dna: part1Data.module1_dna,
+          style: part1Data.module2_style,
+          hairmakeup: part2Data.module3_hairmakeup,
+          optimize: part2Data.module4_optimize
+        },
+        images: {},
+        photoUrl: photoUrl || '',
+        imageComplete: false
+      }
+
+      task.status = 'done'
+      task.progress = 100
+      task.step = '分析完成'
+      task.result = result
+      console.log(`[AI] 任务${taskId} 完成, 评分: ${overallScore}`)
+    } catch (err) {
+      console.error(`[AI] 任务${taskId} 失败:`, err.message)
+      const task = tasks.get(taskId)
+      if (task) {
+        task.status = 'failed'
+        task.error = err.message || '分析失败'
+      }
+    }
+  })()
+})
+
+/**
+ * 查询任务状态
+ * GET /api/ai/task/:taskId
+ */
+router.get('/task/:taskId', authRequired, (req, res) => {
+  const { taskId } = req.params
+  const task = tasks.get(taskId)
+  if (!task) {
+    return res.status(404).json({ code: -1, message: '任务不存在' })
+  }
+  if (task.openid !== req.user.openid) {
+    return res.status(403).json({ code: -1, message: '无权访问' })
+  }
+  res.json({
+    code: 0,
+    data: {
+      taskId,
+      status: task.status,
+      progress: task.progress,
+      step: task.step,
+      result: task.result,
+      error: task.error
+    }
+  })
+})
+
+/**
+ * 保留旧接口兼容（同步模式，可能会超时）
  * POST /api/ai/full-analysis
- * body: { imageUrl, imageBase64, photoType, gender, age, height, weight }
- * 
- * 流程：
- * 1. 2次VL分析 + 人脸检测（并行）→ 即时返回数据
- * 2. 图片生成由前端按需调用 /api/ai/generate-images
  */
 router.post('/full-analysis', authRequired, async (req, res) => {
   const t0 = Date.now()
@@ -22,40 +201,43 @@ router.post('/full-analysis', authRequired, async (req, res) => {
     const openid = req.user.openid
     let imageInput = imageBase64 || null
 
-    // 准备图片数据
     if (!imageInput && imageUrl) {
-      const localMatch = imageUrl.match(/\/uploads\/(.+)$/)
-      if (localMatch) {
-        const fs = require('fs')
-        const path = require('path')
-        const filePath = path.join(__dirname, '..', 'uploads', localMatch[1])
-        if (fs.existsSync(filePath)) {
-          const fileBuffer = fs.readFileSync(filePath)
-          const ext = path.extname(filePath).toLowerCase()
-          const mimeMap = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp' }
-          const mime = mimeMap[ext] || 'image/jpeg'
-          imageInput = `data:${mime};base64,${fileBuffer.toString('base64')}`
+      if (imageUrl.startsWith('cloud://')) {
+        try {
+          const tempUrl = await resolveImageUrl(imageUrl)
+          imageInput = tempUrl || imageUrl
+        } catch (e) {
+          console.warn('[AI] 云存储URL解析失败:', e.message)
+          imageInput = imageUrl
         }
+      } else if (imageUrl.startsWith('http')) {
+        imageInput = imageUrl
+      } else {
+        const localMatch = imageUrl.match(/\/uploads\/(.+)$/)
+        if (localMatch) {
+          const fs = require('fs')
+          const path = require('path')
+          const filePath = path.join(__dirname, '..', 'uploads', localMatch[1])
+          if (fs.existsSync(filePath)) {
+            const fileBuffer = fs.readFileSync(filePath)
+            const ext = path.extname(filePath).toLowerCase()
+            const mimeMap = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp' }
+            const mime = mimeMap[ext] || 'image/jpeg'
+            imageInput = `data:${mime};base64,${fileBuffer.toString('base64')}`
+          }
+        }
+        if (!imageInput) imageInput = imageUrl
       }
-      if (!imageInput) imageInput = imageUrl
     }
 
     if (!imageInput) return res.status(400).json({ code: -1, message: '缺少图片数据' })
 
-    console.log(`[AI] 用户${openid.substring(0, 8)}... 开始完整分析, 类型: ${photoType}, 性别: ${gender}`)
-
-    // ==================== 阶段1: VL分析（即时返回） ====================
-    const [part1Data] = await Promise.all([
-      analyzePart1(imageInput, photoType, gender, { age, height, weight }).catch(err => {
-        console.warn('[AI] VL Part1失败:', err.message)
-        return null
-      })
-    ])
-
+    const part1Data = await analyzePart1(imageInput, photoType, gender, { age, height, weight }).catch(err => {
+      console.warn('[AI] VL Part1失败:', err.message)
+      return null
+    })
     if (!part1Data) throw new Error('视觉分析返回为空')
 
-    // Part2（依赖Part1数据）
-    console.log('[AI] 阶段1: VL Part2分析...')
     const part2Data = await analyzePart2(imageInput, part1Data, gender, { age, height, weight }).catch(err => {
       console.warn('[AI] VL Part2失败:', err.message)
       return {
@@ -64,40 +246,18 @@ router.post('/full-analysis', authRequired, async (req, res) => {
       }
     })
 
-    // 合并分析数据
-    const analysisData = { ...part1Data, ...part2Data }
-
-    // 计算综合评分
     const faceScore = part1Data.module1_dna?.faceScore || 7
     const skinScore = ((part1Data.module2_style?.brightness || 7) + (part1Data.module2_style?.purity || 7)) / 2
     const styleScore = part1Data.module2_style?.mainScore || 7
     const overallScore = Math.round((faceScore * 0.35 + skinScore * 0.3 + styleScore * 0.2 + 7 * 0.15) * 10) / 10
 
-    console.log(`[AI] VL分析完成, 耗时: ${Date.now() - t0}ms, 综合评分: ${overallScore}`)
-
-    // ==================== 即时返回（不等待图片生成） ====================
     const result = {
-      basic: {
-        overallScore,
-        tags: [
-          part1Data.module1_dna?.faceType || '待分析',
-          part1Data.module2_style?.season || '待分析',
-          part1Data.module2_style?.mainStyle || '待分析'
-        ]
-      },
-      modules: {
-        dna: part1Data.module1_dna,
-        style: part1Data.module2_style,
-        hairmakeup: part2Data.module3_hairmakeup,
-        optimize: part2Data.module4_optimize
-      },
-      images: {},           // 图片由前端按需生成
-      photoUrl: photoUrl || '',
-      imageComplete: false  // 图片未生成
+      basic: { overallScore, tags: [part1Data.module1_dna?.faceType || '待分析', part1Data.module2_style?.season || '待分析', part1Data.module2_style?.mainStyle || '待分析'] },
+      modules: { dna: part1Data.module1_dna, style: part1Data.module2_style, hairmakeup: part2Data.module3_hairmakeup, optimize: part2Data.module4_optimize },
+      images: {}, photoUrl: photoUrl || '', imageComplete: false
     }
 
     res.json({ code: 0, data: result })
-    // 图片生成由前端通过 /api/ai/generate-images 按需调用，不再后台重复生图
   } catch (err) {
     console.error('[AI] 完整分析失败:', err.message)
     res.status(500).json({ code: -1, message: '分析失败: ' + err.message })
@@ -105,17 +265,13 @@ router.post('/full-analysis', authRequired, async (req, res) => {
 })
 
 /**
- * 按需生成定向图片（已废弃：报告页改用前端渲染雷达图/色块/比例条）
- * 保留接口兼容性，但不再推荐使用
+ * 按需生成定向图片（已废弃）
  */
 router.post('/generate-images', authRequired, async (req, res) => {
   res.json({ code: 0, data: { images: {} } })
 })
 
 // ============ 穿搭咨询路由 ============
-
-const { analyzeClothingVision, generateSingleConsult, generateCompareConsult, detectCategory } = require('../services/qwen')
-const consultStore = require('../store/consult-store')
 
 router.post('/consult/analyze-clothing-vision', authRequired, async (req, res) => {
   try {
@@ -141,7 +297,6 @@ router.post('/consult/generate-single-consult', authRequired, async (req, res) =
 router.post('/consult/generate-compare-consult', authRequired, async (req, res) => {
   try {
     const { visualFeatures, userInfo, isRetry, reportSummary } = req.body
-    // 从 visualFeatures 中提取品类类型
     const items = Array.isArray(visualFeatures) ? visualFeatures : [visualFeatures]
     const category = items[0]?.category || (userInfo && userInfo.category) || ''
     const enrichedUserInfo = { ...(userInfo || {}), category }
@@ -160,43 +315,6 @@ router.post('/consult/detect-category', authRequired, async (req, res) => {
     res.json({ code: 0, data: category })
   } catch (err) {
     res.status(500).json({ code: -1, message: err.message })
-  }
-})
-
-// 图片上传（不需要鉴权，但会记录用户）
-const multer = require('multer')
-const path = require('path')
-const fs = require('fs')
-const UPLOAD_DIR = path.join(__dirname, '..', 'uploads')
-if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true })
-
-const storage = multer.diskStorage({
-  destination: UPLOAD_DIR,
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname) || '.jpg'
-    cb(null, `${Date.now()}_${Math.random().toString(36).substr(2, 8)}${ext}`)
-  }
-})
-const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } })
-
-router.post('/upload', upload.single('image'), (req, res) => {
-  if (!req.file) return res.status(400).json({ code: -1, message: '未收到文件' })
-  const url = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
-  res.json({ code: 0, data: { url } })
-})
-
-router.post('/upload-base64', (req, res) => {
-  try {
-    const { imageBase64, ext } = req.body
-    if (!imageBase64) return res.status(400).json({ code: -1, message: '缺少图片数据' })
-    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '')
-    const filename = `${Date.now()}_${Math.random().toString(36).substr(2, 8)}${ext || '.jpg'}`
-    const filePath = path.join(UPLOAD_DIR, filename)
-    fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'))
-    const url = `${req.protocol}://${req.get('host')}/uploads/${filename}`
-    res.json({ code: 0, data: { url } })
-  } catch (err) {
-    res.status(500).json({ code: -1, message: '上传失败' })
   }
 })
 

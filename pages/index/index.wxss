@@ -476,3 +476,132 @@
   background: rgba(200, 169, 126, 0.15);
   color: #8B7355;
 }
+
+/* ============ 登录确认弹窗 ============ */
+.login-modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-modal {
+  width: 600rpx;
+  background: #ffffff;
+  border-radius: 32rpx;
+  padding: 56rpx 48rpx 40rpx;
+  text-align: center;
+  animation: modalIn 0.3s ease;
+}
+
+@keyframes modalIn {
+  from { transform: scale(0.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.login-modal-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 12rpx;
+}
+
+.login-modal-desc {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 48rpx;
+}
+
+.login-avatar-area {
+  margin-bottom: 36rpx;
+}
+
+.login-avatar-btn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  line-height: normal;
+}
+
+.login-avatar-btn::after {
+  border: none;
+}
+
+.login-avatar-img {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  border: 4rpx solid #F1849B;
+}
+
+.login-avatar-placeholder {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  background: #f5f5f7;
+  border: 4rpx dashed #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-avatar-add {
+  font-size: 64rpx;
+  color: #ccc;
+}
+
+.login-avatar-edit {
+  font-size: 22rpx;
+  color: #F1849B;
+  margin-top: 12rpx;
+}
+
+.login-nickname-area {
+  margin-bottom: 40rpx;
+  padding: 0 20rpx;
+}
+
+.login-nickname-input {
+  width: 100%;
+  height: 80rpx;
+  background: #f5f5f7;
+  border-radius: 16rpx;
+  padding: 0 24rpx;
+  font-size: 28rpx;
+  color: #333;
+  text-align: center;
+}
+
+.login-confirm-btn {
+  width: 100%;
+  height: 88rpx;
+  background: linear-gradient(135deg, #F1849B, #E8607A);
+  border-radius: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-bottom: 20rpx;
+}
+
+.login-confirm-btn:active {
+  opacity: 0.85;
+}
+
+.login-skip {
+  font-size: 24rpx;
+  color: #999;
+  padding: 12rpx 0;
+}

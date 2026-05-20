@@ -8,12 +8,28 @@ const { analyzeClothingVision, generateSingleConsult, generateCompareConsult, de
 const { validateSingleResult, validateCompareResult, safeMergeSingleResult, safeMergeCompareResult } = require('../utils/consult-schema')
 const consultStore = require('../store/consult-store')
 const userStore = require('../store/user-store')
+const { resolveImageUrl } = require('../utils/cloud-storage')
 
-// 将本地服务器URL转为base64（兼容局域网IP）- 异步版
+// 将本地服务器URL转为base64（兼容局域网IP和云存储URL）- 异步版
 async function resolveLocalImage(img) {
   if (img.imageBase64) return img
   if (!img.imageUrl) return img
 
+  // 云存储 fileID，获取临时链接
+  if (img.imageUrl.startsWith('cloud://')) {
+    try {
+      const tempUrl = await resolveImageUrl(img.imageUrl)
+      return { ...img, imageUrl: tempUrl || img.imageUrl }
+    } catch (e) {
+      console.warn('[consult] 云存储URL解析失败:', e.message)
+      return img
+    }
+  }
+
+  // 远程 URL，直接传递
+  if (img.imageUrl.startsWith('http')) return img
+
+  // 本地文件
   const localMatch = img.imageUrl.match(/\/uploads\/(.+)$/)
   if (localMatch) {
     const filePath = path.join(__dirname, '..', 'uploads', localMatch[1])

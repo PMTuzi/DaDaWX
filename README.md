@@ -66,33 +66,35 @@
 
 ## 部署指南
 
-### 1. 后端服务
+### 云托管部署（已部署）
 
-```bash
-cd server
-cp .env.example .env
-# 编辑 .env 填入阿里云和微信配置
-npm install
-npm start
-```
+- **环境 ID**：`dada-d9gw8x8fb426caba5`
+- **后端服务**：`dada-server`（容器型云托管）
+- **后端地址**：`https://dada-server-260180-4-1435078506.sh.run.tcloudbase.com`
+- **配置**：0.5核 CPU / 1GB 内存 / 最小1实例 / 最大5实例
+- **访问方式**：公网 + 小程序访问
+- **环境变量**：通过云托管控制台配置，无需 `.env` 文件
 
-需要配置的环境变量：
-- `OSS_ACCESS_KEY_ID` / `OSS_ACCESS_KEY_SECRET` - 阿里云 OSS
-- `QWEN_API_KEY` - 通义千问 API Key
-- `WX_APPID` / `WX_SECRET` - 微信小程序配置
-
-### 2. 小程序
+### 小程序配置
 
 1. 使用微信开发者工具打开项目根目录
-2. 替换 `images/` 下的 TabBar 图标
-3. 修改 `utils/api.js` 中的 `baseUrl` 为后端服务地址
-4. 修改 `project.config.json` 中的 `appid`
-5. 编译运行
+2. `utils/api.js` 的 `baseUrl` 已指向云托管地址
+3. `project.config.json` 中的 `appid` 为 `wx4941a56c5b62a12a`
+4. 微信云托管域名自动加入小程序安全域名，无需手动配置
 
-### 3. 阿里云 OSS
+### 环境变量说明
 
-- 创建 OSS Bucket，设置跨域规则允许小程序域名
-- 配置生命周期规则，7天自动清理 uploads/ 目录
+| 变量 | 说明 |
+|------|------|
+| `ALIBABA_CLOUD_ACCESS_KEY_ID` | 阿里云 AccessKey ID |
+| `ALIBABA_CLOUD_ACCESS_KEY_SECRET` | 阿里云 AccessKey Secret |
+| `QWEN_API_KEY` | 通义千问 API Key |
+| `QWEN_VL_MODEL` | 视觉模型（qwen-vl-plus） |
+| `QWEN_TEXT_MODEL` | 文本模型（qwen-plus） |
+| `JWT_SECRET` | JWT 签名密钥 |
+| `WX_APPID` | 微信小程序 AppID |
+| `WX_SECRET` | 微信小程序 Secret |
+| `OSS_*` | 阿里云 OSS 配置（图片存储） |
 
 ## AI 诊断流程
 

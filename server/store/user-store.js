@@ -57,8 +57,20 @@ async function getUser(openid) {
 async function updateUser(openid, updates) {
   return store._withLock(LOCK_KEY, async () => {
     const data = await _loadAll()
-    const user = data.users.find(u => u.openid === openid)
-    if (!user) return null
+    let user = data.users.find(u => u.openid === openid)
+    // 用户不存在时自动创建（upsert）
+    if (!user) {
+      user = {
+        openid,
+        nickName: '搭搭用户',
+        avatarUrl: '',
+        createTime: new Date().toISOString(),
+        lastLoginTime: new Date().toISOString(),
+        reportCount: 0,
+        consultCount: 0
+      }
+      data.users.push(user)
+    }
     // 白名单更新字段
     const allowedFields = ['nickName', 'avatarUrl', 'gender', 'age', 'height', 'weight']
     for (const key of allowedFields) {

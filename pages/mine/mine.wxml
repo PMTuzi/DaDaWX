@@ -2,15 +2,26 @@
 <view class="page-mine">
   <!-- 用户信息 -->
   <view class="user-header">
-    <view class="user-info" wx:if="{{userInfo}}">
-      <image class="user-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" />
+    <!-- 已登录：显示头像 + 昵称（可编辑） -->
+    <view class="user-info" wx:if="{{isLoggedIn}}">
+      <view class="avatar-wrapper">
+        <image wx:if="{{userInfo.avatarUrl}}" class="user-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" binderror="onAvatarError" />
+        <view wx:else class="avatar-default">
+          <text class="avatar-default-icon">👤</text>
+        </view>
+        <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar" />
+      </view>
       <view class="user-detail">
-        <text class="user-name">{{userInfo.nickName}}</text>
+        <input class="user-name-input" type="nickname" value="{{userInfo.nickName || '搭搭用户'}}" 
+               bindblur="onNicknameInput" placeholder="点击设置昵称" />
         <text class="user-stat">已诊断 {{reportCount}} 次</text>
       </view>
     </view>
-    <view class="user-login" wx:else bindtap="onGetUserProfile">
-      <view class="avatar-placeholder icon icon-user" style="font-size:48rpx;"></view>
+    <!-- 未登录：点击登录 -->
+    <view class="user-login" wx:else bindtap="onTapUserHeader">
+      <view class="avatar-placeholder">
+        <text class="avatar-placeholder-text">未登录</text>
+      </view>
       <text class="login-text">点击登录</text>
     </view>
   </view>
@@ -56,7 +67,7 @@
     </view>
   </view>
 
-  <view class="menu-section" wx:if="{{userInfo}}">
+  <view class="menu-section" wx:if="{{isLoggedIn}}">
     <view class="menu-item logout" bindtap="onLogout">
       <text class="menu-text">退出登录</text>
     </view>

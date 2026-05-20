@@ -131,9 +131,6 @@ router.put('/profile', authRequired, async (req, res) => {
     if (avatarUrl) updates.avatarUrl = avatarUrl
 
     const user = await userStore.updateUser(req.user.openid, updates)
-    if (!user) {
-      return res.status(404).json({ code: -1, message: '用户不存在' })
-    }
     res.json({ code: 0, data: user })
   } catch (err) {
     console.error('[用户] 更新失败:', err.message)

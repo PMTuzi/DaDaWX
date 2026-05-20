@@ -1,5 +1,5 @@
 // pages/index/index.js
-const { wxLogin, runDiagnosis } = require('../../utils/api')
+const { wxLogin, ensureLogin, request, API, uploadImage } = require('../../utils/api')
 const { formatDate, getScoreLevel } = require('../../utils/format')
 
 Page({
@@ -9,7 +9,12 @@ Page({
     latestReport: null,
     scoreLevel: null,
     bannerImage: '/images/finalbanner2.jpg',
-    tickerList: []
+    tickerList: [],
+    // 登录确认弹窗
+    showLoginModal: false,
+    loginAvatarUrl: '',
+    loginNickname: '',
+    pendingAction: '' // 'diagnose' | 'outfit'
   },
 
   onLoad() {
@@ -45,9 +50,135 @@ Page({
     }
   },
 
-  // 立即诊断
+  // 立即诊断 - 需要登录确认
   onStartDiagnose() {
-    wx.navigateTo({ url: '/pages/diagnose/diagnose' })
+    this.requireLogin('diagnose')
+  },
+
+  // 穿搭决策 - 需要登录确认
+  onGoOutfit() {
+    this.requireLogin('outfit')
+  },
+
+  // 登录拦截：检查是否需要弹出登录确认
+  async requireLogin(action) {
+    const token = wx.getStorageSync('token')
+    const userInfo = wx.getStorageSync('userInfo')
+
+    // 已登录且有头像昵称，直接进入
+    if (token && userInfo && userInfo.avatarUrl && userInfo.nickName && userInfo.nickName !== '搭搭用户') {
+      this.navigateTo(action)
+      return
+    }
+
+    // 需要登录确认：先确保静默登录完成
+    try {
+      await ensureLogin()
+    } catch (e) {
+      wx.showToast({ title: '登录失败，请重试', icon: 'none' })
+      return
+    }
+
+    // 再次检查是否有完整资料
+    const info = wx.getStorageSync('userInfo')
+    // 清理临时头像URL
+    const hasValidAvatar = info?.avatarUrl && !this._isTempUrl(info.avatarUrl)
+    if (info && hasValidAvatar && info.nickName && info.nickName !== '搭搭用户') {
+      this.navigateTo(action)
+      return
+    }
+
+    // 弹出登录确认弹窗
+    this.setData({
+      showLoginModal: true,
+      pendingAction: action,
+      loginAvatarUrl: hasValidAvatar ? info.avatarUrl : '',
+      loginNickname: info?.nickName || ''
+    })
+  },
+
+  // 判断是否为临时URL
+  _isTempUrl(url) {
+    if (!url) return false
+    return url.startsWith('http://127.0.0.1') || url.startsWith('wxfile://') || url.includes('/__tmp__/')
+  },
+
+  // 选择头像
+  onChooseAvatar(e) {
+    const avatarUrl = e.detail.avatarUrl
+    if (avatarUrl) {
+      this.setData({ loginAvatarUrl: avatarUrl })
+    }
+  },
+
+  // 输入昵称
+  onNicknameInput(e) {
+    this.setData({ loginNickname: e.detail.value })
+  },
+
+  // 确认登录
+  async onConfirmLogin() {
+    const { loginAvatarUrl, loginNickname, pendingAction } = this.data
+
+    if (!loginNickname || !loginNickname.trim()) {
+      wx.showToast({ title: '请输入昵称', icon: 'none' })
+      return
+    }
+
+    wx.showLoading({ title: '保存中...' })
+
+    // 上传头像到云存储（如果是临时路径）
+    let avatarCloudUrl = loginAvatarUrl
+    if (loginAvatarUrl && (loginAvatarUrl.startsWith('http://127.0.0.1') || loginAvatarUrl.startsWith('wxfile://'))) {
+      try {
+        avatarCloudUrl = await uploadImage(loginAvatarUrl)
+      } catch (err) {
+        console.warn('[index] 头像上传失败:', err.message)
+        avatarCloudUrl = ''
+      }
+    }
+
+    // 保存用户信息
+    const userInfo = {
+      ...wx.getStorageSync('userInfo'),
+      avatarUrl: avatarCloudUrl,
+      nickName: loginNickname.trim(),
+      openid: wx.getStorageSync('userInfo')?.openid || ''
+    }
+    wx.setStorageSync('userInfo', userInfo)
+
+    // 同步到服务端
+    try {
+      const updates = {}
+      if (avatarCloudUrl) updates.avatarUrl = avatarCloudUrl
+      if (loginNickname) updates.nickName = loginNickname.trim()
+      await request(API.updateProfile, {
+        method: 'PUT',
+        data: updates
+      })
+    } catch (e) {
+      console.warn('[index] 同步用户信息失败:', e.message)
+    }
+
+    wx.hideLoading()
+    this.setData({ showLoginModal: false, pendingAction: '' })
+    this.navigateTo(pendingAction)
+  },
+
+  // 关闭登录弹窗
+  onCloseLoginModal() {
+    this.setData({ showLoginModal: false, pendingAction: '' })
+  },
+
+  // 阻止弹窗内部点击冒泡
+  onPreventBubble() {},
+
+  navigateTo(action) {
+    if (action === 'diagnose') {
+      wx.navigateTo({ url: '/pages/diagnose/diagnose' })
+    } else if (action === 'outfit') {
+      wx.navigateTo({ url: '/pages/outfit/outfit' })
+    }
   },
 
   // 查看最新报告
@@ -61,11 +192,6 @@ Page({
   // 查看历史报告
   onViewHistory() {
     wx.navigateTo({ url: '/pages/reports/reports' })
-  },
-
-  // 快捷入口
-  onGoOutfit() {
-    wx.navigateTo({ url: '/pages/outfit/outfit' })
   },
 
   // Banner点击
@@ -93,7 +219,6 @@ Page({
       '正在获取风格建议',
       '正在进行色彩诊断'
     ]
-    // 打乱数组，保证相邻项差异大
     const shuffle = arr => arr.slice().sort(() => Math.random() - 0.5)
     const sPrefixes = shuffle(prefixes)
     const sSuffixes = shuffle(suffixes)

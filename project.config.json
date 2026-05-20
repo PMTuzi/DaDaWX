@@ -3,40 +3,40 @@
   "packOptions": {
     "ignore": [
       {
-        "type": "folder",
-        "value": "server"
+        "value": "server",
+        "type": "folder"
       },
       {
-        "type": "folder",
-        "value": ".codebuddy"
+        "value": ".codebuddy",
+        "type": "folder"
       },
       {
-        "type": "file",
-        "value": "prd"
+        "value": "prd",
+        "type": "file"
       },
       {
-        "type": "file",
-        "value": "README.md"
+        "value": "README.md",
+        "type": "file"
       },
       {
-        "type": "file",
-        "value": ".env"
+        "value": ".env",
+        "type": "file"
       },
       {
-        "type": "glob",
-        "value": ".git/**"
+        "value": ".git/**",
+        "type": "glob"
       },
       {
-        "type": "glob",
-        "value": "*.png"
+        "value": "*.png",
+        "type": "glob"
       },
       {
-        "type": "glob",
-        "value": "*.mp4"
+        "value": "*.mp4",
+        "type": "glob"
       },
       {
-        "type": "file",
-        "value": "deploy.sh"
+        "value": "deploy.sh",
+        "type": "file"
       }
     ],
     "include": []
@@ -85,7 +85,7 @@
   },
   "compileType": "miniprogram",
   "libVersion": "3.16.0",
-  "appid": "wx4941a56c5b62a12a",
+  "appid": "wx8fc58531b3253205",
   "projectname": "dada",
   "condition": {},
   "simulatorPluginLibVersion": {},

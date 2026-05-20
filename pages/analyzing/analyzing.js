@@ -1,6 +1,6 @@
 // pages/analyzing/analyzing.js
-// 新架构：VL分析即时返回，跳转报告页后异步生图
-const { request, API } = require('../../utils/api')
+// 异步任务模式：提交分析 → 轮询结果，避免 callContainer 超时
+const { request, API, runDiagnosis } = require('../../utils/api')
 
 Page({
   data: {
@@ -87,32 +87,43 @@ Page({
 
   async startAnalysis() {
     try {
-      // 步骤1: 图片上传
+      // 步骤1: 图片上传完成
       await this.simulateStep(0, 10)
       this.setStepStatus(0, 'done')
 
-      // 步骤2: AI深度面部分析（VL Part1 + Part2，不再等待Seedream）
+      // 步骤2: 开始分析
       this.setStepStatus(1, 'active')
       await this.simulateStep(1, 20)
 
-      // 启动缓慢递增：API等待期间进度从20缓慢爬到80
-      this._startCreep(80, 2500)
+      // 启动缓慢递增
+      this._startCreep(85, 2500)
 
-      // 调用 full-analysis API（仅VL分析，即时返回）
-      const result = await request(API.fullAnalysis, {
-        method: 'POST',
-        data: {
-          imageUrl: this.data.imageUrl,
-          imageBase64: this.data.imageBase64 || '',
-          photoType: this.data.photoType,
-          photoUrl: this.data.imageUrl,
-          gender: this.data.gender,
+      // 异步任务模式：提交 → 轮询
+      const result = await runDiagnosis(
+        this.data.imageUrl,
+        this.data.imageBase64 || '',
+        this.data.photoType,
+        this.data.gender,
+        {
           age: this.data.age ? parseInt(this.data.age) : undefined,
           height: this.data.height ? parseFloat(this.data.height) : undefined,
-          weight: this.data.weight ? parseFloat(this.data.weight) : undefined
-        },
-        timeout: 300000  // VL分析含Part1+Part2+重试，最长约5分钟
-      })
+          weight: this.data.weight ? parseFloat(this.data.weight) : undefined,
+          photoUrl: this.data.imageUrl,
+          onProgress: (progress, step) => {
+            // 根据服务端进度更新UI
+            if (progress >= 40) {
+              this.safeSetData({ currentStep: 2 })
+              this.setStepStatus(1, 'done')
+              this.setStepStatus(2, 'active')
+            }
+            if (progress >= 80) {
+              this.safeSetData({ currentStep: 3 })
+              this.setStepStatus(2, 'done')
+              this.setStepStatus(3, 'active')
+            }
+          }
+        }
+      )
 
       this._stopCreep()
 
@@ -121,18 +132,13 @@ Page({
       }
 
       const data = result.data
+
+      // 快速走完剩余步骤
       this.setStepStatus(1, 'done')
-
-      // 快速走完剩余步骤（不再等待图片生成）
-      await this.simulateStep(2, 50)
       this.setStepStatus(2, 'done')
-
-      await this.simulateStep(3, 65)
       this.setStepStatus(3, 'done')
-
-      await this.simulateStep(4, 80)
+      await this.simulateStep(4, 90)
       this.setStepStatus(4, 'done')
-
       await this.simulateStep(5, 100)
       this.setStepStatus(5, 'done')
 
@@ -150,13 +156,11 @@ Page({
 
       this.saveReport(report)
 
-      // 即使页面已卸载，也通知用户结果已保存
       if (!this._alive) {
         wx.showToast({ title: '诊断完成，请在首页查看', icon: 'none', duration: 3000 })
         return
       }
 
-      // 跳转报告页
       setTimeout(() => {
         if (!this._alive) return
         try {

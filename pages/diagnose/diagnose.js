@@ -1,5 +1,5 @@
 // pages/diagnose/diagnose.js
-const { request, API, uploadImage } = require('../../utils/api')
+const { request, API, uploadImage, ensureLogin } = require('../../utils/api')
 
 Page({
   data: {
@@ -129,6 +129,14 @@ Page({
     }
     if (!this.data.age || parseInt(this.data.age) <= 0) {
       wx.showToast({ title: '请输入年龄', icon: 'none' })
+      return
+    }
+
+    // 登录拦截：确保用户已登录
+    try {
+      await ensureLogin()
+    } catch (e) {
+      wx.showToast({ title: '请先登录', icon: 'none' })
       return
     }
 

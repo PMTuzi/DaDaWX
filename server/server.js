@@ -78,14 +78,14 @@ app.use((req, res, next) => {
   next()
 })
 
-// 静态文件服务
+// 确保数据目录和上传目录存在
 const UPLOAD_DIR = path.join(__dirname, 'uploads')
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true })
-app.use('/uploads', express.static(UPLOAD_DIR))
-
-// 确保数据目录存在
 const DATA_DIR = path.join(__dirname, 'data')
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true })
+
+// 云存储工具
+const { uploadToCloud } = require('./utils/cloud-storage')
 
 // 文件上传（multer 错误处理）
 const storage = multer.diskStorage({
@@ -106,9 +106,9 @@ const upload = multer({
   }
 })
 
-// 上传路由（带限流）
+// 上传路由（带限流，上传到云存储）
 app.post('/api/upload', uploadLimiter, (req, res, next) => {
-  upload.single('image')(req, res, (err) => {
+  upload.single('image')(req, res, async (err) => {
     if (err) {
       if (err.code === 'LIMIT_FILE_SIZE') {
         return res.status(400).json({ code: -1, message: '图片不能超过10MB' })
@@ -118,13 +118,24 @@ app.post('/api/upload', uploadLimiter, (req, res, next) => {
     if (!req.file) {
       return res.status(400).json({ code: -1, message: '未收到文件' })
     }
-    const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
-    res.json({ code: 0, data: { url: fileUrl, filename: req.file.filename } })
+    try {
+      const cloudPath = `uploads/${req.file.filename}`
+      const fileBuffer = fs.readFileSync(req.file.path)
+      const cloudResult = await uploadToCloud(cloudPath, fileBuffer)
+      // 上传云存储成功后删除本地临时文件
+      try { fs.unlinkSync(req.file.path) } catch (e) {}
+      res.json({ code: 0, data: { url: cloudResult.url, fileID: cloudResult.fileID, filename: req.file.filename } })
+    } catch (cloudErr) {
+      // 云存储失败，降级返回本地 URL
+      console.warn('[upload] 云存储失败，降级为本地:', cloudErr.message)
+      const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
+      res.json({ code: 0, data: { url: fileUrl, filename: req.file.filename } })
+    }
   })
 })
 
-// Base64 上传（带限流 + 大小校验）
-app.post('/api/upload-base64', uploadLimiter, (req, res) => {
+// Base64 上传（带限流 + 大小校验，上传到云存储）
+app.post('/api/upload-base64', uploadLimiter, async (req, res) => {
   try {
     const { imageBase64, ext } = req.body
     if (!imageBase64) {
@@ -141,16 +152,20 @@ app.post('/api/upload-base64', uploadLimiter, (req, res) => {
     // 校验扩展名白名单
     const fileExt = ext && ['.jpg', '.jpeg', '.png', '.webp', '.avif'].includes(ext.toLowerCase()) ? ext : '.jpg'
     const filename = `${Date.now()}_${uuidv4().substr(0, 8)}${fileExt}`
-    const filePath = path.join(UPLOAD_DIR, filename)
 
-    fs.writeFile(filePath, buffer, (err) => {
-      if (err) {
-        console.error('[upload-base64] 写入失败:', err.message)
-        return res.status(500).json({ code: -1, message: 'base64上传失败' })
-      }
+    try {
+      // 直接上传 Buffer 到云存储
+      const cloudPath = `uploads/${filename}`
+      const cloudResult = await uploadToCloud(cloudPath, buffer)
+      res.json({ code: 0, data: { url: cloudResult.url, fileID: cloudResult.fileID, filename } })
+    } catch (cloudErr) {
+      // 云存储失败，降级存本地
+      console.warn('[upload-base64] 云存储失败，降级为本地:', cloudErr.message)
+      const filePath = path.join(UPLOAD_DIR, filename)
+      fs.writeFileSync(filePath, buffer)
       const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${filename}`
       res.json({ code: 0, data: { url: fileUrl, filename } })
-    })
+    }
   } catch (err) {
     console.error('[upload-base64] 失败:', err.message)
     res.status(500).json({ code: -1, message: 'base64上传失败' })
@@ -163,10 +178,8 @@ app.get('/api/health', (req, res) => res.json({ code: 0, message: 'ok', timestam
 
 // ===== 路由 =====
 // 无需鉴权
-const ossRoutes = require('./routes/oss')
 const userRoutes = require('./routes/user')
 
-app.use('/api/oss', ossRoutes)
 app.use('/api/user', userRoutes)
 
 // 需要鉴权（AI 接口加限流）

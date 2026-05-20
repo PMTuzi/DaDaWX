@@ -1,11 +1,15 @@
 // pages/mine/mine.js
+// 使用微信头像昵称填写能力（wx.getUserProfile 已废弃）
+const { request, API, ensureLogin, uploadImage } = require('../../utils/api')
+
 Page({
   data: {
     userInfo: null,
     hasReport: false,
     reportCount: 0,
     favoriteCount: 0,
-    consultCount: 0
+    consultCount: 0,
+    isLoggedIn: false
   },
 
   onLoad() {
@@ -17,43 +21,165 @@ Page({
   },
 
   loadUserInfo() {
-    const userInfo = wx.getStorageSync('userInfo')
+    const token = wx.getStorageSync('token')
+    let userInfo = wx.getStorageSync('userInfo')
+
+    // 清理无效的临时头像路径（热重载后失效）
+    if (userInfo && userInfo.avatarUrl && this._isTempUrl(userInfo.avatarUrl)) {
+      userInfo.avatarUrl = ''
+      wx.setStorageSync('userInfo', userInfo)
+    }
+
     const reports = wx.getStorageSync('reports') || []
     const favorites = wx.getStorageSync('favorites') || []
     const consults = wx.getStorageSync('consultRecords') || []
     this.setData({
       userInfo,
+      isLoggedIn: !!token,
       hasReport: reports.length > 0,
       reportCount: reports.length,
       favoriteCount: favorites.length,
       consultCount: consults.length
     })
+
+    // 已登录时从服务端同步最新用户信息
+    if (token) {
+      this.syncUserProfile()
+    }
   },
 
-  onGetUserProfile() {
-    wx.getUserProfile({
-      desc: '用于完善个人资料',
-      success: (res) => {
-        this.setData({ userInfo: res.userInfo })
-        wx.setStorageSync('userInfo', res.userInfo)
+  // 从服务端同步用户信息
+  async syncUserProfile() {
+    try {
+      const res = await request(API.getProfile, { method: 'GET' })
+      if (res && res.code === 0 && res.data) {
+        const serverInfo = res.data
+        const userInfo = {
+          openid: serverInfo.openid,
+          nickName: serverInfo.nickName || '搭搭用户',
+          avatarUrl: serverInfo.avatarUrl || ''
+        }
+        wx.setStorageSync('userInfo', userInfo)
+        this.setData({ userInfo })
       }
-    })
+    } catch (e) {
+      // 静默失败
+    }
+  },
+
+  // 点击头像区域 - 未登录时触发登录
+  async onTapUserHeader() {
+    if (this.data.isLoggedIn) return
+    try {
+      await ensureLogin()
+      this.loadUserInfo()
+    } catch (e) {
+      wx.showToast({ title: '登录失败，请重试', icon: 'none' })
+    }
+  },
+
+  // 头像图片加载失败
+  onAvatarError() {
+    const userInfo = this.data.userInfo || {}
+    userInfo.avatarUrl = ''
+    this.setData({ userInfo })
+    wx.setStorageSync('userInfo', userInfo)
+  },
+
+  // 判断是否为临时URL（会话内有效，热重载后失效）
+  _isTempUrl(url) {
+    if (!url) return false
+    return url.startsWith('http://127.0.0.1') || url.startsWith('wxfile://') || url.includes('/__tmp__/')
+  },
+
+  // 选择头像（微信头像昵称填写能力）
+  async onChooseAvatar(e) {
+    const tempUrl = e.detail.avatarUrl
+    if (!tempUrl) return
+
+    // 先用临时路径预览
+    const userInfo = this.data.userInfo || {}
+    userInfo.avatarUrl = tempUrl
+    this.setData({ userInfo })
+
+    // 上传到云存储获取永久URL
+    try {
+      const cloudUrl = await uploadImage(tempUrl)
+      userInfo.avatarUrl = cloudUrl
+      this.setData({ userInfo })
+      wx.setStorageSync('userInfo', userInfo)
+      this.updateProfileToServer({ avatarUrl: cloudUrl })
+    } catch (err) {
+      console.warn('[mine] 头像上传失败:', err.message)
+      wx.showToast({ title: '头像上传失败', icon: 'none' })
+    }
+  },
+
+  // 输入昵称
+  onNicknameInput(e) {
+    const nickName = e.detail.value
+    if (!nickName) return
+
+    const userInfo = this.data.userInfo || {}
+    userInfo.nickName = nickName
+    this.setData({ userInfo })
+    wx.setStorageSync('userInfo', userInfo)
+
+    // 上传到服务端
+    this.updateProfileToServer({ nickName })
+  },
+
+  // 更新用户信息到服务端
+  async updateProfileToServer(updates) {
+    try {
+      await ensureLogin()
+      await request(API.updateProfile, {
+        method: 'PUT',
+        data: updates
+      })
+    } catch (e) {
+      console.warn('[mine] 更新用户信息失败:', e.message)
+    }
   },
 
   onGoReports() {
-    wx.navigateTo({ url: '/pages/reports/reports' })
+    this.requireLogin(() => {
+      wx.navigateTo({ url: '/pages/reports/reports' })
+    })
   },
 
   onGoConsultHistory() {
-    wx.navigateTo({ url: '/pages/outfit/outfit' })
+    this.requireLogin(() => {
+      wx.navigateTo({ url: '/pages/outfit/outfit' })
+    })
   },
 
   onGoFavorites() {
-    wx.navigateTo({ url: '/pages/favorites/favorites' })
+    this.requireLogin(() => {
+      wx.navigateTo({ url: '/pages/favorites/favorites' })
+    })
   },
 
   onGoDiagnose() {
-    wx.navigateTo({ url: '/pages/diagnose/diagnose' })
+    this.requireLogin(() => {
+      wx.navigateTo({ url: '/pages/diagnose/diagnose' })
+    })
+  },
+
+  // 登录拦截：未登录时先登录再执行操作
+  async requireLogin(callback) {
+    const token = wx.getStorageSync('token')
+    if (token) {
+      callback()
+      return
+    }
+    try {
+      await ensureLogin()
+      this.loadUserInfo()
+      callback()
+    } catch (e) {
+      wx.showToast({ title: '请先登录', icon: 'none' })
+    }
   },
 
   onContact() {
@@ -84,7 +210,7 @@ Page({
         if (res.confirm) {
           wx.removeStorageSync('token')
           wx.removeStorageSync('userInfo')
-          this.setData({ userInfo: null })
+          this.setData({ userInfo: null, isLoggedIn: false })
           wx.showToast({ title: '已退出', icon: 'success' })
         }
       }

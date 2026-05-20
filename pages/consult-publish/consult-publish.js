@@ -1,5 +1,5 @@
 // pages/consult-publish/consult-publish.js
-const { request, API, uploadImage } = require('../../utils/api')
+const { request, API, uploadImage, ensureLogin } = require('../../utils/api')
 
 Page({
   data: {
@@ -347,6 +347,14 @@ Page({
   // ===== 提交 =====
   async onSubmit() {
     if (this.data.submitting) return
+
+    // 登录拦截
+    try {
+      await ensureLogin()
+    } catch (e) {
+      wx.showToast({ title: '请先登录', icon: 'none' })
+      return
+    }
 
     // 校验图片
     if (this.data.images.length < 1) {
