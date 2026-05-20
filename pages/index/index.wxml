@@ -11,13 +11,16 @@
     </view>
 
     <!-- 如果有最新报告，展示摘要 -->
-    <view class="report-summary" wx:if="{{hasReport}}" bindtap="onViewReport">
+    <view class="report-summary" wx:if="{{hasReport}}" bindtap="onViewReport" hover-class="report-summary-hover">
       <view class="summary-top">
         <view class="summary-header">
           <view class="summary-title-icon icon icon-chart" style="font-size:24rpx;"></view>
           <text class="summary-title">形象诊断报告</text>
         </view>
-        <text class="summary-arrow">›</text>
+        <view class="summary-tap-hint">
+          <text class="summary-tap-text">查看详情</text>
+          <text class="summary-arrow">›</text>
+        </view>
       </view>
       <view class="summary-body">
         <view class="score-circle" style="border-color: {{scoreLevel.color}}">
@@ -78,7 +81,7 @@
         <view class="btn-icon icon icon-dress"></view>
         <view class="btn-text">
           <text class="btn-main">开始穿搭「 反种草 」</text>
-          <text class="btn-sub">基于风格诊断报告，AI 帮你理性判断</text>
+          <text class="btn-sub">基于风格诊断报告，进行购物决策</text>
         </view>
       </view>
     </block>

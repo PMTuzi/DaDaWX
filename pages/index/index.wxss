@@ -44,7 +44,7 @@
   display: flex;
   flex-direction: column;
   position: relative;
-  z-index: 21;
+  z-index: 100;
   margin-left: -50rpx;
 }
 
@@ -63,16 +63,16 @@
 }
 
 .header-diagnosed .report-summary {
-  margin-top: -54rpx;
+  margin-top: -104rpx;
   margin-bottom: 20rpx;
 }
 
 .header-diagnosed + .action-area {
-  margin-top: -62rpx;
+  margin-top: -20rpx;
 }
 
 .header-diagnosed + .action-area + .banner-ad {
-  margin-top: -26rpx;
+  margin-top: 24rpx;
 }
 
 .logo {
@@ -95,8 +95,16 @@
   border: 1rpx solid #F0EBE5;
   border-radius: 20rpx;
   padding: 20rpx 24rpx 18rpx;
-  margin-top: 16rpx;
+  margin-top: -104rpx;
+  position: relative;
+  z-index: 100;
   box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.04);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.report-summary-hover {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
 }
 
 .summary-top {
@@ -124,9 +132,28 @@
 }
 
 .summary-arrow {
-  font-size: 32rpx;
+  font-size: 28rpx;
   color: #C8A97E;
   font-weight: 300;
+}
+
+.summary-tap-hint {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+  background: linear-gradient(135deg, rgba(200, 169, 126, 0.22), rgba(214, 158, 148, 0.22));
+  border-radius: 20rpx;
+  padding: 6rpx 16rpx;
+}
+
+.summary-tap-text {
+  font-size: 22rpx;
+  color: #B08070;
+  font-weight: 600;
+}
+
+.summary-tap-hint .summary-arrow {
+  color: #B08070;
 }
 
 .summary-body {
@@ -319,10 +346,9 @@
 /* 功能简介 */
 .feature-intro {
   flex-shrink: 0;
-  padding: 50rpx 32rpx 0;
+  padding: 20rpx 32rpx 0;
   position: relative;
   z-index: 20;
-  margin-top: -150rpx;
 }
 
 .feature-steps {
