@@ -18,22 +18,23 @@
 
   <!-- 综合评分头部 -->
   <view class="report-header">
-    <view class="user-avatar" wx:if="{{report.photoUrl}}">
-      <image class="avatar-img" src="{{report.photoUrl}}" mode="aspectFill" binderror="onAvatarError" />
-    </view>
-    <view class="user-avatar avatar-placeholder" wx:else>
-      <text class="avatar-fallback">Me</text>
-    </view>
-    <view class="header-right">
-      <view class="header-top-row">
-        <view class="score-display">
-          <text class="score-number">{{report.basic.overallScore}}</text>
-          <text class="score-unit">分</text>
-        </view>
-        <view class="score-tags">
-          <text class="tag" wx:for="{{report.basic.tags}}" wx:key="*this">{{item}}</text>
-        </view>
+    <view class="header-bg"></view>
+    <view class="header-content">
+      <!-- 大头像 -->
+      <view class="avatar-main">
+        <image class="avatar-main-img" src="{{report.photoUrl}}" mode="aspectFill" binderror="onAvatarError" wx:if="{{report.photoUrl}}" />
+        <text class="avatar-main-fallback" wx:else>Me</text>
       </view>
+      <!-- 分数 -->
+      <view class="score-row">
+        <text class="score-big">{{report.basic.overallScore}}</text>
+        <text class="score-suffix">/10</text>
+      </view>
+      <!-- 标签 -->
+      <view class="header-tags">
+        <text class="htag" wx:for="{{report.basic.tags}}" wx:key="*this">{{item}}</text>
+      </view>
+      <!-- 摘要 -->
       <view class="header-summary" wx:if="{{report.modules.optimize.coreConclusion}}">
         <text class="summary-text">{{report.modules.optimize.coreConclusion}}</text>
       </view>

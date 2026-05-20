@@ -25,9 +25,7 @@ Page({
       return
     }
 
-    this.setData({ report })
-
-    // 延迟绘制雷达图（等 DOM 渲染完成）
+    this.setData({ report, scoreRotation: Math.round((report.basic.overallScore / 10) * 360) })
     setTimeout(() => this.drawRadarChart(), 300)
   },
 
