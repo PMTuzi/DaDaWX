@@ -97,8 +97,9 @@
   z-index: 1;
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
-  padding: 28rpx 28rpx 12rpx;
+  align-items: center;
+  padding: 36rpx 32rpx 20rpx;
+  gap: 28rpx;
 }
 
 /* 大头像 */
@@ -114,7 +115,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  margin-top: 20rpx;
+  margin-top: 0;
 }
 
 .avatar-main-img {
@@ -134,37 +135,38 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  margin-left: 24rpx;
   min-width: 0;
+  gap: 12rpx;
 }
 
 /* 分数行 */
 .score-row {
   display: flex;
   align-items: baseline;
-  margin-bottom: 6rpx;
 }
 
 .score-big {
-  font-size: 60rpx;
+  font-size: 56rpx;
   font-weight: 800;
-  color: #B76E79;
-  text-shadow: 0 2rpx 12rpx rgba(201, 169, 110, 0.25);
+  letter-spacing: -1rpx;
+  line-height: 1;
+  color: #E20C0C;
+  text-shadow: 0 2rpx 12rpx rgba(226, 12, 12, 0.25);
 }
 
 .score-suffix {
   font-size: 28rpx;
-  color: #C9A96E;
-  margin-left: 6rpx;
-  font-weight: 600;
+  color: #B8935A;
+  margin-left: 4rpx;
+  font-weight: 700;
 }
 
 /* 标签 */
 .header-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8rpx;
-  margin-top: 4rpx;
+  gap: 10rpx;
+  margin-top: 10rpx;
 }
 
 .htag {
@@ -181,8 +183,8 @@
 .header-summary {
   position: relative;
   z-index: 1;
-  margin: 0 28rpx 24rpx;
-  padding: 10rpx 16rpx;
+  margin: 0 32rpx 28rpx;
+  padding: 16rpx 20rpx;
   background: rgba(255, 255, 255, 0.55);
   border-radius: 16rpx;
   width: auto;

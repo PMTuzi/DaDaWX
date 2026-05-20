@@ -6,8 +6,8 @@ const { request, API } = require('../../utils/api')
 Page({
   data: {
     report: null,
-    activeTab: 'dna',
-    tabKeys: ['dna', 'style', 'hairmakeup', 'optimize'],
+    activeTab: 'optimize',
+    tabKeys: ['optimize', 'dna', 'hairmakeup', 'style'],
     tabLabels: { dna: '面部&骨相', style: '皮肤&风格', hairmakeup: '发型&妆容', optimize: '颜值&蜕变' },
     shared: false,
     // Canvas 雷达图
@@ -87,7 +87,7 @@ Page({
     const features = data.faceFeatures.slice(0, 5)
     const labels = features.map(f => f.name)
     const scores = features.map(f => f.score || 5)
-    this._drawRadar(ctx, w, h, labels, scores, '#C8A97E', '骨相评分')
+    this._drawRadar(ctx, w, h, labels, scores, '#D4B87A', '骨相评分')
   },
 
   // 风格雷达图
@@ -96,7 +96,7 @@ Page({
     const labels = ['明度', '纯度', '量感', '冷暖', '饱和度']
     const warmCool = data.skinType === '暖皮' ? 8 : data.skinType === '冷皮' ? 3 : 5
     const scores = [data.brightness || 5, data.purity || 5, data.mass || 5, warmCool, 6]
-    this._drawRadar(ctx, w, h, labels, scores, '#E8A0BF', '风格属性')
+    this._drawRadar(ctx, w, h, labels, scores, '#6BA3D6', '风格属性')
   },
 
   // 发型雷达图
@@ -107,7 +107,7 @@ Page({
     const scores = top3.length > 0
       ? [top3[0].score || 7, 6, 5, 7, top3[0].score || 7]
       : [5, 5, 5, 5, 5]
-    this._drawRadar(ctx, w, h, labels, scores, '#D4A574', '发型适配')
+    this._drawRadar(ctx, w, h, labels, scores, '#E85C5C', '发型适配')
   },
 
   // 蜕变雷达图
@@ -115,7 +115,7 @@ Page({
     if (!data?.optimizablePoints) return
     const labels = ['五官协调', '皮肤状态', '发型适配', '妆容加分', '整体气质']
     const scores = [7, 6, 5, 6, 6]
-    this._drawRadar(ctx, w, h, labels, scores, '#8FBC8F', '蜕变潜力')
+    this._drawRadar(ctx, w, h, labels, scores, '#F0B8D0', '蜕变潜力')
   },
 
   // 通用雷达图绘制
