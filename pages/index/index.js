@@ -65,13 +65,13 @@ Page({
     const token = wx.getStorageSync('token')
     const userInfo = wx.getStorageSync('userInfo')
 
-    // 已登录且有头像昵称，直接进入
-    if (token && userInfo && userInfo.avatarUrl && userInfo.nickName && userInfo.nickName !== '搭搭用户') {
+    // 已登录（有token），直接进入
+    if (token) {
       this.navigateTo(action)
       return
     }
 
-    // 需要登录确认：先确保静默登录完成
+    // 未登录：先尝试静默登录
     try {
       await ensureLogin()
     } catch (e) {
@@ -79,22 +79,8 @@ Page({
       return
     }
 
-    // 再次检查是否有完整资料
-    const info = wx.getStorageSync('userInfo')
-    // 清理临时头像URL
-    const hasValidAvatar = info?.avatarUrl && !this._isTempUrl(info.avatarUrl)
-    if (info && hasValidAvatar && info.nickName && info.nickName !== '搭搭用户') {
-      this.navigateTo(action)
-      return
-    }
-
-    // 弹出登录确认弹窗
-    this.setData({
-      showLoginModal: true,
-      pendingAction: action,
-      loginAvatarUrl: hasValidAvatar ? info.avatarUrl : '',
-      loginNickname: info?.nickName || ''
-    })
+    // 静默登录成功，直接进入
+    this.navigateTo(action)
   },
 
   // 判断是否为临时URL
