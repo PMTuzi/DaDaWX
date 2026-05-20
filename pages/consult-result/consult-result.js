@@ -283,7 +283,7 @@ Page({
     return {
       title: score ? `穿搭评分 ${score}分 - AI帮你不踩雷` : 'AI穿搭决策 - 帮你不踩雷',
       path: '/pages/outfit/outfit',
-      imageUrl: '/images/finalbanner2.jpg'
+      imageUrl: '/images/邀请好友ootd打分.png'
     }
   }
 })

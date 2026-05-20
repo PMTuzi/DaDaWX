@@ -226,7 +226,29 @@ Page({
       wx.showToast({ title: '请先分享解锁', icon: 'none' })
       return
     }
-    wx.showToast({ title: '长按报告图片即可保存', icon: 'none' })
+    try {
+      const auth = await wx.getSetting()
+      if (!auth.authSetting['scope.writePhotosAlbum']) {
+        await wx.authorize({ scope: 'scope.writePhotosAlbum' })
+      }
+      wx.showLoading({ title: '生成图片中...' })
+      const tempPath = await this.drawReportCard()
+      await wx.saveImageToPhotosAlbum({ filePath: tempPath })
+      wx.hideLoading()
+      wx.showToast({ title: '已保存到相册', icon: 'success' })
+    } catch (err) {
+      wx.hideLoading()
+      if (err.errMsg?.includes('auth deny') || err.errMsg?.includes('authorize no response')) {
+        wx.showModal({
+          title: '需要相册权限',
+          content: '请在设置中开启相册权限后重试',
+          success(res) { if (res.confirm) wx.openSetting() }
+        })
+      } else {
+        console.error('[report] 保存失败:', err)
+        wx.showToast({ title: '保存失败，请重试', icon: 'none' })
+      }
+    }
   },
 
   onReDiagnose() {
@@ -237,6 +259,307 @@ Page({
     wx.navigateTo({ url: '/pages/diagnose/diagnose' })
   },
 
+  // ==================== 绘制报告卡片 ====================
+  _roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath()
+    ctx.moveTo(x + r, y)
+    ctx.lineTo(x + w - r, y)
+    ctx.arcTo(x + w, y, x + w, y + r, r)
+    ctx.lineTo(x + w, y + h - r)
+    ctx.arcTo(x + w, y + h, x + w - r, y + h, r)
+    ctx.lineTo(x + r, y + h)
+    ctx.arcTo(x, y + h, x, y + h - r, r)
+    ctx.lineTo(x, y + r)
+    ctx.arcTo(x, y, x + r, y, r)
+    ctx.closePath()
+  },
+
+  _truncateText(ctx, text, maxW) {
+    if (!text) return ''
+    if (ctx.measureText(text).width <= maxW) return text
+    while (text.length > 0 && ctx.measureText(text + '…').width > maxW) {
+      text = text.slice(0, -1)
+    }
+    return text + '…'
+  },
+
+  _wrapText(ctx, text, maxW, maxLines) {
+    if (!text) return []
+    const lines = []
+    let line = ''
+    for (let i = 0; i < text.length; i++) {
+      const test = line + text[i]
+      if (ctx.measureText(test).width > maxW && line) {
+        lines.push(line)
+        line = text[i]
+      } else {
+        line = test
+      }
+    }
+    if (line) lines.push(line)
+    if (maxLines && lines.length > maxLines) {
+      lines.length = maxLines
+      lines[maxLines - 1] = lines[maxLines - 1].replace(/.$/, '…')
+    }
+    return lines
+  },
+
+  _loadImage(canvas, src) {
+    return new Promise((resolve) => {
+      const img = canvas.createImage()
+      img.onload = () => resolve(img)
+      img.onerror = () => resolve(null)
+      img.src = src
+    })
+  },
+
+  drawReportCard() {
+    return new Promise((resolve, reject) => {
+      const query = wx.createSelectorQuery()
+      query.select('#report-card-canvas').fields({ node: true, size: true }).exec(async (res) => {
+        if (!res[0]) { reject(new Error('Canvas not found')); return }
+
+        const canvas = res[0].node
+        const ctx = canvas.getContext('2d')
+        const dpr = wx.getWindowInfo().pixelRatio
+        const w = res[0].width
+        const h = res[0].height
+        canvas.width = w * dpr
+        canvas.height = h * dpr
+        ctx.scale(dpr, dpr)
+
+        const report = this.data.report
+        const p = 20
+        const cw = w - p * 2
+
+        // === 背景 ===
+        ctx.fillStyle = '#FAFAF5'
+        this._roundRect(ctx, 0, 0, w, h, 16)
+        ctx.fill()
+
+        // === 顶部金色渐变 ===
+        const headerH = 90
+        const grad = ctx.createLinearGradient(0, 0, w, headerH)
+        grad.addColorStop(0, '#C8A97E')
+        grad.addColorStop(1, '#E8D5B7')
+        ctx.fillStyle = grad
+        ctx.fillRect(0, 0, w, headerH)
+
+        ctx.fillStyle = '#fff'
+        ctx.font = 'bold 18px sans-serif'
+        ctx.textAlign = 'center'
+        ctx.fillText('✦ 形象风格诊断报告', w / 2, 36)
+
+        ctx.font = '11px sans-serif'
+        ctx.fillStyle = 'rgba(255,255,255,0.8)'
+        const now = new Date()
+        const dateStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`
+        ctx.fillText(dateStr, w / 2, 56)
+
+        // === 评分区 ===
+        let y = headerH + 16
+
+        // 头像
+        const avatarR = 24
+        const avatarCX = p + avatarR
+        const avatarCY = y + avatarR + 2
+
+        ctx.save()
+        ctx.beginPath()
+        ctx.arc(avatarCX, avatarCY, avatarR, 0, Math.PI * 2)
+        ctx.fillStyle = '#E8D5B7'
+        ctx.fill()
+        ctx.strokeStyle = '#fff'
+        ctx.lineWidth = 2
+        ctx.stroke()
+        ctx.restore()
+
+        if (report.photoUrl) {
+          const avatarImg = await this._loadImage(canvas, report.photoUrl)
+          if (avatarImg) {
+            ctx.save()
+            ctx.beginPath()
+            ctx.arc(avatarCX, avatarCY, avatarR, 0, Math.PI * 2)
+            ctx.clip()
+            ctx.drawImage(avatarImg, avatarCX - avatarR, avatarCY - avatarR, avatarR * 2, avatarR * 2)
+            ctx.restore()
+          } else {
+            ctx.fillStyle = '#fff'
+            ctx.font = 'bold 13px sans-serif'
+            ctx.textAlign = 'center'
+            ctx.fillText('Me', avatarCX, avatarCY + 5)
+          }
+        } else {
+          ctx.fillStyle = '#fff'
+          ctx.font = 'bold 13px sans-serif'
+          ctx.textAlign = 'center'
+          ctx.fillText('Me', avatarCX, avatarCY + 5)
+        }
+
+        // 分数
+        const scoreX = p + avatarR * 2 + 14
+        ctx.textAlign = 'left'
+        ctx.fillStyle = '#333'
+        ctx.font = 'bold 30px sans-serif'
+        ctx.fillText(String(report.basic.overallScore), scoreX, avatarCY + 4)
+
+        const scoreW = ctx.measureText(String(report.basic.overallScore)).width
+        ctx.font = '12px sans-serif'
+        ctx.fillStyle = '#999'
+        ctx.fillText('分', scoreX + scoreW + 3, avatarCY + 4)
+
+        // 标签
+        if (report.basic.tags?.length) {
+          let tagX = scoreX
+          const tagY = avatarCY + 14
+          ctx.font = '10px sans-serif'
+          report.basic.tags.slice(0, 3).forEach(tag => {
+            const tw = ctx.measureText(tag).width + 12
+            ctx.fillStyle = '#F5F0EB'
+            this._roundRect(ctx, tagX, tagY, tw, 17, 8)
+            ctx.fill()
+            ctx.fillStyle = '#8B7355'
+            ctx.fillText(tag, tagX + 6, tagY + 12)
+            tagX += tw + 6
+          })
+        }
+
+        // === 模块卡片 ===
+        y = avatarCY + avatarR + 18
+
+        const sections = [
+          {
+            title: '🧬 面部&骨相', color: '#C8A97E',
+            show: !!report.modules.dna,
+            lines: () => {
+              const d = report.modules.dna
+              const l = [`${d.faceType || ''} · ${d.boneType || ''}`]
+              if (d.keyInsight) l.push('✦ ' + d.keyInsight)
+              return l
+            }
+          },
+          {
+            title: '🎨 皮肤&风格', color: '#E8A0BF',
+            show: !!report.modules.style,
+            lines: () => {
+              const d = report.modules.style
+              const l = [`${d.skinType || ''} · ${d.season || ''} · ${d.mainStyle || ''}`]
+              if (d.keyInsight) l.push('✦ ' + d.keyInsight)
+              return l
+            }
+          },
+          {
+            title: '✂️ 发型&妆容', color: '#D4A574',
+            show: !!report.modules.hairmakeup,
+            lines: () => {
+              const d = report.modules.hairmakeup
+              const top = d.hairRecommend?.top3?.[0]
+              const l = [top ? `推荐：${top.name} ${top.score}/10` : '']
+              if (d.keyInsight) l.push('✦ ' + d.keyInsight)
+              return l.filter(Boolean)
+            }
+          },
+          {
+            title: '🌟 颜值&蜕变', color: '#8FBC8F',
+            show: !!report.modules.optimize,
+            lines: () => {
+              const d = report.modules.optimize
+              const l = []
+              if (d.coreConclusion) l.push(d.coreConclusion)
+              if (d.keyInsight) l.push('✦ ' + d.keyInsight)
+              return l
+            }
+          }
+        ]
+
+        sections.forEach(sec => {
+          if (!sec.show) return
+          const lines = sec.lines()
+          if (!lines.length) return
+
+          // 计算卡片高度
+          const textLines = []
+          lines.forEach(line => {
+            ctx.font = '10px sans-serif'
+            textLines.push(...this._wrapText(ctx, line, cw - 24, 2))
+          })
+          const cardH = 14 + 16 + textLines.length * 15 + 10
+
+          // 卡片背景
+          ctx.fillStyle = '#fff'
+          this._roundRect(ctx, p, y, cw, cardH, 10)
+          ctx.fill()
+
+          // 左侧色条
+          ctx.fillStyle = sec.color
+          this._roundRect(ctx, p, y, 4, cardH, 2)
+          ctx.fill()
+
+          // 标题
+          ctx.font = 'bold 11px sans-serif'
+          ctx.fillStyle = '#333'
+          ctx.textAlign = 'left'
+          ctx.fillText(sec.title, p + 12, y + 16)
+
+          // 内容
+          ctx.font = '10px sans-serif'
+          let lineY = y + 30
+          textLines.forEach(line => {
+            ctx.fillStyle = line.startsWith('✦') ? '#999' : '#555'
+            ctx.fillText(line, p + 12, lineY)
+            lineY += 15
+          })
+
+          y += cardH + 8
+        })
+
+        // === 核心结论（如有额外空间）===
+        const conclusion = report.modules.optimize?.coreConclusion
+        if (conclusion && y < h - 80) {
+          ctx.font = '10px sans-serif'
+          const conLines = this._wrapText(ctx, conclusion, cw - 24, 3)
+          const conH = 12 + conLines.length * 14 + 10
+
+          ctx.fillStyle = '#F5F0EB'
+          this._roundRect(ctx, p, y, cw, conH, 10)
+          ctx.fill()
+
+          ctx.font = '10px sans-serif'
+          ctx.fillStyle = '#8B7355'
+          conLines.forEach((line, i) => {
+            ctx.fillText(line, p + 12, y + 16 + i * 14)
+          })
+          y += conH + 8
+        }
+
+        // === 底部水印 ===
+        const footerH = 48
+        const footerY = h - footerH - 8
+        ctx.fillStyle = '#F0EBE5'
+        this._roundRect(ctx, p, footerY, cw, footerH, 10)
+        ctx.fill()
+
+        ctx.font = 'bold 14px sans-serif'
+        ctx.fillStyle = '#8B7355'
+        ctx.textAlign = 'center'
+        ctx.fillText('美哒 Meeta', w / 2, footerY + 22)
+
+        ctx.font = '10px sans-serif'
+        ctx.fillStyle = '#B8A88A'
+        ctx.fillText('AI 形象风格诊断', w / 2, footerY + 38)
+
+        // === 导出 ===
+        setTimeout(() => {
+          wx.canvasToTempFilePath({
+            canvas,
+            success: (r) => resolve(r.tempFilePath),
+            fail: reject
+          })
+        }, 300)
+      })
+    })
+  },
+
   onShareAppMessage() {
     if (!this.data.shared) this.setData({ shared: true })
     const report = this.data.report
@@ -244,7 +567,7 @@ Page({
     return {
       title: score ? `我的形象风格AI评分：${score}分，快来测测你的风格！` : 'AI形象风格诊断，快来测测你的风格！',
       path: '/pages/index/index',
-      imageUrl: '/images/finalbanner2.jpg'
+      imageUrl: '/images/打分分享banner.png'
     }
   }
 })

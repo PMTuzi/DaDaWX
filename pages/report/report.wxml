@@ -392,6 +392,9 @@
     </view>
   </view>
 
+  <!-- 保存图片用的隐藏Canvas -->
+  <canvas type="2d" id="report-card-canvas" class="report-card-canvas"></canvas>
+
   <!-- 底部操作栏 -->
   <view class="share-bar safe-bottom">
     <button class="save-all-btn {{shared ? '' : 'locked'}}" bindtap="onSaveAllImages">

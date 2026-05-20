@@ -815,3 +815,11 @@
 .safe-bottom {
   padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
 }
+
+/* 隐藏的保存图片Canvas */
+.report-card-canvas {
+  position: fixed;
+  left: -9999rpx;
+  width: 680rpx;
+  height: 1200rpx;
+}
