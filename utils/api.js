@@ -87,6 +87,10 @@ async function ensureLogin() {
  * 使用 wx.cloud.callContainer，无需配置服务器域名
  */
 function callContainer(options) {
+  // 冷启动 / 102002 / system fail 自动重试：最多 3 次，递增等待
+  const maxRetry = options._retry != null ? options._retry : 2
+  const attempt = options._attempt || 0
+
   return new Promise((resolve, reject) => {
     wx.cloud.callContainer({
       config: { env: currentConfig.envId },
@@ -101,8 +105,19 @@ function callContainer(options) {
         resolve(res)
       },
       fail(err) {
-        console.error('[API] callContainer 失败:', options.path, err.errMsg || err.message)
-        reject(err)
+        const msg = (err && (err.errMsg || err.message)) || ''
+        // 命中冷启动/网络层错误：102002 / system fail / -606001 / timeout / fail
+        const retriable = /102002|system\s*fail|-606001|timeout|fail/i.test(msg)
+        console.error('[API] callContainer 失败:', options.path, msg, 'attempt=', attempt)
+        if (retriable && attempt < maxRetry) {
+          const delay = 800 * (attempt + 1)  // 800ms, 1600ms
+          setTimeout(() => {
+            callContainer({ ...options, _attempt: attempt + 1, _retry: maxRetry })
+              .then(resolve, reject)
+          }, delay)
+        } else {
+          reject(err)
+        }
       }
     })
   })
