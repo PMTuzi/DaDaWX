@@ -181,7 +181,7 @@
   top: 0;
   bottom: 0;
   width: 6rpx;
-  background: linear-gradient(180deg, #d88ca8, #c49060);
+  background: linear-gradient(180deg, #C9A96E, #B8935A);
   border-radius: 0 3rpx 3rpx 0;
 }
 
@@ -241,9 +241,7 @@
 }
 
 .verdict-compare {
-  background: linear-gradient(135deg, #d88ca8, #c49060);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #9A7B4F;
 }
 
 .type-tag {
@@ -265,8 +263,9 @@
 }
 
 .tag-compare {
-  background: rgba(196, 144, 96, 0.1);
-  color: #c49060;
+  background: rgba(200, 169, 126, 0.12);
+  color: #9A7B4F;
+  border: 1rpx solid rgba(200, 169, 126, 0.2);
 }
 
 .history-score-ring {
@@ -290,8 +289,8 @@
 }
 
 .ring-compare {
-  background: rgba(196, 144, 96, 0.08);
-  border: 3rpx solid rgba(196, 144, 96, 0.3);
+  background: rgba(200, 169, 126, 0.1);
+  border: 3rpx solid rgba(200, 169, 126, 0.35);
 }
 
 .history-score-ring .score-num {
@@ -308,9 +307,7 @@
 }
 
 .ring-compare .score-num {
-  background: linear-gradient(135deg, #d88ca8, #c49060);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #9A7B4F;
 }
 
 .history-bottom {

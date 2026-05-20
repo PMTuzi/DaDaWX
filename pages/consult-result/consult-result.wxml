@@ -2,42 +2,44 @@
 <wxs src="../../utils/helpers.wxs" module="h" />
 <view class="page-result" wx:if="{{record}}">
   <!-- 顶部决策结论 -->
-  <view class="verdict-section {{isCompare || record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? 'verdict-accept' : 'verdict-reject'}}">
+  <view class="verdict-section {{isCompare ? 'verdict-compare' : (record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? 'verdict-accept' : 'verdict-reject')}}">
     <view class="verdict-bg-glow"></view>
     <view class="verdict-bg-glow-2"></view>
-    <!-- 用户上传图片 -->
-    <view class="user-images" wx:if="{{record.images && record.images.length}}">
-      <image class="user-image" wx:for="{{record.images}}" wx:key="index"
-        src="{{item.localPath || item.imageUrl}}" mode="aspectFill" bindtap="onPreviewImage" data-url="{{item.localPath || item.imageUrl}}"
-        binderror="onImageError"></image>
-    </view>
-    <!-- 分数环 -->
-    <view class="score-ring-wrap" wx:if="{{record.totalScore}}">
-      <view class="score-ring-outer {{isCompare || record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? 'ring-accept' : 'ring-reject'}}">
-        <view class="score-ring-inner-wrap">
-          <view class="score-ring-glass"></view>
-          <view class="score-ring-inner">
-            <text class="score-big">{{h.toFixed1(record.totalScore)}}</text>
-            <text class="score-max">.0</text>
+    <!-- 主内容：左侧图片+分数环，右侧决策信息 -->
+    <view class="verdict-main" style="display:flex; align-items:flex-start; padding:28rpx 28rpx 16rpx; position:relative; z-index:2;">
+      <!-- 左侧：图片 + 分数环 -->
+      <view style="display:flex; flex-direction:column; align-items:center; gap:16rpx; flex-shrink:0;">
+        <view class="user-images" wx:if="{{record.images && record.images.length}}">
+          <image class="user-image" wx:for="{{record.images}}" wx:key="index"
+            src="{{item.localPath || item.imageUrl}}" mode="aspectFill" bindtap="onPreviewImage" data-url="{{item.localPath || item.imageUrl}}"
+            binderror="onImageError"></image>
+        </view>
+        <view class="score-ring-wrap" wx:if="{{record.totalScore}}">
+          <view class="score-ring-outer {{isCompare ? 'ring-compare' : (record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? 'ring-accept' : 'ring-reject')}}">
+            <view class="score-ring-inner-wrap">
+              <view class="score-ring-glass"></view>
+              <view class="score-ring-inner">
+                <text class="score-big">{{h.toFixed1(record.totalScore)}}</text>
+                <text class="score-max">.0</text>
+              </view>
+              <view class="score-ring-label">综合评分</view>
+            </view>
           </view>
-          <view class="score-ring-label">综合评分</view>
         </view>
       </view>
-    </view>
-    <!-- 决策标签 -->
-    <view class="verdict-stamp {{isCompare || record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? 'stamp-accept' : 'stamp-reject'}}">
-      <view class="stamp-border">
-        <view class="stamp-icon">{{isCompare || record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? '✓' : '✕'}}</view>
-        <view class="stamp-content">
-          <text class="stamp-sub">{{isCompare ? '最优推荐' : 'AI决策'}}</text>
-          <text class="stamp-text">{{record.verdict}}</text>
+      <!-- 右侧：决策标签 + 理由 -->
+      <view class="verdict-right">
+        <view class="verdict-stamp {{isCompare ? 'stamp-compare' : (record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? 'stamp-accept' : 'stamp-reject')}}">
+          <view class="stamp-border">
+            <view class="stamp-icon">{{isCompare ? '★' : (record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? '✓' : '✕')}}</view>
+            <text class="stamp-text">{{record.verdict}}</text>
+          </view>
+        </view>
+        <view class="personal-reason {{isCompare ? 'reason-compare' : (record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? 'reason-accept' : 'reason-reject')}}" wx:if="{{record.personalReason}}">
+          <view class="reason-icon icon icon-user" style="font-size:20rpx;"></view>
+          <text class="reason-text">{{record.personalReason}}</text>
         </view>
       </view>
-    </view>
-    <!-- 个人化理由摘要 -->
-    <view class="personal-reason {{isCompare || record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? 'reason-accept' : 'reason-reject'}}" wx:if="{{record.personalReason}}">
-      <view class="reason-icon icon icon-user" style="font-size:22rpx;"></view>
-      <text class="reason-text">{{record.personalReason}}</text>
     </view>
   </view>
 
@@ -51,19 +53,37 @@
 
     <!-- 各维度详情 -->
     <view class="card">
-      <view class="card-title">各维度分析</view>
+      <view class="card-title"><view class="icon icon-chart" style="font-size:28rpx;margin-right:6rpx;"></view> 各维度分析</view>
       <view class="dimension-list">
         <view class="dimension-item" wx:for="{{dimensionList}}" wx:key="key">
           <view class="dim-header">
-            <text class="dim-name"><view class="icon icon-{{item.icon}}" style="font-size:24rpx;margin-right:4rpx;"></view> {{item.name}}</text>
-            <text class="dim-score">{{item.score}}/10</text>
+            <view class="dim-name-wrap">
+              <view class="dim-icon-circle"><view class="icon icon-{{item.icon}}" style="font-size:22rpx;"></view></view>
+              <text class="dim-name">{{item.name}}</text>
+            </view>
+            <view class="dim-score-badge">
+              <text class="dim-score">{{item.score}}</text>
+              <text class="dim-score-max">/10</text>
+            </view>
           </view>
           <view class="score-bar">
             <view class="score-bar-inner {{item.score >= 7 ? 'bar-positive' : item.score < 5 ? 'bar-negative' : ''}}" style="width: {{item.score * 10}}%"></view>
           </view>
           <view class="dim-detail" wx:if="{{item.pros || item.cons}}">
-            <view class="detail-pros" wx:if="{{item.pros}}"><view class="icon icon-good" style="font-size:24rpx;color:var(--success);margin-right:4rpx;"></view> {{item.pros}}</view>
-            <view class="detail-cons" wx:if="{{item.cons}}"><view class="icon icon-warning" style="font-size:24rpx;color:var(--danger);margin-right:4rpx;"></view> {{item.cons}}</view>
+            <view class="detail-pros" wx:if="{{item.pros}}">
+              <view class="detail-icon-bubble bubble-pros"><view class="icon icon-good" style="font-size:18rpx;"></view></view>
+              <view class="detail-text-wrap">
+                <text class="detail-label">亮点</text>
+                <text class="detail-content">{{item.pros}}</text>
+              </view>
+            </view>
+            <view class="detail-cons" wx:if="{{item.cons}}">
+              <view class="detail-icon-bubble bubble-cons"><view class="icon icon-warning" style="font-size:18rpx;"></view></view>
+              <view class="detail-text-wrap">
+                <text class="detail-label">注意</text>
+                <text class="detail-content">{{item.cons}}</text>
+              </view>
+            </view>
           </view>
         </view>
       </view>
@@ -131,23 +151,43 @@
 
     <!-- 各款优缺点 -->
     <view class="card" wx:if="{{record.comparisons}}">
-      <view class="card-title">各款优缺点</view>
+      <view class="card-title"><view class="icon icon-balance" style="font-size:28rpx;margin-right:4rpx;"></view> 各款优缺点</view>
       <view class="comparison-list">
         <view class="comparison-item" wx:for="{{record.comparisons}}" wx:key="index">
-          <view class="comp-label">{{item.label}}</view>
-          <view class="comp-pros"><view class="icon icon-good" style="font-size:24rpx;color:var(--success);margin-right:4rpx;"></view> {{item.pros}}</view>
-          <view class="comp-cons"><view class="icon icon-warning" style="font-size:24rpx;color:var(--danger);margin-right:4rpx;"></view> {{item.cons}}</view>
+          <view class="comp-header">
+            <view class="comp-icon-circle"><view class="icon icon-dress" style="font-size:22rpx;"></view></view>
+            <text class="comp-label">{{item.label}}</text>
+          </view>
+          <view class="comp-detail" wx:if="{{item.pros || item.cons}}">
+            <view class="comp-pros" wx:if="{{item.pros}}">
+              <view class="comp-icon-bubble bubble-pros"><view class="icon icon-good" style="font-size:18rpx;"></view></view>
+              <view class="comp-text-wrap">
+                <text class="comp-detail-label">亮点</text>
+                <text class="comp-detail-content">{{item.pros}}</text>
+              </view>
+            </view>
+            <view class="comp-cons" wx:if="{{item.cons}}">
+              <view class="comp-icon-bubble bubble-cons"><view class="icon icon-warning" style="font-size:18rpx;"></view></view>
+              <view class="comp-text-wrap">
+                <text class="comp-detail-label">注意</text>
+                <text class="comp-detail-content">{{item.cons}}</text>
+              </view>
+            </view>
+          </view>
         </view>
       </view>
     </view>
 
     <!-- 最佳场景 -->
     <view class="card" wx:if="{{record.bestScenarios}}">
-      <view class="card-title">最佳使用场景</view>
+      <view class="card-title"><view class="icon icon-sparkle" style="font-size:28rpx;margin-right:4rpx;"></view> 最佳使用场景</view>
       <view class="scenario-list">
         <view class="scenario-item" wx:for="{{record.bestScenarios}}" wx:key="index">
-          <text class="scenario-label">{{item.label}}</text>
-          <text class="scenario-desc">{{item.scenario}}</text>
+          <view class="scenario-icon-circle"><view class="icon icon-target" style="font-size:20rpx;"></view></view>
+          <view class="scenario-text-wrap">
+            <text class="scenario-label">{{item.label}}</text>
+            <text class="scenario-desc">{{item.scenario}}</text>
+          </view>
         </view>
       </view>
     </view>
@@ -155,8 +195,7 @@
 
   <!-- ===== 哒哒评论（通用） ===== -->
   <view class="card dada-comment-card" wx:if="{{record.dadaComment}}">
-    <view class="card-title"><view class="icon icon-chat" style="font-size:28rpx;margin-right:4rpx;"></view>哒哒说</view>
-    <view class="dada-avatar icon icon-cat" style="font-size:48rpx;"></view>
+    <view class="card-title"><view class="icon icon-cat" style="font-size:28rpx;margin-right:4rpx;"></view>哒哒说</view>
     <view class="dada-comment">{{record.dadaComment}}</view>
   </view>
 

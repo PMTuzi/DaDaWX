@@ -9,7 +9,7 @@
         </view>
         <view class="report-info">
           <view class="report-tags">
-            <text class="tag tag-warm" wx:for="{{item.basic.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+            <text class="tag tag-gold" wx:for="{{item.basic.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
           </view>
           <view class="report-meta">
             <text class="report-time">{{item.createTime}}</text>
