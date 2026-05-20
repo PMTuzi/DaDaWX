@@ -244,6 +244,8 @@ Page({
     if (result.code !== 0) {
       throw new Error(result.message || '视觉分析失败')
     }
+    // 记录 sessionId，后续 single/compare 用 sessionId 替代 features 体积，避开 callContainer 1MB 限制
+    this._visionSessionId = result.data.visionSessionId
     return result.data.features
   },
 
@@ -251,7 +253,7 @@ Page({
     const result = await request(API.generateSingleConsult, {
       method: 'POST',
       data: {
-        visualFeatures: visionFeatures,
+        visionSessionId: this._visionSessionId,
         category: consultData.category,
         priceRange: consultData.priceRange,
         bodyFeatures: consultData.bodyFeatures,
@@ -274,7 +276,7 @@ Page({
     const result = await request(API.generateCompareConsult, {
       method: 'POST',
       data: {
-        visualFeatures: visionFeatures,
+        visionSessionId: this._visionSessionId,
         compareScene: consultData.compareScene,
         priceList: consultData.priceList,
         styleDiff: consultData.styleDiff,

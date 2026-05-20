@@ -4,11 +4,32 @@ const router = express.Router()
 const { authRequired } = require('../middleware/auth')
 const fs = require('fs')
 const path = require('path')
+const crypto = require('crypto')
 const { analyzeClothingVision, generateSingleConsult, generateCompareConsult, detectCategory } = require('../services/qwen')
 const { validateSingleResult, validateCompareResult, safeMergeSingleResult, safeMergeCompareResult } = require('../utils/consult-schema')
 const consultStore = require('../store/consult-store')
 const userStore = require('../store/user-store')
 const { resolveImageUrl } = require('../utils/cloud-storage')
+
+// === Vision features 内存缓存：避免 compare/single 请求体超 callContainer 1MB 限制 ===
+const visionCache = new Map()  // sessionId -> { features, expireAt }
+const VISION_TTL = 30 * 60 * 1000  // 30 分钟
+function putVisionCache(features) {
+  const id = crypto.randomBytes(8).toString('hex')
+  visionCache.set(id, { features, expireAt: Date.now() + VISION_TTL })
+  return id
+}
+function getVisionCache(id) {
+  const item = visionCache.get(id)
+  if (!item) return null
+  if (item.expireAt < Date.now()) { visionCache.delete(id); return null }
+  return item.features
+}
+// 周期清理过期缓存
+setInterval(() => {
+  const now = Date.now()
+  for (const [k, v] of visionCache.entries()) if (v.expireAt < now) visionCache.delete(k)
+}, 5 * 60 * 1000).unref?.()
 
 // 将本地服务器URL转为base64（兼容局域网IP和云存储URL）- 异步版
 async function resolveLocalImage(img) {
@@ -60,7 +81,10 @@ router.post('/analyze-clothing-vision', authRequired, async (req, res) => {
 
     const resolvedImages = await Promise.all(images.map(resolveLocalImage))
     const result = await analyzeClothingVision(resolvedImages, consultType)
-    res.json({ code: 0, data: { features: result } })
+    const visionSessionId = putVisionCache(result)
+    const featuresSize = JSON.stringify(result).length
+    console.log(`[穿搭咨询] 视觉分析成功 sessionId=${visionSessionId} 特征大小=${featuresSize}B`)
+    res.json({ code: 0, data: { features: result, visionSessionId } })
   } catch (err) {
     console.error('[穿搭咨询] 视觉分析失败:', err.message)
     res.status(500).json({ code: -1, message: err.message || '视觉分析失败' })
@@ -69,10 +93,14 @@ router.post('/analyze-clothing-vision', authRequired, async (req, res) => {
 
 // 单品决策
 router.post('/generate-single-consult', authRequired, async (req, res) => {
+  console.log(`[穿搭咨询] 收到单品请求 user=${req.user?.openid?.slice(0,8)} body大小=${JSON.stringify(req.body).length}B`)
   try {
-    const { visualFeatures, category, priceRange, bodyFeatures, wearScenes, trouble, consultScene, images, reportSummary } = req.body
+    let { visualFeatures, visionSessionId, category, priceRange, bodyFeatures, wearScenes, trouble, consultScene, images, reportSummary } = req.body
+    if (!visualFeatures && visionSessionId) {
+      visualFeatures = getVisionCache(visionSessionId)
+    }
     if (!visualFeatures) {
-      return res.status(400).json({ code: -1, message: '缺少视觉分析数据' })
+      return res.status(400).json({ code: -1, message: '缺少视觉分析数据（sessionId 已过期请重新上传图片）' })
     }
 
     const result = await generateSingleConsult(visualFeatures, {
@@ -111,10 +139,14 @@ router.post('/generate-single-consult', authRequired, async (req, res) => {
 
 // 多选一决策
 router.post('/generate-compare-consult', authRequired, async (req, res) => {
+  console.log(`[穿搭咨询] 收到多选一请求 user=${req.user?.openid?.slice(0,8)} body大小=${JSON.stringify(req.body).length}B`)
   try {
-    const { visualFeatures, compareScene, priceList, styleDiff, reason, images, reportSummary } = req.body
+    let { visualFeatures, visionSessionId, compareScene, priceList, styleDiff, reason, images, reportSummary } = req.body
+    if (!visualFeatures && visionSessionId) {
+      visualFeatures = getVisionCache(visionSessionId)
+    }
     if (!visualFeatures) {
-      return res.status(400).json({ code: -1, message: '缺少视觉分析数据' })
+      return res.status(400).json({ code: -1, message: '缺少视觉分析数据（sessionId 已过期请重新上传图片）' })
     }
 
     const result = await generateCompareConsult(visualFeatures, {
