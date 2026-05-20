@@ -62,9 +62,15 @@
   transition: all 0.3s;
 }
 
-.gender-item.active {
-  background: #C8A97E;
-  color: #ffffff;
+.gender-item.female-active {
+  background: #F8C0D0;
+  color: #D4567A;
+  font-weight: 600;
+}
+
+.gender-item.male-active {
+  background: #C4DFF6;
+  color: #3B7DD8;
   font-weight: 600;
 }
 
@@ -311,8 +317,9 @@
   width: 100%;
   height: 88rpx;
   font-size: 32rpx;
+  background: #F1849B !important;
 }
 
-.start-btn[disabled] {
+.start-btn.disabled {
   opacity: 0.5;
 }

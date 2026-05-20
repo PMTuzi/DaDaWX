@@ -34,8 +34,8 @@
   <view class="gender-section">
     <text class="gender-label">性别</text>
     <view class="gender-switch">
-      <view class="gender-item {{gender === 'female' ? 'active' : ''}}" data-gender="female" bindtap="onSwitchGender">女</view>
-      <view class="gender-item {{gender === 'male' ? 'active' : ''}}" data-gender="male" bindtap="onSwitchGender">男</view>
+      <view class="gender-item {{gender === 'female' ? 'active female-active' : ''}}" data-gender="female" bindtap="onSwitchGender">女</view>
+      <view class="gender-item {{gender === 'male' ? 'active male-active' : ''}}" data-gender="male" bindtap="onSwitchGender">男</view>
     </view>
   </view>
 
@@ -84,8 +84,8 @@
 
   <!-- 开始分析按钮 -->
   <view class="action-area safe-bottom">
-    <button class="btn-primary start-btn" bindtap="onStartAnalysis" disabled="{{isUploading || !photoUrl}}" loading="{{isUploading}}">
-      {{isUploading ? '上传中...' : '开始 AI 诊断'}}
+    <button class="btn-primary start-btn {{isUploading || !photoUrl ? 'disabled' : ''}}" bindtap="onStartAnalysis" disabled="{{isUploading || !photoUrl}}" loading="{{isUploading}}">
+      {{isUploading ? '上传中...' : '开始诊断'}}
     </button>
   </view>
 </view>

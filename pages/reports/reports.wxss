@@ -113,7 +113,7 @@
   align-items: center;
   justify-content: center;
   gap: 8rpx;
-  background: #C9A96E;
+  background: #F1849B;
   color: #ffffff;
   font-size: 26rpx;
   font-weight: 500;
