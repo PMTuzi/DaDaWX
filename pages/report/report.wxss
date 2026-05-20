@@ -778,7 +778,7 @@
 }
 
 .share-btn {
-  background: #C8A97E;
+  background: #F1849B;
   color: #ffffff;
   flex-direction: row;
   gap: 6rpx;

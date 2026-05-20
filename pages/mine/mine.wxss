@@ -5,7 +5,7 @@
 }
 
 .user-header {
-  background: linear-gradient(135deg, #1a1a2e, #2d2d4a);
+  background: #F1849B;
   padding: 60rpx 32rpx 40rpx;
 }
 
