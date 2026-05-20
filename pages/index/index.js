@@ -65,22 +65,38 @@ Page({
     const token = wx.getStorageSync('token')
     const userInfo = wx.getStorageSync('userInfo')
 
-    // 已登录（有token），直接进入
-    if (token) {
+    // 已登录且已设置昵称，直接进入
+    if (token && userInfo && userInfo.nickName && userInfo.nickName !== '搭搭用户') {
       this.navigateTo(action)
       return
     }
 
-    // 未登录：先尝试静默登录
-    try {
-      await ensureLogin()
-    } catch (e) {
-      wx.showToast({ title: '登录失败，请重试', icon: 'none' })
+    // 未登录：先静默登录
+    if (!token) {
+      try {
+        await ensureLogin()
+      } catch (e) {
+        wx.showToast({ title: '登录失败，请重试', icon: 'none' })
+        return
+      }
+    }
+
+    // 登录后检查是否已设置昵称
+    const info = wx.getStorageSync('userInfo')
+    if (info && info.nickName && info.nickName !== '搭搭用户') {
+      this.navigateTo(action)
       return
     }
 
-    // 静默登录成功，直接进入
-    this.navigateTo(action)
+    // 昵称未设置，弹出设置弹窗（自动聚焦昵称输入框，触发微信昵称选择）
+    const hasValidAvatar = info?.avatarUrl && !this._isTempUrl(info.avatarUrl)
+    this.setData({
+      showLoginModal: true,
+      pendingAction: action,
+      loginAvatarUrl: hasValidAvatar ? info.avatarUrl : '',
+      loginNickname: '',
+      autoFocusNickname: true
+    })
   },
 
   // 判断是否为临时URL
@@ -156,6 +172,15 @@ Page({
     this.setData({ showLoginModal: false, pendingAction: '' })
   },
 
+  // 跳过设置，直接进入
+  onSkipLogin() {
+    const { pendingAction } = this.data
+    this.setData({ showLoginModal: false, pendingAction: '', autoFocusNickname: false })
+    if (pendingAction) {
+      this.navigateTo(pendingAction)
+    }
+  },
+
   // 阻止弹窗内部点击冒泡
   onPreventBubble() {},
 
@@ -163,7 +188,13 @@ Page({
     if (action === 'diagnose') {
       wx.navigateTo({ url: '/pages/diagnose/diagnose' })
     } else if (action === 'outfit') {
-      wx.navigateTo({ url: '/pages/outfit/outfit' })
+      // 没有穿搭记录时直接进入信息填写页，有记录时进入列表页
+      const consults = wx.getStorageSync('consultRecords') || []
+      if (consults.length === 0) {
+        wx.navigateTo({ url: '/pages/consult-publish/consult-publish' })
+      } else {
+        wx.navigateTo({ url: '/pages/outfit/outfit' })
+      }
     }
   },
 

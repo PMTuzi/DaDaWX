@@ -123,8 +123,8 @@
   <!-- 登录确认弹窗 -->
   <view class="login-modal-mask" wx:if="{{showLoginModal}}" bindtap="onCloseLoginModal">
     <view class="login-modal" catchtap="onPreventBubble">
-      <view class="login-modal-title">开启你的美哒之旅</view>
-      <view class="login-modal-desc">设置头像和昵称，开始使用 AI 形象分析</view>
+      <view class="login-modal-title">完善个人信息</view>
+      <view class="login-modal-desc">点击即可获取微信头像和昵称，也可自行编辑</view>
 
       <!-- 头像选择 -->
       <view class="login-avatar-area">
@@ -139,8 +139,9 @@
 
       <!-- 昵称输入 -->
       <view class="login-nickname-area">
-        <input class="login-nickname-input" type="nickname" placeholder="输入你的昵称"
-               value="{{loginNickname}}" bindblur="onNicknameInput" bindconfirm="onNicknameInput" />
+        <input class="login-nickname-input" type="nickname" placeholder="点击获取微信昵称"
+               value="{{loginNickname}}" bindblur="onNicknameInput" bindconfirm="onNicknameInput"
+               focus="{{autoFocusNickname}}" />
       </view>
 
       <!-- 确认按钮 -->
@@ -149,7 +150,7 @@
       </view>
 
       <!-- 跳过 -->
-      <view class="login-skip" bindtap="onCloseLoginModal">暂不设置</view>
+      <view class="login-skip" bindtap="onSkipLogin">暂不设置，直接体验</view>
     </view>
   </view>
 

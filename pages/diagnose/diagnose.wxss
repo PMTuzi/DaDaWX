@@ -3,7 +3,7 @@
   min-height: 100vh;
   background: #FAFAF5;
   padding-top: 48rpx;
-  padding-bottom: calc(140rpx + env(safe-area-inset-bottom));
+  padding-bottom: calc(160rpx + env(safe-area-inset-bottom));
 }
 
 .type-switch {
@@ -308,7 +308,8 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 20rpx 32rpx;
+  padding: 24rpx 32rpx;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
   background: #ffffff;
   box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.06);
 }
