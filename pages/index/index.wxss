@@ -249,7 +249,7 @@
   padding: 36rpx 40rpx;
   gap: 24rpx;
   box-shadow: 0 8rpx 32rpx rgba(249, 184, 201, 0.35);
-  background: linear-gradient(135deg, #F9B8C9, #F78BA8);
+  background: #F1849B;
   position: relative;
   overflow: hidden;
 }

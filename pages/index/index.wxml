@@ -77,7 +77,11 @@
     </block>
     <!-- 已诊断：穿搭决策为主按钮 -->
     <block wx:else>
-      <view class="diagnose-btn btn-primary" bindtap="onGoOutfit">
+      <view class="diagnose-btn btn-primary btn-sparkle" bindtap="onGoOutfit">
+        <view class="sparkle sparkle-1">✦</view>
+        <view class="sparkle sparkle-2">✧</view>
+        <view class="sparkle sparkle-3">✦</view>
+        <view class="sparkle sparkle-4">✧</view>
         <view class="btn-icon icon icon-dress"></view>
         <view class="btn-text">
           <text class="btn-main">开始穿搭「 反种草 」</text>

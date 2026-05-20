@@ -30,9 +30,9 @@
   margin: 0 32rpx;
   padding: 36rpx 40rpx;
   gap: 24rpx;
-  background: linear-gradient(135deg, #C8A97E, #B8966E);
+  background: #F1849B;
   border-radius: 24rpx;
-  box-shadow: 0 8rpx 32rpx rgba(200, 169, 126, 0.3);
+  box-shadow: 0 8rpx 32rpx rgba(241, 132, 155, 0.3);
 }
 
 .unified-card .card-icon {

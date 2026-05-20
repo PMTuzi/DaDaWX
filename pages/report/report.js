@@ -546,6 +546,7 @@ Page({
 
         ctx.font = '10px sans-serif'
         ctx.fillStyle = '#B8A88A'
+        
         ctx.fillText('AI 形象风格诊断', w / 2, footerY + 38)
 
         // === 导出 ===
