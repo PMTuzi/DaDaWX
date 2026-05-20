@@ -10,7 +10,7 @@ Page({
     // ===== 单品标签 =====
     category: '',
     categoryIndex: -1,
-    categoryOptions: ['上衣', '裤子', '半裙', '连衣裙', '外套', '衬衫', 'T恤', '针织衫', '卫衣', '风衣', '大衣', '羽绒服', '牛仔', '其他'],
+    categoryOptions: ['上衣', '裤子', '半裙', '连衣裙', '外套', '衬衫', 'T恤', '针织衫', '卫衣', '风衣', '大衣', '羽绒服', '牛仔', '口红/唇釉', '腮红', '眼影', '帽子', '围巾', '领带', '耳环', '项链', '手链/手镯', '包包', '鞋子', '腰带', '手表', '墨镜', '其他'],
     categoryDetected: false, // AI是否已识别类别
     priceRange: '',
     priceRangeIndex: -1,
@@ -24,22 +24,22 @@ Page({
     // 穿搭困扰（单选）
     trouble: '',
     troubleIndex: -1,
-    troubleOptions: ['不知道怎么搭', '怕显胖/显矮', '颜色不知道配什么', '不知道适不适合自己', '担心过时快', '没有困扰'],
+    troubleOptions: ['不知道怎么搭', '怕显胖/显矮/显黑', '颜色不知道配什么', '不知道适不适合自己', '担心过时快', '不确定质感好不好', '没有困扰'],
     // ===== 对比标签 =====
     // 对比场景（单选，必填）
     compareScene: '',
     compareSceneIndex: -1,
-    compareSceneOptions: ['日常通勤', '约会聚会', '休闲逛街', '运动户外', '正式场合'],
+    compareSceneOptions: ['日常通勤', '约会聚会', '休闲逛街', '运动户外', '正式场合', '聚会派对'],
     // 各款价格
     priceList: [],
     priceListIndexes: [],
     // 风格差异（多选 0-3）
     styleDiff: [],
-    styleDiffOptions: ['简约vs华丽', '休闲vs正式', '甜美vs酷飒', '基础vs设计感', '低调vs吸睛', '经典vs流行'],
+    styleDiffOptions: ['简约vs华丽', '休闲vs正式', '甜美vs酷飒', '基础vs设计感', '低调vs吸睛', '经典vs流行', '日常vs派对'],
     // 纠结原因（单选）
     reason: '',
     reasonIndex: -1,
-    reasonOptions: ['不知道哪件更显瘦', '不确定哪件更百搭', '不知道哪件质感更好', '价格差异大不知怎么选', '都喜欢不知道选哪件'],
+    reasonOptions: ['不知道哪个更适合我', '不确定哪个更百搭', '不知道哪个质感更好', '价格差异大不知怎么选', '都喜欢不知道选哪个', '不确定哪个颜色更衬我'],
     // 状态
     submitting: false,
     imageErrors: []
@@ -150,7 +150,7 @@ Page({
     }
   },
 
-  // AI自动识别服饰类别
+  // AI自动识别穿搭类别
   async autoDetectCategory(imagePath) {
     try { this.setData({ categoryDetected: false }) } catch (e) {}
     try {
@@ -359,7 +359,7 @@ Page({
     // 单品必填校验
     if (!isCompare) {
       if (!this.data.category) {
-        wx.showToast({ title: '请选择服饰类别', icon: 'none' }); return
+        wx.showToast({ title: '请选择穿搭类别', icon: 'none' }); return
       }
       if (!this.data.priceRange) {
         wx.showToast({ title: '请选择价格区间', icon: 'none' }); return

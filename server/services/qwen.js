@@ -322,23 +322,26 @@ ${JSON.stringify(part1Data, null, 2)}
 
 async function analyzeClothingVision(images, consultType = 'single') {
   const isCompare = consultType === 'compare'
-  const labelPrefix = isCompare ? images.map((_, i) => `款式${String.fromCharCode(65 + i)}`).join('、') : '该服饰'
-  const prompt = `你是一位专业的时尚买手和穿搭顾问AI，请仔细观察${isCompare ? '以下多件' : '这'}服饰图片，提取每件衣物的视觉特征信息。
+  const labelPrefix = isCompare ? images.map((_, i) => `选项${String.fromCharCode(65 + i)}`).join('、') : '该单品'
+  const prompt = `你是一位专业的时尚买手和穿搭顾问AI，请仔细观察${isCompare ? '以下多个' : '这'}穿搭单品图片，提取每个单品的视觉特征信息。
 
-${isCompare ? `图片中有${images.length}件不同服饰，分别标记为${labelPrefix}。请对每件分别分析。` : '请对该服饰进行全面分析。'}
+${isCompare ? `图片中有${images.length}个不同单品，分别标记为${labelPrefix}。请对每个分别分析。` : '请对该单品进行全面分析。'}
+
+注意：单品可能是服装、口红/彩妆、配饰（帽子/围巾/领带/耳环/项链/手表/墨镜/腰带/包包/鞋子等）中的任何一种，请根据实际内容灵活分析。
 
 以JSON格式输出：
 {
   "items": [
     {
-      "label": "${isCompare ? '款式A/B/C/D' : '该服饰'}",
-      "category": "服饰类别",
+      "label": "${isCompare ? '选项A/B/C/D' : '该单品'}",
+      "category": "单品类别（如：上衣/口红/帽子/耳环等）",
+      "categoryType": "clothing/makeup/accessory",
       "subCategory": "细分类型",
       "color": { "main": "主色调", "secondary": "副色调", "tone": "冷暖调性", "saturation": "饱和度" },
-      "fabric": { "type": "面料类型", "texture": "质感描述", "thickness": "厚薄", "drape": "垂坠感" },
-      "fit": { "silhouette": "版型", "shoulder": "肩型", "length": "衣长", "detail": "剪裁细节描述" },
-      "style": { "overall": "整体风格", "occasion": "适合场景", "season": "适合季节" },
-      "craftsmanship": { "stitching": "缝线工艺", "details": "细节设计描述", "lining": "是否有内衬", "overall": "做工整体评价" }
+      "fabric": { "type": "材质类型", "texture": "质感描述", "thickness": "厚薄/质地浓稠度", "drape": "垂坠感/上脸效果" },
+      "fit": { "silhouette": "版型/外形", "shoulder": "肩型/佩戴方式", "length": "长度/尺寸", "detail": "剪裁/设计细节描述" },
+      "style": { "overall": "整体风格", "occasion": "适合场景", "season": "适合季节/场合" },
+      "craftsmanship": { "stitching": "工艺/做工", "details": "细节设计描述", "lining": "是否有内衬/包装", "overall": "品质整体评价" }
     }
   ]
 }
@@ -376,6 +379,37 @@ ${isCompare ? `图片中有${images.length}件不同服饰，分别标记为${la
 async function generateSingleConsult(visualFeatures, userInfo = {}, isRetry = false, reportSummary = null) {
   const sceneLabel = userInfo.consultScene === 'buy' ? '购买决策' : '留存决策'
   const verdictOptions = userInfo.consultScene === 'buy' ? '建议购买 / 建议不买' : '建议自留 / 建议退货'
+  const category = userInfo.category || ''
+  const isMakeup = /口红|唇釉|腮红|眼影|粉底|彩妆/.test(category)
+  const isAccessory = /帽子|围巾|领带|耳环|项链|手链|手镯|包包|鞋子|腰带|手表|墨镜|配饰/.test(category)
+
+  // 根据品类选择评分维度
+  let scoreDimensions, detailFormat
+  if (isMakeup) {
+    scoreDimensions = `"scores": { "colorScore": "色号匹配度 0-10", "textureScore": "质地显色度 0-10", "lastingScore": "持久度/实用性 0-10", "valueScore": "性价比 0-10" }`
+    detailFormat = `"details": {
+    "colorScore": { "pros": "色号优点(1-2句)", "cons": "色号不足(1-2句)" },
+    "textureScore": { "pros": "质地显色优点(1-2句)", "cons": "质地显色不足(1-2句)" },
+    "lastingScore": { "pros": "持久度/实用性优点(1-2句)", "cons": "持久度/实用性不足(1-2句)" },
+    "valueScore": { "pros": "性价比优点(1-2句)", "cons": "性价比不足(1-2句)" }
+  }`
+  } else if (isAccessory) {
+    scoreDimensions = `"scores": { "matchScore": "搭配适配度 0-10", "qualityScore": "材质做工 0-10", "styleScore": "风格适配度 0-10", "valueScore": "性价比 0-10" }`
+    detailFormat = `"details": {
+    "matchScore": { "pros": "搭配适配优点(1-2句)", "cons": "搭配适配不足(1-2句)" },
+    "qualityScore": { "pros": "材质做工优点(1-2句)", "cons": "材质做工不足(1-2句)" },
+    "styleScore": { "pros": "风格适配优点(1-2句)", "cons": "风格适配不足(1-2句)" },
+    "valueScore": { "pros": "性价比优点(1-2句)", "cons": "性价比不足(1-2句)" }
+  }`
+  } else {
+    scoreDimensions = `"scores": { "fitScore": "版型适合度 0-10", "colorScore": "颜色匹配度 0-10", "qualityScore": "质感做工 0-10", "valueScore": "性价比 0-10" }`
+    detailFormat = `"details": {
+    "fitScore": { "pros": "版型优点(1-2句)", "cons": "版型不足(1-2句)" },
+    "colorScore": { "pros": "颜色优点(1-2句)", "cons": "颜色不足(1-2句)" },
+    "qualityScore": { "pros": "质感优点(1-2句)", "cons": "质感不足(1-2句)" },
+    "valueScore": { "pros": "性价比优点(1-2句)", "cons": "性价比不足(1-2句)" }
+  }`
+  }
 
   // 构建形象诊断报告的量身定制信息
   let reportSection = ''
@@ -413,13 +447,13 @@ async function generateSingleConsult(visualFeatures, userInfo = {}, isRetry = fa
     reportSection = lines.join('\n') + '\n\n**重要：请务必结合以上个人形象特征进行针对性分析，评分和建议都要体现"量身定制"。例如：颜色分析要对照适配/避雷色系，版型分析要对照骨相和风格特征。**'
   }
 
-  const prompt = `你是一位拥有15年经验的资深时尚买手和穿搭顾问AI，请根据以下服饰视觉特征和个人信息，进行专业的单品决策分析。
+  const prompt = `你是一位拥有15年经验的资深时尚买手和穿搭顾问AI，请根据以下${isMakeup ? '彩妆' : isAccessory ? '配饰' : '服饰'}视觉特征和个人信息，进行专业的单品决策分析。
 
-## 服饰视觉特征
+## ${isMakeup ? '彩妆' : isAccessory ? '配饰' : '服饰'}视觉特征
 ${JSON.stringify(visualFeatures, null, 2)}
 
 ## 填写信息
-- 服饰类别：${userInfo.category || '未知'}
+- 穿搭类别：${userInfo.category || '未知'}
 - 价格区间：${userInfo.priceRange || '未知'}
 - 身型特点：${userInfo.bodyFeatures && userInfo.bodyFeatures.length > 0 ? userInfo.bodyFeatures.join('、') : '未选择'}
 - 穿着场景：${userInfo.wearScenes && userInfo.wearScenes.length > 0 ? userInfo.wearScenes.join('、') : '未选择'}
@@ -431,16 +465,11 @@ ${reportSection}
 ## 请严格按照以下JSON格式输出（禁止输出任何其他文字）：
 
 {
-  "scores": { "fitScore": 0-10, "colorScore": 0-10, "qualityScore": 0-10, "valueScore": 0-10 },
+  ${scoreDimensions},
   "verdict": "${verdictOptions}二者选一",
-  "details": {
-    "fitScore": { "pros": "版型优点(1-2句)", "cons": "版型不足(1-2句)" },
-    "colorScore": { "pros": "颜色优点(1-2句)", "cons": "颜色不足(1-2句)" },
-    "qualityScore": { "pros": "质感优点(1-2句)", "cons": "质感不足(1-2句)" },
-    "valueScore": { "pros": "性价比优点(1-2句)", "cons": "性价比不足(1-2句)" }
-  },
+  ${detailFormat},
   "tips": ["穿搭优化建议1", "建议2", "建议3"],
-  "dadaComment": "以搭搭(AI时尚猫咪)口吻的1-2句幽默点评",
+  "dadaComment": "以哒哒(AI时尚猫咪)口吻的1-2句幽默点评",
   "personalReason": "基于用户个人形象特征的1-2句针对性理由（如：你的肤色属冷夏型，这件暖橘色与你不匹配；你是优雅型风格，这件街头风偏大不太适合你等。无诊断报告时填空字符串）",
   "outfitAdvice": [
     { "type": "accessory", "icon": "ring", "title": "饰品搭配", "description": "具体建议(1-2句)", "reason": "搭配理由" },
@@ -476,7 +505,25 @@ ${reportSection}
 
 async function generateCompareConsult(visualFeatures, userInfo = {}, isRetry = false, reportSummary = null) {
   const items = Array.isArray(visualFeatures) ? visualFeatures : [visualFeatures]
-  const itemLabels = items.map((_, i) => `款式${String.fromCharCode(65 + i)}`).join('、')
+  const itemLabels = items.map((_, i) => `选项${String.fromCharCode(65 + i)}`).join('、')
+  // 检测品类类型
+  const categoryType = items[0]?.categoryType || ''
+  const isMakeup = categoryType === 'makeup' || /口红|唇釉|腮红|眼影|粉底|彩妆/.test(items[0]?.category || '')
+  const isAccessory = categoryType === 'accessory' || /帽子|围巾|领带|耳环|项链|手链|手镯|包包|鞋子|腰带|手表|墨镜|配饰/.test(items[0]?.category || '')
+  const itemTypeLabel = isMakeup ? '彩妆' : isAccessory ? '配饰' : '服饰'
+
+  // 根据品类选择对比维度
+  let compareDimensions, scoreKeys
+  if (isMakeup) {
+    compareDimensions = ['色号匹配', '质地显色', '持久实用', '性价比']
+    scoreKeys = ['colorScore', 'textureScore', 'lastingScore', 'valueScore']
+  } else if (isAccessory) {
+    compareDimensions = ['搭配适配', '材质做工', '风格适配', '性价比']
+    scoreKeys = ['matchScore', 'qualityScore', 'styleScore', 'valueScore']
+  } else {
+    compareDimensions = ['显瘦修饰', '日常百搭', '场合适配', '质感高级', '性价比', '耐看实用']
+    scoreKeys = ['slimScore', 'versatileScore', 'occasionScore', 'qualityScore', 'valueScore', 'durableScore']
+  }
 
   // 构建形象诊断报告的量身定制信息
   let reportSection = ''
@@ -514,9 +561,9 @@ async function generateCompareConsult(visualFeatures, userInfo = {}, isRetry = f
     reportSection = lines.join('\n') + '\n\n**重要：请务必结合以上个人形象特征进行针对性对比分析，评分和推荐都要体现"量身定制"。哪款更契合用户的脸型、肤色、风格，就给更高分。**'
   }
 
-  const prompt = `你是一位拥有15年经验的资深时尚买手AI，请对以下${items.length}件服饰进行横向对比分析。
+  const prompt = `你是一位拥有15年经验的资深时尚买手AI，请对以下${items.length}件${itemTypeLabel}单品进行横向对比分析。
 
-## 服饰视觉特征（${itemLabels}）
+## ${itemTypeLabel}视觉特征（${itemLabels}）
 ${JSON.stringify(visualFeatures, null, 2)}
 
 ## 补充信息
@@ -527,12 +574,12 @@ ${reportSection}
 ## 请严格按照以下JSON格式输出：
 
 {
-  "rankings": [{ "index": 0, "label": "款式A", "totalScore": 0 }],
-  "scores": [{ "index": 0, "label": "款式A", "slimScore": 0-10, "versatileScore": 0-10, "occasionScore": 0-10, "qualityScore": 0-10, "valueScore": 0-10, "durableScore": 0-10 }],
-  "comparisons": [{ "index": 0, "label": "款式A", "pros": "优势(1-2句)", "cons": "不足(1-2句)" }],
-  "finalChoice": { "index": 0, "label": "款式X", "reason": "核心理由(1-2句)" },
-  "bestScenarios": [{ "index": 0, "label": "款式A", "scenario": "最佳场景" }],
-  "dadaComment": "以搭搭口吻的1-2句幽默点评",
+  "rankings": [{ "index": 0, "label": "选项A", "totalScore": 0 }],
+  "scores": [{ "index": 0, "label": "选项A", "${scoreKeys.join('": 0-10, "')}": 0-10 }],
+  "comparisons": [{ "index": 0, "label": "选项A", "pros": "优势(1-2句)", "cons": "不足(1-2句)" }],
+  "finalChoice": { "index": 0, "label": "选项X", "reason": "核心理由(1-2句)" },
+  "bestScenarios": [{ "index": 0, "label": "选项A", "scenario": "最佳场景" }],
+  "dadaComment": "以哒哒口吻的1-2句幽默点评",
   "personalReason": "基于用户个人形象特征的1-2句针对性理由（如：你的肤色属冷夏型，A款的冷色调更衬你等。无诊断报告时填空字符串）",
   "outfitAdvice": [
     { "type": "accessory", "icon": "ring", "title": "饰品搭配", "description": "建议", "reason": "理由" },
@@ -567,7 +614,7 @@ ${reportSection}
 }
 
 async function detectCategory(images) {
-  const prompt = `请识别这件服饰的类别，只能从以下选项中选择一个返回：上衣、裤子、半裙、连衣裙、外套、衬衫、T恤、针织衫、卫衣、风衣、大衣、羽绒服、牛仔、其他\n\n直接返回类别名称，不要输出任何其他文字。`
+  const prompt = `请识别这个穿搭单品的类别，只能从以下选项中选择一个返回：上衣、裤子、半裙、连衣裙、外套、衬衫、T恤、针织衫、卫衣、风衣、大衣、羽绒服、牛仔、口红/唇釉、腮红、眼影、帽子、围巾、领带、耳环、项链、手链/手镯、包包、鞋子、腰带、手表、墨镜、其他\n\n直接返回类别名称，不要输出任何其他文字。`
   const content = []
   for (const img of images) {
     if (img.imageBase64) content.push({ type: 'image_url', image_url: { url: img.imageBase64.startsWith('data:') ? img.imageBase64 : `data:image/jpeg;base64,${img.imageBase64}` } })

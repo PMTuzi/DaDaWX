@@ -18,7 +18,7 @@
         <image class="image-thumb" src="{{item.thumb}}" mode="aspectFill"
           data-index="{{index}}" bindtap="onPreviewImage" />
         <view class="image-label" wx:if="{{images.length > 1}}">
-          款式{{['A','B','C','D'][index]}}
+          选项{{['A','B','C','D'][index]}}
         </view>
         <view class="image-remove" data-index="{{index}}" bindtap="onRemoveImage"><view class="icon icon-multiply" style="font-size:20rpx;"></view></view>
       </view>
@@ -30,16 +30,16 @@
     <!-- 模式提示 -->
     <view class="mode-hint" wx:if="{{images.length > 1}}">
       <view class="mode-tag">对比模式</view>
-      <text class="mode-text">将对比各款式的评分排名</text>
+      <text class="mode-text">将对比各选项的评分排名</text>
     </view>
   </view>
 
   <!-- ===== 单品评估表单（1张图片时显示） ===== -->
   <view wx:if="{{images.length <= 1}}">
-    <!-- 服饰类别（必填） -->
+    <!-- 穿搭类别（必填） -->
     <view class="section">
       <view class="section-label">
-        <text class="label-text">服饰类别</text>
+        <text class="label-text">穿搭类别</text>
         <text class="label-required">*</text>
         <text class="ai-badge" wx:if="{{categoryDetected}}">AI识别</text>
       </view>
@@ -134,7 +134,7 @@
       </view>
       <view class="price-list">
         <view class="price-row" wx:for="{{priceList}}" wx:key="index">
-          <text class="price-label">款式{{['A','B','C','D'][index]}}</text>
+          <text class="price-label">选项{{['A','B','C','D'][index]}}</text>
           <picker mode="selector" range="{{priceRangeOptions}}" value="{{priceListIndexes[index]}}" data-index="{{index}}" bindchange="onPriceListChange">
             <view class="picker-value small {{item ? '' : 'placeholder'}}">
               {{item || '选择价格'}}

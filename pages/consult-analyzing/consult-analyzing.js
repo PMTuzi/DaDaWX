@@ -60,10 +60,10 @@ Page({
     }
     return [
       { label: '图片就绪', icon: 'camera' },
-      { label: '识别衣物特征', icon: 'search' },
-      { label: '版型适合度分析', icon: 'scissors' },
-      { label: '颜色匹配度分析', icon: 'palette' },
-      { label: '质感做工评估', icon: 'gem' },
+      { label: '识别单品特征', icon: 'search' },
+      { label: '匹配度分析', icon: 'scissors' },
+      { label: '风格适配分析', icon: 'palette' },
+      { label: '品质价值评估', icon: 'gem' },
       { label: '生成决策结论', icon: 'clipboard' }
     ]
   },
@@ -269,6 +269,8 @@ Page({
   },
 
   async callCompareAnalysis(visionFeatures, consultData) {
+    // 从视觉分析结果中提取品类信息
+    const category = (Array.isArray(visionFeatures) && visionFeatures[0] && visionFeatures[0].category) || ''
     const result = await request(API.generateCompareConsult, {
       method: 'POST',
       data: {
@@ -277,6 +279,7 @@ Page({
         priceList: consultData.priceList,
         styleDiff: consultData.styleDiff,
         reason: consultData.reason,
+        category: category,
         reportSummary: consultData.reportSummary || null
       },
       timeout: 120000
@@ -325,7 +328,7 @@ Page({
         id,
         type: consultData.type,
         createTime,
-        category: consultData.category || '',
+        category: consultData.category || (result.scores && result.scores[0] && result.scores[0].category) || '',
         ...result,
         images: consultData.images || []
       }
@@ -334,19 +337,22 @@ Page({
 
       if (result.scores) {
         if (consultData.type === 'compare') {
-          // 对比模式：totalScore可能是6维总和(0-60)或平均分(0-10)，归一化到0-10
+          // 对比模式：totalScore可能是多维总和或平均分(0-10)，归一化到0-10
           if (result.rankings && result.rankings.length > 0) {
             result.rankings.forEach(r => {
               if (r.totalScore > 10) {
-                // 6维总和，取平均
-                r.totalScore = Math.round(r.totalScore / 6 * 10) / 10
+                // 根据维度数量归一化（服装6维，彩妆/配饰4维）
+                const dimCount = (result.scores && result.scores[0]) ? 
+                  Object.keys(result.scores[0]).filter(k => k !== 'index' && k !== 'label' && k !== 'totalScore' && k !== 'category').length : 6
+                r.totalScore = Math.round(r.totalScore / dimCount * 10) / 10
               }
             })
           }
           if (result.scores && Array.isArray(result.scores)) {
             result.scores.forEach(s => {
               if (s.totalScore > 10) {
-                s.totalScore = Math.round(s.totalScore / 6 * 10) / 10
+                const dimCount = Object.keys(s).filter(k => k !== 'index' && k !== 'label' && k !== 'totalScore' && k !== 'category').length
+                s.totalScore = Math.round(s.totalScore / dimCount * 10) / 10
               }
             })
           }

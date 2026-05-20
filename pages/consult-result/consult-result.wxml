@@ -45,7 +45,7 @@
   <block wx:if="{{!isCompare}}">
     <!-- 雷达图 -->
     <view class="card radar-card">
-      <view class="card-title">4维评分雷达图</view>
+      <view class="card-title">评分雷达图</view>
       <canvas type="2d" id="radarCanvas" class="radar-canvas"></canvas>
     </view>
 
@@ -53,60 +53,17 @@
     <view class="card">
       <view class="card-title">各维度分析</view>
       <view class="dimension-list">
-        <!-- 版型适合度 -->
-        <view class="dimension-item">
+        <view class="dimension-item" wx:for="{{dimensionList}}" wx:key="key">
           <view class="dim-header">
-            <text class="dim-name"><view class="icon icon-scissors" style="font-size:24rpx;margin-right:4rpx;"></view> 版型适合度</text>
-            <text class="dim-score">{{record.scores.fitScore}}/10</text>
+            <text class="dim-name"><view class="icon icon-{{item.icon}}" style="font-size:24rpx;margin-right:4rpx;"></view> {{item.name}}</text>
+            <text class="dim-score">{{item.score}}/10</text>
           </view>
           <view class="score-bar">
-            <view class="score-bar-inner {{record.scores.fitScore >= 7 ? 'bar-positive' : record.scores.fitScore < 5 ? 'bar-negative' : ''}}" style="width: {{record.scores.fitScore * 10}}%"></view>
+            <view class="score-bar-inner {{item.score >= 7 ? 'bar-positive' : item.score < 5 ? 'bar-negative' : ''}}" style="width: {{item.score * 10}}%"></view>
           </view>
-          <view class="dim-detail" wx:if="{{record.details && record.details.fitScore}}">
-            <view class="detail-pros"><view class="icon icon-good" style="font-size:24rpx;color:var(--success);margin-right:4rpx;"></view> {{record.details.fitScore.pros}}</view>
-            <view class="detail-cons"><view class="icon icon-warning" style="font-size:24rpx;color:var(--danger);margin-right:4rpx;"></view> {{record.details.fitScore.cons}}</view>
-          </view>
-        </view>
-        <!-- 颜色匹配度 -->
-        <view class="dimension-item">
-          <view class="dim-header">
-            <text class="dim-name"><view class="icon icon-palette" style="font-size:24rpx;margin-right:4rpx;"></view> 颜色匹配度</text>
-            <text class="dim-score">{{record.scores.colorScore}}/10</text>
-          </view>
-          <view class="score-bar">
-            <view class="score-bar-inner {{record.scores.colorScore >= 7 ? 'bar-positive' : record.scores.colorScore < 5 ? 'bar-negative' : ''}}" style="width: {{record.scores.colorScore * 10}}%"></view>
-          </view>
-          <view class="dim-detail" wx:if="{{record.details && record.details.colorScore}}">
-            <view class="detail-pros"><view class="icon icon-good" style="font-size:24rpx;color:var(--success);margin-right:4rpx;"></view> {{record.details.colorScore.pros}}</view>
-            <view class="detail-cons"><view class="icon icon-warning" style="font-size:24rpx;color:var(--danger);margin-right:4rpx;"></view> {{record.details.colorScore.cons}}</view>
-          </view>
-        </view>
-        <!-- 质感做工 -->
-        <view class="dimension-item">
-          <view class="dim-header">
-            <text class="dim-name"><view class="icon icon-gem" style="font-size:24rpx;margin-right:4rpx;"></view> 质感做工</text>
-            <text class="dim-score">{{record.scores.qualityScore}}/10</text>
-          </view>
-          <view class="score-bar">
-            <view class="score-bar-inner {{record.scores.qualityScore >= 7 ? 'bar-positive' : record.scores.qualityScore < 5 ? 'bar-negative' : ''}}" style="width: {{record.scores.qualityScore * 10}}%"></view>
-          </view>
-          <view class="dim-detail" wx:if="{{record.details && record.details.qualityScore}}">
-            <view class="detail-pros"><view class="icon icon-good" style="font-size:24rpx;color:var(--success);margin-right:4rpx;"></view> {{record.details.qualityScore.pros}}</view>
-            <view class="detail-cons"><view class="icon icon-warning" style="font-size:24rpx;color:var(--danger);margin-right:4rpx;"></view> {{record.details.qualityScore.cons}}</view>
-          </view>
-        </view>
-        <!-- 性价比 -->
-        <view class="dimension-item">
-          <view class="dim-header">
-            <text class="dim-name"><view class="icon icon-money" style="font-size:24rpx;margin-right:4rpx;"></view> 性价比</text>
-            <text class="dim-score">{{record.scores.valueScore}}/10</text>
-          </view>
-          <view class="score-bar">
-            <view class="score-bar-inner {{record.scores.valueScore >= 7 ? 'bar-positive' : record.scores.valueScore < 5 ? 'bar-negative' : ''}}" style="width: {{record.scores.valueScore * 10}}%"></view>
-          </view>
-          <view class="dim-detail" wx:if="{{record.details && record.details.valueScore}}">
-            <view class="detail-pros"><view class="icon icon-good" style="font-size:24rpx;color:var(--success);margin-right:4rpx;"></view> {{record.details.valueScore.pros}}</view>
-            <view class="detail-cons"><view class="icon icon-warning" style="font-size:24rpx;color:var(--danger);margin-right:4rpx;"></view> {{record.details.valueScore.cons}}</view>
+          <view class="dim-detail" wx:if="{{item.pros || item.cons}}">
+            <view class="detail-pros" wx:if="{{item.pros}}"><view class="icon icon-good" style="font-size:24rpx;color:var(--success);margin-right:4rpx;"></view> {{item.pros}}</view>
+            <view class="detail-cons" wx:if="{{item.cons}}"><view class="icon icon-warning" style="font-size:24rpx;color:var(--danger);margin-right:4rpx;"></view> {{item.cons}}</view>
           </view>
         </view>
       </view>
@@ -137,7 +94,7 @@
 
     <!-- 雷达图 -->
     <view class="card radar-card">
-      <view class="card-title">6维评分雷达图（{{record.rankings[0].label}}）</view>
+      <view class="card-title">评分雷达图（{{record.rankings[0].label}}）</view>
       <canvas type="2d" id="radarCanvas" class="radar-canvas"></canvas>
     </view>
 
@@ -155,7 +112,7 @@
 
     <!-- 横向对比表格 -->
     <view class="card">
-      <view class="card-title">6维横向对比</view>
+      <view class="card-title">多维横向对比</view>
       <view class="compare-table">
         <view class="table-header">
           <view class="table-cell cell-dim" wx:for="{{compareHeaders}}" wx:key="*this">

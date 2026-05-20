@@ -110,7 +110,7 @@
       <view class="outfit-entry-icon icon icon-dress"></view>
       <view class="outfit-entry-info">
         <text class="outfit-entry-title">穿搭决策</text>
-        <text class="outfit-entry-desc">上传衣物照片，AI 帮你理性分析</text>
+        <text class="outfit-entry-desc">上传穿搭单品照片，AI 帮你理性分析</text>
       </view>
     </view>
     <text class="outfit-entry-arrow">→</text>

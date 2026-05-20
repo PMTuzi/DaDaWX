@@ -10,7 +10,9 @@ Page({
     },
     // 对比表格
     compareHeaders: [],
-    compareRows: []
+    compareRows: [],
+    // 单品模式：动态维度列表
+    dimensionList: []
   },
 
   onLoad(options) {
@@ -43,17 +45,54 @@ Page({
 
   initSingleData(record) {
     const s = record.scores || {}
-    const dimensions = ['版型适合度', '颜色匹配度', '质感做工', '性价比']
-    const values = [
-      s.fitScore || 0,
-      s.colorScore || 0,
-      s.qualityScore || 0,
-      s.valueScore || 0
-    ]
+    const category = record.category || ''
+
+    // 品类维度映射
+    const isMakeup = /口红|唇釉|腮红|眼影|粉底|彩妆/.test(category)
+    const isAccessory = /帽子|围巾|领带|耳环|项链|手链|手镯|包包|鞋子|腰带|手表|墨镜|配饰/.test(category)
+
+    let dimensionConfig
+    if (isMakeup) {
+      dimensionConfig = [
+        { key: 'colorScore', name: '色号匹配度', icon: 'palette' },
+        { key: 'textureScore', name: '质地显色度', icon: 'gem' },
+        { key: 'lastingScore', name: '持久实用性', icon: 'clipboard' },
+        { key: 'valueScore', name: '性价比', icon: 'money' }
+      ]
+    } else if (isAccessory) {
+      dimensionConfig = [
+        { key: 'matchScore', name: '搭配适配度', icon: 'scissors' },
+        { key: 'qualityScore', name: '材质做工', icon: 'gem' },
+        { key: 'styleScore', name: '风格适配度', icon: 'palette' },
+        { key: 'valueScore', name: '性价比', icon: 'money' }
+      ]
+    } else {
+      dimensionConfig = [
+        { key: 'fitScore', name: '版型适合度', icon: 'scissors' },
+        { key: 'colorScore', name: '颜色匹配度', icon: 'palette' },
+        { key: 'qualityScore', name: '质感做工', icon: 'gem' },
+        { key: 'valueScore', name: '性价比', icon: 'money' }
+      ]
+    }
+
+    const dimensions = dimensionConfig.map(d => d.name)
+    const values = dimensionConfig.map(d => s[d.key] || 0)
+
+    // 构建 WXML 可遍历的维度列表
+    const dimensionList = dimensionConfig.map(d => ({
+      key: d.key,
+      name: d.name,
+      icon: d.icon,
+      score: s[d.key] || 0,
+      pros: (record.details && record.details[d.key] && record.details[d.key].pros) || '',
+      cons: (record.details && record.details[d.key] && record.details[d.key].cons) || ''
+    }))
+
     // 如果所有值都是0则不绘制
     if (values.every(v => v === 0)) return
     this.setData({
-      radarData: { dimensions, values }
+      radarData: { dimensions, values },
+      dimensionList
     })
     // 等待 Canvas 渲染后绘制
     setTimeout(() => this.drawRadar(), 500)
@@ -62,8 +101,23 @@ Page({
   initCompareData(record) {
     const scores = record.scores || []
     if (!Array.isArray(scores) || scores.length === 0) return
-    const labels = ['显瘦修饰', '日常百搭', '场合适配', '质感高级', '性价比', '耐看实用']
-    const scoreKeys = ['slimScore', 'versatileScore', 'occasionScore', 'qualityScore', 'valueScore', 'durableScore']
+
+    // 根据品类动态选择维度
+    const category = record.category || (scores[0] && scores[0].category) || ''
+    const isMakeup = /口红|唇釉|腮红|眼影|粉底|彩妆/.test(category)
+    const isAccessory = /帽子|围巾|领带|耳环|项链|手链|手镯|包包|鞋子|腰带|手表|墨镜|配饰/.test(category)
+
+    let labels, scoreKeys
+    if (isMakeup) {
+      labels = ['色号匹配', '质地显色', '持久实用', '性价比']
+      scoreKeys = ['colorScore', 'textureScore', 'lastingScore', 'valueScore']
+    } else if (isAccessory) {
+      labels = ['搭配适配', '材质做工', '风格适配', '性价比']
+      scoreKeys = ['matchScore', 'qualityScore', 'styleScore', 'valueScore']
+    } else {
+      labels = ['显瘦修饰', '日常百搭', '场合适配', '质感高级', '性价比', '耐看实用']
+      scoreKeys = ['slimScore', 'versatileScore', 'occasionScore', 'qualityScore', 'valueScore', 'durableScore']
+    }
 
     // 雷达图用排名第一的数据
     const rankings = record.rankings || []
@@ -76,7 +130,8 @@ Page({
     })
 
     // 对比表格数据
-    const compareHeaders = ['维度', ...scores.map(s => s.label || ('款式' + (s.index + 1)))]
+    const itemLabel = isMakeup ? '色号' : isAccessory ? '款式' : '款式'
+    const compareHeaders = ['维度', ...scores.map(s => s.label || (itemLabel + (s.index + 1)))]
     const compareRows = labels.map((label, i) => {
       const row = { dimension: label, values: scores.map(s => s[scoreKeys[i]] || 0) }
       return row

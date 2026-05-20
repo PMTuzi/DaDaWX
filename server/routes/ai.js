@@ -141,7 +141,11 @@ router.post('/consult/generate-single-consult', authRequired, async (req, res) =
 router.post('/consult/generate-compare-consult', authRequired, async (req, res) => {
   try {
     const { visualFeatures, userInfo, isRetry, reportSummary } = req.body
-    const data = await generateCompareConsult(visualFeatures, userInfo, isRetry, reportSummary)
+    // 从 visualFeatures 中提取品类类型
+    const items = Array.isArray(visualFeatures) ? visualFeatures : [visualFeatures]
+    const category = items[0]?.category || (userInfo && userInfo.category) || ''
+    const enrichedUserInfo = { ...(userInfo || {}), category }
+    const data = await generateCompareConsult(visualFeatures, enrichedUserInfo, isRetry, reportSummary)
     res.json({ code: 0, data })
   } catch (err) {
     res.status(500).json({ code: -1, message: err.message })
