@@ -566,7 +566,7 @@ Page({
     return {
       title: score ? `我的形象风格AI评分：${score}分，快来测测你的风格！` : 'AI形象风格诊断，快来测测你的风格！',
       path: '/pages/index/index',
-      imageUrl: '/images/打分分享banner.png'
+      imageUrl: '/images/打分分享banner.jpg'
     }
   }
 })

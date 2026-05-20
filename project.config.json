@@ -25,6 +25,18 @@
       {
         "type": "glob",
         "value": ".git/**"
+      },
+      {
+        "type": "glob",
+        "value": "*.png"
+      },
+      {
+        "type": "glob",
+        "value": "*.mp4"
+      },
+      {
+        "type": "file",
+        "value": "deploy.sh"
       }
     ],
     "include": []

@@ -25,19 +25,22 @@
         <image class="avatar-main-img" src="{{report.photoUrl}}" mode="aspectFill" binderror="onAvatarError" wx:if="{{report.photoUrl}}" />
         <text class="avatar-main-fallback" wx:else>Me</text>
       </view>
-      <!-- 分数 -->
-      <view class="score-row">
-        <text class="score-big">{{report.basic.overallScore}}</text>
-        <text class="score-suffix">/10</text>
+      <!-- 右侧信息 -->
+      <view class="header-info">
+        <!-- 分数 -->
+        <view class="score-row">
+          <text class="score-big">{{report.basic.overallScore}}</text>
+          <text class="score-suffix">/10</text>
+        </view>
+        <!-- 标签 -->
+        <view class="header-tags">
+          <text class="htag" wx:for="{{report.basic.tags}}" wx:key="*this">{{item}}</text>
+        </view>
       </view>
-      <!-- 标签 -->
-      <view class="header-tags">
-        <text class="htag" wx:for="{{report.basic.tags}}" wx:key="*this">{{item}}</text>
-      </view>
-      <!-- 摘要 -->
-      <view class="header-summary" wx:if="{{report.modules.optimize.coreConclusion}}">
-        <text class="summary-text">{{report.modules.optimize.coreConclusion}}</text>
-      </view>
+    </view>
+    <!-- 摘要 - 独立一行撑满宽度 -->
+    <view class="header-summary" wx:if="{{report.modules.optimize.coreConclusion}}">
+      <text class="summary-text">{{report.modules.optimize.coreConclusion}}</text>
     </view>
   </view>
 

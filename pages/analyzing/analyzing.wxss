@@ -16,7 +16,7 @@
 
 .top-hint-text {
   font-size: 28rpx;
-  color: #C8A97E;
+  color: #F1849B;
   font-weight: 500;
   letter-spacing: 2rpx;
 }
@@ -37,7 +37,7 @@
 .scan-ring {
   position: absolute;
   border-radius: 50%;
-  border: 2rpx solid rgba(200, 169, 126, 0.3);
+  border: 2rpx solid rgba(241, 132, 155, 0.3);
 }
 
 .ring-1 {
@@ -50,14 +50,14 @@
   width: 80%;
   height: 80%;
   animation: pulse 2s ease-in-out infinite 0.5s;
-  border-color: rgba(200, 169, 126, 0.5);
+  border-color: rgba(241, 132, 155, 0.5);
 }
 
 .ring-3 {
   width: 60%;
   height: 60%;
   animation: pulse 2s ease-in-out infinite 1s;
-  border-color: rgba(200, 169, 126, 0.7);
+  border-color: rgba(241, 132, 155, 0.7);
 }
 
 @keyframes pulse {
@@ -70,7 +70,7 @@
   z-index: 1;
   width: 120rpx;
   height: 120rpx;
-  background: rgba(200, 169, 126, 0.15);
+  background: rgba(241, 132, 155, 0.15);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -80,7 +80,7 @@
 .scan-percent {
   font-size: 40rpx;
   font-weight: 800;
-  color: #C8A97E;
+  color: #F1849B;
 }
 
 .progress-bar {
@@ -94,7 +94,7 @@
 
 .progress-inner {
   height: 100%;
-  background: linear-gradient(90deg, #C8A97E, #B8966E);
+  background: linear-gradient(90deg, #F1849B, #E56B85);
   border-radius: 4rpx;
   transition: width 0.3s ease;
 }
@@ -132,7 +132,7 @@
 
 .step-icon {
   font-size: 28rpx;
-  color: #C8A97E;
+  color: #F1849B;
 }
 
 .step-item.done .step-icon {
@@ -151,7 +151,7 @@
 }
 
 .step-status.active {
-  color: #C8A97E;
+  color: #F1849B;
 }
 
 .step-item.done .step-status {

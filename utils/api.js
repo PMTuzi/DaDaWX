@@ -1,20 +1,7 @@
-// API 基础配置
-const ENV = 'development'
-
-const CONFIG = {
-  production: {
-    baseUrl: 'https://api.cyberpm.tech',
-    aliyunOssBucket: 'dada-photos',
-    aliyunOssRegion: 'oss-cn-hangzhou',
-  },
-  development: {
-    baseUrl: 'http://localhost:3000',
-    aliyunOssBucket: 'dada-photos-dev',
-    aliyunOssRegion: 'oss-cn-hangzhou',
-  }
+// API 基础配置（开发环境 - 局域网IP，用于真机调试）
+const currentConfig = {
+  baseUrl: 'http://172.21.242.182:3000',
 }
-
-const currentConfig = CONFIG[ENV]
 
 // API 路径
 const API = {
@@ -145,31 +132,17 @@ function request(url, options = {}) {
   })
 }
 
-// 上传图片（开发模式：直传服务器）
+// 上传图片（直传服务器，失败降级为base64）
 async function uploadImage(filePath) {
-  // 先检测服务器是否可达，不可达直接跳过
   const reachable = await checkServerReachable()
   if (!reachable) {
     throw new Error('服务器不可达，跳过上传')
   }
-  if (ENV === 'development') {
-    try {
-      return await uploadFileToServer(filePath)
-    } catch (e) {
-      console.warn('[API] wx.uploadFile 失败，降级为 base64:', e.message)
-      return await uploadImageViaBase64(filePath)
-    }
-  } else {
-    try {
-      return await uploadToOss(filePath)
-    } catch (e) {
-      console.warn('[API] OSS 上传失败，降级:', e.message)
-      try {
-        return await uploadImageViaBase64(filePath)
-      } catch (e2) {
-        throw new Error('图片上传失败，请检查网络后重试')
-      }
-    }
+  try {
+    return await uploadFileToServer(filePath)
+  } catch (e) {
+    console.warn('[API] wx.uploadFile 失败，降级为 base64:', e.message)
+    return await uploadImageViaBase64(filePath)
   }
 }
 
@@ -257,36 +230,6 @@ async function uploadImageViaBase64(filePath) {
   throw new Error(result.message || 'base64上传失败')
 }
 
-function uploadToOss(filePath, retryCount = 0) {
-  const MAX_RETRIES = 2
-  return new Promise(async (resolve, reject) => {
-    try {
-      const tokenData = await request(API.getOssToken)
-      const { accessKeyId, accessKeySecret, securityToken, host, dir } = tokenData.data
-      const ext = filePath.split('.').pop()
-      const fileName = `${dir}${Date.now()}_${Math.random().toString(36).substr(2, 8)}.${ext}`
-      const ossUrl = `${host}/${fileName}`
-      wx.uploadFile({
-        url: host, filePath, name: 'file',
-        formData: {
-          key: fileName, policy: tokenData.data.policy,
-          OSSAccessKeyId: accessKeyId, signature: tokenData.data.signature,
-          'x-oss-security-token': securityToken, success_action_status: '200'
-        },
-        timeout: 30000,
-        success(res) { res.statusCode === 200 ? resolve(ossUrl) : reject(new Error(`OSS上传失败(${res.statusCode})`)) },
-        fail(err) { reject(new Error(err.errMsg || 'OSS上传失败')) }
-      })
-    } catch (err) { reject(err) }
-  }).catch(err => {
-    if (retryCount < MAX_RETRIES) {
-      return new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)))
-        .then(() => uploadToOss(filePath, retryCount + 1))
-    }
-    throw err
-  })
-}
-
 // 微信登录
 function wxLogin() {
   return new Promise((resolve, reject) => {
@@ -345,7 +288,6 @@ module.exports = {
   uploadImage,
   uploadImageViaBase64,
   imageToBase64,
-  uploadToOss,
   wxLogin,
   ensureLogin,
   runDiagnosis,
