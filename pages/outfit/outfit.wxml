@@ -28,6 +28,8 @@
   <view class="history-section" wx:if="{{showHistory}}">
     <view class="section-header">
       <view class="section-title">最近咨询</view>
+      <view class="section-tip">点击查看多维分析
+       </view>
     </view>
     <view class="history-list">
       <view class="history-item {{item.type === 'compare' ? 'card-compare' : (item.verdict === '建议购买' || item.verdict === '建议自留' || item.verdict === '建议入手' ? 'card-accept' : 'card-reject')}}" wx:for="{{recentConsults}}" wx:key="id"
@@ -49,6 +51,7 @@
               <text class="score-num">{{h.toFixed1(item.totalScore)}}</text>
             </view>
           </view>
+          <view class="history-summary" wx:if="{{item.personalReason}}">{{item.personalReason}}</view>
           <view class="history-bottom">
             <text class="history-time">{{item.createTime}}</text>
             <text class="history-arrow">›</text>
