@@ -115,6 +115,7 @@ Page({
       console.warn('[consult-publish] chooseMedia 不可用，尝试 chooseImage:', e)
       wx.chooseImage({
         count: remaining,
+        sizeType: ['compressed'],
         sourceType: ['album', 'camera'],
         success: (res) => {
           try {

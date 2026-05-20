@@ -75,6 +75,7 @@ Page({
       // chooseMedia 不可用时降级
       wx.chooseImage({
         count: 1,
+        sizeType: ['compressed'],
         sourceType: ['album', 'camera'],
         success: (res) => {
           try {
@@ -143,9 +144,9 @@ Page({
     this.setData({ isUploading: true })
 
     try {
-      // 并行：上传图片 + 读取base64（确保服务端一定能拿到图片数据）
-      const { request, API, uploadImage, imageToBase64 } = require('../../utils/api')
-      const [imageUrl, imageBase64] = await Promise.all([
+      // 并行：上传图片 + 读取base64 + 持久化本地副本
+      const { request, API, uploadImage, imageToBase64, saveLocalPhoto } = require('../../utils/api')
+      const [imageUrl, imageBase64, savedPhoto] = await Promise.all([
         uploadImage(this.data.photoUrl).catch(err => {
           console.warn('[diagnose] 图片上传失败，仅用base64:', err.message)
           return ''
@@ -153,7 +154,8 @@ Page({
         imageToBase64(this.data.photoUrl).catch(err => {
           console.warn('[diagnose] base64读取失败:', err.message)
           return ''
-        })
+        }),
+        saveLocalPhoto(this.data.photoUrl)
       ])
 
       if (!imageUrl && !imageBase64) {
@@ -176,7 +178,7 @@ Page({
         this.data.weight ? `weight=${this.data.weight}` : '',
         `tags=${encodeURIComponent(JSON.stringify(this.data.userTags))}`,
         imageBase64 ? 'hasBase64=1' : '',
-        `localPhoto=${encodeURIComponent(this.data.photoUrl)}`
+        `localPhoto=${encodeURIComponent(savedPhoto || this.data.photoUrl)}`
       ].filter(Boolean).join('&')
 
       wx.navigateTo({

@@ -153,61 +153,64 @@ function request(url, options = {}) {
   })
 }
 
-// 上传图片（云存储直传，无需域名白名单）
+// 上传图片：base64 经云托管落本地盘，返回 HTTPS URL
+// 不再使用 wx.cloud.uploadFile（云托管 SDK 在容器内无凭证，服务器无法解析 cloud://）
 async function uploadImage(filePath) {
-  try {
-    return await uploadToCloudStorage(filePath)
-  } catch (e) {
-    console.warn('[API] 云存储上传失败，降级为 base64:', e.message)
-    try {
-      return await uploadImageViaBase64(filePath)
-    } catch (e2) {
-      throw new Error('图片上传失败: ' + (e2.message || '未知错误'))
-    }
-  }
+  return await uploadImageViaBase64(filePath)
 }
 
-// 通过云存储直传（不需要域名白名单）
-function uploadToCloudStorage(filePath) {
-  return new Promise((resolve, reject) => {
-    try {
-      wx.getFileSystemManager().accessSync(filePath)
-    } catch (e) {
-      reject(new Error('图片文件不存在或已被清理'))
-      return
+// 把小程序 tempFilePath 持久化到本地存储（跨 App 重启可用，约 10MB 配额）
+// 用于解决云托管容器重启后服务器端图片丢失的问题：本机历史报告优先读本地图
+function saveLocalPhoto(tempFilePath) {
+  return new Promise((resolve) => {
+    if (!tempFilePath) return resolve('')
+    // 已经是持久化路径（wxfile://store_xxx 或 http://store/xxx）就直接返回
+    if (/^(wxfile:\/\/store|http:\/\/store|http:\/\/usr|wxfile:\/\/usr)/.test(tempFilePath)) {
+      return resolve(tempFilePath)
     }
-    const ext = filePath.toLowerCase().match(/\.(jpg|jpeg|png|webp)$/)
-    const extStr = ext ? ext[1] : 'jpg'
-    const cloudPath = `uploads/${Date.now()}_${Math.random().toString(36).substr(2, 8)}.${extStr}`
-    wx.cloud.uploadFile({
-      cloudPath,
-      filePath,
-      success(res) {
-        if (res.fileID) {
-          resolve(res.fileID) // cloud:// URL，服务器可解析
-        } else {
-          reject(new Error('云存储上传未返回 fileID'))
-        }
-      },
+    wx.saveFile({
+      tempFilePath,
+      success(res) { resolve(res.savedFilePath || tempFilePath) },
       fail(err) {
-        reject(new Error(err.errMsg || '云存储上传失败'))
+        console.warn('[API] saveFile 失败，回退临时路径:', err.errMsg)
+        resolve(tempFilePath)
       }
     })
   })
 }
 
-function imageToBase64(filePath, maxKb = 3000) {
+// callContainer 请求体限制 100KB，base64 图片需留余量，上限 90KB
+const BASE64_MAX_KB = 90
+
+function imageToBase64(filePath, maxKb) {
+  const limit = maxKb || BASE64_MAX_KB
   return new Promise((resolve, reject) => {
-    wx.compressImage({
-      src: filePath,
-      quality: 60,
-      success: (compressRes) => {
-        _readAndCheckBase64(compressRes.tempFilePath, maxKb, resolve, reject)
-      },
-      fail: () => {
-        _readAndCheckBase64(filePath, maxKb, resolve, reject)
-      }
-    })
+    _compressAndToBase64(filePath, limit, 5, resolve, reject)
+  })
+}
+
+// 迭代压缩：逐步降低质量直到 base64 不超限
+function _compressAndToBase64(filePath, maxKb, retries, resolve, reject) {
+  const qualityMap = [60, 40, 25, 15, 8]
+  const quality = qualityMap[5 - retries] || 8
+  wx.compressImage({
+    src: filePath,
+    quality,
+    success: (compressRes) => {
+      _readAndCheckBase64(compressRes.tempFilePath, maxKb, (base64Str, sizeKb) => {
+        if (sizeKb <= maxKb || retries <= 1) {
+          resolve(base64Str)
+        } else {
+          console.log(`[API] base64 ${sizeKb}KB 超限${maxKb}KB，继续压缩 quality=${qualityMap[5-retries+1]}`)
+          _compressAndToBase64(compressRes.tempFilePath, maxKb, retries - 1, resolve, reject)
+        }
+      }, reject)
+    },
+    fail: () => {
+      _readAndCheckBase64(filePath, maxKb, (base64Str) => {
+        resolve(base64Str)
+      }, reject)
+    }
   })
 }
 
@@ -220,7 +223,8 @@ function _readAndCheckBase64(filePath, maxKb, resolve, reject) {
       const mimeMap = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp' }
       const mime = ext ? (mimeMap[ext[1]] || 'image/jpeg') : 'image/jpeg'
       const base64Data = res.data
-      resolve(`data:${mime};base64,${base64Data}`)
+      const sizeKb = Math.ceil(base64Data.length * 3 / 4 / 1024)
+      resolve(`data:${mime};base64,${base64Data}`, sizeKb)
     },
     fail(err) {
       reject(new Error(err.errMsg || '读取图片失败'))
@@ -355,6 +359,7 @@ module.exports = {
   uploadImage,
   uploadImageViaBase64,
   imageToBase64,
+  saveLocalPhoto,
   wxLogin,
   ensureLogin,
   runDiagnosis,

@@ -148,6 +148,7 @@ Page({
         createTime: this.formatNow(),
         photoType: this.data.photoType,
         photoUrl: this.data.localPhoto || this.data.imageUrl,
+        photoUrlRemote: this.data.imageUrl, // 服务器URL作为本地图失效时的兜底
         basic: data.basic,
         modules: data.modules,
         images: data.images || {},

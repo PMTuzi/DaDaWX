@@ -36,13 +36,17 @@ Page({
     setTimeout(() => this.drawRadarChart(), 100)
   },
 
-  // 头像加载失败时清除photoUrl，显示占位符
+  // 头像加载失败时：先尝试退到服务器URL，再失败则清空显示占位符
   onAvatarError() {
     const report = this.data.report
-    if (report) {
+    if (!report) return
+    if (report.photoUrlRemote && report.photoUrl !== report.photoUrlRemote) {
+      console.warn('[report] 本地图加载失败，回退服务器URL')
+      report.photoUrl = report.photoUrlRemote
+    } else {
       report.photoUrl = ''
-      this.setData({ report })
     }
+    this.setData({ report })
   },
 
   // ==================== Canvas 雷达图绘制 ====================
