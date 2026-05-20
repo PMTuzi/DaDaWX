@@ -3,6 +3,10 @@ server/node_modules/
 server/uploads/
 server/data/
 .env
+.env.production
+.env.local
+server/.env
+server/.env.production
 *.log
 .DS_Store
 .codebuddy/

@@ -91,7 +91,10 @@ router.post('/generate-single-consult', authRequired, async (req, res) => {
       } catch (e) {
         console.error('[穿搭咨询] 重试失败:', e.message)
       }
-      if (!finalResult) finalResult = safeMergeSingleResult(result)
+      if (!finalResult) {
+        // AI 两次都失败：直接报错而非返回兜底假数据
+        return res.status(502).json({ code: -1, message: 'AI 分析失败，请稍后重试', aiError: true })
+      }
     } else {
       finalResult = result
     }
@@ -113,8 +116,7 @@ router.post('/generate-single-consult', authRequired, async (req, res) => {
     res.json({ code: 0, data: finalResult })
   } catch (err) {
     console.error('[穿搭咨询] 单品决策失败:', err.message)
-    const merged = safeMergeSingleResult(null)
-    res.json({ code: 0, data: merged })
+    res.status(502).json({ code: -1, message: 'AI 分析失败：' + (err.message || '未知错误'), aiError: true })
   }
 })
 
@@ -142,7 +144,9 @@ router.post('/generate-compare-consult', authRequired, async (req, res) => {
       } catch (e) {
         console.error('[穿搭咨询] 重试失败:', e.message)
       }
-      if (!finalResult) finalResult = safeMergeCompareResult(result)
+      if (!finalResult) {
+        return res.status(502).json({ code: -1, message: 'AI 分析失败，请稍后重试', aiError: true })
+      }
     } else {
       finalResult = result
     }
@@ -163,8 +167,7 @@ router.post('/generate-compare-consult', authRequired, async (req, res) => {
     res.json({ code: 0, data: finalResult })
   } catch (err) {
     console.error('[穿搭咨询] 多选一决策失败:', err.message)
-    const merged = safeMergeCompareResult(null)
-    res.json({ code: 0, data: merged })
+    res.status(502).json({ code: -1, message: 'AI 分析失败：' + (err.message || '未知错误'), aiError: true })
   }
 })
 

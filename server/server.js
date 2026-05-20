@@ -1,5 +1,7 @@
 // server.js - 搭搭后端服务
-require('dotenv').config()
+// 优先加载 .env.production（云托管打包），开发本地可用 .env 覆盖
+require('dotenv').config({ path: require('path').resolve(__dirname, '.env.production') })
+require('dotenv').config()  // 本地 .env 若存在则补充/覆盖（生产环境无该文件）
 const express = require('express')
 const cors = require('cors')
 const multer = require('multer')
@@ -79,8 +81,10 @@ app.use(globalLimiter)
 // ===== 全局请求超时 =====
 // 普通接口 30s，AI 接口由路由自行设置更长超时
 app.use((req, res, next) => {
-  const isAI = req.path.startsWith('/api/ai/') || req.path.startsWith('/api/consult/analyze')
-  const timeout = isAI ? 300000 : 30000  // AI接口5分钟，其他30秒
+  // AI / 上传 / 咨询 全部用 5 分钟，避免 30s 网关超时返回 -606001
+  const longTimeoutPaths = ['/api/ai/', '/api/consult/', '/api/upload', '/api/upload-base64']
+  const isLong = longTimeoutPaths.some(p => req.path.startsWith(p))
+  const timeout = isLong ? 300000 : 30000
   req.setTimeout(timeout)
   res.setTimeout(timeout)
   next()
@@ -192,11 +196,13 @@ const aiRoutes = require('./routes/ai')
 const reportRoutes = require('./routes/report')
 const favoriteRoutes = require('./routes/favorite')
 const consultRoutes = require('./routes/consult')
+const ossRoutes = require('./routes/oss')
 
 app.use('/api/ai', aiLimiter, aiRoutes)
 app.use('/api/report', reportRoutes)
 app.use('/api/favorite', favoriteRoutes)
 app.use('/api/consult', aiLimiter, consultRoutes)
+app.use('/api/oss', ossRoutes)
 
 // 首页
 app.get('/', (req, res) => {
@@ -249,4 +255,5 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`鉴权模式: JWT Bearer Token`)
   console.log(`限流: 全局200/min, AI 20/min, 上传30/min`)
   console.log(`数据存储: ${DATA_DIR}`)
+  console.log(`OSS 配置: ${oss.isConfigured() ? '已启用 ' + (process.env.OSS_BUCKET) + '@' + (process.env.OSS_REGION) : '未配置（降级本地静态托管）'}`)
 })

@@ -1,6 +1,6 @@
 // pages/mine/mine.js
 // 使用微信头像昵称填写能力（wx.getUserProfile 已废弃）
-const { request, API, ensureLogin, uploadImage } = require('../../utils/api')
+const { request, API, ensureLogin, uploadImage, saveLocalPhoto } = require('../../utils/api')
 
 Page({
   data: {
@@ -96,15 +96,18 @@ Page({
   async onChooseAvatar(e) {
     const tempUrl = e.detail.avatarUrl
     if (!tempUrl) return
+    if (this._chooseAvatarInFlight) return  // 防双击：避免 another chooseAvatar in progress
+    this._chooseAvatarInFlight = true
 
-    // 先用临时路径预览
-    const userInfo = this.data.userInfo || {}
-    userInfo.avatarUrl = tempUrl
-    this.setData({ userInfo })
-
-    // 上传到云存储获取永久URL
     try {
-      const cloudUrl = await uploadImage(tempUrl)
+      // 先持久化到本地（wxfile://），再渲染——避免 http://127.0.0.1/__tmp__ 时序失效
+      const persistPath = await saveLocalPhoto(tempUrl)
+      const userInfo = this.data.userInfo || {}
+      userInfo.avatarUrl = persistPath || tempUrl
+      this.setData({ userInfo })
+
+      // 上传到 OSS 获取永久URL
+      const cloudUrl = await uploadImage(persistPath || tempUrl)
       userInfo.avatarUrl = cloudUrl
       this.setData({ userInfo })
       wx.setStorageSync('userInfo', userInfo)
@@ -112,6 +115,8 @@ Page({
     } catch (err) {
       console.warn('[mine] 头像上传失败:', err.message)
       wx.showToast({ title: '头像上传失败', icon: 'none' })
+    } finally {
+      this._chooseAvatarInFlight = false
     }
   },
 

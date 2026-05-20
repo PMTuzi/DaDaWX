@@ -7,7 +7,8 @@ const OSS_ACCESS_KEY_ID = process.env.OSS_ACCESS_KEY_ID
 const OSS_ACCESS_KEY_SECRET = process.env.OSS_ACCESS_KEY_SECRET
 const OSS_BUCKET = process.env.OSS_BUCKET || 'dada-photos'
 const OSS_REGION = process.env.OSS_REGION || 'oss-cn-hangzhou'
-const OSS_DIR = process.env.OSS_DIR || 'uploads/'
+const OSS_DIR_RAW = process.env.OSS_DIR || 'uploads'
+const OSS_DIR = OSS_DIR_RAW.replace(/^\/|\/$/g, '') + '/'  // 确保末尾带 /，与 starts-with 匹配
 
 /**
  * 获取OSS STS临时凭证（推荐方式）

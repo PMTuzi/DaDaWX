@@ -31,6 +31,8 @@ const API = {
   generateCompareConsult: '/api/consult/generate-compare-consult',
   detectCategory: '/api/consult/detect-category',
   getConsultList: '/api/consult/list',
+  // OSS 直传凭证
+  ossToken: '/api/oss/token',
 }
 
 // 服务器连通性缓存
@@ -153,10 +155,69 @@ function request(url, options = {}) {
   })
 }
 
-// 上传图片：base64 经云托管落本地盘，返回 HTTPS URL
-// 不再使用 wx.cloud.uploadFile（云托管 SDK 在容器内无凭证，服务器无法解析 cloud://）
+// 上传图片：优先 OSS 直传（不受 callContainer 1MB 限制），失败降级 base64 经云托管中转
 async function uploadImage(filePath) {
-  return await uploadImageViaBase64(filePath)
+  try {
+    return await uploadImageViaOSS(filePath)
+  } catch (err) {
+    _ossTokenCache = null  // 任何失败都清缓存，下次重新取最新凭证
+    console.warn('[API] OSS 直传失败，降级 base64 经云托管:', err && err.message)
+    return await uploadImageViaBase64(filePath)
+  }
+}
+
+// OSS 缓存凭证
+let _ossTokenCache = null  // { accessKeyId, host, policy, signature, dir, expire }
+
+async function getOssToken() {
+  const now = Math.floor(Date.now() / 1000)
+  if (_ossTokenCache && _ossTokenCache.expire - now > 60) return _ossTokenCache
+  const result = await callContainer({
+    path: '/api/oss/token',
+    method: 'GET',
+    timeout: 10000
+  })
+  if (!(result.statusCode === 200 && result.data && result.data.code === 0)) {
+    throw new Error((result.data && result.data.message) || '获取OSS凭证失败')
+  }
+  _ossTokenCache = result.data.data
+  return _ossTokenCache
+}
+
+function genOssKey(filePath, dir) {
+  const ext = (filePath.toLowerCase().match(/\.(jpg|jpeg|png|webp)$/) || ['', 'jpg'])[1]
+  const ts = Date.now()
+  const rand = Math.random().toString(36).slice(2, 10)
+  return `${dir}${ts}_${rand}.${ext}`
+}
+
+// 直传 OSS：wx.uploadFile + PostObject
+async function uploadImageViaOSS(filePath) {
+  const tk = await getOssToken()
+  const key = genOssKey(filePath, tk.dir)
+  return new Promise((resolve, reject) => {
+    wx.uploadFile({
+      url: tk.host,
+      filePath,
+      name: 'file',
+      formData: {
+        key,
+        OSSAccessKeyId: tk.accessKeyId,
+        policy: tk.policy,
+        signature: tk.signature,
+        success_action_status: '200'
+      },
+      timeout: 60000,
+      success(res) {
+        if (res.statusCode === 200 || res.statusCode === 204) {
+          resolve(`${tk.host}/${key}`)
+        } else {
+          reject(new Error(`OSS上传失败 status=${res.statusCode} ${(res.data || '').slice(0, 200)}`))
+        }
+      },
+      fail(err) { reject(new Error(err.errMsg || 'OSS上传网络错误')) }
+    })
+  })
 }
 
 // 把小程序 tempFilePath 持久化到本地存储（跨 App 重启可用，约 10MB 配额）

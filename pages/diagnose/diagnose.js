@@ -144,19 +144,25 @@ Page({
     this.setData({ isUploading: true })
 
     try {
-      // 并行：上传图片 + 读取base64 + 持久化本地副本
+      // 先持久化本地副本，避免微信清理 http://tmp 路径导致后续读取失败
       const { request, API, uploadImage, imageToBase64, saveLocalPhoto } = require('../../utils/api')
-      const [imageUrl, imageBase64, savedPhoto] = await Promise.all([
-        uploadImage(this.data.photoUrl).catch(err => {
-          console.warn('[diagnose] 图片上传失败，仅用base64:', err.message)
-          return ''
-        }),
-        imageToBase64(this.data.photoUrl).catch(err => {
+      const savedPhoto = await saveLocalPhoto(this.data.photoUrl)
+      const sourcePath = savedPhoto || this.data.photoUrl
+
+      // 优先 OSS 直传：拿到 https URL 就跳过 base64（避免 callContainer 1MB 限制）
+      const imageUrl = await uploadImage(sourcePath).catch(err => {
+        console.warn('[diagnose] 图片上传失败:', err.message)
+        return ''
+      })
+
+      // 只有 OSS 上传失败时才回退 base64（作为 AI 接口的备用图源）
+      let imageBase64 = ''
+      if (!imageUrl || !/^https?:\/\//.test(imageUrl)) {
+        imageBase64 = await imageToBase64(sourcePath).catch(err => {
           console.warn('[diagnose] base64读取失败:', err.message)
           return ''
-        }),
-        saveLocalPhoto(this.data.photoUrl)
-      ])
+        })
+      }
 
       if (!imageUrl && !imageBase64) {
         throw new Error('图片数据获取失败')
