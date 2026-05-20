@@ -237,7 +237,7 @@
 .action-area {
   flex-shrink: 0;
   padding: 0 32rpx;
-  margin-top: 38rpx;
+  margin-top: 28rpx;
   position: relative;
   z-index: 10;
 }
@@ -248,8 +248,8 @@
   justify-content: center;
   padding: 36rpx 40rpx;
   gap: 24rpx;
-  box-shadow: 0 8rpx 32rpx rgba(200, 169, 126, 0.25);
-  background: linear-gradient(135deg, #C8A97E, #B8966E);
+  box-shadow: 0 8rpx 32rpx rgba(249, 184, 201, 0.35);
+  background: linear-gradient(135deg, #F9B8C9, #F78BA8);
   position: relative;
   overflow: hidden;
 }
@@ -347,6 +347,7 @@
 .feature-intro {
   flex-shrink: 0;
   padding: 20rpx 32rpx 0;
+  margin-top: -125rpx;
   position: relative;
   z-index: 20;
 }
@@ -415,7 +416,7 @@
 
 .outfit-entry-icon {
   font-size: 56rpx;
-  color: #C8A97E;
+  color: #F67C9F;
   flex-shrink: 0;
 }
 
@@ -438,7 +439,7 @@
 
 .outfit-entry-arrow {
   font-size: 36rpx;
-  color: #C8A97E;
+  color: #F67C9F;
 }
 
 /* Banner广告 */
