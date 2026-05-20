@@ -1,9 +1,9 @@
 // pages/consult-analyzing/consult-analyzing.js
-const { request, API, imageToBase64 } = require('../../utils/api')
+const { request, API, imageToBase64, checkServerReachable } = require('../../utils/api')
 
 // 用闭包变量代替实例属性，避免微信小程序 Page 构造器限制
-let _alive = true
-let _timers = []
+// 实例级状态
+
 
 Page({
   data: {
@@ -16,24 +16,24 @@ Page({
   },
 
   onLoad(options) {
-    _alive = true
-    _timers = []
+    this._alive = true
+    this._timers = []
     const type = options.type || 'keep'
     const steps = this.getSteps(type)
     this.setData({ type, steps })
     this.startAnalysis().catch(err => {
       console.error('[consult-analyzing] 未捕获异常:', err)
-      if (_alive) {
+      if (this._alive) {
         this.onError(err && err.message ? err.message : '分析过程异常')
       }
     })
   },
 
   onUnload() {
-    _alive = false
+    this._alive = false
     this._stopCreep()
-    _timers.forEach(t => clearInterval(t))
-    _timers = []
+    this._timers.forEach(t => clearInterval(t))
+    this._timers = []
   },
 
   onError(err) {
@@ -42,7 +42,7 @@ Page({
 
   // 安全的 setData
   safeSetData(data) {
-    if (_alive) {
+    if (this._alive) {
       try { this.setData(data) } catch (e) {}
     }
   },
@@ -72,7 +72,7 @@ Page({
   _startCreep(maxProgress, interval) {
     this._stopCreep()
     this._creepTimer = setInterval(() => {
-      if (!_alive || this.data.progress >= maxProgress) return
+      if (!this._alive || this.data.progress >= maxProgress) return
       this.safeSetData({ progress: this.data.progress + 1 })
     }, interval)
   },
@@ -104,21 +104,25 @@ Page({
       // 启动缓慢递增：API等待期间进度从15缓慢爬到80
       this._startCreep(80, 2000)
 
-      // 视觉分析：优先真实API，失败兜底模拟数据
+      // 视觉分析：必须使用真实API
       let visionResult
+      const serverReachable = await checkServerReachable()
+      if (!serverReachable) {
+        throw new Error('服务器不可达，请检查网络后重试')
+      }
       try {
         visionResult = await this.callVisionAnalysis(consultData)
         console.log('[consult-analyzing] 视觉分析API成功')
       } catch (err) {
-        console.warn('[consult-analyzing] 视觉分析API失败，使用模拟数据:', err.message)
-        visionResult = this.getMockVisionFeatures(consultData)
+        console.error('[consult-analyzing] 视觉分析API失败:', err.message)
+        throw new Error('视觉分析失败：' + (err.message || '请重试'))
       }
       await this.simulateStep(1, 40)
       await this.simulateStep(2, 55)
       await this.simulateStep(3, 70)
       await this.simulateStep(4, 82)
 
-      // 决策分析：优先真实API，失败兜底模拟数据
+      // 决策分析：必须使用真实API
       let result
       try {
         if (isCompare) {
@@ -128,8 +132,8 @@ Page({
         }
         console.log('[consult-analyzing] 决策分析API成功')
       } catch (err) {
-        console.warn('[consult-analyzing] 决策分析API失败，使用模拟数据:', err.message)
-        result = isCompare ? this.getMockCompareResult(consultData) : this.getMockSingleResult(consultData)
+        console.error('[consult-analyzing] 决策分析API失败:', err.message)
+        throw new Error('决策分析失败：' + (err.message || '请重试'))
       }
 
       // API都返回后停止缓慢递增
@@ -140,13 +144,13 @@ Page({
       const record = this.saveResult(result, consultData)
 
       // 即使页面已卸载，也通知用户结果已保存
-      if (!_alive) {
+      if (!this._alive) {
         wx.showToast({ title: '决策完成，请在穿搭页查看', icon: 'none', duration: 3000 })
         return
       }
 
       setTimeout(() => {
-        if (!_alive) return
+        if (!this._alive) return
         try {
           wx.redirectTo({
             url: `/pages/consult-result/consult-result?id=${record.id}`,
@@ -165,6 +169,7 @@ Page({
       }, 500)
 
     } catch (err) {
+      this._stopCreep()
       console.error('[consult-analyzing] 分析失败:', err)
       this.onError(err.message || '分析失败，请重试')
     }
@@ -206,92 +211,7 @@ Page({
     }
   },
 
-  // 模拟视觉特征数据
-  getMockVisionFeatures(consultData) {
-    const count = consultData.images.length
-    if (count > 1) {
-      return consultData.images.map((_, i) => ({
-        index: i,
-        label: `款式${['A','B','C','D'][i] || i+1}`,
-        color: '深色系',
-        material: '棉质',
-        style: '简约',
-        fit: '修身'
-      }))
-    }
-    return {
-      color: '深色系',
-      material: '棉质混纺',
-      style: '简约休闲',
-      fit: '修身版型',
-      pattern: '纯色',
-      thickness: '适中'
-    }
-  },
 
-  // 模拟单品决策结果
-  getMockSingleResult(consultData) {
-    const fitScore = 6 + Math.floor(Math.random() * 3)
-    const colorScore = 6 + Math.floor(Math.random() * 3)
-    const qualityScore = 6 + Math.floor(Math.random() * 3)
-    const valueScore = 6 + Math.floor(Math.random() * 3)
-    const avg = Math.round((fitScore + colorScore + qualityScore + valueScore) / 4 * 10) / 10
-    const keep = avg >= 7
-
-    return {
-      verdict: keep ? '建议入手' : '建议再想想',
-      scores: { fitScore, colorScore, qualityScore, valueScore },
-      summary: keep
-        ? '这件单品整体表现不错，版型和颜色都比较百搭，性价比尚可。'
-        : '这件单品综合评分一般，建议对比其他选择后再决定。',
-      details: {
-        fitAnalysis: '版型适中，对大多数身型友好。',
-        colorAnalysis: '颜色经典百搭，日常搭配不成问题。',
-        qualityAnalysis: '面料质感中规中矩，做工可以接受。',
-        valueAnalysis: '结合价格来看，性价比处于中等水平。'
-      },
-      suggestions: [
-        '可以搭配高腰裤拉长比例',
-        '搭配同色系外套更有层次感',
-        '避免搭配过于花哨的下装'
-      ]
-    }
-  },
-
-  // 模拟对比决策结果
-  getMockCompareResult(consultData) {
-    const count = consultData.images.length
-    const scores = consultData.images.map((_, i) => {
-      const slimScore = 5 + Math.floor(Math.random() * 5)
-      const versatileScore = 5 + Math.floor(Math.random() * 5)
-      const occasionScore = 5 + Math.floor(Math.random() * 5)
-      const qualityScore = 5 + Math.floor(Math.random() * 5)
-      const valueScore = 5 + Math.floor(Math.random() * 5)
-      const durableScore = 5 + Math.floor(Math.random() * 5)
-      const totalScore = Math.round((slimScore + versatileScore + occasionScore + qualityScore + valueScore + durableScore) / 6 * 10) / 10
-      return {
-        index: i,
-        label: `款式${['A','B','C','D'][i] || i+1}`,
-        slimScore, versatileScore, occasionScore, qualityScore, valueScore, durableScore, totalScore
-      }
-    })
-
-    scores.sort((a, b) => b.totalScore - a.totalScore)
-    const topLabel = scores[0].label
-
-    return {
-      rankings: scores.map((s, rank) => ({ ...s, rank: rank + 1 })),
-      scores,
-      finalChoice: { index: scores[0].index, label: topLabel },
-      verdict: `${topLabel} 最佳`,
-      summary: `${topLabel}在综合评分中表现最优，推荐选择。`,
-      details: scores.map(s => ({
-        label: s.label,
-        advantage: s.totalScore >= 7 ? '综合表现优秀' : '表现中等',
-        disadvantage: s.slimScore < 6 ? '显瘦效果一般' : ''
-      }))
-    }
-  },
 
   async callVisionAnalysis(consultData) {
     const isCompare = consultData.type === 'compare'
@@ -369,7 +289,7 @@ Page({
 
   simulateStep(stepIndex, targetProgress) {
     return new Promise((resolve) => {
-      if (!_alive) { resolve(); return }
+      if (!this._alive) { resolve(); return }
       this.safeSetData({ currentStep: stepIndex })
       const startProgress = this.data.progress
       const diff = targetProgress - startProgress
@@ -378,7 +298,7 @@ Page({
       let count = 0
 
       const timer = setInterval(() => {
-        if (!_alive) {
+        if (!this._alive) {
           clearInterval(timer)
           resolve()
           return
@@ -391,13 +311,13 @@ Page({
           resolve()
         }
       }, 80)
-      _timers.push(timer)
+      this._timers.push(timer)
     })
   },
 
   saveResult(result, consultData) {
     try {
-      const id = 'C' + Date.now()
+      const id = 'C' + Date.now() + '_' + Math.random().toString(36).substr(2, 6)
       const now = new Date()
       const createTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
 
@@ -457,7 +377,7 @@ Page({
   },
 
   onError(msg) {
-    if (!_alive) return
+    if (!this._alive) return
     this.safeSetData({ animating: false, errorMsg: msg })
     wx.showModal({
       title: '分析失败',

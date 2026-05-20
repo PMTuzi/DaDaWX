@@ -1,8 +1,9 @@
 <!--pages/consult-result/consult-result.wxml-->
 <view class="page-result" wx:if="{{record}}">
   <!-- 顶部决策结论 -->
-  <view class="verdict-section {{record.verdict === '建议退货' || record.verdict === '建议不买' ? 'verdict-reject' : 'verdict-accept'}}">
+  <view class="verdict-section {{record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? 'verdict-accept' : 'verdict-reject'}}">
     <view class="verdict-bg-glow"></view>
+    <view class="verdict-bg-glow-2"></view>
     <!-- 用户上传图片 -->
     <view class="user-images" wx:if="{{record.images && record.images.length}}">
       <image class="user-image" wx:for="{{record.images}}" wx:key="index"
@@ -11,20 +12,31 @@
     </view>
     <!-- 分数环 -->
     <view class="score-ring-wrap" wx:if="{{record.totalScore}}">
-      <view class="score-ring {{record.verdict === '建议退货' || record.verdict === '建议不买' ? 'ring-reject' : 'ring-accept'}}">
-        <view class="score-ring-inner">
-          <text class="score-big">{{record.totalScore}}</text>
-          <text class="score-max">/10</text>
+      <view class="score-ring-outer {{record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? 'ring-accept' : 'ring-reject'}}">
+        <view class="score-ring-inner-wrap">
+          <view class="score-ring-glass"></view>
+          <view class="score-ring-inner">
+            <text class="score-big">{{record.totalScore}}</text>
+            <text class="score-max">.0</text>
+          </view>
+          <view class="score-ring-label">综合评分</view>
         </view>
       </view>
     </view>
     <!-- 决策标签 -->
-    <view class="verdict-badge {{record.verdict === '建议退货' || record.verdict === '建议不买' ? 'badge-reject' : 'badge-accept'}}">
-      <view class="badge-icon">{{record.verdict === '建议退货' || record.verdict === '建议不买' ? '✕' : '✓'}}</view>
-      <view class="badge-content">
-        <text class="badge-label">{{isCompare ? '最优推荐' : 'AI决策'}}</text>
-        <text class="badge-verdict">{{record.verdict}}</text>
+    <view class="verdict-stamp {{record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? 'stamp-accept' : 'stamp-reject'}}">
+      <view class="stamp-border">
+        <view class="stamp-icon">{{record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? '✓' : '✕'}}</view>
+        <view class="stamp-content">
+          <text class="stamp-sub">{{isCompare ? '最优推荐' : 'AI决策'}}</text>
+          <text class="stamp-text">{{record.verdict}}</text>
+        </view>
       </view>
+    </view>
+    <!-- 个人化理由摘要 -->
+    <view class="personal-reason {{record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? 'reason-accept' : 'reason-reject'}}" wx:if="{{record.personalReason}}">
+      <view class="reason-icon icon icon-user" style="font-size:22rpx;"></view>
+      <text class="reason-text">{{record.personalReason}}</text>
     </view>
   </view>
 

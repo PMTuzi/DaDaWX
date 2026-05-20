@@ -8,7 +8,7 @@ const CONFIG = {
     aliyunOssRegion: 'oss-cn-hangzhou',
   },
   development: {
-    baseUrl: 'http://192.168.110.85:3000',
+    baseUrl: 'http://172.21.242.182:3000',
     aliyunOssBucket: 'dada-photos-dev',
     aliyunOssRegion: 'oss-cn-hangzhou',
   }
@@ -41,6 +41,46 @@ const API = {
   generateCompareConsult: '/api/consult/generate-compare-consult',
   detectCategory: '/api/consult/detect-category',
   getConsultList: '/api/consult/list',
+}
+
+// 服务器连通性缓存（避免重复探测）
+let _serverReachable = null    // true/false/null(未知)
+let _serverCheckTime = 0
+const SERVER_CHECK_TTL = 30000  // 30秒内不重复检测
+
+/**
+ * 快速检测服务器是否可达（3秒超时HEAD请求）
+ */
+function checkServerReachable() {
+  const now = Date.now()
+  if (_serverReachable !== null && (now - _serverCheckTime) < SERVER_CHECK_TTL) {
+    return Promise.resolve(_serverReachable)
+  }
+  return new Promise(resolve => {
+    wx.request({
+      url: currentConfig.baseUrl + '/api/health',
+      method: 'HEAD',
+      timeout: 3000,
+      success() {
+        _serverReachable = true
+        _serverCheckTime = Date.now()
+        resolve(true)
+      },
+      fail() {
+        _serverReachable = false
+        _serverCheckTime = Date.now()
+        resolve(false)
+      }
+    })
+  })
+}
+
+/**
+ * 标记服务器不可达（当请求失败时调用，避免后续重复尝试）
+ */
+function markServerUnreachable() {
+  _serverReachable = false
+  _serverCheckTime = Date.now()
 }
 
 // 登录重试锁
@@ -97,6 +137,8 @@ function request(url, options = {}) {
       },
       fail(err) {
         console.error('[API] 请求失败:', url, err.errMsg)
+        // 网络层失败时标记服务器不可达
+        markServerUnreachable()
         reject({ code: -1, message: err.errMsg || '网络异常，请稍后重试' })
       }
     })
@@ -105,6 +147,11 @@ function request(url, options = {}) {
 
 // 上传图片（开发模式：直传服务器）
 async function uploadImage(filePath) {
+  // 先检测服务器是否可达，不可达直接跳过
+  const reachable = await checkServerReachable()
+  if (!reachable) {
+    throw new Error('服务器不可达，跳过上传')
+  }
   if (ENV === 'development') {
     try {
       return await uploadFileToServer(filePath)
@@ -128,11 +175,18 @@ async function uploadImage(filePath) {
 
 function uploadFileToServer(filePath) {
   return new Promise((resolve, reject) => {
+    // 先检查文件是否存在
+    try {
+      wx.getFileSystemManager().accessSync(filePath)
+    } catch (e) {
+      reject(new Error('图片文件不存在或已被清理'))
+      return
+    }
     wx.uploadFile({
       url: currentConfig.baseUrl + '/api/upload',
       filePath,
       name: 'image',
-      timeout: 30000,
+      timeout: 60000,
       success(res) {
         if (res.statusCode === 200) {
           try {
@@ -147,6 +201,7 @@ function uploadFileToServer(filePath) {
         }
       },
       fail(err) {
+        markServerUnreachable()
         reject(new Error(err.errMsg || '上传失败'))
       }
     })
@@ -293,5 +348,7 @@ module.exports = {
   uploadToOss,
   wxLogin,
   ensureLogin,
-  runDiagnosis
+  runDiagnosis,
+  checkServerReachable,
+  markServerUnreachable
 }

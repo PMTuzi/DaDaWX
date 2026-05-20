@@ -16,6 +16,7 @@ const FALLBACK_SINGLE_RESULT = {
   },
   tips: ['搭配高腰下装可优化比例', '可叠穿增加层次感', '配饰选择简约风格'],
   dadaComment: '这件还行啦，但搭搭觉得你可以找到更心动的喵~',
+  personalReason: '',
   outfitAdvice: [
     { type: 'accessory', icon: 'ring', title: '饰品搭配', description: '建议搭配简约金属饰品，提升整体精致感', reason: '简约饰品与该款风格协调' },
     { type: 'hairstyle', icon: 'hair', title: '发型搭配', description: '建议搭配低马尾或自然披发，保持清爽感', reason: '发型简洁不抢服饰风头' },
@@ -44,6 +45,7 @@ const FALLBACK_COMPARE_RESULT = {
     { index: 1, label: '款式B', scenario: '周末休闲' }
   ],
   dadaComment: 'A款明显更胜一筹，B款就留作备胎吧喵~',
+  personalReason: '',
   outfitAdvice: [
     { type: 'accessory', icon: 'ring', title: '饰品搭配', description: '推荐款适合搭配精致银饰', reason: '银饰提升高级感' },
     { type: 'hairstyle', icon: 'hair', title: '发型搭配', description: '推荐搭配干练低马尾', reason: '与推荐款气质相符' },
@@ -85,6 +87,7 @@ function safeMergeSingleResult(result) {
     details: result.details || fallback.details,
     tips: result.tips && result.tips.length > 0 ? result.tips : fallback.tips,
     dadaComment: result.dadaComment || fallback.dadaComment,
+    personalReason: result.personalReason || '',
     outfitAdvice: result.outfitAdvice && result.outfitAdvice.length >= 5 ? result.outfitAdvice : fallback.outfitAdvice
   }
 }
@@ -99,6 +102,7 @@ function safeMergeCompareResult(result) {
     finalChoice: result.finalChoice || fallback.finalChoice,
     bestScenarios: result.bestScenarios || fallback.bestScenarios,
     dadaComment: result.dadaComment || fallback.dadaComment,
+    personalReason: result.personalReason || '',
     outfitAdvice: result.outfitAdvice && result.outfitAdvice.length >= 5 ? result.outfitAdvice : fallback.outfitAdvice
   }
 }

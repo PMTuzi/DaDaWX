@@ -154,16 +154,37 @@ Page({
   async autoDetectCategory(imagePath) {
     try { this.setData({ categoryDetected: false }) } catch (e) {}
     try {
+      // 服务器不可达时直接跳过，不浪费时间尝试上传和API调用
+      const { checkServerReachable } = require('../../utils/api')
+      const reachable = await checkServerReachable()
+      if (!reachable) {
+        console.log('[consult-publish] 服务器不可达，跳过AI类别识别')
+        return
+      }
+
+      // 先持久化临时文件，防止上传超时后微信回收临时路径
+      let safePath = imagePath
+      try {
+        const fs = wx.getFileSystemManager()
+        fs.accessSync(imagePath)
+      } catch (e) {
+        console.warn('[consult-publish] 原始临时路径不可访问，跳过AI类别识别')
+        return
+      }
+
       // 上传图片（内置 base64 降级），失败则用 base64 直传
       let imageUrl
       let imageBase64
       try {
-        imageUrl = await uploadImage(imagePath)
+        imageUrl = await Promise.race([
+          uploadImage(safePath),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('上传超时')), 15000))
+        ])
       } catch (e) {
         console.warn('[consult-publish] 图片上传失败，尝试base64识别:', e.message)
         try {
           const { imageToBase64 } = require('../../utils/api')
-          imageBase64 = await imageToBase64(imagePath)
+          imageBase64 = await imageToBase64(safePath)
         } catch (e2) {
           console.warn('[consult-publish] base64转换也失败，跳过AI类别识别')
           return
@@ -363,13 +384,25 @@ Page({
       }
 
       // 2. 尝试上传到服务器（用于AI分析），失败不阻断流程
-      for (let i = 0; i < this.data.images.length; i++) {
-        try {
-          const url = await uploadImage(this.data.images[i].path)
-          imageDataList[i].imageUrl = url
-        } catch (uploadErr) {
-          console.warn('[consult-publish] 图片上传失败，使用本地路径:', uploadErr.message)
-        }
+      //    服务器不可达时直接跳过，不浪费时间等待超时
+      const { checkServerReachable } = require('../../utils/api')
+      const serverReachable = await checkServerReachable()
+      if (serverReachable) {
+        const uploadPromises = imageDataList.map(async (item, i) => {
+          const uploadPath = item.localPath || this.data.images[i].path
+          try {
+            const url = await Promise.race([
+              uploadImage(uploadPath),
+              new Promise((_, reject) => setTimeout(() => reject(new Error('上传超时')), 15000))
+            ])
+            item.imageUrl = url
+          } catch (uploadErr) {
+            console.warn('[consult-publish] 图片上传失败，使用本地路径:', uploadErr.message)
+          }
+        })
+        await Promise.all(uploadPromises)
+      } else {
+        console.log('[consult-publish] 服务器不可达，跳过图片上传')
       }
 
       // 根据图片数量自动决定类型

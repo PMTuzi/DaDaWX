@@ -2,9 +2,6 @@
 // 新架构：VL分析即时返回，跳转报告页后异步生图
 const { request, API } = require('../../utils/api')
 
-let _alive = true
-let _timers = []
-
 Page({
   data: {
     progress: 0,
@@ -25,8 +22,8 @@ Page({
   },
 
   onLoad(options) {
-    _alive = true
-    _timers = []
+    this._alive = true
+    this._timers = []
     try {
       const imageUrl = decodeURIComponent(options.imageUrl || '')
       let imageBase64 = ''
@@ -54,15 +51,15 @@ Page({
 
     this.startAnalysis().catch(err => {
       console.error('[analyzing] startAnalysis未捕获异常:', err)
-      if (_alive) this.onError(err && err.message ? err.message : '诊断异常')
+      if (this._alive) this.onError(err && err.message ? err.message : '诊断异常')
     })
   },
 
   onUnload() {
-    _alive = false
+    this._alive = false
     this._stopCreep()
-    _timers.forEach(t => clearInterval(t))
-    _timers = []
+    this._timers.forEach(t => clearInterval(t))
+    this._timers = []
   },
 
   onError(err) {
@@ -70,13 +67,13 @@ Page({
   },
 
   safeSetData(data) {
-    if (_alive) { try { this.setData(data) } catch (e) {} }
+    if (this._alive) { try { this.setData(data) } catch (e) {} }
   },
 
   _startCreep(maxProgress, interval) {
     this._stopCreep()
     this._creepTimer = setInterval(() => {
-      if (!_alive || this.data.progress >= maxProgress) return
+      if (!this._alive || this.data.progress >= maxProgress) return
       this.safeSetData({ progress: this.data.progress + 1 })
     }, interval)
   },
@@ -141,7 +138,7 @@ Page({
 
       // 保存报告到本地
       const report = {
-        id: 'R' + Date.now(),
+        id: 'R' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
         createTime: this.formatNow(),
         photoType: this.data.photoType,
         photoUrl: this.data.localPhoto || this.data.imageUrl,
@@ -156,14 +153,14 @@ Page({
       this.saveReport(report)
 
       // 即使页面已卸载，也通知用户结果已保存
-      if (!_alive) {
+      if (!this._alive) {
         wx.showToast({ title: '诊断完成，请在首页查看', icon: 'none', duration: 3000 })
         return
       }
 
       // 跳转报告页
       setTimeout(() => {
-        if (!_alive) return
+        if (!this._alive) return
         try {
           wx.redirectTo({
             url: `/pages/report/report?id=${report.id}`,
@@ -186,24 +183,24 @@ Page({
 
   simulateStep(stepIndex, targetProgress) {
     return new Promise(resolve => {
-      if (!_alive) { resolve(); return }
+      if (!this._alive) { resolve(); return }
       const current = this.data.progress
       const diff = targetProgress - current
       const steps = 20
       const increment = diff / steps
       let count = 0
       const timer = setInterval(() => {
-        if (!_alive) { clearInterval(timer); resolve(); return }
+        if (!this._alive) { clearInterval(timer); resolve(); return }
         count++
         this.safeSetData({ progress: Math.round(Math.min(current + increment * count, targetProgress)) })
         if (count >= steps) { clearInterval(timer); resolve() }
       }, 60)
-      _timers.push(timer)
+      this._timers.push(timer)
     })
   },
 
   setStepStatus(index, status) {
-    if (!_alive) return
+    if (!this._alive) return
     try {
       const steps = this.data.steps
       steps[index].status = status
@@ -229,7 +226,7 @@ Page({
   },
 
   onError(msg) {
-    if (!_alive) return
+    if (!this._alive) return
     this.safeSetData({ analyzing: false, errorMsg: msg })
     wx.showModal({
       title: '诊断失败',

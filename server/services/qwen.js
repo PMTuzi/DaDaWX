@@ -1,6 +1,15 @@
 // 通义千问 API 服务（新架构：2次VL + 4次Seedream）
 const axios = require('axios')
 
+// 连接池：复用 TCP 连接，避免每次请求创建新连接
+const httpAgent = new (require('http').Agent)({ keepAlive: true, maxSockets: 100, timeout: 60000 })
+const httpsAgent = new (require('https').Agent)({ keepAlive: true, maxSockets: 100, timeout: 60000 })
+const axiosInstance = axios.create({
+  httpAgent,
+  httpsAgent,
+  timeout: 60000
+})
+
 /**
  * 健壮的 JSON 解析
  */
@@ -175,7 +184,7 @@ async function analyzePart1(imageInput, photoType = 'face', gender = 'female', u
         await new Promise(r => setTimeout(r, 2000 * attempt))
       }
       console.log('[AI] VL Part1 使用Key:', QWEN_API_KEY?.substring(0, 8) + '...', '图片类型:', imageInput?.substring(0, 30))
-      const response = await axios.post(BASE_URL, {
+      const response = await axiosInstance.post(BASE_URL, {
         model: process.env.QWEN_VL_MODEL || 'qwen-vl-max',
         messages: [{
           role: 'user',
@@ -282,7 +291,7 @@ ${JSON.stringify(part1Data, null, 2)}
         console.log(`[AI] VL Part2 第${attempt}次重试...`)
         await new Promise(r => setTimeout(r, 2000 * attempt))
       }
-      const response = await axios.post(BASE_URL, {
+      const response = await axiosInstance.post(BASE_URL, {
         model: process.env.QWEN_VL_MODEL || 'qwen-vl-max',
         messages: [{
           role: 'user',
@@ -316,7 +325,7 @@ ${JSON.stringify(part1Data, null, 2)}
 async function callSeedream(prompt, size = '1920x1920') {
   if (!VOLCENGINE_API_KEY) throw new Error('未配置VOLCENGINE_API_KEY')
 
-  const response = await axios.post(
+  const response = await axiosInstance.post(
     'https://ark.cn-beijing.volces.com/api/v3/images/generations',
     {
       model: SEEDREAM_MODEL,
@@ -615,7 +624,7 @@ async function generateImagePrompts(analysisData) {
 请严格按照JSON格式输出，不要包含任何其他文字说明。`
 
   try {
-    const response = await axios.post(BASE_URL, {
+    const response = await axiosInstance.post(BASE_URL, {
       model: process.env.QWEN_TEXT_MODEL || 'qwen-plus',
       messages: [
         { role: 'system', content: '你是专业的形象诊断报告设计师，擅长设计精美的数据可视化图片。严格输出JSON格式。' },
@@ -718,7 +727,7 @@ ${isCompare ? `图片中有${images.length}件不同服饰，分别标记为${la
   content.push({ type: 'text', text: prompt })
 
   try {
-    const response = await axios.post(BASE_URL, {
+    const response = await axiosInstance.post(BASE_URL, {
       model: process.env.QWEN_VL_MODEL || 'qwen-vl-max',
       messages: [{ role: 'user', content }],
       temperature: 0.1, top_p: 0.8
@@ -803,6 +812,7 @@ ${reportSection}
   },
   "tips": ["穿搭优化建议1", "建议2", "建议3"],
   "dadaComment": "以搭搭(AI时尚猫咪)口吻的1-2句幽默点评",
+  "personalReason": "基于用户个人形象特征的1-2句针对性理由（如：你的肤色属冷夏型，这件暖橘色与你不匹配；你是优雅型风格，这件街头风偏大不太适合你等。无诊断报告时填空字符串）",
   "outfitAdvice": [
     { "type": "accessory", "icon": "ring", "title": "饰品搭配", "description": "具体建议(1-2句)", "reason": "搭配理由" },
     { "type": "hairstyle", "icon": "hair", "title": "发型搭配", "description": "具体建议(1-2句)", "reason": "搭配理由" },
@@ -815,7 +825,7 @@ ${reportSection}
 严格JSON格式输出。`
 
   try {
-    const response = await axios.post(BASE_URL, {
+    const response = await axiosInstance.post(BASE_URL, {
       model: process.env.QWEN_TEXT_MODEL || 'qwen-plus',
       messages: [
         { role: 'system', content: '你是专业的时尚买手AI，必须给出明确结论。严格输出JSON格式。' },
@@ -894,6 +904,7 @@ ${reportSection}
   "finalChoice": { "index": 0, "label": "款式X", "reason": "核心理由(1-2句)" },
   "bestScenarios": [{ "index": 0, "label": "款式A", "scenario": "最佳场景" }],
   "dadaComment": "以搭搭口吻的1-2句幽默点评",
+  "personalReason": "基于用户个人形象特征的1-2句针对性理由（如：你的肤色属冷夏型，A款的冷色调更衬你等。无诊断报告时填空字符串）",
   "outfitAdvice": [
     { "type": "accessory", "icon": "ring", "title": "饰品搭配", "description": "建议", "reason": "理由" },
     { "type": "hairstyle", "icon": "hair", "title": "发型搭配", "description": "建议", "reason": "理由" },
@@ -906,7 +917,7 @@ ${reportSection}
 严格JSON格式输出。`
 
   try {
-    const response = await axios.post(BASE_URL, {
+    const response = await axiosInstance.post(BASE_URL, {
       model: process.env.QWEN_TEXT_MODEL || 'qwen-plus',
       messages: [
         { role: 'system', content: '你是专业的时尚买手AI，必须给出明确排名。严格输出JSON格式。' },
@@ -935,7 +946,7 @@ async function detectCategory(images) {
   }
   content.push({ type: 'text', text: prompt })
   try {
-    const response = await axios.post(BASE_URL, {
+    const response = await axiosInstance.post(BASE_URL, {
       model: process.env.QWEN_VL_MODEL || 'qwen-vl-max',
       messages: [{ role: 'user', content }],
       temperature: 0.1, top_p: 0.8, max_tokens: 20
