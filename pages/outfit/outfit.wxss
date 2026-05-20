@@ -147,7 +147,7 @@
   top: 0;
   bottom: 0;
   width: 6rpx;
-  background: #C8A97E;
+  background: linear-gradient(180deg, #50b896, #3a9a7a);
   border-radius: 0 3rpx 3rpx 0;
 }
 
@@ -158,7 +158,18 @@
   top: 0;
   bottom: 0;
   width: 6rpx;
-  background: #B8605D;
+  background: #E8655A;
+  border-radius: 0 3rpx 3rpx 0;
+}
+
+.history-item.card-compare::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6rpx;
+  background: linear-gradient(180deg, #d88ca8, #c49060);
   border-radius: 0 3rpx 3rpx 0;
 }
 
@@ -210,11 +221,17 @@
 }
 
 .verdict-positive {
-  color: #8B7355;
+  color: #3a9a7a;
 }
 
 .verdict-negative {
-  color: #B8605D;
+  color: #E8655A;
+}
+
+.verdict-compare {
+  background: linear-gradient(135deg, #d88ca8, #c49060);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .type-tag {
@@ -225,14 +242,19 @@
   font-weight: 600;
 }
 
-.tag-single {
-  background: rgba(200, 169, 126, 0.12);
-  color: #C8A97E;
+.tag-accept {
+  background: rgba(80, 184, 150, 0.1);
+  color: #3a9a7a;
+}
+
+.tag-reject {
+  background: rgba(232, 101, 90, 0.1);
+  color: #E8655A;
 }
 
 .tag-compare {
-  background: rgba(139, 115, 85, 0.1);
-  color: #8B7355;
+  background: rgba(196, 144, 96, 0.1);
+  color: #c49060;
 }
 
 .history-score-ring {
@@ -246,13 +268,18 @@
 }
 
 .ring-positive {
-  background: rgba(200, 169, 126, 0.1);
-  border: 3rpx solid rgba(200, 169, 126, 0.3);
+  background: rgba(80, 184, 150, 0.08);
+  border: 3rpx solid rgba(80, 184, 150, 0.3);
 }
 
 .ring-negative {
-  background: rgba(184, 96, 93, 0.08);
-  border: 3rpx solid rgba(184, 96, 93, 0.25);
+  background: rgba(232, 101, 90, 0.08);
+  border: 3rpx solid rgba(232, 101, 90, 0.3);
+}
+
+.ring-compare {
+  background: rgba(196, 144, 96, 0.08);
+  border: 3rpx solid rgba(196, 144, 96, 0.3);
 }
 
 .history-score-ring .score-num {
@@ -261,11 +288,17 @@
 }
 
 .ring-positive .score-num {
-  color: #8B7355;
+  color: #3a9a7a;
 }
 
 .ring-negative .score-num {
-  color: #B8605D;
+  color: #E8655A;
+}
+
+.ring-compare .score-num {
+  background: linear-gradient(135deg, #d88ca8, #c49060);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .history-bottom {

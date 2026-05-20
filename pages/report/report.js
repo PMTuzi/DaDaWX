@@ -43,8 +43,6 @@ Page({
     const report = this.data.report
     if (report) {
       report.photoUrl = ''
-      report.visualImages = report.visualImages || {}
-      report.visualImages.faceMarkImg = ''
       this.setData({ report })
     }
   },

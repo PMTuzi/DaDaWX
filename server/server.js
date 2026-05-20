@@ -190,7 +190,7 @@ app.get('/', (req, res) => {
       '微信登录': 'POST /api/user/login (无需鉴权)',
       '用户信息': 'GET /api/user/profile (需鉴权)',
       '更新用户': 'PUT /api/user/profile (需鉴权)',
-      '完整分析(VL+Seedream)': 'POST /api/ai/full-analysis (需鉴权)',
+      '完整分析(VL)': 'POST /api/ai/full-analysis (需鉴权)',
       '图片上传': 'POST /api/upload (无需鉴权)',
       'Base64上传': 'POST /api/upload-base64 (无需鉴权)',
       '报告列表': 'GET /api/report/list (需鉴权)',

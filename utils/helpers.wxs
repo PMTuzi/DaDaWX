@@ -14,7 +14,18 @@ function toFixed1(num) {
   return n.toFixed(1)
 }
 
+// 获取记录的推荐图片URL（对比模式优先展示被推荐商品）
+function getThumbUrl(images, recommendedIndex) {
+  if (!images || !images.length) return ''
+  var idx = recommendedIndex || 0
+  if (idx < 0 || idx >= images.length) idx = 0
+  var img = images[idx]
+  if (!img) return ''
+  return img.localPath || img.imageUrl || ''
+}
+
 module.exports = {
   includes: includes,
-  toFixed1: toFixed1
+  toFixed1: toFixed1,
+  getThumbUrl: getThumbUrl
 }

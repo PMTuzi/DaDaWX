@@ -30,11 +30,11 @@
       <view class="section-title">最近咨询</view>
     </view>
     <view class="history-list">
-      <view class="history-item {{item.verdict === '建议购买' || item.verdict === '建议自留' || item.verdict === '建议入手' ? 'card-accept' : 'card-reject'}}" wx:for="{{recentConsults}}" wx:key="id"
+      <view class="history-item {{item.type === 'compare' ? 'card-compare' : (item.verdict === '建议购买' || item.verdict === '建议自留' || item.verdict === '建议入手' ? 'card-accept' : 'card-reject')}}" wx:for="{{recentConsults}}" wx:key="id"
         data-id="{{item.id}}" bindtap="onViewResult">
         <view class="history-thumb-wrap">
-          <image class="history-thumb" wx:if="{{item.images && item.images.length && (item.images[0].localPath || item.images[0].imageUrl)}}"
-            src="{{item.images[0].localPath || item.images[0].imageUrl}}" mode="aspectFill" binderror="onThumbError" data-index="{{index}}"></image>
+          <image class="history-thumb" wx:if="{{item.images && item.images.length && h.getThumbUrl(item.images, item.recommendedIndex)}}"
+            src="{{h.getThumbUrl(item.images, item.recommendedIndex)}}" mode="aspectFill" binderror="onThumbError" data-index="{{index}}"></image>
           <view class="history-thumb history-thumb-placeholder" wx:else>
             <view class="icon icon-dress" style="font-size:32rpx;color:#C8A97E;"></view>
           </view>
@@ -42,10 +42,10 @@
         <view class="history-body">
           <view class="history-top">
             <view class="history-info">
-              <view class="history-verdict {{item.verdict === '建议购买' || item.verdict === '建议自留' || item.verdict === '建议入手' ? 'verdict-positive' : 'verdict-negative'}}">{{item.verdict || item.finalChoiceLabel || ''}}</view>
-              <text class="type-tag {{item.type === 'compare' ? 'tag-compare' : 'tag-single'}}">{{item.type === 'compare' ? '对比' : '单品'}}</text>
+              <view class="history-verdict {{item.type === 'compare' ? 'verdict-compare' : (item.verdict === '建议购买' || item.verdict === '建议自留' || item.verdict === '建议入手' ? 'verdict-positive' : 'verdict-negative')}}">{{item.verdict || item.finalChoiceLabel || ''}}</view>
+              <text class="type-tag {{item.type === 'compare' ? 'tag-compare' : (item.verdict === '建议购买' || item.verdict === '建议自留' || item.verdict === '建议入手' ? 'tag-accept' : 'tag-reject')}}">{{item.type === 'compare' ? '对比' : '单品'}}</text>
             </view>
-            <view class="history-score-ring {{item.verdict === '建议购买' || item.verdict === '建议自留' || item.verdict === '建议入手' ? 'ring-positive' : 'ring-negative'}}">
+            <view class="history-score-ring {{item.type === 'compare' ? 'ring-compare' : (item.verdict === '建议购买' || item.verdict === '建议自留' || item.verdict === '建议入手' ? 'ring-positive' : 'ring-negative')}}">
               <text class="score-num">{{h.toFixed1(item.totalScore)}}</text>
             </view>
           </view>

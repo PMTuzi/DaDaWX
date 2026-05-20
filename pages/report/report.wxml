@@ -18,8 +18,8 @@
 
   <!-- 综合评分头部 -->
   <view class="report-header">
-    <view class="user-avatar" wx:if="{{report.photoUrl || report.visualImages.faceMarkImg}}">
-      <image class="avatar-img" src="{{report.photoUrl || report.visualImages.faceMarkImg}}" mode="aspectFill" binderror="onAvatarError" />
+    <view class="user-avatar" wx:if="{{report.photoUrl}}">
+      <image class="avatar-img" src="{{report.photoUrl}}" mode="aspectFill" binderror="onAvatarError" />
     </view>
     <view class="user-avatar avatar-placeholder" wx:else>
       <text class="avatar-fallback">Me</text>

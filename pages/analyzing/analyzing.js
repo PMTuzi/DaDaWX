@@ -145,9 +145,7 @@ Page({
         basic: data.basic,
         modules: data.modules,
         images: data.images || {},
-        imageComplete: false,
-        faceData: data.faceData,
-        visualImages: data.visualImages
+        imageComplete: false
       }
 
       this.saveReport(report)

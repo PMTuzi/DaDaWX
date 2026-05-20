@@ -163,7 +163,7 @@ function buildFullPrompt(report) {
 
 第五区域"穿搭风格"：TOP3发型${outfit.hairRecommend.top3.map(h => h.name).join('、')}，避雷发型${outfit.hairRecommend.avoidHair.map(h => h.name).join('、')}，妆容风格"${outfit.makeup.style}"，本命口红${outfit.makeup.lipRecommend.destiny}，身形${outfit.bodyShape.shoulderType}/${outfit.bodyShape.bodyRatio}，核心结论${outfit.summary.coreConclusion}。
 
-底部：品牌水印"搭搭DA·DA"，金色极细线条分隔每个区域，整体高级时尚杂志风格。`
+底部：品牌水印"哒哒DA·DA"，金色极细线条分隔每个区域，整体高级时尚杂志风格。`
 }
 
 async function testSeedream() {

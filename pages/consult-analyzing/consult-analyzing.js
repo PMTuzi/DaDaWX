@@ -354,6 +354,11 @@ Page({
           record.totalScore = topRank ? Math.min(topRank.totalScore, 10) : '--'
           record.finalChoiceLabel = result.finalChoice ? result.finalChoice.label : ''
           record.verdict = record.finalChoiceLabel + ' 最佳'
+          // 记录推荐商品的图片索引，用于列表展示推荐图
+          if (topRank && topRank.label) {
+            const styleIdx = ['款式A', '款式B', '款式C', '款式D'].indexOf(topRank.label)
+            record.recommendedIndex = styleIdx >= 0 ? styleIdx : 0
+          }
         } else {
           const s = result.scores
           record.totalScore = Math.min(Math.round((s.fitScore + s.colorScore + s.qualityScore + s.valueScore) / 4 * 10) / 10, 10)

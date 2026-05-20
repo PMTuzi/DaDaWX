@@ -62,7 +62,7 @@ Page({
 
   onAbout() {
     wx.showModal({
-      title: '关于搭搭',
+      title: '关于美哒',
       content: '国内首款「反种草」AI 形象风格分析平台\n版本: 1.0.0\n\n基于美哒 Meeta自研大模型，为您提供专业级形象分析与穿搭决策。',
       showCancel: false
     })

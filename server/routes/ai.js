@@ -2,9 +2,7 @@
 const express = require('express')
 const router = express.Router()
 const { authRequired } = require('../middleware/auth')
-const { analyzePart1, analyzePart2, generateTargetedImages, generateSingleImage } = require('../services/qwen')
-const { detectFaceLandmarks } = require('../services/face-detect')
-const { analyzeFaceVisual } = require('../services/face-visual')
+const { analyzePart1, analyzePart2 } = require('../services/qwen')
 const reportStore = require('../store/report-store')
 const userStore = require('../store/user-store')
 
@@ -47,41 +45,14 @@ router.post('/full-analysis', authRequired, async (req, res) => {
     console.log(`[AI] 用户${openid.substring(0, 8)}... 开始完整分析, 类型: ${photoType}, 性别: ${gender}`)
 
     // ==================== 阶段1: VL分析（即时返回） ====================
-    const [part1Data, faceData, visualData] = await Promise.all([
+    const [part1Data] = await Promise.all([
       analyzePart1(imageInput, photoType, gender, { age, height, weight }).catch(err => {
         console.warn('[AI] VL Part1失败:', err.message)
-        return null
-      }),
-      detectFaceLandmarks(
-        imageInput.startsWith('data:') ? null : imageUrl,
-        imageInput.startsWith('data:') ? imageInput : null
-      ).catch(err => {
-        console.warn('[AI] 人脸检测失败:', err.message)
-        return null
-      }),
-      analyzeFaceVisual(
-        imageInput.startsWith('data:') ? null : imageUrl,
-        imageInput.startsWith('data:') ? imageInput : null
-      ).catch(err => {
-        console.warn('[AI] 可视化API失败:', err.message)
         return null
       })
     ])
 
     if (!part1Data) throw new Error('视觉分析返回为空')
-
-    // 合并人脸检测精确数据
-    if (faceData) {
-      part1Data.module1_dna.landmarks = faceData.landmarks
-      part1Data.module1_dna.detailPoints = faceData.detailPoints
-      part1Data.module1_dna.faceType = faceData.faceType
-      part1Data.module1_dna.threeCourtsMeasure = faceData.threeCourts
-      part1Data.module1_dna.fiveEyesMeasure = faceData.fiveEyes
-      console.log(`[AI] 人脸检测成功, 脸型: ${faceData.faceType || '未知'}`)
-    }
-    if (visualData) {
-      part1Data.visualImages = visualData
-    }
 
     // Part2（依赖Part1数据）
     console.log('[AI] 阶段1: VL Part2分析...')
@@ -122,13 +93,6 @@ router.post('/full-analysis', authRequired, async (req, res) => {
       },
       images: {},           // 图片由前端按需生成
       photoUrl: photoUrl || '',
-      faceData: faceData ? {
-        faceType: faceData.faceType,
-        landmarks: faceData.landmarks,
-        threeCourts: faceData.threeCourts,
-        fiveEyes: faceData.fiveEyes
-      } : null,
-      visualImages: visualData || null,
       imageComplete: false  // 图片未生成
     }
 
