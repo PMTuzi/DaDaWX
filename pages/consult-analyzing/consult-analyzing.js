@@ -1,5 +1,5 @@
 // pages/consult-analyzing/consult-analyzing.js
-const { request, API, checkServerReachable } = require('../../utils/api')
+const { request, API, checkServerReachable, pollConsultTask } = require('../../utils/api')
 
 // 用闭包变量代替实例属性，避免微信小程序 Page 构造器限制
 // 实例级状态
@@ -245,7 +245,8 @@ Page({
   },
 
   async callSingleAnalysis(visionFeatures, consultData) {
-    const result = await request(API.generateSingleConsult, {
+    // 异步任务：先 POST 拿 taskId，再轮询任务状态（避开 callContainer 60s 网关超时）
+    const submit = await request(API.generateSingleConsult, {
       method: 'POST',
       data: {
         visionSessionId: this._visionSessionId,
@@ -257,18 +258,17 @@ Page({
         consultScene: consultData.type,
         reportSummary: consultData.reportSummary || null
       },
-      timeout: 120000
+      timeout: 15000
     })
-    if (result.code !== 0) {
-      throw new Error(result.message || '单品决策失败')
+    if (!submit || submit.code !== 0 || !submit.data || !submit.data.taskId) {
+      throw new Error((submit && submit.message) || '提交单品任务失败')
     }
-    return result.data
+    return await pollConsultTask(submit.data.taskId)
   },
 
   async callCompareAnalysis(visionFeatures, consultData) {
-    // 从视觉分析结果中提取品类信息
     const category = (Array.isArray(visionFeatures) && visionFeatures[0] && visionFeatures[0].category) || ''
-    const result = await request(API.generateCompareConsult, {
+    const submit = await request(API.generateCompareConsult, {
       method: 'POST',
       data: {
         visionSessionId: this._visionSessionId,
@@ -279,12 +279,12 @@ Page({
         category: category,
         reportSummary: consultData.reportSummary || null
       },
-      timeout: 120000
+      timeout: 15000
     })
-    if (result.code !== 0) {
-      throw new Error(result.message || '多选一决策失败')
+    if (!submit || submit.code !== 0 || !submit.data || !submit.data.taskId) {
+      throw new Error((submit && submit.message) || '提交多选一任务失败')
     }
-    return result.data
+    return await pollConsultTask(submit.data.taskId)
   },
 
   simulateStep(stepIndex, targetProgress) {

@@ -251,6 +251,34 @@ function saveLocalPhoto(tempFilePath) {
   })
 }
 
+// 轮询咨询任务（single/compare 异步模式，避开 callContainer 60s 网关超时）
+function pollConsultTask(taskId, options = {}) {
+  const maxWaitMs = options.maxWaitMs || 180000  // 3 分钟兜底
+  const intervalMs = options.intervalMs || 2000
+  const startedAt = Date.now()
+  return new Promise((resolve, reject) => {
+    const poll = () => {
+      if (Date.now() - startedAt > maxWaitMs) {
+        return reject(new Error('分析超时，请稍后重试'))
+      }
+      request(`/api/consult/task/${taskId}`, { method: 'GET', timeout: 10000 }).then(data => {
+        if (!data || data.code !== 0) {
+          // 接口异常，继续轮询，直到超时
+          return setTimeout(poll, intervalMs)
+        }
+        const t = data.data
+        if (t.status === 'done') return resolve(t.result)
+        if (t.status === 'failed') return reject(new Error(t.error || '分析失败'))
+        setTimeout(poll, intervalMs)
+      }).catch(() => {
+        // 网络抖动，继续轮询
+        setTimeout(poll, intervalMs)
+      })
+    }
+    setTimeout(poll, 1500)
+  })
+}
+
 // 微信登录
 function wxLogin() {
   return new Promise((resolve, reject) => {
@@ -356,6 +384,7 @@ module.exports = {
   wxLogin,
   ensureLogin,
   runDiagnosis,
+  pollConsultTask,
   checkServerReachable,
   markServerUnreachable
 }
