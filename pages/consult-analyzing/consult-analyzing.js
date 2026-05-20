@@ -215,22 +215,17 @@ Page({
 
   async callVisionAnalysis(consultData) {
     const isCompare = consultData.type === 'compare'
-    // 构建图片数据：优先用 imageUrl，没有则将 localPath 转 base64
+    // 构建图片数据：只用 imageUrl（OSS 永久URL）；本地 tempPath 易过期，不再走 base64 回退
     const imagesForApi = []
     for (const img of consultData.images) {
       if (img.imageUrl) {
         imagesForApi.push({ imageUrl: img.imageUrl })
-      } else if (img.localPath) {
-        try {
-          const base64 = await imageToBase64(img.localPath)
-          imagesForApi.push({ imageBase64: base64 })
-        } catch (e) {
-          console.warn('[consult-analyzing] 本地图片转base64失败:', e.message)
-        }
+      } else {
+        console.warn('[consult-analyzing] 图片缺少 imageUrl，跳过:', img)
       }
     }
     if (imagesForApi.length === 0) {
-      throw new Error('没有可用的图片数据')
+      throw new Error('没有可用的图片数据，请返回重新上传')
     }
 
     const result = await request(API.analyzeClothingVision, {

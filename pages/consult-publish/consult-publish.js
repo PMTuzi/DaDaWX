@@ -392,26 +392,43 @@ Page({
         imageDataList.push({ localPath })
       }
 
-      // 2. 尝试上传到服务器（用于AI分析），失败不阻断流程
-      //    服务器不可达时直接跳过，不浪费时间等待超时
+      // 2. 上传到 OSS（必须成功，否则分析页临时图片会过期）
       const { checkServerReachable } = require('../../utils/api')
       const serverReachable = await checkServerReachable()
-      if (serverReachable) {
-        const uploadPromises = imageDataList.map(async (item, i) => {
-          const uploadPath = item.localPath || this.data.images[i].path
+      if (!serverReachable) {
+        wx.showToast({ title: '服务器连接失败，请检查网络', icon: 'none' })
+        this.setData({ submitting: false })
+        return
+      }
+      const uploadPromises = imageDataList.map(async (item, i) => {
+        const uploadPath = item.localPath || this.data.images[i].path
+        // 单图最多 2 次上传机会（避免冷启动单次失败）
+        let lastErr
+        for (let attempt = 0; attempt < 2; attempt++) {
           try {
             const url = await Promise.race([
               uploadImage(uploadPath),
-              new Promise((_, reject) => setTimeout(() => reject(new Error('上传超时')), 15000))
+              new Promise((_, reject) => setTimeout(() => reject(new Error('上传超时')), 30000))
             ])
             item.imageUrl = url
-          } catch (uploadErr) {
-            console.warn('[consult-publish] 图片上传失败，使用本地路径:', uploadErr.message)
+            return
+          } catch (err) {
+            lastErr = err
+            console.warn(`[consult-publish] 图片${i}上传第${attempt+1}次失败:`, err.message)
           }
-        })
+        }
+        throw new Error(`第${i+1}张图片上传失败：${lastErr.message}`)
+      })
+      try {
         await Promise.all(uploadPromises)
-      } else {
-        console.log('[consult-publish] 服务器不可达，跳过图片上传')
+      } catch (uploadErr) {
+        wx.showModal({
+          title: '图片上传失败',
+          content: uploadErr.message + '，请重试或检查网络',
+          showCancel: false
+        })
+        this.setData({ submitting: false })
+        return
       }
 
       // 根据图片数量自动决定类型
