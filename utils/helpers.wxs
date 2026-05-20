@@ -7,6 +7,14 @@ function includes(arr, val) {
   return false
 }
 
+function toFixed1(num) {
+  if (num === undefined || num === null || num === '' || num === '--') return '--'
+  var n = parseFloat(num)
+  if (isNaN(n)) return '--'
+  return n.toFixed(1)
+}
+
 module.exports = {
-  includes: includes
+  includes: includes,
+  toFixed1: toFixed1
 }

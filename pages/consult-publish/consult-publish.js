@@ -46,7 +46,7 @@ Page({
   },
 
   onLoad() {
-    try { wx.setNavigationBarTitle({ title: '穿搭决策' }) } catch (e) {}
+    try { wx.setNavigationBarTitle({ title: '发布咨询' }) } catch (e) {}
   },
 
   onError(err) {

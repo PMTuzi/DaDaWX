@@ -1,7 +1,7 @@
 /* pages/consult-result/consult-result.wxss */
 .page-result {
   min-height: 100vh;
-  background: #f5f5f7;
+  background: #FAFAF5;
   padding-bottom: 160rpx;
 }
 
@@ -411,7 +411,7 @@
 .card-title {
   font-size: 30rpx;
   font-weight: 700;
-  color: #1a1a2e;
+  color: #333;
   margin-bottom: 24rpx;
 }
 
@@ -453,13 +453,13 @@
 .dim-name {
   font-size: 28rpx;
   font-weight: 600;
-  color: #1a1a2e;
+  color: #333;
 }
 
 .dim-score {
   font-size: 28rpx;
   font-weight: 700;
-  color: #e8a87c;
+  color: #8B7355;
 }
 
 .dim-detail {
@@ -506,8 +506,8 @@
   width: 40rpx;
   height: 40rpx;
   border-radius: 50%;
-  background: rgba(232, 168, 124, 0.12);
-  color: #e8a87c;
+  background: rgba(200, 169, 126, 0.15);
+  color: #8B7355;
   font-size: 22rpx;
   font-weight: 700;
   display: flex;
@@ -525,7 +525,7 @@
 /* 最终推荐 */
 .final-choice-card {
   background: linear-gradient(135deg, #fff8f0, #fff);
-  border: 2rpx solid rgba(232, 168, 124, 0.2);
+  border: 2rpx solid rgba(200, 169, 126, 0.2);
 }
 
 .final-choice {
@@ -535,7 +535,7 @@
 .choice-label {
   font-size: 48rpx;
   font-weight: 800;
-  color: #e8a87c;
+  color: #8B7355;
   margin-bottom: 12rpx;
 }
 
@@ -561,7 +561,7 @@
 }
 
 .rank-item.rank-top {
-  background: rgba(232, 168, 124, 0.1);
+  background: rgba(200, 169, 126, 0.1);
 }
 
 .rank-badge {
@@ -579,20 +579,20 @@
 }
 
 .rank-top .rank-badge {
-  background: #e8a87c;
+  background: #C8A97E;
 }
 
 .rank-label {
   flex: 1;
   font-size: 28rpx;
   font-weight: 600;
-  color: #1a1a2e;
+  color: #333;
 }
 
 .rank-score {
   font-size: 28rpx;
   font-weight: 700;
-  color: #e8a87c;
+  color: #8B7355;
 }
 
 /* 对比表格 */
@@ -617,7 +617,7 @@
   flex: 1.5;
   text-align: left;
   font-weight: 600;
-  color: #1a1a2e;
+  color: #333;
 }
 
 .table-header .table-cell {
@@ -642,7 +642,7 @@
 .comp-label {
   font-size: 28rpx;
   font-weight: 700;
-  color: #1a1a2e;
+  color: #333;
   margin-bottom: 8rpx;
 }
 
@@ -676,7 +676,7 @@
 .scenario-label {
   font-size: 26rpx;
   font-weight: 600;
-  color: #1a1a2e;
+  color: #333;
   flex-shrink: 0;
 }
 
@@ -734,7 +734,7 @@
 .advice-title {
   font-size: 28rpx;
   font-weight: 700;
-  color: #1a1a2e;
+  color: #333;
   margin-bottom: 6rpx;
 }
 
@@ -747,7 +747,7 @@
 
 .advice-reason {
   font-size: 22rpx;
-  color: #e8a87c;
+  color: #8B7355;
   line-height: 1.5;
 }
 

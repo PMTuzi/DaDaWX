@@ -177,7 +177,7 @@
 
   <!-- 提交按钮 -->
   <view class="submit-area safe-bottom">
-    <button class="btn-primary submit-btn" bindtap="onSubmit" disabled="{{submitting}}">
+    <button class="submit-btn" bindtap="onSubmit" disabled="{{submitting}}">
       {{submitting ? '处理中...' : '提交AI分析'}}
     </button>
   </view>
