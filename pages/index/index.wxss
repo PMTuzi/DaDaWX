@@ -308,6 +308,14 @@
   transform: translateX(-30rpx);
 }
 
+/* 已诊断态：穿搭按钮内有图标，避免图标与文字重叠 */
+.diagnose-btn .btn-icon {
+  transform: translateX(-10rpx);
+}
+.diagnose-btn .btn-icon + .btn-text {
+  transform: translateX(10rpx);
+}
+
 /* 未登录提示用：右侧手指点击矢量图标（SVG data URI 作 CSS 背景，纯静态） */
 .btn-tap-hint {
   position: absolute;
