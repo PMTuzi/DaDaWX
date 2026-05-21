@@ -415,7 +415,7 @@ Page({
           let tagX = scoreX
           const tagY = avatarCY + 14
           ctx.font = '10px sans-serif'
-          report.basic.tags.slice(0, 3).forEach(tag => {
+          report.basic.tags.slice(0, 6).forEach(tag => {
             const tw = ctx.measureText(tag).width + 12
             ctx.fillStyle = '#F5F0EB'
             this._roundRect(ctx, tagX, tagY, tw, 17, 8)

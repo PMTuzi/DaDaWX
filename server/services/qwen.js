@@ -78,6 +78,10 @@ async function analyzePart1(imageInput, photoType = 'face', gender = 'female', u
     "faceScore": 0-10,
     "boneType": "骨相型/皮相型/骨皮均衡",
     "boneDesc": "骨相特点2-3句详细描述（必须具体说哪里突出、哪里平缓）",
+    "colorIntensity": "五官色彩浓淡（必须精确判定：浓颜/淡颜/中间颜，根据眉、眼、唇与肤色对比度判断）",
+    "colorIntensityDesc": "浓淡颜判定理由1-2句（具体说明对比度和五官色彩饱和度）",
+    "visualAge": "视觉年龄（必须精确给出岁数数字或区间，如 26 或 25-27，不要写"年轻""成熟"等模糊词）",
+    "visualAgeDesc": "视觉年龄判定理由1-2句",
     "faceWidth": "宽/适中/窄",
     "faceLength": "长/适中/短",
     "threeCourts": {

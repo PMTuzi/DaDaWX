@@ -34,7 +34,7 @@
         </view>
         <!-- 标签 -->
         <view class="header-tags">
-          <text class="htag" wx:for="{{report.basic.tags}}" wx:key="*this">{{item}}</text>
+          <text class="htag {{item && item.indexOf('视龄') === 0 ? 'htag-age' : ''}}" wx:for="{{report.basic.tags}}" wx:key="*this">{{item}}</text>
         </view>
       </view>
     </view>

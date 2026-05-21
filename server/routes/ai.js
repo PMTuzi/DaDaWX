@@ -95,8 +95,15 @@ router.post('/start-analysis', authRequired, async (req, res) => {
           overallScore,
           tags: [
             part1Data.module1_dna?.faceType || '待分析',
+            part1Data.module1_dna?.colorIntensity || '待分析',
             part1Data.module2_style?.season || '待分析',
-            part1Data.module2_style?.mainStyle || '待分析'
+            part1Data.module2_style?.mainStyle || '待分析',
+            (function(v){
+              if (!v) return '待分析'
+              const s = String(v).trim()
+              if (/^\d+(-\d+)?$/.test(s)) return s.includes('-') ? `视龄${s}` : `视龄${s}岁`
+              return s
+            })(part1Data.module1_dna?.visualAge)
           ]
         },
         modules: {
