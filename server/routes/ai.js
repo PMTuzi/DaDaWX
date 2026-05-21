@@ -99,10 +99,15 @@ router.post('/start-analysis', authRequired, async (req, res) => {
             part1Data.module2_style?.season || '待分析',
             part1Data.module2_style?.mainStyle || '待分析',
             (function(v){
-              if (!v) return '待分析'
+              if (!v) return '视龄·待分析'
               const s = String(v).trim()
-              if (/^\d+(-\d+)?$/.test(s)) return s.includes('-') ? `视龄${s}` : `视龄${s}岁`
-              return s
+              // 提取数字（可能是 "26" / "25-27" / "26岁" / "看起来26岁" 等）
+              const m = s.match(/(\d+(?:\s*[-~到至]\s*\d+)?)/)
+              if (m) {
+                const num = m[1].replace(/\s|到|至|~/g, '-')
+                return num.includes('-') ? `视龄${num}` : `视龄${num}岁`
+              }
+              return `视龄·${s}`
             })(part1Data.module1_dna?.visualAge)
           ]
         },

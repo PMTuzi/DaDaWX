@@ -142,7 +142,18 @@
 /* 分数行 */
 .score-row {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.score-num-group {
+  display: flex;
   align-items: baseline;
+}
+
+.score-row .htag-age {
+  flex-shrink: 0;
 }
 
 .score-big {
@@ -173,22 +184,43 @@
   font-size: 22rpx;
   padding: 6rpx 20rpx;
   border-radius: 20rpx;
-  background: rgba(183, 110, 121, 0.12);
-  color: #B76E79;
-  font-weight: 500;
-  border: 1rpx solid rgba(183, 110, 121, 0.2);
+  background: linear-gradient(135deg, #FFF3E0 0%, #FFE4EC 100%);
+  color: #E58FA1;
+  font-weight: 600;
+  border: 1rpx solid rgba(233, 30, 99, 0.18);
+  box-shadow: 0 2rpx 6rpx rgba(233, 30, 99, 0.08);
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
-/* 视觉年龄标签强化 */
+/* 视觉年龄标签强化 - 核心展示（金色奖章风） */
 .htag-age {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 10rpx 26rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(135deg, #FFD86F 0%, #E8A87C 50%, #C38D9E 100%);
+  box-shadow: 0 6rpx 18rpx rgba(200, 133, 110, 0.5),
+              inset 0 1rpx 0 rgba(255, 255, 255, 0.6),
+              inset 0 -1rpx 0 rgba(0, 0, 0, 0.08);
+  border: 2rpx solid rgba(255, 255, 255, 0.7);
+}
+
+.htag-age-icon {
   font-size: 24rpx;
-  font-weight: 700;
-  padding: 7rpx 22rpx;
-  background: linear-gradient(135deg, #B76E79 0%, #8B4F58 100%);
+  color: #FFFBE6;
+  line-height: 1;
+  text-shadow: 0 1rpx 2rpx rgba(184, 102, 60, 0.6);
+}
+
+.htag-age-text {
+  font-size: 26rpx;
+  font-weight: 800;
   color: #fff;
-  border: 1rpx solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 4rpx 12rpx rgba(183, 110, 121, 0.35);
-  letter-spacing: 1rpx;
+  letter-spacing: 2rpx;
+  line-height: 1;
+  text-shadow: 0 1rpx 2rpx rgba(184, 102, 60, 0.5);
 }
 
 /* 头部摘要 - 撑满卡片宽度 */

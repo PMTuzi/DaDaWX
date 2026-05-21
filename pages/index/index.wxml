@@ -1,4 +1,16 @@
 <!--pages/index/index.wxml-->
+<wxs module="util">
+  function cleanAge(s) {
+    if (!s) return '';
+    var t = s + '';
+    while (t.length >= 2 && t.substring(0, 2) === '视龄') {
+      t = t.substring(2);
+      if (t.length > 0 && t.substring(0, 1) === '·') t = t.substring(1);
+    }
+    return '视龄·' + t;
+  }
+  module.exports = { cleanAge: cleanAge };
+</wxs>
 <view class="page-index">
   <!-- 顶部品牌区 -->
   <view class="header {{hasReport ? 'header-diagnosed' : ''}}">
@@ -28,9 +40,19 @@
           <text class="score-unit">/10</text>
         </view>
         <view class="score-detail">
-          <view class="score-level" style="color: {{scoreLevel.color}}">{{scoreLevel.text}}</view>
+          <view class="score-level-row">
+            <view class="score-level" style="color: {{scoreLevel.color}}">{{scoreLevel.text}}</view>
+            <block wx:for="{{latestReport.basic.tags}}" wx:key="*this" wx:for-item="t" wx:for-index="i">
+              <view class="age-chip" wx:if="{{(t && t.indexOf('视龄') === 0) || i === latestReport.basic.tags.length - 1}}">
+                <text class="age-chip-icon">✦</text>
+                <text class="age-chip-text">{{util.cleanAge(t)}}</text>
+              </view>
+            </block>
+          </view>
           <view class="score-tags">
-            <text class="tag tag-warm" wx:for="{{latestReport.basic.tags}}" wx:key="*this">{{item}}</text>
+            <block wx:for="{{latestReport.basic.tags}}" wx:key="*this" wx:for-item="t" wx:for-index="i">
+              <text class="tag tag-warm" wx:if="{{t && t.indexOf('视龄') !== 0 && i !== latestReport.basic.tags.length - 1}}">{{t}}</text>
+            </block>
           </view>
         </view>
       </view>

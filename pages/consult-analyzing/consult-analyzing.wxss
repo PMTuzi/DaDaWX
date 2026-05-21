@@ -15,10 +15,14 @@
 }
 
 .top-hint-text {
-  font-size: 28rpx;
-  color: #F1849B;
-  font-weight: 500;
+  font-size: 30rpx;
+  font-weight: 700;
+  background: linear-gradient(135deg, #B76E79 0%, #C38D9E 50%, #E8A87C 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
   letter-spacing: 2rpx;
+  text-shadow: 0 1rpx 2rpx rgba(183, 110, 121, 0.15);
 }
 
 .animation-area {

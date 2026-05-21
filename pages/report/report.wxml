@@ -1,4 +1,16 @@
 <!--pages/report/report.wxml-->
+<wxs module="util">
+  function cleanAge(s) {
+    if (!s) return '';
+    var t = s + '';
+    while (t.length >= 2 && t.substring(0, 2) === '视龄') {
+      t = t.substring(2);
+      if (t.length > 0 && t.substring(0, 1) === '·') t = t.substring(1);
+    }
+    return '视龄·' + t;
+  }
+  module.exports = { cleanAge: cleanAge };
+</wxs>
 <view class="page-report" wx:if="{{report}}">
   <!-- 顶部Tab导航 -->
   <view class="tab-bar">
@@ -27,14 +39,24 @@
       </view>
       <!-- 右侧信息 -->
       <view class="header-info">
-        <!-- 分数 -->
+        <!-- 分数 + 视龄 -->
         <view class="score-row">
-          <text class="score-big">{{report.basic.overallScore}}</text>
-          <text class="score-suffix">/10</text>
+          <view class="score-num-group">
+            <text class="score-big">{{report.basic.overallScore}}</text>
+            <text class="score-suffix">/10</text>
+          </view>
+          <block wx:for="{{report.basic.tags}}" wx:key="*this" wx:for-item="t" wx:for-index="i">
+            <view class="htag-age" wx:if="{{(t && t.indexOf('视龄') === 0) || i === report.basic.tags.length - 1}}">
+              <text class="htag-age-icon">✦</text>
+              <text class="htag-age-text">{{util.cleanAge(t)}}</text>
+            </view>
+          </block>
         </view>
         <!-- 标签 -->
         <view class="header-tags">
-          <text class="htag {{item && item.indexOf('视龄') === 0 ? 'htag-age' : ''}}" wx:for="{{report.basic.tags}}" wx:key="*this">{{item}}</text>
+          <block wx:for="{{report.basic.tags}}" wx:key="*this" wx:for-item="t" wx:for-index="i">
+            <text class="htag" wx:if="{{t && t.indexOf('视龄') !== 0 && i !== report.basic.tags.length - 1}}">{{t}}</text>
+          </block>
         </view>
       </view>
     </view>
