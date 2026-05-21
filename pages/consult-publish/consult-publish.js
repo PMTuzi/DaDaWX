@@ -11,6 +11,14 @@ Page({
     category: '',
     categoryIndex: -1,
     categoryOptions: ['上衣', '裤子', '半裙', '连衣裙', '外套', '衬衫', 'T恤', '针织衫', '卫衣', '风衣', '大衣', '羽绒服', '牛仔', '口红/唇釉', '腮红', '眼影', '帽子', '围巾', '领带', '耳环', '项链', '手链/手镯', '包包', '鞋子', '腰带', '手表', '墨镜', '其他'],
+    // 类别分组（服饰/配饰/美妆），用于宫格选择
+    categoryTabs: ['服饰', '配饰', '美妆'],
+    categoryTabIndex: 0,
+    categoryGroups: [
+      ['上衣', '裤子', '半裙', '连衣裙', '外套', '衬衫', 'T恤', '针织衫', '卫衣', '风衣', '大衣', '羽绒服', '牛仔', '其他'],
+      ['包包', '鞋子', '帽子', '围巾', '领带', '耳环', '项链', '手链/手镯', '腰带', '手表', '墨镜'],
+      ['口红/唇釉', '腮红', '眼影']
+    ],
     categoryDetected: false, // AI是否已识别类别
     priceRange: '',
     priceRangeIndex: -1,
@@ -197,9 +205,17 @@ Page({
         const matchIndex = options.findIndex(opt => detected.includes(opt) || opt.includes(detected))
         if (matchIndex > -1) {
           try {
+            const matched = options[matchIndex]
+            // 同时定位到对应分组 tab
+            const groups = this.data.categoryGroups
+            let tabIdx = this.data.categoryTabIndex
+            for (let i = 0; i < groups.length; i++) {
+              if (groups[i].indexOf(matched) > -1) { tabIdx = i; break }
+            }
             this.setData({
-              category: options[matchIndex],
+              category: matched,
               categoryIndex: matchIndex,
+              categoryTabIndex: tabIdx,
               categoryDetected: true
             })
           } catch (e) {}
@@ -235,6 +251,22 @@ Page({
   },
 
   // ===== 单品标签 =====
+  onCategoryTabTap(e) {
+    const idx = +e.currentTarget.dataset.index
+    if (idx === this.data.categoryTabIndex) return
+    this.setData({ categoryTabIndex: idx })
+  },
+
+  onCategoryChipTap(e) {
+    const val = e.currentTarget.dataset.value
+    const matchIndex = this.data.categoryOptions.indexOf(val)
+    this.setData({
+      category: val,
+      categoryIndex: matchIndex,
+      categoryDetected: false
+    })
+  },
+
   onCategoryChange(e) {
     this.setData({
       categoryIndex: e.detail.value,
@@ -356,9 +388,6 @@ Page({
     if (!isCompare) {
       if (!this.data.category) {
         wx.showToast({ title: '请选择穿搭类别', icon: 'none' }); return
-      }
-      if (!this.data.priceRange) {
-        wx.showToast({ title: '请选择价格区间', icon: 'none' }); return
       }
     }
 

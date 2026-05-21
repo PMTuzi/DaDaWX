@@ -197,6 +197,61 @@
   color: #C8A97E;
 }
 
+/* 类别 tab + 胶囊宫格 */
+.cat-tabs {
+  display: flex;
+  background: #fff;
+  border: 1rpx solid #F0EBE5;
+  border-radius: 16rpx;
+  padding: 6rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.03);
+}
+
+.cat-tab {
+  flex: 1;
+  text-align: center;
+  padding: 14rpx 0;
+  font-size: 26rpx;
+  color: #999;
+  border-radius: 12rpx;
+  transition: all 0.2s;
+}
+
+.cat-tab.active {
+  background: linear-gradient(135deg, #C8A97E, #8B7355);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2rpx 8rpx rgba(139, 115, 85, 0.2);
+}
+
+.cat-tab-hover {
+  opacity: 0.8;
+}
+
+.cat-chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.cat-chip {
+  padding: 16rpx 28rpx;
+  border-radius: 32rpx;
+  font-size: 26rpx;
+  color: #666;
+  background: #fff;
+  border: 2rpx solid #F0EBE5;
+  transition: all 0.2s;
+}
+
+.cat-chip.active {
+  background: rgba(200, 169, 126, 0.15);
+  color: #8B7355;
+  border-color: #C8A97E;
+  font-weight: 600;
+}
+
 /* 标签多选 */
 .tag-group {
   display: flex;

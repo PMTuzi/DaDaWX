@@ -42,20 +42,31 @@
         <text class="label-text">穿搭类别</text>
         <text class="label-required">*</text>
         <text class="ai-badge" wx:if="{{categoryDetected}}">AI识别</text>
+        <text class="label-hint" wx:if="{{category}}">已选：{{category}}</text>
       </view>
-      <picker mode="selector" range="{{categoryOptions}}" value="{{categoryIndex}}" bindchange="onCategoryChange">
-        <view class="picker-value {{category ? '' : 'placeholder'}}">
-          {{category || '上传图片后AI自动识别'}}
-          <text class="picker-arrow">▼</text>
+      <!-- tab 切换 -->
+      <view class="cat-tabs">
+        <view class="cat-tab {{categoryTabIndex === index ? 'active' : ''}}"
+          wx:for="{{categoryTabs}}" wx:key="index"
+          data-index="{{index}}" bindtap="onCategoryTabTap" hover-class="cat-tab-hover">
+          {{item}}
         </view>
-      </picker>
+      </view>
+      <!-- 胶囊宫格 -->
+      <view class="cat-chip-grid">
+        <view class="cat-chip {{category === item ? 'active' : ''}}"
+          wx:for="{{categoryGroups[categoryTabIndex]}}" wx:key="*this"
+          data-value="{{item}}" bindtap="onCategoryChipTap" hover-class="tag-option-hover">
+          {{item}}
+        </view>
+      </view>
     </view>
 
     <!-- 价格区间（必填） -->
     <view class="section">
       <view class="section-label">
         <text class="label-text">价格区间</text>
-        <text class="label-required">*</text>
+        <text class="label-hint">（选填）</text>
       </view>
       <picker mode="selector" range="{{priceRangeOptions}}" value="{{priceRangeIndex}}" bindchange="onPriceRangeChange">
         <view class="picker-value {{priceRange ? '' : 'placeholder'}}">
