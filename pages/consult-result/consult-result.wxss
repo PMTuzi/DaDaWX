@@ -81,10 +81,12 @@
 /* 用户上传图片 - 左侧 */
 .user-images {
   display: flex;
-  gap: 10rpx;
+  flex-wrap: wrap;
+  gap: 8rpx;
   position: relative;
   z-index: 2;
   flex-shrink: 0;
+  justify-content: center;
 }
 
 .user-image {
@@ -93,6 +95,32 @@
   border-radius: 14rpx;
   border: 2rpx solid rgba(255, 255, 255, 0.8);
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+/* 2 张：横向并排 */
+.user-images.count-2 .user-image {
+  width: 78rpx;
+  height: 78rpx;
+}
+
+/* 3 张：横向并排，缩小 */
+.user-images.count-3 {
+  width: 220rpx;
+}
+.user-images.count-3 .user-image {
+  width: 66rpx;
+  height: 66rpx;
+  border-radius: 12rpx;
+}
+
+/* 4 张：2x2 网格 */
+.user-images.count-4 {
+  width: 154rpx;
+}
+.user-images.count-4 .user-image {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 12rpx;
 }
 
 /* ===== 分数区域 - 紧凑横向 ===== */

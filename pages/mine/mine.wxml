@@ -14,7 +14,7 @@
       <view class="user-detail">
         <input class="user-name-input" type="nickname" value="{{userInfo.nickName || '搭搭用户'}}" 
                bindblur="onNicknameInput" placeholder="点击设置昵称" />
-        <text class="user-stat">已诊断 {{reportCount}} 次</text>
+        <text class="user-stat">已进行 {{reportCount + consultCount}} 次决策</text>
       </view>
     </view>
     <!-- 未登录：点击登录 -->
@@ -30,7 +30,7 @@
   <view class="stats-bar">
     <view class="stat-item" bindtap="onGoReports">
       <text class="stat-num">{{reportCount}}</text>
-      <text class="stat-label">诊断报告</text>
+      <text class="stat-label">形象分析</text>
     </view>
     <view class="stat-divider"></view>
     <view class="stat-item" bindtap="onGoConsultHistory">
@@ -43,7 +43,7 @@
   <view class="menu-section">
     <view class="menu-item" bindtap="onGoReports">
       <view class="menu-icon icon icon-chart" style="font-size:36rpx;"></view>
-      <text class="menu-text">形象诊断报告</text>
+      <text class="menu-text">形象风格报告</text>
       <text class="menu-arrow">›</text>
     </view>
     <view class="menu-item" bindtap="onGoConsultHistory">

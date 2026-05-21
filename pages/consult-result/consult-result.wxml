@@ -9,7 +9,7 @@
     <view class="verdict-main" style="display:flex; align-items:flex-start; padding:28rpx 28rpx 16rpx; position:relative; z-index:2;">
       <!-- 左侧：图片 + 分数环 -->
       <view style="display:flex; flex-direction:column; align-items:center; gap:16rpx; flex-shrink:0;">
-        <view class="user-images" wx:if="{{record.images && record.images.length}}">
+        <view class="user-images count-{{record.images.length}}" wx:if="{{record.images && record.images.length}}">
           <image class="user-image" wx:for="{{record.images}}" wx:key="index"
             src="{{item.localPath || item.imageUrl}}" mode="aspectFill" bindtap="onPreviewImage" data-url="{{item.localPath || item.imageUrl}}"
             binderror="onImageError"></image>

@@ -9,7 +9,9 @@
         </view>
         <view class="report-info">
           <view class="report-tags">
-            <text class="tag tag-gold" wx:for="{{item.basic.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+            <block wx:for="{{item.basic.tags}}" wx:for-item="tag" wx:key="*this" wx:for-index="ti">
+              <text class="tag tag-gold" wx:if="{{tag && tag.indexOf('视龄') !== 0 && ti !== item.basic.tags.length - 1}}">{{tag}}</text>
+            </block>
           </view>
           <view class="report-meta">
             <text class="report-time">{{item.createTime}}</text>
