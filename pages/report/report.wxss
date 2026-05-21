@@ -923,5 +923,5 @@
   position: fixed;
   left: -9999rpx;
   width: 680rpx;
-  height: 1200rpx;
+  height: 1700rpx;
 }

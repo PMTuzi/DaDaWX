@@ -334,46 +334,62 @@ Page({
         const p = 20
         const cw = w - p * 2
 
-        // === 背景 ===
-        ctx.fillStyle = '#FAFAF5'
-        this._roundRect(ctx, 0, 0, w, h, 16)
-        ctx.fill()
+        // === 背景：奶油米色 ===
+        ctx.fillStyle = '#FFF8F3'
+        ctx.fillRect(0, 0, w, h)
 
-        // === 顶部金色渐变 ===
-        const headerH = 90
+        // === 顶部玫瑰金渐变头图 ===
+        const headerH = 92
         const grad = ctx.createLinearGradient(0, 0, w, headerH)
-        grad.addColorStop(0, '#C8A97E')
-        grad.addColorStop(1, '#E8D5B7')
+        grad.addColorStop(0, '#B76E79')
+        grad.addColorStop(0.5, '#C38D9E')
+        grad.addColorStop(1, '#E8A87C')
         ctx.fillStyle = grad
         ctx.fillRect(0, 0, w, headerH)
 
+        // 装饰圆点
+        ctx.fillStyle = 'rgba(255,255,255,0.15)'
+        ctx.beginPath(); ctx.arc(w - 30, 25, 28, 0, Math.PI * 2); ctx.fill()
+        ctx.beginPath(); ctx.arc(28, headerH - 18, 20, 0, Math.PI * 2); ctx.fill()
+
+        // 标题
         ctx.fillStyle = '#fff'
-        ctx.font = 'bold 18px sans-serif'
+        ctx.font = 'bold 20px sans-serif'
         ctx.textAlign = 'center'
-        ctx.fillText('✦ 形象风格诊断报告', w / 2, 36)
+        ctx.fillText('✦ 形象风格诊断报告', w / 2, 44)
 
         ctx.font = '11px sans-serif'
-        ctx.fillStyle = 'rgba(255,255,255,0.8)'
+        ctx.fillStyle = 'rgba(255,255,255,0.85)'
         const now = new Date()
-        const dateStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`
-        ctx.fillText(dateStr, w / 2, 56)
+        const dateStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}  ·  美哒 Meeta`
+        ctx.fillText(dateStr, w / 2, 66)
 
-        // === 评分区 ===
-        let y = headerH + 16
+        // === 评分卡片（悬浮于头图与内容之间）===
+        const scoreCardY = headerH - 26
+        const scoreCardH = 110
+        ctx.shadowColor = 'rgba(183,110,121,0.18)'
+        ctx.shadowBlur = 12
+        ctx.shadowOffsetY = 4
+        ctx.fillStyle = '#fff'
+        this._roundRect(ctx, p, scoreCardY, cw, scoreCardH, 14)
+        ctx.fill()
+        ctx.shadowColor = 'transparent'
+        ctx.shadowBlur = 0
+        ctx.shadowOffsetY = 0
 
         // 头像
-        const avatarR = 24
-        const avatarCX = p + avatarR
-        const avatarCY = y + avatarR + 2
+        const avatarR = 28
+        const avatarCX = p + 16 + avatarR
+        const avatarCY = scoreCardY + 22 + avatarR
 
         ctx.save()
         ctx.beginPath()
-        ctx.arc(avatarCX, avatarCY, avatarR, 0, Math.PI * 2)
-        ctx.fillStyle = '#E8D5B7'
+        ctx.arc(avatarCX, avatarCY, avatarR + 2, 0, Math.PI * 2)
+        const avatarRing = ctx.createLinearGradient(avatarCX - avatarR, avatarCY - avatarR, avatarCX + avatarR, avatarCY + avatarR)
+        avatarRing.addColorStop(0, '#B76E79')
+        avatarRing.addColorStop(1, '#E8A87C')
+        ctx.fillStyle = avatarRing
         ctx.fill()
-        ctx.strokeStyle = '#fff'
-        ctx.lineWidth = 2
-        ctx.stroke()
         ctx.restore()
 
         if (report.photoUrl) {
@@ -387,51 +403,131 @@ Page({
             ctx.restore()
           } else {
             ctx.fillStyle = '#fff'
-            ctx.font = 'bold 13px sans-serif'
+            ctx.font = 'bold 14px sans-serif'
             ctx.textAlign = 'center'
             ctx.fillText('Me', avatarCX, avatarCY + 5)
           }
         } else {
           ctx.fillStyle = '#fff'
-          ctx.font = 'bold 13px sans-serif'
+          ctx.font = 'bold 14px sans-serif'
           ctx.textAlign = 'center'
           ctx.fillText('Me', avatarCX, avatarCY + 5)
         }
 
-        // 分数
-        const scoreX = p + avatarR * 2 + 14
+        // 分数 + /10
+        const scoreX = avatarCX + avatarR + 18
+        const scoreBaseY = avatarCY - 4
         ctx.textAlign = 'left'
-        ctx.fillStyle = '#333'
-        ctx.font = 'bold 30px sans-serif'
-        ctx.fillText(String(report.basic.overallScore), scoreX, avatarCY + 4)
+        ctx.font = 'bold 36px sans-serif'
+        const scoreGrad = ctx.createLinearGradient(scoreX, scoreBaseY - 20, scoreX, scoreBaseY + 10)
+        scoreGrad.addColorStop(0, '#B76E79')
+        scoreGrad.addColorStop(1, '#8B4F58')
+        ctx.fillStyle = scoreGrad
+        ctx.fillText(String(report.basic.overallScore), scoreX, scoreBaseY + 8)
 
         const scoreW = ctx.measureText(String(report.basic.overallScore)).width
-        ctx.font = '12px sans-serif'
-        ctx.fillStyle = '#999'
-        ctx.fillText('分', scoreX + scoreW + 3, avatarCY + 4)
+        ctx.font = '13px sans-serif'
+        ctx.fillStyle = '#B89E8F'
+        ctx.fillText('/10', scoreX + scoreW + 4, scoreBaseY + 8)
 
-        // 标签
-        if (report.basic.tags?.length) {
-          let tagX = scoreX
-          const tagY = avatarCY + 14
-          ctx.font = '10px sans-serif'
-          report.basic.tags.slice(0, 6).forEach(tag => {
-            const tw = ctx.measureText(tag).width + 12
-            ctx.fillStyle = '#F5F0EB'
-            this._roundRect(ctx, tagX, tagY, tw, 17, 8)
+        // 视龄徽章（右上角）
+        const ageTag = (report.basic.tags || []).find(t => t && t.indexOf('视龄') === 0) ||
+          ((report.basic.tags || [])[(report.basic.tags || []).length - 1])
+        if (ageTag) {
+          let ageText = String(ageTag)
+          while (ageText.indexOf('视龄') === 0) {
+            ageText = ageText.substring(2)
+            if (ageText.charAt(0) === '·') ageText = ageText.substring(1)
+          }
+          ageText = '✦ 视龄·' + ageText
+          ctx.font = 'bold 11px sans-serif'
+          const ageW = ctx.measureText(ageText).width + 18
+          const ageX = w - p - 12 - ageW
+          const ageY = scoreCardY + 18
+          const ageGrad = ctx.createLinearGradient(ageX, ageY, ageX + ageW, ageY + 22)
+          ageGrad.addColorStop(0, '#FFD86F')
+          ageGrad.addColorStop(0.5, '#E8A87C')
+          ageGrad.addColorStop(1, '#C38D9E')
+          ctx.fillStyle = ageGrad
+          this._roundRect(ctx, ageX, ageY, ageW, 22, 11)
+          ctx.fill()
+          ctx.fillStyle = '#fff'
+          ctx.textAlign = 'center'
+          ctx.fillText(ageText, ageX + ageW / 2, ageY + 15)
+        }
+
+        // 标签（除视龄外的 4 个）
+        const otherTags = (report.basic.tags || []).filter((t, i, arr) => {
+          if (!t) return false
+          if (t.indexOf('视龄') === 0) return false
+          if (i === arr.length - 1) return false
+          return true
+        }).slice(0, 4)
+        if (otherTags.length) {
+          const tagsY = scoreCardY + scoreCardH - 30
+          ctx.font = 'bold 10px sans-serif'
+          // 计算总宽度做水平铺开
+          const tagWs = otherTags.map(t => ctx.measureText(t).width + 18)
+          const totalTagW = tagWs.reduce((a, b) => a + b, 0)
+          const gap = otherTags.length > 1 ? (cw - 32 - totalTagW) / (otherTags.length - 1) : 0
+          let tagX = p + 16
+          otherTags.forEach((tag, i) => {
+            const tw = tagWs[i]
+            // 浅粉渐变背景
+            const tg = ctx.createLinearGradient(tagX, tagsY, tagX + tw, tagsY + 18)
+            tg.addColorStop(0, '#FFF3E0')
+            tg.addColorStop(1, '#FFE4EC')
+            ctx.fillStyle = tg
+            this._roundRect(ctx, tagX, tagsY, tw, 18, 9)
             ctx.fill()
-            ctx.fillStyle = '#8B7355'
-            ctx.fillText(tag, tagX + 6, tagY + 12)
-            tagX += tw + 6
+            ctx.fillStyle = '#E58FA1'
+            ctx.textAlign = 'center'
+            ctx.fillText(tag, tagX + tw / 2, tagsY + 12)
+            tagX += tw + gap
           })
         }
 
-        // === 模块卡片 ===
-        y = avatarCY + avatarR + 18
+        // === 顶部总结模块（核心结论）===
+        let y = scoreCardY + scoreCardH + 16
+        const conclusion = report.modules.optimize?.coreConclusion
+        if (conclusion) {
+          ctx.font = '11px sans-serif'
+          const conLines = this._wrapText(ctx, conclusion, cw - 32, 4)
+          const conH = 20 + 18 + conLines.length * 16 + 14
 
+          // 渐变背景
+          const sumGrad = ctx.createLinearGradient(p, y, p + cw, y + conH)
+          sumGrad.addColorStop(0, '#FFF3E0')
+          sumGrad.addColorStop(1, '#FFE4EC')
+          ctx.fillStyle = sumGrad
+          this._roundRect(ctx, p, y, cw, conH, 12)
+          ctx.fill()
+
+          // 边框
+          ctx.strokeStyle = 'rgba(183,110,121,0.18)'
+          ctx.lineWidth = 1
+          this._roundRect(ctx, p, y, cw, conH, 12)
+          ctx.stroke()
+
+          // 标题
+          ctx.font = 'bold 12px sans-serif'
+          ctx.fillStyle = '#B76E79'
+          ctx.textAlign = 'left'
+          ctx.fillText('✦ 核心结论', p + 14, y + 20)
+
+          // 内容
+          ctx.font = '11px sans-serif'
+          ctx.fillStyle = '#6B5550'
+          conLines.forEach((line, i) => {
+            ctx.fillText(line, p + 14, y + 42 + i * 16)
+          })
+          y += conH + 12
+        }
+
+        // === 模块卡片 ===
         const sections = [
           {
-            title: '🧬 面部&骨相', color: '#C8A97E',
+            title: '🧬 面部&骨相', color: '#B76E79',
             show: !!report.modules.dna,
             lines: () => {
               const d = report.modules.dna
@@ -441,7 +537,7 @@ Page({
             }
           },
           {
-            title: '🎨 皮肤&风格', color: '#E8A0BF',
+            title: '🎨 皮肤&风格', color: '#C38D9E',
             show: !!report.modules.style,
             lines: () => {
               const d = report.modules.style
@@ -451,7 +547,7 @@ Page({
             }
           },
           {
-            title: '✂️ 发型&妆容', color: '#D4A574',
+            title: '✂️ 发型&妆容', color: '#E8A87C',
             show: !!report.modules.hairmakeup,
             lines: () => {
               const d = report.modules.hairmakeup
@@ -462,12 +558,11 @@ Page({
             }
           },
           {
-            title: '🌟 颜值&蜕变', color: '#8FBC8F',
+            title: '🌟 颜值&蜕变', color: '#D4A574',
             show: !!report.modules.optimize,
             lines: () => {
               const d = report.modules.optimize
               const l = []
-              if (d.coreConclusion) l.push(d.coreConclusion)
               if (d.keyInsight) l.push('✦ ' + d.keyInsight)
               return l
             }
@@ -482,14 +577,14 @@ Page({
           // 计算卡片高度
           const textLines = []
           lines.forEach(line => {
-            ctx.font = '10px sans-serif'
-            textLines.push(...this._wrapText(ctx, line, cw - 24, 2))
+            ctx.font = '10.5px sans-serif'
+            textLines.push(...this._wrapText(ctx, line, cw - 28, 3))
           })
-          const cardH = 14 + 16 + textLines.length * 15 + 10
+          const cardH = 16 + 18 + textLines.length * 16 + 10
 
-          // 卡片背景
+          // 卡片白色背景
           ctx.fillStyle = '#fff'
-          this._roundRect(ctx, p, y, cw, cardH, 10)
+          this._roundRect(ctx, p, y, cw, cardH, 12)
           ctx.fill()
 
           // 左侧色条
@@ -498,58 +593,41 @@ Page({
           ctx.fill()
 
           // 标题
-          ctx.font = 'bold 11px sans-serif'
-          ctx.fillStyle = '#333'
+          ctx.font = 'bold 12px sans-serif'
+          ctx.fillStyle = '#3D2C28'
           ctx.textAlign = 'left'
-          ctx.fillText(sec.title, p + 12, y + 16)
+          ctx.fillText(sec.title, p + 14, y + 20)
 
           // 内容
-          ctx.font = '10px sans-serif'
-          let lineY = y + 30
+          ctx.font = '10.5px sans-serif'
+          let lineY = y + 38
           textLines.forEach(line => {
-            ctx.fillStyle = line.startsWith('✦') ? '#999' : '#555'
-            ctx.fillText(line, p + 12, lineY)
-            lineY += 15
+            ctx.fillStyle = line.startsWith('✦') ? '#B89E8F' : '#5C4A45'
+            ctx.fillText(line, p + 14, lineY)
+            lineY += 16
           })
 
-          y += cardH + 8
+          y += cardH + 10
         })
 
-        // === 核心结论（如有额外空间）===
-        const conclusion = report.modules.optimize?.coreConclusion
-        if (conclusion && y < h - 80) {
-          ctx.font = '10px sans-serif'
-          const conLines = this._wrapText(ctx, conclusion, cw - 24, 3)
-          const conH = 12 + conLines.length * 14 + 10
-
-          ctx.fillStyle = '#F5F0EB'
-          this._roundRect(ctx, p, y, cw, conH, 10)
-          ctx.fill()
-
-          ctx.font = '10px sans-serif'
-          ctx.fillStyle = '#8B7355'
-          conLines.forEach((line, i) => {
-            ctx.fillText(line, p + 12, y + 16 + i * 14)
-          })
-          y += conH + 8
-        }
-
-        // === 底部水印 ===
-        const footerH = 48
-        const footerY = h - footerH - 8
-        ctx.fillStyle = '#F0EBE5'
-        this._roundRect(ctx, p, footerY, cw, footerH, 10)
+        // === 底部水印（紧跟内容后）===
+        const footerH = 56
+        const footerY = Math.min(y + 4, h - footerH - 16)
+        const fGrad = ctx.createLinearGradient(p, footerY, p + cw, footerY + footerH)
+        fGrad.addColorStop(0, '#B76E79')
+        fGrad.addColorStop(1, '#E8A87C')
+        ctx.fillStyle = fGrad
+        this._roundRect(ctx, p, footerY, cw, footerH, 12)
         ctx.fill()
 
-        ctx.font = 'bold 14px sans-serif'
-        ctx.fillStyle = '#8B7355'
+        ctx.font = 'bold 15px sans-serif'
+        ctx.fillStyle = '#fff'
         ctx.textAlign = 'center'
-        ctx.fillText('美哒 Meeta', w / 2, footerY + 22)
+        ctx.fillText('美哒 Meeta', w / 2, footerY + 24)
 
         ctx.font = '10px sans-serif'
-        ctx.fillStyle = '#B8A88A'
-        
-        ctx.fillText('AI 形象风格诊断', w / 2, footerY + 38)
+        ctx.fillStyle = 'rgba(255,255,255,0.85)'
+        ctx.fillText('AI 反种草形象风格诊断', w / 2, footerY + 42)
 
         // === 导出 ===
         setTimeout(() => {
