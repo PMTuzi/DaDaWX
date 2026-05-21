@@ -2,7 +2,7 @@
 .page-result {
   min-height: 100vh;
   background: #FAFAF5;
-  padding-bottom: 160rpx;
+  padding-bottom: calc(180rpx + env(safe-area-inset-bottom));
 }
 
 /* 顶部决策结论 */
@@ -952,8 +952,10 @@
   display: flex;
   gap: 20rpx;
   padding: 20rpx 32rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
   background: #fff;
   box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.06);
+  z-index: 10;
 }
 
 .action-btn {

@@ -5,14 +5,35 @@
     <text class="top-hint-text">哒哒努力中，不要离开哦～</text>
   </view>
 
-  <!-- 动画区域 -->
+  <!-- 科技扫描动画区域 -->
   <view class="animation-area">
-    <view class="scan-circle">
-      <view class="scan-ring ring-1"></view>
-      <view class="scan-ring ring-2"></view>
-      <view class="scan-ring ring-3"></view>
-      <view class="scan-center">
-        <text class="scan-percent">{{progress}}%</text>
+    <view class="scan-stage">
+      <!-- 旋转轨道 -->
+      <view class="scan-orbit orbit-outer"></view>
+      <view class="scan-orbit orbit-mid"></view>
+      <view class="scan-orbit orbit-inner"></view>
+
+      <!-- 四角标记 -->
+      <view class="corner corner-tl"></view>
+      <view class="corner corner-tr"></view>
+      <view class="corner corner-bl"></view>
+      <view class="corner corner-br"></view>
+
+      <!-- 用户图片圆形容器 -->
+      <view class="photo-circle">
+        <image class="user-photo fade-key-{{previewIndex}}" src="{{previewImage}}" mode="aspectFill" wx:if="{{previewImage}}" />
+        <view class="photo-fallback" wx:else>
+          <text class="fallback-text">扫描中</text>
+        </view>
+        <view class="scan-line"></view>
+        <view class="photo-overlay"></view>
+        <view class="scan-sweep"></view>
+      </view>
+
+      <!-- 进度浮标 -->
+      <view class="progress-chip">
+        <text class="chip-icon">✦</text>
+        <text class="chip-percent">{{progress}}%</text>
       </view>
     </view>
   </view>

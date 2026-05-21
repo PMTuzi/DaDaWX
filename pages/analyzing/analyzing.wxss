@@ -17,99 +17,250 @@
 .top-hint-text {
   font-size: 30rpx;
   font-weight: 700;
-  background: linear-gradient(135deg, #B76E79 0%, #C38D9E 50%, #E8A87C 100%);
+  background: linear-gradient(135deg, #F1849B 0%, #F9B8C9 60%, #FFD8B5 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   letter-spacing: 2rpx;
-  text-shadow: 0 1rpx 2rpx rgba(183, 110, 121, 0.15);
+  text-shadow: 0 1rpx 2rpx rgba(241, 132, 155, 0.18);
 }
 
+/* ==================== 科技扫描舞台 ==================== */
 .animation-area {
   margin-bottom: 48rpx;
 }
 
-.scan-circle {
+.scan-stage {
   position: relative;
-  width: 280rpx;
-  height: 280rpx;
+  width: 460rpx;
+  height: 460rpx;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.scan-ring {
+/* 旋转轨道环 */
+.scan-orbit {
   position: absolute;
   border-radius: 50%;
-  border: 2rpx solid rgba(241, 132, 155, 0.3);
+  pointer-events: none;
 }
 
-.ring-1 {
+.orbit-outer {
   width: 100%;
   height: 100%;
-  animation: pulse 2s ease-in-out infinite;
+  border: 2rpx dashed rgba(241, 132, 155, 0.5);
+  animation: spin 12s linear infinite;
 }
 
-.ring-2 {
-  width: 80%;
-  height: 80%;
-  animation: pulse 2s ease-in-out infinite 0.5s;
-  border-color: rgba(241, 132, 155, 0.5);
+.orbit-mid {
+  width: 84%;
+  height: 84%;
+  border: 2rpx solid transparent;
+  border-top-color: rgba(249, 184, 201, 0.85);
+  border-right-color: rgba(241, 132, 155, 0.7);
+  animation: spin 4s linear infinite reverse;
+  box-shadow: 0 0 26rpx rgba(249, 184, 201, 0.45);
 }
 
-.ring-3 {
-  width: 60%;
-  height: 60%;
-  animation: pulse 2s ease-in-out infinite 1s;
-  border-color: rgba(241, 132, 155, 0.7);
+.orbit-inner {
+  width: 70%;
+  height: 70%;
+  border: 1rpx solid rgba(241, 132, 155, 0.4);
+  animation: pulse-ring 2.4s ease-in-out infinite;
 }
 
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.1); opacity: 0.5; }
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-.scan-center {
+@keyframes pulse-ring {
+  0%, 100% { transform: scale(1); opacity: 0.7; box-shadow: 0 0 0rpx rgba(249, 184, 201, 0); }
+  50% { transform: scale(1.06); opacity: 1; box-shadow: 0 0 32rpx rgba(249, 184, 201, 0.6); }
+}
+
+/* 四角标记 */
+.corner {
+  position: absolute;
+  width: 36rpx;
+  height: 36rpx;
+}
+.corner::before, .corner::after {
+  content: '';
+  position: absolute;
+  background: linear-gradient(135deg, #F1849B, #FFD8B5);
+  border-radius: 2rpx;
+}
+.corner::before { width: 36rpx; height: 4rpx; }
+.corner::after  { width: 4rpx;  height: 36rpx; }
+
+.corner-tl { top: 0; left: 0; }
+.corner-tl::before { top: 0; left: 0; }
+.corner-tl::after  { top: 0; left: 0; }
+
+.corner-tr { top: 0; right: 0; }
+.corner-tr::before { top: 0; right: 0; }
+.corner-tr::after  { top: 0; right: 0; }
+
+.corner-bl { bottom: 0; left: 0; }
+.corner-bl::before { bottom: 0; left: 0; }
+.corner-bl::after  { bottom: 0; left: 0; }
+
+.corner-br { bottom: 0; right: 0; }
+.corner-br::before { bottom: 0; right: 0; }
+.corner-br::after  { bottom: 0; right: 0; }
+
+/* 用户图片圆形容器 */
+.photo-circle {
   position: relative;
-  z-index: 1;
-  width: 120rpx;
-  height: 120rpx;
-  background: rgba(241, 132, 155, 0.15);
+  width: 320rpx;
+  height: 320rpx;
   border-radius: 50%;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 4rpx rgba(255, 255, 255, 0.95),
+    0 0 0 6rpx rgba(241, 132, 155, 0.45),
+    0 8rpx 32rpx rgba(249, 184, 201, 0.45),
+    inset 0 0 30rpx rgba(255, 220, 230, 0.3);
+}
+
+.user-photo {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.photo-fallback {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #FFE4EC 0%, #F9B8C9 100%);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.scan-percent {
-  font-size: 40rpx;
-  font-weight: 800;
+.fallback-text {
+  font-size: 32rpx;
   color: #F1849B;
+  font-weight: 600;
+  letter-spacing: 4rpx;
 }
 
+/* 内部柔光罩 */
+.photo-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 30%, rgba(255, 220, 230, 0.18) 0%, rgba(241, 132, 155, 0.10) 70%, rgba(241, 132, 155, 0.15) 100%);
+  pointer-events: none;
+}
+
+/* 横向扫描线 */
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 6rpx;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 220, 230, 0.0) 10%,
+    rgba(241, 132, 155, 0.95) 50%,
+    rgba(255, 220, 230, 0.0) 90%,
+    transparent 100%);
+  box-shadow:
+    0 0 20rpx rgba(241, 132, 155, 0.85),
+    0 0 40rpx rgba(249, 184, 201, 0.6);
+  animation: scan-vertical 2.4s ease-in-out infinite;
+  z-index: 2;
+}
+
+@keyframes scan-vertical {
+  0%   { transform: translateY(0); opacity: 0; }
+  10%  { opacity: 1; }
+  50%  { transform: translateY(314rpx); opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(0); opacity: 0; }
+}
+
+/* 旋转扇形光束 */
+.scan-sweep {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(241, 132, 155, 0) 0deg,
+    rgba(241, 132, 155, 0) 300deg,
+    rgba(241, 132, 155, 0.4) 350deg,
+    rgba(255, 220, 230, 0.65) 360deg
+  );
+  animation: sweep 3s linear infinite;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+@keyframes sweep {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* 进度百分比浮标 */
+.progress-chip {
+  position: absolute;
+  bottom: -20rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10rpx 28rpx;
+  border-radius: 32rpx;
+  background: #F1849B;
+  box-shadow: 0 8rpx 24rpx rgba(249, 184, 201, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  z-index: 3;
+}
+
+.chip-icon {
+  color: #FFE4B5;
+  font-size: 22rpx;
+}
+
+.chip-percent {
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+}
+
+/* ==================== 进度条 ==================== */
 .progress-bar {
   width: 80%;
   height: 8rpx;
-  background: #F0EBE5;
+  background: rgba(241, 132, 155, 0.12);
   border-radius: 4rpx;
   overflow: hidden;
-  margin-bottom: 60rpx;
+  margin: 36rpx 0 60rpx;
 }
 
 .progress-inner {
   height: 100%;
-  background: linear-gradient(90deg, #F1849B, #E56B85);
+  background: linear-gradient(90deg, #F1849B 0%, #F9B8C9 100%);
   border-radius: 4rpx;
   transition: width 0.3s ease;
+  box-shadow: 0 0 12rpx rgba(249, 184, 201, 0.55);
 }
 
+/* ==================== 步骤列表 ==================== */
 .steps-area {
   width: 100%;
   background: #ffffff;
   border-radius: 24rpx;
   padding: 32rpx;
   margin-bottom: 40rpx;
-  border: 1rpx solid #F0EBE5;
+  border: 1rpx solid rgba(241, 132, 155, 0.15);
+  box-shadow: 0 4rpx 16rpx rgba(249, 184, 201, 0.1);
 }
 
 .step-item {
@@ -156,6 +307,7 @@
 
 .step-status.active {
   color: #F1849B;
+  font-weight: 600;
 }
 
 .step-item.done .step-status {

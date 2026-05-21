@@ -11,6 +11,9 @@ Page({
     progress: 0,
     currentStep: 0,
     steps: [],
+    previewImage: '',
+    previewImages: [],
+    previewIndex: 0,
     animating: true,
     errorMsg: ''
   },
@@ -20,7 +23,29 @@ Page({
     this._timers = []
     const type = options.type || 'keep'
     const steps = this.getSteps(type)
-    this.setData({ type, steps })
+    // 收集所有图片用于扫描动画展示（多图轮播）
+    let previewImages = []
+    try {
+      const consultData = getApp().globalData.consultData || wx.getStorageSync('consultData')
+      const imgs = consultData && consultData.images
+      if (imgs && imgs.length) {
+        previewImages = imgs.map(i => i.localPath || i.imageUrl || '').filter(Boolean)
+      }
+    } catch (e) {}
+    const previewImage = previewImages[0] || ''
+    this.setData({ type, steps, previewImage, previewImages, previewIndex: 0 })
+
+    // 多图（2-4 张）每 1.6s 轮换一次
+    if (previewImages.length >= 2) {
+      this._previewTimer = setInterval(() => {
+        if (!this._alive) return
+        const list = this.data.previewImages || []
+        if (!list.length) return
+        const next = (this.data.previewIndex + 1) % list.length
+        this.safeSetData({ previewIndex: next, previewImage: list[next] })
+      }, 3000)
+      this._timers.push(this._previewTimer)
+    }
     this.startAnalysis().catch(err => {
       console.error('[consult-analyzing] 未捕获异常:', err)
       if (this._alive) {
