@@ -73,6 +73,7 @@
         <view class="btn-text">
           <text class="btn-main">开始「 形象风格分析 」</text>
         </view>
+        <view class="btn-tap-hint"></view>
       </view>
     </block>
     <!-- 已诊断：穿搭决策为主按钮 -->
