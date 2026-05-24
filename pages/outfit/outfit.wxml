@@ -42,14 +42,15 @@
     ></video>
     <!-- 透明点击层，捕获视频区域的点击（兼容原生组件） -->
     <view class="empty-video-tap" catchtap="onStartConsult"></view>
-    <!-- 空列表态：开始反种草 CTA 浮于视频底部 -->
-    <view class="unified-card empty-video-cta" catchtap="onStartConsult">
-      <view class="card-icon icon icon-dress"></view>
-      <view class="card-info">
-        <view class="card-title">开始「反种草」</view>
-        <view class="card-subtitle">1张图片 → 评分评估 | 多张图片 → 对比排名</view>
+    <!-- 酷炫科技风文字引导覆盖层 -->
+    <view class="tech-overlay" catchtap="onStartConsult">
+      <view class="tech-cta">
+        <view class="tech-cta-main">
+          <text class="tech-arrow">▸</text>
+          <text class="tech-cta-text">点击开启 · 穿搭反种草</text>
+          <text class="tech-arrow tech-arrow-rev">◂</text>
+        </view>
       </view>
-      <view class="card-arrow">→</view>
     </view>
   </view>
 

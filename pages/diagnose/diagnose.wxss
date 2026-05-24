@@ -170,6 +170,25 @@
   z-index: 2;
 }
 
+.scan-card:not(.has-photo) {
+  animation: cardBreath 2.4s ease-in-out infinite;
+}
+
+@keyframes cardBreath {
+  0%, 100% {
+    box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.04), 0 0 0 0 rgba(241, 132, 155, 0.35);
+    border-color: #f0f0f0;
+  }
+  50% {
+    box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.04), 0 0 0 8rpx rgba(241, 132, 155, 0);
+    border-color: rgba(241, 132, 155, 0.5);
+  }
+}
+
+.scan-card:not(.has-photo):active {
+  transform: scale(0.99);
+}
+
 .scan-corner {
   position: absolute;
   width: 36rpx;
@@ -229,6 +248,60 @@
   font-size: 64rpx;
   color: #F1849B;
   z-index: 1;
+}
+
+/* 点击引导：脉冲光晕 */
+.upload-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2rpx solid rgba(241, 132, 155, 0.6);
+  animation: uploadPulse 2s ease-out infinite;
+  pointer-events: none;
+}
+
+.upload-pulse-2 {
+  animation-delay: 1s;
+}
+
+@keyframes uploadPulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* 小手点击引导（SVG） */
+.tap-finger {
+  position: absolute;
+  right: -12rpx;
+  bottom: -12rpx;
+  width: 72rpx;
+  height: 72rpx;
+  z-index: 2;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><g fill='none' stroke='%23F1849B' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M26 38V18a4 4 0 1 1 8 0v14'/><path d='M34 28a4 4 0 0 1 8 0v6'/><path d='M42 30a4 4 0 0 1 8 0v10c0 8-5 14-13 14h-6c-5 0-8-2-10-6l-6-12a4 4 0 0 1 7-4l4 6'/></g><circle cx='32' cy='10' r='3' fill='%23F1849B'/><path d='M22 8l-4-3M42 8l4-3M32 4V0' stroke='%23F1849B' stroke-width='2' stroke-linecap='round'/></svg>");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  filter: drop-shadow(0 4rpx 8rpx rgba(241, 132, 155, 0.4));
+  animation: fingerTap 1.4s ease-in-out infinite;
+  transform-origin: 70% 30%;
+}
+
+@keyframes fingerTap {
+  0%, 100% {
+    transform: translate(0, 0) rotate(-12deg) scale(1);
+  }
+  40% {
+    transform: translate(-12rpx, -12rpx) rotate(-18deg) scale(1.08);
+  }
+  60% {
+    transform: translate(0, 0) rotate(-12deg) scale(0.92);
+  }
 }
 
 .upload-title {

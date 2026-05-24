@@ -42,24 +42,10 @@
         <text class="label-text">穿搭类别</text>
         <text class="label-required">*</text>
         <text class="ai-badge" wx:if="{{categoryDetected}}">AI识别</text>
-        <text class="label-hint" wx:if="{{category}}">已选：{{category}}</text>
       </view>
-      <!-- tab 切换 -->
-      <view class="cat-tabs">
-        <view class="cat-tab {{categoryTabIndex === index ? 'active' : ''}}"
-          wx:for="{{categoryTabs}}" wx:key="index"
-          data-index="{{index}}" bindtap="onCategoryTabTap" hover-class="cat-tab-hover">
-          {{item}}
-        </view>
-      </view>
-      <!-- 胶囊宫格 -->
-      <view class="cat-chip-grid">
-        <view class="cat-chip {{category === item ? 'active' : ''}}"
-          wx:for="{{categoryGroups[categoryTabIndex]}}" wx:key="*this"
-          data-value="{{item}}" bindtap="onCategoryChipTap" hover-class="tag-option-hover">
-          {{item}}
-        </view>
-      </view>
+      <input class="category-input" type="text" maxlength="20"
+        placeholder="如：连衣裙、风衣、包包…" placeholder-class="category-input-ph"
+        value="{{category}}" bindinput="onCategoryInput" />
     </view>
 
     <!-- 价格区间（必填） -->
@@ -76,21 +62,6 @@
       </picker>
     </view>
 
-    <!-- 身型特点（多选 0-3） -->
-    <view class="section">
-      <view class="section-label">
-        <text class="label-text">身型特点</text>
-        <text class="label-hint">（选填，最多3项）</text>
-      </view>
-      <view class="tag-group">
-        <view class="tag-option {{h.includes(bodyFeatures, item) ? 'active' : ''}}"
-          wx:for="{{bodyFeatureOptions}}" wx:key="index"
-          data-value="{{item}}" bindtap="onBodyFeatureTap" hover-class="tag-option-hover">
-          {{item}}
-        </view>
-      </view>
-    </view>
-
     <!-- 穿着场景（多选 0-2） -->
     <view class="section">
       <view class="section-label">
@@ -101,6 +72,21 @@
         <view class="tag-option {{h.includes(wearScenes, item) ? 'active' : ''}}"
           wx:for="{{wearSceneOptions}}" wx:key="index"
           data-value="{{item}}" bindtap="onWearSceneTap" hover-class="tag-option-hover">
+          {{item}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 身型特点（多选 0-3） -->
+    <view class="section">
+      <view class="section-label">
+        <text class="label-text">身型特点</text>
+        <text class="label-hint">（选填，最多3项）</text>
+      </view>
+      <view class="tag-group">
+        <view class="tag-option {{h.includes(bodyFeatures, item) ? 'active' : ''}}"
+          wx:for="{{bodyFeatureOptions}}" wx:key="index"
+          data-value="{{item}}" bindtap="onBodyFeatureTap" hover-class="tag-option-hover">
           {{item}}
         </view>
       </view>

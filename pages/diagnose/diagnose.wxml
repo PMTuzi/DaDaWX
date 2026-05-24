@@ -15,24 +15,6 @@
    
   </view>
 
-  <!-- 步骤指示 -->
-  <view class="step-line">
-    <view class="step active">
-      <view class="step-dot">01</view>
-      <text class="step-label">上传照片</text>
-    </view>
-    <view class="step-bar"></view>
-    <view class="step {{photoUrl ? 'next' : ''}}">
-      <view class="step-dot">02</view>
-      <text class="step-label">AI 分析</text>
-    </view>
-    <view class="step-bar"></view>
-    <view class="step">
-      <view class="step-dot">03</view>
-      <text class="step-label">查看报告</text>
-    </view>
-  </view>
-
   <!-- 上传扫描卡片 -->
   <view class="scan-card {{photoUrl ? 'has-photo' : ''}}">
     <view class="scan-corner tl"></view>
@@ -55,10 +37,12 @@
     <view class="upload-empty" wx:else bindtap="onChoosePhoto">
       <view class="upload-icon-wrap">
         <view class="upload-ring"></view>
+        <view class="upload-pulse"></view>
+        <view class="upload-pulse upload-pulse-2"></view>
         <view class="upload-icon icon icon-camera"></view>
+        <view class="tap-finger"></view>
       </view>
       <view class="upload-title">点击上传 / 拍照</view>
-      <view class="upload-sub">JPG · PNG · 单次上传 1 张</view>
     </view>
   </view>
 
