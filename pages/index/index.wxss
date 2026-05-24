@@ -283,12 +283,12 @@
   z-index: 10;
 }
 
-/* 未诊断首页宣传视频（1:1 居中剪裁） */
+/* 未诊断首页宣传视频（高:宽 = 4:3 居中剪裁） */
 .intro-video {
   margin: -72rpx 32rpx 0;
   width: calc(100% - 64rpx);
   height: 0;
-  padding-bottom: calc(100% - 64rpx);
+  padding-bottom: calc((100% - 64rpx) * 4 / 3);
   position: relative;
   z-index: 100;
   transform: translateY(-30rpx);
@@ -302,15 +302,15 @@
   transform: translateY(-150rpx);
   z-index: 200;
 }
-/* 未诊断态：整体内容上移 150rpx（在原位置基础上） */
+/* 未诊断态：整体内容上移 50rpx（在原位置基础上） */
 .page-index-undiag .brand-area {
-  transform: translateY(-150rpx);
+  transform: translateY(-50rpx);
 }
 .page-index-undiag .intro-video {
-  transform: translateY(-180rpx);
+  transform: translateY(-80rpx);
 }
 .page-index-undiag .intro-video + .action-area-undiag {
-  transform: translateY(-150rpx);
+  transform: translateY(-80rpx);
 }
 
 /* 未诊断态：视频已承载主 CTA，action-area 只剩 ticker，不再向上覆盖视频 */
