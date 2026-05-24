@@ -31,6 +31,10 @@
         "type": "glob"
       },
       {
+        "value": "*.mp4",
+        "type": "glob"
+      },
+      {
         "value": "deploy.sh",
         "type": "file"
       }

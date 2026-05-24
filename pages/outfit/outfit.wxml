@@ -7,8 +7,8 @@
     <view class="header-subtitle">上传衣物照片，AI 帮你理性分析</view>
   </view>
 
-  <!-- 统一入口卡片 -->
-  <view class="unified-card" bindtap="onStartConsult">
+  <!-- 统一入口卡片（仅有历史时显示在顶部，空列表时移入视频内） -->
+  <view class="unified-card" wx:if="{{showHistory}}" bindtap="onStartConsult">
     <view class="card-icon icon icon-dress"></view>
     <view class="card-info">
       <view class="card-title">开始「反种草」</view>
@@ -22,6 +22,33 @@
     <view class="tip-icon icon icon-chart"></view>
     <text class="tip-text">完成AI形象诊断后，穿搭决策将更精准匹配你的风格</text>
     <text class="tip-arrow">→</text>
+  </view>
+
+  <!-- 空列表占位视频 -->
+  <view class="empty-video-wrap" wx:if="{{!showHistory}}">
+    <video
+      class="empty-video"
+      src="cloud://dada-d9gw8x8fb426caba5.6461-dada-d9gw8x8fb426caba5-1435078506/outfit-decision.mp4"
+      object-fit="cover"
+      autoplay="{{true}}"
+      loop="{{true}}"
+      muted="{{true}}"
+      controls="{{false}}"
+      show-center-play-btn="{{false}}"
+      show-play-btn="{{false}}"
+      show-fullscreen-btn="{{false}}"
+      enable-progress-gesture="{{false}}"
+      show-progress="{{false}}"
+    ></video>
+    <!-- 空列表态：开始反种草 CTA 浮于视频底部 -->
+    <view class="unified-card empty-video-cta" bindtap="onStartConsult">
+      <view class="card-icon icon icon-dress"></view>
+      <view class="card-info">
+        <view class="card-title">开始「反种草」</view>
+        <view class="card-subtitle">1张图片 → 评分评估 | 多张图片 → 对比排名</view>
+      </view>
+      <view class="card-arrow">→</view>
+    </view>
   </view>
 
   <!-- 历史记录 -->

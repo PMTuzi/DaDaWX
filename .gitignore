@@ -11,3 +11,4 @@ server/.env.production
 .DS_Store
 .codebuddy/
 哒哒无背景.png
+*.mp4

@@ -77,7 +77,7 @@
   display: flex;
   align-items: center;
   gap: 12rpx;
-  margin: 24rpx 32rpx 0;
+  margin: 19rpx 32rpx 0;
   padding: 20rpx 24rpx;
   background: #fff;
   border-radius: 20rpx;
@@ -102,6 +102,35 @@
   font-size: 28rpx;
   color: #C8A97E;
   flex-shrink: 0;
+}
+
+/* 空列表占位视频 */
+.empty-video-wrap {
+  position: relative;
+  margin: 32rpx 32rpx 0;
+  height: calc(100vh - 420rpx);
+  min-height: 560rpx;
+  border-radius: 24rpx;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.08);
+}
+
+.empty-video {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 视频内浮动 CTA */
+.empty-video-cta {
+  position: absolute;
+  left: 24rpx;
+  right: 24rpx;
+  bottom: 24rpx;
+  margin: 0;
+  z-index: 10;
+  box-shadow: 0 12rpx 40rpx rgba(241, 132, 155, 0.45);
 }
 
 /* 历史记录 */
