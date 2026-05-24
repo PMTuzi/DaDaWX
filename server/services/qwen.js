@@ -57,10 +57,11 @@ const BASE_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/complet
 /**
  * VL调用1: 形象DNA + 皮肤&风格DNA
  */
-async function analyzePart1(imageInput, photoType = 'face', gender = 'female', userInfo = {}) {
+async function analyzePart1(imageInput, photoType = 'face', gender = 'auto', userInfo = {}) {
   const ageInfo = userInfo.age ? `${userInfo.age}岁` : ''
   const bodyInfo = (userInfo.height || userInfo.weight) ? `，身高${userInfo.height || '?'}cm，体重${userInfo.weight || '?'}kg` : ''
-  const prompt = `你是一位顶级形象分析AI，请仔细观察这张${photoType === 'face' ? '人脸正面' : '全身'}${gender === 'male' ? '男性' : '女性'}照片${ageInfo ? '（' + ageInfo + bodyInfo + '）' : ''}，完成两个模块的深度分析。
+  const genderText = gender === 'male' ? '男性' : (gender === 'female' ? '女性' : '人物（请先根据照片自动识别性别，并基于识别结果做相应分析）')
+  const prompt = `你是一位顶级形象分析AI，请仔细观察这张${photoType === 'face' ? '人脸正面' : '全身'}${genderText}照片${ageInfo ? '（' + ageInfo + bodyInfo + '）' : ''}，完成两个模块的深度分析。
 
 【重要规则】
 1. 必须严格基于照片具体特征做判断，不同人必须有明显差异，要给出清晰的分析结果
@@ -216,10 +217,11 @@ async function analyzePart1(imageInput, photoType = 'face', gender = 'female', u
 /**
  * VL调用2: 发型妆容 + 颜值优化诊断
  */
-async function analyzePart2(imageInput, part1Data, gender = 'female', userInfo = {}) {
+async function analyzePart2(imageInput, part1Data, gender = 'auto', userInfo = {}) {
   const ageInfo = userInfo.age ? `${userInfo.age}岁` : ''
   const bodyInfo = (userInfo.height || userInfo.weight) ? `，身高${userInfo.height || '?'}cm，体重${userInfo.weight || '?'}kg` : ''
-  const prompt = `你是一位顶级形象顾问+发型师+化妆师AI，请根据以下${gender === 'male' ? '男性' : '女性'}${ageInfo ? '（' + ageInfo + bodyInfo + '）' : ''}的面部分析数据和照片，完成两个模块的深度分析。
+  const genderText = gender === 'male' ? '男性' : (gender === 'female' ? '女性' : '人物（请先根据照片自动识别性别，并基于识别结果做相应分析）')
+  const prompt = `你是一位顶级形象顾问+发型师+化妆师AI，请根据以下${genderText}${ageInfo ? '（' + ageInfo + bodyInfo + '）' : ''}的面部分析数据和照片，完成两个模块的深度分析。
 
 【重要规则】
 1. 必须严格基于具体特征做判断，不同人必须有明显差异

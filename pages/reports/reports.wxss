@@ -1,7 +1,7 @@
 /* pages/reports/reports.wxss */
 .page-reports {
   min-height: 100vh;
-  background: linear-gradient(180deg, #FAF6F0 0%, #FCEBEC 100%);
+  background: #FFFFFF;
   padding: 24rpx 24rpx calc(180rpx + env(safe-area-inset-bottom));
 }
 

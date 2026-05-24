@@ -24,8 +24,8 @@
     <text class="tip-arrow">→</text>
   </view>
 
-  <!-- 空列表占位视频 -->
-  <view class="empty-video-wrap" wx:if="{{!showHistory}}">
+  <!-- 空列表占位视频（整块可点击） -->
+  <view class="empty-video-wrap" wx:if="{{!showHistory}}" bindtap="onStartConsult">
     <video
       class="empty-video"
       src="cloud://dada-d9gw8x8fb426caba5.6461-dada-d9gw8x8fb426caba5-1435078506/outfit-decision.mp4"
@@ -40,8 +40,10 @@
       enable-progress-gesture="{{false}}"
       show-progress="{{false}}"
     ></video>
+    <!-- 透明点击层，捕获视频区域的点击（兼容原生组件） -->
+    <view class="empty-video-tap" catchtap="onStartConsult"></view>
     <!-- 空列表态：开始反种草 CTA 浮于视频底部 -->
-    <view class="unified-card empty-video-cta" bindtap="onStartConsult">
+    <view class="unified-card empty-video-cta" catchtap="onStartConsult">
       <view class="card-icon icon icon-dress"></view>
       <view class="card-info">
         <view class="card-title">开始「反种草」</view>

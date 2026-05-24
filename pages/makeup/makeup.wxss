@@ -1,7 +1,7 @@
 /* pages/makeup/makeup.wxss */
 .page-makeup {
   min-height: 100vh;
-  background: #f5f5f7;
+  background: #FFFFFF;
   padding: 24rpx;
   padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
 }

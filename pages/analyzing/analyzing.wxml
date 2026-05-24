@@ -1,8 +1,14 @@
 <!--pages/analyzing/analyzing.wxml-->
 <view class="page-analyzing">
-  <!-- 顶部提示 -->
-  <view class="top-hint">
-    <text class="top-hint-text">哒哒努力中，不要离开哦～</text>
+  <!-- 背景装饰 -->
+  <view class="bg-grid"></view>
+  <view class="bg-glow bg-glow-1"></view>
+  <view class="bg-glow bg-glow-2"></view>
+
+  <!-- 顶部状态徽标 -->
+  <view class="status-tag">
+    <view class="tag-dot"></view>
+    <text>AI ANALYZING · 形象诊断中</text>
   </view>
 
   <!-- 科技扫描动画区域 -->

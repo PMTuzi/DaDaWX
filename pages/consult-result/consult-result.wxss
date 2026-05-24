@@ -1,7 +1,7 @@
 /* pages/consult-result/consult-result.wxss */
 .page-result {
   min-height: 100vh;
-  background: #FAFAF5;
+  background: #FFFFFF;
   padding-bottom: calc(180rpx + env(safe-area-inset-bottom));
 }
 

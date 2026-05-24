@@ -1,33 +1,87 @@
-/* pages/analyzing/analyzing.wxss */
+/* pages/consult-analyzing/consult-analyzing.wxss */
+
+/* ============ 页面容器 ============ */
 .page-analyzing {
+  position: relative;
   min-height: 100vh;
-  background: #FAFAF5;
+  background: #FFFFFF;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 80rpx 32rpx 80rpx;
+  padding: 56rpx 32rpx 80rpx;
+  overflow: hidden;
+  color: #1a1a1a;
 }
 
-.top-hint {
-  width: 100%;
-  text-align: center;
-  padding: 20rpx 0 40rpx;
+/* 极简网格 */
+.bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(241, 132, 155, 0.06) 1rpx, transparent 1rpx),
+    linear-gradient(90deg, rgba(241, 132, 155, 0.06) 1rpx, transparent 1rpx);
+  background-size: 80rpx 80rpx;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 50%);
+  -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 50%);
+  pointer-events: none;
 }
 
-.top-hint-text {
-  font-size: 30rpx;
-  font-weight: 700;
-  background: linear-gradient(135deg, #F1849B 0%, #F9B8C9 60%, #FFD8B5 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.bg-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100rpx);
+  pointer-events: none;
+}
+
+.bg-glow-1 {
+  top: -160rpx;
+  right: -160rpx;
+  width: 480rpx;
+  height: 480rpx;
+  background: radial-gradient(circle, rgba(241, 132, 155, 0.3) 0%, transparent 70%);
+}
+
+.bg-glow-2 {
+  display: none;
+}
+
+/* ============ 顶部状态徽标 ============ */
+.status-tag {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 8rpx 20rpx;
+  background: rgba(241, 132, 155, 0.1);
+  border: 1rpx solid rgba(241, 132, 155, 0.3);
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #F1849B;
   letter-spacing: 2rpx;
-  text-shadow: 0 1rpx 2rpx rgba(241, 132, 155, 0.18);
+  margin-bottom: 32rpx;
 }
 
-/* ==================== 科技扫描舞台 ==================== */
+.tag-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  background: #F1849B;
+  box-shadow: 0 0 12rpx rgba(241, 132, 155, 0.6);
+  animation: tag-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes tag-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* ============ 扫描舞台 ============ */
 .animation-area {
-  margin-bottom: 48rpx;
+  position: relative;
+  z-index: 2;
+  margin-bottom: 56rpx;
 }
 
 .scan-stage {
@@ -39,7 +93,6 @@
   justify-content: center;
 }
 
-/* 旋转轨道环 */
 .scan-orbit {
   position: absolute;
   border-radius: 50%;
@@ -49,7 +102,7 @@
 .orbit-outer {
   width: 100%;
   height: 100%;
-  border: 2rpx dashed rgba(241, 132, 155, 0.5);
+  border: 2rpx dashed rgba(241, 132, 155, 0.4);
   animation: spin 12s linear infinite;
 }
 
@@ -57,17 +110,12 @@
   width: 84%;
   height: 84%;
   border: 2rpx solid transparent;
-  border-top-color: rgba(249, 184, 201, 0.85);
-  border-right-color: rgba(241, 132, 155, 0.7);
+  border-top-color: rgba(241, 132, 155, 0.8);
   animation: spin 4s linear infinite reverse;
-  box-shadow: 0 0 26rpx rgba(249, 184, 201, 0.45);
 }
 
 .orbit-inner {
-  width: 70%;
-  height: 70%;
-  border: 1rpx solid rgba(241, 132, 155, 0.4);
-  animation: pulse-ring 2.4s ease-in-out infinite;
+  display: none;
 }
 
 @keyframes spin {
@@ -76,22 +124,23 @@
 }
 
 @keyframes pulse-ring {
-  0%, 100% { transform: scale(1); opacity: 0.7; box-shadow: 0 0 0rpx rgba(249, 184, 201, 0); }
-  50% { transform: scale(1.06); opacity: 1; box-shadow: 0 0 32rpx rgba(249, 184, 201, 0.6); }
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.06); opacity: 1; }
 }
 
-/* 四角标记 */
 .corner {
   position: absolute;
   width: 36rpx;
   height: 36rpx;
 }
+
 .corner::before, .corner::after {
   content: '';
   position: absolute;
-  background: linear-gradient(135deg, #F1849B, #FFD8B5);
+  background: #F1849B;
   border-radius: 2rpx;
 }
+
 .corner::before { width: 36rpx; height: 4rpx; }
 .corner::after  { width: 4rpx;  height: 36rpx; }
 
@@ -111,7 +160,6 @@
 .corner-br::before { bottom: 0; right: 0; }
 .corner-br::after  { bottom: 0; right: 0; }
 
-/* 用户图片圆形容器 */
 .photo-circle {
   position: relative;
   width: 320rpx;
@@ -119,10 +167,8 @@
   border-radius: 50%;
   overflow: hidden;
   box-shadow:
-    0 0 0 4rpx rgba(255, 255, 255, 0.95),
-    0 0 0 6rpx rgba(241, 132, 155, 0.45),
-    0 8rpx 32rpx rgba(249, 184, 201, 0.45),
-    inset 0 0 30rpx rgba(255, 220, 230, 0.3);
+    0 0 0 4rpx #ffffff,
+    0 8rpx 24rpx rgba(241, 132, 155, 0.25);
 }
 
 .user-photo {
@@ -144,7 +190,7 @@
   right: 16rpx;
   padding: 4rpx 14rpx;
   border-radius: 20rpx;
-  background: rgba(241, 132, 155, 0.85);
+  background: #F1849B;
   z-index: 4;
   box-shadow: 0 2rpx 8rpx rgba(241, 132, 155, 0.4);
 }
@@ -159,7 +205,7 @@
 .photo-fallback {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #FFE4EC 0%, #F9B8C9 100%);
+  background: #fafafa;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -172,31 +218,21 @@
   letter-spacing: 4rpx;
 }
 
-/* 内部柔光罩 */
 .photo-overlay {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: radial-gradient(circle at 50% 30%, rgba(255, 220, 230, 0.18) 0%, rgba(241, 132, 155, 0.10) 70%, rgba(241, 132, 155, 0.15) 100%);
-  pointer-events: none;
+  display: none;
 }
 
-/* 横向扫描线 */
 .scan-line {
   position: absolute;
   left: 0;
   right: 0;
   top: 0;
-  height: 6rpx;
+  height: 4rpx;
   background: linear-gradient(90deg,
     transparent 0%,
-    rgba(255, 220, 230, 0.0) 10%,
-    rgba(241, 132, 155, 0.95) 50%,
-    rgba(255, 220, 230, 0.0) 90%,
+    rgba(241, 132, 155, 0.8) 50%,
     transparent 100%);
-  box-shadow:
-    0 0 20rpx rgba(241, 132, 155, 0.85),
-    0 0 40rpx rgba(249, 184, 201, 0.6);
+  box-shadow: 0 0 16rpx rgba(241, 132, 155, 0.6);
   animation: scan-vertical 2.4s ease-in-out infinite;
   z-index: 2;
 }
@@ -204,26 +240,13 @@
 @keyframes scan-vertical {
   0%   { transform: translateY(0); opacity: 0; }
   10%  { opacity: 1; }
-  50%  { transform: translateY(314rpx); opacity: 1; }
+  50%  { transform: translateY(316rpx); opacity: 1; }
   90%  { opacity: 1; }
   100% { transform: translateY(0); opacity: 0; }
 }
 
-/* 旋转扇形光束 */
 .scan-sweep {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: conic-gradient(
-    from 0deg,
-    rgba(241, 132, 155, 0) 0deg,
-    rgba(241, 132, 155, 0) 300deg,
-    rgba(241, 132, 155, 0.4) 350deg,
-    rgba(255, 220, 230, 0.65) 360deg
-  );
-  animation: sweep 3s linear infinite;
-  pointer-events: none;
-  mix-blend-mode: screen;
+  display: none;
 }
 
 @keyframes sweep {
@@ -231,16 +254,15 @@
   to   { transform: rotate(360deg); }
 }
 
-/* 进度百分比浮标 */
 .progress-chip {
   position: absolute;
   bottom: -20rpx;
   left: 50%;
   transform: translateX(-50%);
-  padding: 10rpx 28rpx;
-  border-radius: 32rpx;
+  padding: 8rpx 24rpx;
+  border-radius: 28rpx;
   background: #F1849B;
-  box-shadow: 0 8rpx 24rpx rgba(249, 184, 201, 0.5);
+  box-shadow: 0 8rpx 20rpx rgba(241, 132, 155, 0.4);
   display: flex;
   align-items: center;
   gap: 8rpx;
@@ -248,7 +270,7 @@
 }
 
 .chip-icon {
-  color: #FFE4B5;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 22rpx;
 }
 
@@ -259,11 +281,13 @@
   letter-spacing: 1rpx;
 }
 
-/* ==================== 进度条 ==================== */
+/* ============ 进度条 ============ */
 .progress-bar {
+  position: relative;
+  z-index: 2;
   width: 80%;
-  height: 8rpx;
-  background: rgba(241, 132, 155, 0.12);
+  height: 6rpx;
+  background: #f0f0f0;
   border-radius: 4rpx;
   overflow: hidden;
   margin: 36rpx 0 60rpx;
@@ -271,21 +295,21 @@
 
 .progress-inner {
   height: 100%;
-  background: linear-gradient(90deg, #F1849B 0%, #F9B8C9 100%);
+  background: #F1849B;
   border-radius: 4rpx;
   transition: width 0.3s ease;
-  box-shadow: 0 0 12rpx rgba(249, 184, 201, 0.55);
 }
 
-/* ==================== 步骤列表 ==================== */
+/* ============ 步骤列表 ============ */
 .steps-area {
+  position: relative;
+  z-index: 2;
   width: 100%;
-  background: #ffffff;
+  background: #fafafa;
   border-radius: 24rpx;
   padding: 32rpx;
   margin-bottom: 40rpx;
-  border: 1rpx solid rgba(241, 132, 155, 0.15);
-  box-shadow: 0 4rpx 16rpx rgba(249, 184, 201, 0.1);
+  border: 1rpx solid #f0f0f0;
 }
 
 .step-item {
@@ -316,18 +340,18 @@
 }
 
 .step-item.done .step-icon {
-  color: #27ae60;
+  color: #50b896;
 }
 
 .step-label {
   flex: 1;
   font-size: 28rpx;
-  color: #333333;
+  color: #1a1a1a;
 }
 
 .step-status {
   font-size: 24rpx;
-  color: #999999;
+  color: #b8b8b8;
 }
 
 .step-status.active {
@@ -336,14 +360,17 @@
 }
 
 .step-item.done .step-status {
-  color: #27ae60;
+  color: #50b896;
 }
 
 .tip-area {
+  position: relative;
+  z-index: 2;
   text-align: center;
 }
 
 .tip-text {
   font-size: 24rpx;
-  color: #999999;
+  color: #b8b8b8;
+  letter-spacing: 1rpx;
 }

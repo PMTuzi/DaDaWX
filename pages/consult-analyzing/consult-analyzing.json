@@ -1,3 +1,5 @@
 {
-  "navigationBarTitleText": "专属穿搭分析ing"
+  "navigationBarTitleText": "专属穿搭分析ing",
+  "navigationBarBackgroundColor": "#FFFFFF",
+  "navigationBarTextStyle": "black"
 }

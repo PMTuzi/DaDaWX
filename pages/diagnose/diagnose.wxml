@@ -1,91 +1,84 @@
 <!--pages/diagnose/diagnose.wxml-->
 <view class="page-diagnose">
-  <!-- 照片上传区 -->
-  <view class="photo-area">
-    <view class="photo-circle-wrap" wx:if="{{photoUrl}}">
-      <view class="photo-circle">
-        <image src="{{photoUrl}}" mode="aspectFill" class="preview-img" />
+  <!-- 背景装饰 -->
+  <view class="bg-grid"></view>
+  <view class="bg-glow bg-glow-1"></view>
+  <view class="bg-glow bg-glow-2"></view>
+
+  <!-- 顶部品牌头 -->
+  <view class="hero">
+    <view class="hero-tag">
+      <view class="tag-dot"></view>
+      <text>AI · IMAGE DIAGNOSIS</text>
+    </view>
+    <view class="hero-title">智能形象诊断</view>
+   
+  </view>
+
+  <!-- 步骤指示 -->
+  <view class="step-line">
+    <view class="step active">
+      <view class="step-dot">01</view>
+      <text class="step-label">上传照片</text>
+    </view>
+    <view class="step-bar"></view>
+    <view class="step {{photoUrl ? 'next' : ''}}">
+      <view class="step-dot">02</view>
+      <text class="step-label">AI 分析</text>
+    </view>
+    <view class="step-bar"></view>
+    <view class="step">
+      <view class="step-dot">03</view>
+      <text class="step-label">查看报告</text>
+    </view>
+  </view>
+
+  <!-- 上传扫描卡片 -->
+  <view class="scan-card {{photoUrl ? 'has-photo' : ''}}">
+    <view class="scan-corner tl"></view>
+    <view class="scan-corner tr"></view>
+    <view class="scan-corner bl"></view>
+    <view class="scan-corner br"></view>
+
+    <block wx:if="{{photoUrl}}">
+      <view class="photo-frame">
+        <image class="photo-img" src="{{photoUrl}}" mode="aspectFill" />
+        <view class="scan-sweep"></view>
+        <view class="photo-mask"></view>
       </view>
-      <view class="rechoose" bindtap="onRechoose">
+      <view class="rechoose-btn" bindtap="onRechoose">
+        <text class="rechoose-icon">↻</text>
         <text>重新选择</text>
       </view>
-    </view>
+    </block>
 
-    <view class="photo-upload" wx:else>
-      <view class="upload-circle-btn" bindtap="onChoosePhoto">
+    <view class="upload-empty" wx:else bindtap="onChoosePhoto">
+      <view class="upload-icon-wrap">
+        <view class="upload-ring"></view>
         <view class="upload-icon icon icon-camera"></view>
-        <text class="upload-text">上传照片</text>
-        <text class="upload-hint">拍照或从相册选择</text>
       </view>
+      <view class="upload-title">点击上传 / 拍照</view>
+      <view class="upload-sub">JPG · PNG · 单次上传 1 张</view>
     </view>
   </view>
 
-  <!-- 拍照引导 -->
-  <view class="guide-section" wx:if="{{guideVisible}}">
-    <view class="guide-grid">
-      <view class="guide-cell"><view class="icon icon-check" style="font-size:24rpx;color:#4CAF50;margin-right:6rpx;"></view><text>正对镜头</text></view>
-      <view class="guide-cell"><view class="icon icon-check" style="font-size:24rpx;color:#4CAF50;margin-right:6rpx;"></view><text>光线均匀</text></view>
-      <view class="guide-cell"><view class="icon icon-check" style="font-size:24rpx;color:#4CAF50;margin-right:6rpx;"></view><text>素颜淡妆</text></view>
-      <view class="guide-cell"><view class="icon icon-check" style="font-size:24rpx;color:#4CAF50;margin-right:6rpx;"></view><text>不遮轮廓</text></view>
-    </view>
+  <!-- 拍照贴士 -->
+  <view class="tips-grid" wx:if="{{guideVisible}}">
+    <view class="tip-chip"><view class="dot"></view><text>正对镜头</text></view>
+    <view class="tip-chip"><view class="dot"></view><text>光线均匀</text></view>
+    <view class="tip-chip"><view class="dot"></view><text>素颜淡妆</text></view>
+    <view class="tip-chip"><view class="dot"></view><text>不遮轮廓</text></view>
   </view>
 
-  <!-- 性别选择 -->
-  <view class="gender-section">
-    <text class="gender-label">性别</text>
-    <view class="gender-switch">
-      <view class="gender-item {{gender === 'female' ? 'active female-active' : ''}}" data-gender="female" bindtap="onSwitchGender">女</view>
-      <view class="gender-item {{gender === 'male' ? 'active male-active' : ''}}" data-gender="male" bindtap="onSwitchGender">男</view>
-    </view>
-  </view>
-
-  <!-- 基本信息 -->
-  <view class="info-section">
-    <view class="info-row">
-      <text class="info-label">年龄<text class="info-required">*</text></text>
-      <input class="info-input" type="number" placeholder="请输入年龄" value="{{age}}" bindinput="onAgeInput" maxlength="3" />
-      <text class="info-unit">岁</text>
-    </view>
-    <view class="info-divider"></view>
-    <view class="info-row">
-      <text class="info-label">身高</text>
-      <input class="info-input" type="digit" placeholder="选填" value="{{height}}" bindinput="onHeightInput" maxlength="5" />
-      <text class="info-unit">cm</text>
-    </view>
-    <view class="info-divider"></view>
-    <view class="info-row">
-      <text class="info-label">体重</text>
-      <input class="info-input" type="digit" placeholder="选填" value="{{weight}}" bindinput="onWeightInput" maxlength="5" />
-      <text class="info-unit">kg</text>
-    </view>
-  </view>
-
-  <!-- 用户标签 -->
-  <view class="tags-section">
-    <view class="tags-header">
-      <text class="tags-title">补充标签（可选）</text>
-      <text class="tags-add" bindtap="onShowTagInput">+ 添加</text>
-    </view>
-    <view class="tags-list" wx:if="{{userTags.length > 0}}">
-      <view class="user-tag" wx:for="{{userTags}}" wx:key="*this">
-        <text>{{item}}</text>
-        <text class="tag-remove" data-index="{{index}}" bindtap="onRemoveTag">×</text>
-      </view>
-    </view>
-    <view class="tags-empty" wx:else>
-      <text>添加标签可帮助AI更精准分析，如：圆脸、冷白皮、高个子</text>
-    </view>
-
-    <view class="tag-input-area" wx:if="{{showTagInput}}">
-      <input class="tag-input" placeholder="输入标签，如：大眼睛" value="{{tagInput}}" bindinput="onTagInput" bindconfirm="onAddTag" confirm-type="done" />
-      <view class="tag-input-btn" bindtap="onAddTag">添加</view>
-    </view>
-  </view>
-
-  <!-- 开始分析按钮 -->
+  <!-- 行动区 -->
   <view class="action-area safe-bottom">
-    <button class="btn-primary start-btn {{isUploading || !photoUrl ? 'disabled' : ''}}" bindtap="onStartAnalysis" disabled="{{isUploading || !photoUrl}}" loading="{{isUploading}}">
-      {{isUploading ? '上传中...' : '开始诊断'}}
+    <button class="start-btn {{isUploading || !photoUrl ? 'disabled' : ''}}" bindtap="onStartAnalysis" disabled="{{isUploading || !photoUrl}}" loading="{{isUploading}}">
+      <text class="start-text">{{isUploading ? '上传中...' : '开始 AI 诊断'}}</text>
+      <text class="start-arrow" wx:if="{{!isUploading}}">→</text>
     </button>
+    <view class="action-tip">
+      <text class="action-tip-dot"></text>
+      <text>3000 亿参数大模型 · 10 秒生成专业报告</text>
+    </view>
   </view>
 </view>

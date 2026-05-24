@@ -3,7 +3,7 @@
 
 .page-report {
   min-height: 100vh;
-  background: #FAFAF5;
+  background: #FFFFFF;
   display: flex;
   flex-direction: column;
   padding-bottom: env(safe-area-inset-bottom);

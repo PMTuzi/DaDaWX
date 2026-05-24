@@ -1,7 +1,7 @@
 /* pages/outfit/outfit.wxss */
 .page-outfit {
   min-height: 100vh;
-  background: #FAFAF5;
+  background: #FFFFFF;
   padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
 }
 
@@ -120,6 +120,14 @@
   width: 100%;
   height: 100%;
   display: block;
+}
+
+/* 透明点击层，覆盖整个视频区域，捕获点击（除底部 CTA 区域） */
+.empty-video-tap {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: transparent;
 }
 
 /* 视频内浮动 CTA */
