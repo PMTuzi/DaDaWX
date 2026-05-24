@@ -11,7 +11,7 @@
   }
   module.exports = { cleanAge: cleanAge };
 </wxs>
-<view class="page-index">
+<view class="page-index {{hasReport ? '' : 'page-index-undiag'}}">
   <!-- 顶部品牌区 -->
   <view class="header {{hasReport ? 'header-diagnosed' : ''}}">
     <view class="brand-area {{hasReport ? 'brand-area-small' : ''}}">

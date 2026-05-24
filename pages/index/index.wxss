@@ -302,6 +302,17 @@
   transform: translateY(-150rpx);
   z-index: 200;
 }
+/* 未诊断态：整体内容上移 150rpx（在原位置基础上） */
+.page-index-undiag .brand-area {
+  transform: translateY(-150rpx);
+}
+.page-index-undiag .intro-video {
+  transform: translateY(-180rpx);
+}
+.page-index-undiag .intro-video + .action-area-undiag {
+  transform: translateY(-150rpx);
+}
+
 /* 未诊断态：视频已承载主 CTA，action-area 只剩 ticker，不再向上覆盖视频 */
 .intro-video + .action-area-undiag {
   transform: translateY(0);
