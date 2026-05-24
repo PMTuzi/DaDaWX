@@ -236,14 +236,32 @@
         <view class="advice-list">
           <view class="advice-item" wx:if="{{report.modules.style.clothingAdvice.silhouette}}">
             <text class="advice-label">版型</text>
+            <image class="advice-thumb"
+              wx:if="{{cdnImages.advice.silhouette}}"
+              src="{{cdnImages.advice.silhouette}}"
+              mode="aspectFill"
+              data-key="advice" data-sub="silhouette"
+              binderror="onCdnImgError" />
             <text class="advice-text">{{report.modules.style.clothingAdvice.silhouette}}</text>
           </view>
           <view class="advice-item" wx:if="{{report.modules.style.clothingAdvice.material}}">
             <text class="advice-label">材质</text>
+            <image class="advice-thumb"
+              wx:if="{{cdnImages.advice.material}}"
+              src="{{cdnImages.advice.material}}"
+              mode="aspectFill"
+              data-key="advice" data-sub="material"
+              binderror="onCdnImgError" />
             <text class="advice-text">{{report.modules.style.clothingAdvice.material}}</text>
           </view>
           <view class="advice-item" wx:if="{{report.modules.style.clothingAdvice.pattern}}">
             <text class="advice-label">图案</text>
+            <image class="advice-thumb"
+              wx:if="{{cdnImages.advice.pattern}}"
+              src="{{cdnImages.advice.pattern}}"
+              mode="aspectFill"
+              data-key="advice" data-sub="pattern"
+              binderror="onCdnImgError" />
             <text class="advice-text">{{report.modules.style.clothingAdvice.pattern}}</text>
           </view>
         </view>
@@ -273,6 +291,12 @@
         <view class="hair-list">
           <view class="hair-card" wx:for="{{report.modules.hairmakeup.hairRecommend.top3}}" wx:key="name">
             <view class="hair-rank">{{index + 1}}</view>
+            <image class="hair-thumb"
+              wx:if="{{cdnImages.hair[index]}}"
+              src="{{cdnImages.hair[index]}}"
+              mode="aspectFill"
+              data-key="hair" data-idx="{{index}}"
+              binderror="onCdnImgError" />
             <view class="hair-info">
               <view class="hair-name-row">
                 <text class="hair-name">{{item.name}}</text>
@@ -319,18 +343,42 @@
         <view class="makeup-grid" wx:if="{{report.modules.hairmakeup.makeup.foundation}}">
           <view class="makeup-item">
             <text class="makeup-label">粉底</text>
+            <image class="makeup-thumb"
+              wx:if="{{cdnImages.makeup.foundation}}"
+              src="{{cdnImages.makeup.foundation}}"
+              mode="aspectFill"
+              data-key="makeup" data-sub="foundation"
+              binderror="onCdnImgError" />
             <text class="makeup-text">{{report.modules.hairmakeup.makeup.foundation.tone}} · {{report.modules.hairmakeup.makeup.foundation.shade}}</text>
           </view>
           <view class="makeup-item" wx:if="{{report.modules.hairmakeup.makeup.eyeBrow}}">
             <text class="makeup-label">眉眼</text>
+            <image class="makeup-thumb"
+              wx:if="{{cdnImages.makeup.eyeBrow}}"
+              src="{{cdnImages.makeup.eyeBrow}}"
+              mode="aspectFill"
+              data-key="makeup" data-sub="eyeBrow"
+              binderror="onCdnImgError" />
             <text class="makeup-text">{{report.modules.hairmakeup.makeup.eyeBrow.shape}} · {{report.modules.hairmakeup.makeup.eyeBrow.shadow}}</text>
           </view>
           <view class="makeup-item" wx:if="{{report.modules.hairmakeup.makeup.lipRecommend}}">
             <text class="makeup-label">唇妆</text>
+            <image class="makeup-thumb"
+              wx:if="{{cdnImages.makeup.lipRecommend}}"
+              src="{{cdnImages.makeup.lipRecommend}}"
+              mode="aspectFill"
+              data-key="makeup" data-sub="lipRecommend"
+              binderror="onCdnImgError" />
             <text class="makeup-text">{{report.modules.hairmakeup.makeup.lipRecommend.destiny}}</text>
           </view>
           <view class="makeup-item" wx:if="{{report.modules.hairmakeup.makeup.blush}}">
             <text class="makeup-label">腮红</text>
+            <image class="makeup-thumb"
+              wx:if="{{cdnImages.makeup.blush}}"
+              src="{{cdnImages.makeup.blush}}"
+              mode="aspectFill"
+              data-key="makeup" data-sub="blush"
+              binderror="onCdnImgError" />
             <text class="makeup-text">{{report.modules.hairmakeup.makeup.blush.color}} · {{report.modules.hairmakeup.makeup.blush.position}}</text>
           </view>
         </view>
@@ -382,7 +430,15 @@
             <view class="roadmap-dot"></view>
             <view class="roadmap-line"></view>
             <view class="roadmap-content">
-              <text class="roadmap-month">第1个月</text>
+              <view class="roadmap-head">
+                <text class="roadmap-month">第1个月</text>
+                <image class="roadmap-thumb"
+                  wx:if="{{cdnImages.roadmap[0]}}"
+                  src="{{cdnImages.roadmap[0]}}"
+                  mode="aspectFill"
+                  data-key="roadmap" data-idx="0"
+                  binderror="onCdnImgError" />
+              </view>
               <text class="roadmap-desc">{{report.modules.optimize.roadmap3m.month1}}</text>
             </view>
           </view>
@@ -390,14 +446,30 @@
             <view class="roadmap-dot"></view>
             <view class="roadmap-line"></view>
             <view class="roadmap-content">
-              <text class="roadmap-month">第2个月</text>
+              <view class="roadmap-head">
+                <text class="roadmap-month">第2个月</text>
+                <image class="roadmap-thumb"
+                  wx:if="{{cdnImages.roadmap[1]}}"
+                  src="{{cdnImages.roadmap[1]}}"
+                  mode="aspectFill"
+                  data-key="roadmap" data-idx="1"
+                  binderror="onCdnImgError" />
+              </view>
               <text class="roadmap-desc">{{report.modules.optimize.roadmap3m.month2}}</text>
             </view>
           </view>
           <view class="roadmap-item" wx:if="{{report.modules.optimize.roadmap3m.month3}}">
             <view class="roadmap-dot"></view>
             <view class="roadmap-content">
-              <text class="roadmap-month">第3个月</text>
+              <view class="roadmap-head">
+                <text class="roadmap-month">第3个月</text>
+                <image class="roadmap-thumb"
+                  wx:if="{{cdnImages.roadmap[2]}}"
+                  src="{{cdnImages.roadmap[2]}}"
+                  mode="aspectFill"
+                  data-key="roadmap" data-idx="2"
+                  binderror="onCdnImgError" />
+              </view>
               <text class="roadmap-desc">{{report.modules.optimize.roadmap3m.month3}}</text>
             </view>
           </view>

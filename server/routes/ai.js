@@ -3,7 +3,7 @@ const express = require('express')
 const router = express.Router()
 const { authRequired } = require('../middleware/auth')
 const { analyzePart1, analyzePart2 } = require('../services/qwen')
-const { analyzeClothingVision, generateSingleConsult, generateCompareConsult, detectCategory } = require('../services/qwen')
+const { analyzeClothingVision, generateSingleConsult, generateCompareConsult, detectCategory, generateBeautyPlan } = require('../services/qwen')
 const reportStore = require('../store/report-store')
 const userStore = require('../store/user-store')
 const consultStore = require('../store/consult-store')
@@ -261,6 +261,23 @@ router.post('/consult/detect-category', authRequired, async (req, res) => {
     const category = await detectCategory(images)
     res.json({ code: 0, data: category })
   } catch (err) {
+    res.status(500).json({ code: -1, message: err.message })
+  }
+})
+
+/**
+ * 28天蜕变计划生成
+ * POST /api/ai/generate-beauty-plan
+ * body: { reportId, summary: { faceShape, skinSeason, skinType, mainStyle, shoulderType, bodyRatio, weaknesses, gender } }
+ * resp: { code:0, data: { days: [...] } }
+ */
+router.post('/generate-beauty-plan', authRequired, async (req, res) => {
+  try {
+    const { summary } = req.body || {}
+    const data = await generateBeautyPlan(summary || {})
+    res.json({ code: 0, data })
+  } catch (err) {
+    console.error('[generate-beauty-plan] 失败:', err.message)
     res.status(500).json({ code: -1, message: err.message })
   }
 })

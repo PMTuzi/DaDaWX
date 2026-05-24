@@ -3,6 +3,237 @@
 
 const { request, API } = require('../../utils/api')
 
+// ============ 关键词 → CDN 配图 映射表 ============
+// 思路：根据报告里的实际描述文案选图，让图与文字相关。
+// 工具函数：在 text 中按顺序找第一个命中的关键词
+function pickByKeyword(text, mapping, fallback) {
+  if (!text) return fallback || ''
+  const t = String(text)
+  for (const kw of Object.keys(mapping)) {
+    if (t.indexOf(kw) !== -1) return mapping[kw]
+  }
+  return fallback || ''
+}
+
+// 发型 imageKey → 本地图片（AI 直接返回 key，最准确）
+const HAIR_KEY_IMG = {
+  long_straight: '/images/refs/hair_long_straight.jpg',
+  long_curly: '/images/refs/hair_long_curly.jpg',
+  wave: '/images/refs/hair_wave.jpg',
+  wool_curl: '/images/refs/hair_wool_curl.jpg',
+  collarbone: '/images/refs/hair_collarbone.jpg',
+  short_curly: '/images/refs/hair_short_curly.jpg',
+  bob: '/images/refs/hair_bob.jpg',
+  ponytail: '/images/refs/hair_ponytail.jpg',
+  bun: '/images/refs/hair_bun.jpg'
+}
+
+// 发型：本地图片资源（按 length + name 关键词匹配）
+// 注意：Object.keys 遵循插入顺序，把更具体的关键词放前面（如「羊毛卷」在「卷」之前）
+const HAIR_STYLE_IMG = {
+  // 具体造型词（最优先匹配）
+  '羊毛卷': '/images/refs/hair_wool_curl.jpg',
+  '泡面卷': '/images/refs/hair_wool_curl.jpg',
+  '法式慵懒卷': '/images/refs/hair_long_curly.jpg',
+  '法式': '/images/refs/hair_long_curly.jpg',
+  '梨花': '/images/refs/hair_long_curly.jpg',
+  '锁骨': '/images/refs/hair_collarbone.jpg',
+  '齐肩': '/images/refs/hair_collarbone.jpg',
+  '中长': '/images/refs/hair_collarbone.jpg',
+  '波波': '/images/refs/hair_bob.jpg',
+  'BOB': '/images/refs/hair_bob.jpg',
+  'bob': '/images/refs/hair_bob.jpg',
+  '蛋卷': '/images/refs/hair_short_curly.jpg',
+  '内扣': '/images/refs/hair_bob.jpg',
+  '丸子': '/images/refs/hair_bun.jpg',
+  '盘发': '/images/refs/hair_bun.jpg',
+  '低盘': '/images/refs/hair_bun.jpg',
+  '马尾': '/images/refs/hair_ponytail.jpg',
+  '低马尾': '/images/refs/hair_ponytail.jpg',
+  '高马尾': '/images/refs/hair_ponytail.jpg',
+  '大波浪': '/images/refs/hair_wave.jpg',
+  '波浪': '/images/refs/hair_wave.jpg',
+  // 长度+造型组合
+  '长卷': '/images/refs/hair_long_curly.jpg',
+  '短卷': '/images/refs/hair_short_curly.jpg',
+  '长直': '/images/refs/hair_long_straight.jpg',
+  '直发': '/images/refs/hair_long_straight.jpg',
+  '中分': '/images/refs/hair_long_straight.jpg',
+  '齐耳': '/images/refs/hair_bob.jpg',
+  '齐刘海': '/images/refs/hair_bob.jpg',
+  // 通用
+  '慵懒卷': '/images/refs/hair_long_curly.jpg',
+  '卷发': '/images/refs/hair_long_curly.jpg',
+  '烫发': '/images/refs/hair_long_curly.jpg',
+  '卷': '/images/refs/hair_long_curly.jpg',
+  '直': '/images/refs/hair_long_straight.jpg'
+}
+const HAIR_IMG = {
+  '长': '/images/refs/hair_long_straight.jpg',
+  '中': '/images/refs/hair_collarbone.jpg',
+  '短': '/images/refs/hair_bob.jpg'
+}
+const HAIR_FALLBACK = '/images/refs/hair_collarbone.jpg'
+
+// 粉底/底妆：按妆容浓度（淡妆 / 浓重）
+// AI 返回的 makeup.style 一般是"清透氧气妆/淡颜系/裸妆/水光妆"或"高级感哑光妆/欧美浓妆/烟熏妆"
+const FOUNDATION_IMG = {
+  // 浓妆关键词（优先匹配）
+  '哑光': '/images/refs/makeup_heavy.jpg',
+  '浓': '/images/refs/makeup_heavy.jpg',
+  '欧美': '/images/refs/makeup_heavy.jpg',
+  '烟熏': '/images/refs/makeup_heavy.jpg',
+  '复古': '/images/refs/makeup_heavy.jpg',
+  '高级感': '/images/refs/makeup_heavy.jpg',
+  '雾面': '/images/refs/makeup_heavy.jpg',
+  // 淡妆关键词
+  '清透': '/images/refs/makeup_light.jpg',
+  '氧气': '/images/refs/makeup_light.jpg',
+  '裸妆': '/images/refs/makeup_light.jpg',
+  '淡颜': '/images/refs/makeup_light.jpg',
+  '水光': '/images/refs/makeup_light.jpg',
+  '日系': '/images/refs/makeup_light.jpg',
+  '韩系': '/images/refs/makeup_light.jpg',
+  '韩式': '/images/refs/makeup_light.jpg',
+  '通勤': '/images/refs/makeup_light.jpg',
+  '元气': '/images/refs/makeup_light.jpg',
+  // 默认
+  '淡': '/images/refs/makeup_light.jpg'
+}
+
+// 眉眼：眉笔（眉形描述） vs 眼影（眼妆描述），有眼影描述就用眼影，否则用眉笔
+const EYE_IMG = {
+  '烟熏': '/images/refs/makeup_eyeshadow.jpg',
+  '眼影': '/images/refs/makeup_eyeshadow.jpg',
+  '大地色': '/images/refs/makeup_eyeshadow.jpg',
+  '珠光': '/images/refs/makeup_eyeshadow.jpg',
+  '哑光': '/images/refs/makeup_eyeshadow.jpg',
+  '咖啡': '/images/refs/makeup_eyeshadow.jpg',
+  '棕': '/images/refs/makeup_eyeshadow.jpg'
+}
+const EYE_FALLBACK = '/images/refs/makeup_eyebrow.jpg'
+
+// 唇妆：固定用口红图（色号文字已在卡片描述里写了，图片是产品本身即可）
+const LIP_FALLBACK = '/images/refs/makeup_lipstick.jpg'
+
+// 腮红
+const BLUSH_FALLBACK = '/images/refs/makeup_blush.jpg'
+
+// 版型 silhouette
+const SILHOUETTE_IMG = {
+  'X': 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=200&h=200&fit=crop&q=70',
+  'A字': 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=200&h=200&fit=crop&q=70',
+  'A型': 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=200&h=200&fit=crop&q=70',
+  'H': 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=200&h=200&fit=crop&q=70',
+  '直筒': 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=200&h=200&fit=crop&q=70',
+  '收腰': 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=200&h=200&fit=crop&q=70',
+  '修身': 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=200&h=200&fit=crop&q=70',
+  '宽松': 'https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?w=200&h=200&fit=crop&q=70',
+  'oversize': 'https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?w=200&h=200&fit=crop&q=70'
+}
+const SILHOUETTE_FALLBACK = 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=200&h=200&fit=crop&q=70'
+
+// 材质 material
+const MATERIAL_IMG = {
+  '丝': 'https://images.unsplash.com/photo-1551803091-e20673f15770?w=200&h=200&fit=crop&q=70',
+  '雪纺': 'https://images.unsplash.com/photo-1551803091-e20673f15770?w=200&h=200&fit=crop&q=70',
+  '羊毛': 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=200&h=200&fit=crop&q=70',
+  '羊绒': 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=200&h=200&fit=crop&q=70',
+  '针织': 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=200&h=200&fit=crop&q=70',
+  '棉': 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=200&h=200&fit=crop&q=70',
+  '亚麻': 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=200&h=200&fit=crop&q=70',
+  '皮': 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=200&h=200&fit=crop&q=70',
+  '蕾丝': 'https://images.unsplash.com/photo-1551803091-e20673f15770?w=200&h=200&fit=crop&q=70',
+  '牛仔': 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=200&h=200&fit=crop&q=70'
+}
+const MATERIAL_FALLBACK = 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=200&h=200&fit=crop&q=70'
+
+// 图案 pattern
+const PATTERN_IMG = {
+  '碎花': 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=200&h=200&fit=crop&q=70',
+  '花': 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=200&h=200&fit=crop&q=70',
+  '条纹': 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=200&h=200&fit=crop&q=70',
+  '波点': 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=200&h=200&fit=crop&q=70',
+  '格': 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=200&h=200&fit=crop&q=70',
+  '纯色': 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=200&h=200&fit=crop&q=70',
+  '几何': 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=200&h=200&fit=crop&q=70'
+}
+const PATTERN_FALLBACK = 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=200&h=200&fit=crop&q=70'
+
+// 蜕变路线（按月主题关键词）
+const ROADMAP_IMG = {
+  '护肤': 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=160&h=160&fit=crop&q=70',
+  '皮肤': 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=160&h=160&fit=crop&q=70',
+  '运动': 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=160&h=160&fit=crop&q=70',
+  '健身': 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=160&h=160&fit=crop&q=70',
+  '体态': 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=160&h=160&fit=crop&q=70',
+  '减脂': 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=160&h=160&fit=crop&q=70',
+  '发型': 'https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?w=160&h=160&fit=crop&q=70',
+  '妆容': 'https://images.unsplash.com/photo-1503236823255-94609f598e71?w=160&h=160&fit=crop&q=70',
+  '穿搭': 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=160&h=160&fit=crop&q=70',
+  '风格': 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=160&h=160&fit=crop&q=70',
+  '气质': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=160&h=160&fit=crop&q=70'
+}
+const ROADMAP_FALLBACK = [
+  'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=160&h=160&fit=crop&q=70',
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=160&h=160&fit=crop&q=70',
+  'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=160&h=160&fit=crop&q=70'
+]
+
+// 根据 report 数据构建配图 URL（与文案关联）
+function buildCdnImages(report) {
+  const m = (report && report.modules) || {}
+  const hairTop = (m.hairmakeup && m.hairmakeup.hairRecommend && m.hairmakeup.hairRecommend.top3) || []
+  const makeup = (m.hairmakeup && m.hairmakeup.makeup) || {}
+  const advice = (m.style && m.style.clothingAdvice) || {}
+  const roadmap = (m.optimize && m.optimize.roadmap3m) || {}
+
+  return {
+    hair: hairTop.map(h => {
+      // 优先用 AI 返回的 imageKey（最准确）
+      if (h.imageKey && HAIR_KEY_IMG[h.imageKey]) return HAIR_KEY_IMG[h.imageKey]
+      // 退回关键词匹配（兼容老报告 / AI 没返回 imageKey 的情况）
+      const txt = (h.name || '') + ' ' +
+                  (h.length || '') + ' ' +
+                  (h.layers || '') + ' ' +
+                  (h.bangs || '') + ' ' +
+                  (h.style || '') + ' ' +
+                  (h.reason || '')
+      return pickByKeyword(txt, HAIR_STYLE_IMG, '') ||
+             pickByKeyword(h.length || h.name, HAIR_IMG, HAIR_FALLBACK)
+    }),
+    makeup: {
+      foundation: pickByKeyword(
+        // 用整体妆容风格 + 粉底色号文案，识别淡/浓
+        (makeup.style || '') + ' ' +
+        ((makeup.foundation || {}).tone || '') + ' ' +
+        ((makeup.foundation || {}).shade || ''),
+        FOUNDATION_IMG, '/images/refs/makeup_light.jpg'
+      ),
+      eyeBrow: pickByKeyword(
+        ((makeup.eyeBrow || {}).shape || '') + ' ' +
+        ((makeup.eyeBrow || {}).shadow || '') + ' ' +
+        ((makeup.eyeBrow || {}).eyeliner || ''),
+        EYE_IMG, EYE_FALLBACK
+      ),
+      // 唇妆固定用口红图（色号在文案里说清楚就够了）
+      lipRecommend: LIP_FALLBACK,
+      // 腮红固定用腮红图
+      blush: BLUSH_FALLBACK
+    },
+    advice: {
+      silhouette: pickByKeyword(advice.silhouette, SILHOUETTE_IMG, SILHOUETTE_FALLBACK),
+      material: pickByKeyword(advice.material, MATERIAL_IMG, MATERIAL_FALLBACK),
+      pattern: pickByKeyword(advice.pattern, PATTERN_IMG, PATTERN_FALLBACK)
+    },
+    roadmap: [
+      pickByKeyword(roadmap.month1, ROADMAP_IMG, ROADMAP_FALLBACK[0]),
+      pickByKeyword(roadmap.month2, ROADMAP_IMG, ROADMAP_FALLBACK[1]),
+      pickByKeyword(roadmap.month3, ROADMAP_IMG, ROADMAP_FALLBACK[2])
+    ]
+  }
+}
+
 Page({
   data: {
     report: null,
@@ -11,7 +242,23 @@ Page({
     tabLabels: { dna: '面部&骨相', style: '皮肤&风格', hairmakeup: '发型&妆容', optimize: '颜值&蜕变' },
     shared: false,
     // Canvas 雷达图
-    radarCanvasId: ''
+    radarCanvasId: '',
+    // CDN 配图：根据报告数据动态构建（onLoad 时填充）
+    cdnImages: { hair: [], makeup: {}, advice: {}, roadmap: [] }
+  },
+
+  // 配图加载失败：将该 URL 置空，模板里 wx:if 会自动隐藏
+  onCdnImgError(e) {
+    const { key, idx, sub } = e.currentTarget.dataset
+    const cdnImages = this.data.cdnImages
+    if (sub) {
+      cdnImages[key][sub] = ''
+    } else if (idx !== undefined && idx !== '') {
+      cdnImages[key][idx] = ''
+    } else {
+      cdnImages[key] = ''
+    }
+    this.setData({ cdnImages })
   },
 
   onLoad(options) {
@@ -25,7 +272,11 @@ Page({
       return
     }
 
-    this.setData({ report, scoreRotation: Math.round((report.basic.overallScore / 10) * 360) })
+    this.setData({
+      report,
+      scoreRotation: Math.round((report.basic.overallScore / 10) * 360),
+      cdnImages: buildCdnImages(report)
+    })
     setTimeout(() => this.drawRadarChart(), 300)
   },
 

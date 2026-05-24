@@ -60,6 +60,11 @@ Page({
     this.requireLogin('outfit')
   },
 
+  // 跳转 28 天蜕变计划
+  onGoBeautyPlan() {
+    wx.navigateTo({ url: '/pages/beauty-plan/beauty-plan' })
+  },
+
   // 登录拦截：检查是否需要弹出登录确认
   async requireLogin(action) {
     const token = wx.getStorageSync('token')

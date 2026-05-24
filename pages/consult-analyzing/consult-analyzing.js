@@ -358,38 +358,62 @@ Page({
       console.log('[consult-analyzing] 保存记录, images数量:', (record.images || []).length)
 
       if (result.scores) {
+        // 工具：把任意数值 clamp 到 [0,10]，并保留 1 位小数
+        const clamp10 = (v) => {
+          const n = Number(v)
+          if (!isFinite(n)) return 0
+          if (n < 0) return 0
+          if (n > 10) return 10
+          return Math.round(n * 10) / 10
+        }
+        // 是否维度字段（排除元信息字段）
+        const META_KEYS = new Set(['index', 'label', 'totalScore', 'category'])
+        const isDimKey = (k) => !META_KEYS.has(k)
+
         if (consultData.type === 'compare') {
-          // 对比模式：totalScore可能是多维总和或平均分(0-10)，归一化到0-10
-          if (result.rankings && result.rankings.length > 0) {
-            result.rankings.forEach(r => {
-              if (r.totalScore > 10) {
-                // 根据维度数量归一化（服装6维，彩妆/配饰4维）
-                const dimCount = (result.scores && result.scores[0]) ? 
-                  Object.keys(result.scores[0]).filter(k => k !== 'index' && k !== 'label' && k !== 'totalScore' && k !== 'category').length : 6
-                r.totalScore = Math.round(r.totalScore / dimCount * 10) / 10
+          // 1) 先 clamp 每个款式各维度分；2) 用维度均值重算 totalScore；3) clamp totalScore
+          if (Array.isArray(result.scores)) {
+            result.scores.forEach(s => {
+              const dimKeys = Object.keys(s).filter(isDimKey).filter(k => typeof s[k] === 'number')
+              dimKeys.forEach(k => { s[k] = clamp10(s[k]) })
+              if (dimKeys.length > 0) {
+                const avg = dimKeys.reduce((a, k) => a + s[k], 0) / dimKeys.length
+                s.totalScore = clamp10(avg)
+              } else {
+                s.totalScore = clamp10(s.totalScore)
               }
             })
           }
-          if (result.scores && Array.isArray(result.scores)) {
-            result.scores.forEach(s => {
-              if (s.totalScore > 10) {
-                const dimCount = Object.keys(s).filter(k => k !== 'index' && k !== 'label' && k !== 'totalScore' && k !== 'category').length
-                s.totalScore = Math.round(s.totalScore / dimCount * 10) / 10
-              }
+          // 同步 rankings 的 totalScore：优先用 scores 里算好的同 index 值
+          if (Array.isArray(result.rankings)) {
+            result.rankings.forEach(r => {
+              const matched = Array.isArray(result.scores) && result.scores.find(s => s.index === r.index)
+              r.totalScore = matched && typeof matched.totalScore === 'number'
+                ? matched.totalScore
+                : clamp10(r.totalScore)
             })
+            // 重新排序，确保 rankings[0] 是最高分
+            result.rankings.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0))
           }
           const topRank = result.rankings && result.rankings[0]
-          record.totalScore = topRank ? Math.min(topRank.totalScore, 10) : '--'
+          record.totalScore = topRank ? topRank.totalScore : '--'
           record.finalChoiceLabel = result.finalChoice ? result.finalChoice.label : ''
           record.verdict = record.finalChoiceLabel + ' 最佳'
-          // 记录推荐商品的图片索引，用于列表展示推荐图
           if (topRank && topRank.label) {
             const styleIdx = ['款式A', '款式B', '款式C', '款式D'].indexOf(topRank.label)
             record.recommendedIndex = styleIdx >= 0 ? styleIdx : 0
           }
         } else {
+          // 单图模式：clamp 各维度分，再按实际维度均值算 totalScore
           const s = result.scores
-          record.totalScore = Math.min(Math.round((s.fitScore + s.colorScore + s.qualityScore + s.valueScore) / 4 * 10) / 10, 10)
+          const dimKeys = Object.keys(s).filter(isDimKey).filter(k => typeof s[k] === 'number')
+          dimKeys.forEach(k => { s[k] = clamp10(s[k]) })
+          if (dimKeys.length > 0) {
+            const avg = dimKeys.reduce((a, k) => a + s[k], 0) / dimKeys.length
+            record.totalScore = clamp10(avg)
+          } else {
+            record.totalScore = '--'
+          }
           record.verdict = result.verdict
         }
       }

@@ -239,7 +239,7 @@ ${JSON.stringify(part1Data, null, 2)}
     "title": "发型妆容诊断报告",
     "hairRecommend": {
       "top3": [
-        { "name": "发型名", "length": "短/中/长", "layers": "层次描述", "bangs": "刘海建议", "care": "打理要点", "reason": "适合原因（必须具体到脸型特征）", "score": 0-10 }
+        { "name": "发型名", "length": "短/中/长", "layers": "层次描述", "bangs": "刘海建议", "care": "打理要点", "reason": "适合原因（必须具体到脸型特征）", "score": 0-10, "imageKey": "必须从以下固定值中选一个最匹配的：long_straight(长直发)/long_curly(长卷发)/wave(大波浪)/wool_curl(羊毛卷/泡面卷)/collarbone(锁骨发/中长发)/short_curly(短卷发/蛋卷头)/bob(波波头/齐耳短发/内扣短发)/ponytail(高马尾/低马尾)/bun(丸子头/盘发)" }
       ],
       "alternatives": [
         { "name": "备选发型", "length": "长度", "style": "风格", "score": 0-10 }
@@ -642,5 +642,83 @@ async function detectCategory(images) {
 
 module.exports = {
   analyzePart1, analyzePart2,
-  analyzeClothingVision, generateSingleConsult, generateCompareConsult, detectCategory
+  analyzeClothingVision, generateSingleConsult, generateCompareConsult, detectCategory,
+  generateBeautyPlan
+}
+
+// ============================================================
+// 28天蜕变计划生成
+// ============================================================
+/**
+ * 根据用户诊断报告关键摘要，生成 28 天 × 每天 3 个变美小行为
+ * @param {object} summary { faceShape, skinSeason, skinType, mainStyle, shoulderType, bodyRatio, weaknesses, gender }
+ * @returns { days: [{day, theme, tasks: [{title, desc, cat, duration}]}] }
+ */
+async function generateBeautyPlan(summary = {}) {
+  const s = summary || {}
+  const userPart = [
+    s.gender ? `性别: ${s.gender}` : '',
+    s.faceShape ? `脸型: ${s.faceShape}` : '',
+    s.skinSeason ? `肤色季型: ${s.skinSeason}` : '',
+    s.skinType ? `肤色类型: ${s.skinType}` : '',
+    s.mainStyle ? `主风格: ${s.mainStyle}` : '',
+    s.shoulderType ? `肩型: ${s.shoulderType}` : '',
+    s.bodyRatio ? `身材比例: ${s.bodyRatio}` : '',
+    s.weaknesses ? `当前短板: ${s.weaknesses}` : ''
+  ].filter(Boolean).join('\n')
+
+  const prompt = `你是一位资深形象顾问 + 健康教练。请基于用户的"形象诊断报告摘要"，为她/他制定一份"28天蜕变计划"，每天 3 件可量化、可打勾完成的小事，覆盖：运动塑形、面部/头部按摩、皮肤护理、体态气质、习惯养成五大方向，难度循序渐进。
+
+【用户诊断摘要】
+${userPart || '（暂无具体诊断信息，按通用方案生成）'}
+
+【输出要求】
+1. 严格输出合法 JSON，不要任何额外解释、不要 markdown 代码块。
+2. 结构如下：
+{
+  "focuses": ["精致下颌线", "提亮气色", "改善体态"],
+  "days": [
+    {
+      "day": 1,
+      "theme": "启动周·激活循环",
+      "tasks": [
+        {"title": "开合跳 20 个", "desc": "唤醒全身代谢", "cat": "运动", "duration": "2 分钟"},
+        {"title": "头部按摩 20 下", "desc": "太阳穴+风池穴打圈", "cat": "保养", "duration": "2 分钟"},
+        {"title": "喝水 8 杯", "desc": "改善皮肤水润度", "cat": "习惯", "duration": "全天"}
+      ]
+    }
+    // ...共 28 天
+  ]
+}
+3. focuses 必须是 3 个简短的中文短语（每个不超过8字），代表本计划核心改善的 3 个点，需要紧贴用户的脸型/肤色/风格/体型/短板信息，例如"精致下颌线/提亮冷调气色/纠正含胸"。
+4. 必须正好 28 天，每天 tasks 数量为 3。
+5. 每个 task 的 title 需要量化（含次数/时长/具体动作），如"仰卧起坐 20 个"、"靠墙站 10 分钟"、"颈部拉伸 5 分钟"。
+6. cat 字段从这些里选：运动 / 护肤 / 发型 / 妆容 / 体态 / 习惯。其中至少包含 1 天的"发型"任务（如练习编发/打理刘海/护发精油按摩），至少 1 天的"妆容"任务（如练习画眉/口红试色/底妆步骤）。
+7. 计划应结合用户的脸型、肤色、风格、体型给出针对性动作（例如圆脸→咬肌按摩；冷调→冷色穿搭尝试；溜肩→肩部塑形）。
+8. 28 天分 4 周：启动、坚持、进阶、冲刺，theme 字段简短点题（不超过10字）。
+9. 语气亲切、可执行，不堆砌口号。`
+
+  const apiKey = QWEN_API_KEY
+  if (!apiKey) throw new Error('未配置 QWEN_API_KEY')
+
+  const response = await axiosInstance.post(BASE_URL, {
+    model: process.env.QWEN_TEXT_MODEL || 'qwen-plus',
+    messages: [
+      { role: 'system', content: '你是专业形象顾问与健康教练，擅长制定循序渐进的变美执行计划。严格输出 JSON。' },
+      { role: 'user', content: prompt }
+    ],
+    temperature: 0.7,
+    top_p: 0.9,
+    max_tokens: 4000,
+    response_format: { type: 'json_object' }
+  }, {
+    headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    timeout: 90000
+  })
+
+  const text = response.data?.choices?.[0]?.message?.content
+  if (!text) throw new Error('大模型返回为空')
+  const data = robustJSONParse(text)
+  if (!data || !Array.isArray(data.days)) throw new Error('返回结构不合法')
+  return data
 }

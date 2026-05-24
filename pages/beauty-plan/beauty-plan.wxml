@@ -1,0 +1,112 @@
+<!--pages/beauty-plan/beauty-plan.wxml-->
+<view class="beauty-plan">
+  <!-- 头部 -->
+  <view class="hero">
+    <view class="hero-title">
+      <image class="hero-title-icon" src="/images/蜕变.jpg" mode="aspectFit"></image>
+      <text class="hero-title-text">28天蜕变计划</text>
+    </view>
+    <view class="hero-sub" wx:if="{{!noReport}}">
+      根据你的诊断报告生成的专属变美小行为，每天3件小事，坚持一个周期就有蜕变 ✨
+    </view>
+    <view class="hero-sub" wx:else>
+      还没有诊断报告，先去诊断一下吧～
+    </view>
+    <!-- 计划核心改善点 3 标签 -->
+    <view class="focus-tags" wx:if="{{plan && plan.focuses && plan.focuses.length}}">
+      <view class="focus-tag-label">本计划重点改善</view>
+      <view class="focus-tag-list">
+        <view class="focus-tag" wx:for="{{plan.focuses}}" wx:key="*this">{{item}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 无报告 -->
+  <view wx:if="{{noReport}}" class="empty-state">
+    <button class="primary-btn" bindtap="goDiagnose">立即诊断</button>
+  </view>
+
+  <!-- 加载中 -->
+  <view wx:elif="{{loading}}" class="loading-state">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">{{loadingText || '正在为你生成专属计划...'}}</view>
+    <view class="loading-tip">大模型正在结合你的脸型、肤色、风格定制方案</view>
+  </view>
+
+  <!-- 计划内容 -->
+  <block wx:elif="{{plan && plan.days && plan.days.length}}">
+    <!-- 进度概览 -->
+    <view class="progress-card">
+      <view class="progress-row">
+        <view class="progress-label">总进度（已完成天数）</view>
+        <view class="progress-value">{{totalDone}}/{{totalCount}}</view>
+      </view>
+      <view class="progress-bar">
+        <view class="progress-fill" style="width:{{progressPct}}%"></view>
+      </view>
+      <view class="progress-meta">
+        <text>已坚持 {{streakDays}} 天</text>
+        <text>·</text>
+        <text>今日完成 {{todayDone}}/{{todayTotal}}</text>
+      </view>
+    </view>
+
+    <!-- 每日任务（默认今天，可左右滑动查看） -->
+    <view class="day-section">
+      <view class="day-section-hint">← 左右滑动查看预告 →</view>
+      <swiper class="day-swiper"
+        current="{{currentDayIdx}}"
+        bindchange="onDaySwiperChange"
+        circular="{{false}}"
+        previous-margin="32rpx"
+        next-margin="32rpx"
+        duration="280">
+        <swiper-item wx:for="{{plan.days}}" wx:for-item="day" wx:key="day">
+          <view class="day-card {{day.isToday ? 'today' : ''}} {{day.allDone ? 'done' : ''}} {{day.locked ? 'locked' : ''}}">
+            <view class="day-head">
+              <view class="day-num">Day {{day.day}}</view>
+              <view class="day-tag" wx:if="{{day.isToday}}">今天</view>
+              <view class="day-tag locked" wx:elif="{{day.isFuture}}">未解锁</view>
+              <view class="day-tag past" wx:elif="{{day.isPast && !day.allDone}}">已结束</view>
+              <view class="day-done" wx:if="{{day.allDone}}">已完成 ✓</view>
+              <view class="day-theme" wx:if="{{day.theme}}">{{day.theme}}</view>
+            </view>
+            <view class="task-list">
+              <view class="task-item {{task.done ? 'done' : ''}}"
+                wx:for="{{day.tasks}}" wx:for-item="task" wx:key="title"
+                data-day="{{day.day}}" data-idx="{{index}}" bindtap="onToggleTask">
+                <view class="task-check {{task.done ? 'checked' : ''}}">
+                  <text wx:if="{{task.done}}" class="check-mark">✓</text>
+                </view>
+                <image class="task-thumb" wx:if="{{task.img}}" src="{{task.img}}" mode="aspectFill" />
+                <view class="task-body">
+                  <view class="task-title">{{task.title}}</view>
+                  <view class="task-desc" wx:if="{{task.desc}}">{{task.desc}}</view>
+                  <view class="task-meta" wx:if="{{task.cat || task.duration}}">
+                    <text class="task-cat" wx:if="{{task.cat}}">{{task.cat}}</text>
+                    <text class="task-duration" wx:if="{{task.duration}}">{{task.duration}}</text>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </swiper-item>
+      </swiper>
+      <!-- 分页指示 -->
+      <view class="day-pager">
+        <view class="day-pager-today" bindtap="onJumpToday" wx:if="{{currentDayIdx + 1 !== todayDayNum}}">回到今天</view>
+      </view>
+    </view>
+
+    <!-- 重新生成 -->
+    <view class="footer-actions safe-bottom">
+      <button class="ghost-btn" bindtap="onRegenerate">重新生成</button>
+    </view>
+  </block>
+
+  <!-- 错误态 -->
+  <view wx:else class="empty-state">
+    <view class="error-text">{{errorMsg || '生成失败'}}</view>
+    <button class="primary-btn" bindtap="loadPlan">重试</button>
+  </view>
+</view>

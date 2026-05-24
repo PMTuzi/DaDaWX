@@ -542,6 +542,7 @@
 .advice-item {
   display: flex;
   gap: 12rpx;
+  align-items: center;
 }
 
 .advice-label {
@@ -676,6 +677,7 @@
 .makeup-item {
   display: flex;
   gap: 16rpx;
+  align-items: center;
 }
 
 .makeup-label {
@@ -924,4 +926,49 @@
   left: -9999rpx;
   width: 680rpx;
   height: 1700rpx;
+}
+
+/* ========== CDN 配图 ========== */
+.hair-thumb {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 12rpx;
+  flex-shrink: 0;
+  background: #F5E6E9;
+  box-shadow: 0 2rpx 8rpx rgba(241, 132, 155, 0.15);
+}
+
+.makeup-thumb {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 12rpx;
+  flex-shrink: 0;
+  background: #FCEDE3;
+  box-shadow: 0 2rpx 6rpx rgba(212, 165, 116, 0.18);
+}
+
+.advice-thumb {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 12rpx;
+  flex-shrink: 0;
+  background: #F9E6EC;
+  box-shadow: 0 2rpx 6rpx rgba(241, 132, 155, 0.15);
+}
+
+.roadmap-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.roadmap-thumb {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: #F9E6EC;
+  border: 2rpx solid #fff;
+  box-shadow: 0 2rpx 8rpx rgba(241, 132, 155, 0.2);
 }

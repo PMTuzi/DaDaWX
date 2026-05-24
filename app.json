@@ -13,7 +13,8 @@
     "pages/favorites/favorites",
     "pages/consult-publish/consult-publish",
     "pages/consult-analyzing/consult-analyzing",
-    "pages/consult-result/consult-result"
+    "pages/consult-result/consult-result",
+    "pages/beauty-plan/beauty-plan"
   ],
   "window": {
     "backgroundTextStyle": "dark",

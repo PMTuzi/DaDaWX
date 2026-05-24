@@ -206,3 +206,30 @@
   text-align: center;
   color: #e74c3c;
 }
+
+/* 浮动「蜕变」FAB */
+.beauty-fab {
+  position: fixed;
+  right: 32rpx;
+  bottom: calc(40rpx + env(safe-area-inset-bottom));
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FFB6C1 0%, #F1849B 60%, #E5739A 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(241, 132, 155, 0.45),
+              0 0 0 6rpx rgba(255, 255, 255, 0.85);
+  z-index: 99;
+}
+.beauty-fab-hover {
+  transform: scale(0.94);
+}
+.beauty-fab-text {
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 800;
+  letter-spacing: 4rpx;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.15);
+}

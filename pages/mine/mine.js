@@ -153,6 +153,10 @@ Page({
     })
   },
 
+  onGoBeautyPlan() {
+    wx.navigateTo({ url: '/pages/beauty-plan/beauty-plan' })
+  },
+
   onGoConsultHistory() {
     this.requireLogin(() => {
       wx.navigateTo({ url: '/pages/outfit/outfit' })
