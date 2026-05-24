@@ -35,7 +35,12 @@
         "iconPath": "images/tab-home.png",
         "selectedIconPath": "images/tab-home-active.png"
       },
-
+      {
+        "pagePath": "pages/outfit/outfit",
+        "text": "反种草",
+        "iconPath": "images/tab-outfit.png",
+        "selectedIconPath": "images/tab-outfit-active.png"
+      },
       {
         "pagePath": "pages/mine/mine",
         "text": "我的",

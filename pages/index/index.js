@@ -198,7 +198,7 @@ Page({
       if (consults.length === 0) {
         wx.navigateTo({ url: '/pages/consult-publish/consult-publish' })
       } else {
-        wx.navigateTo({ url: '/pages/outfit/outfit' })
+        wx.switchTab({ url: '/pages/outfit/outfit' })
       }
     }
   },
@@ -219,6 +219,17 @@ Page({
   // Banner点击
   onBannerTap() {
     // TODO: 跳转广告链接
+  },
+
+  // 首页宣传视频事件（用于排查黑屏）
+  onIntroVideoError(e) {
+    console.error('[introVideo] error:', e && e.detail);
+  },
+  onIntroVideoLoaded(e) {
+    console.log('[introVideo] loadedmetadata:', e && e.detail);
+  },
+  onIntroVideoPlay() {
+    console.log('[introVideo] play');
   },
 
   onShareAppMessage() {

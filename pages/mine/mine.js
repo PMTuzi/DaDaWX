@@ -159,7 +159,7 @@ Page({
 
   onGoConsultHistory() {
     this.requireLogin(() => {
-      wx.navigateTo({ url: '/pages/outfit/outfit' })
+      wx.switchTab({ url: '/pages/outfit/outfit' })
     })
   },
 
