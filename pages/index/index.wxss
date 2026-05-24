@@ -49,8 +49,11 @@
 }
 
 .header-diagnosed {
+  flex: 0 0 auto;
+  justify-content: flex-start;
   padding-top: 48rpx;
   padding-bottom: 28rpx;
+  margin-top: 0;
 }
 
 .brand-area-small {
@@ -288,7 +291,7 @@
   margin: -72rpx 32rpx 0;
   width: calc(100% - 64rpx);
   height: 0;
-  padding-bottom: calc((100% - 64rpx) * 4 / 3);
+  padding-bottom: calc(100% - 64rpx);
   position: relative;
   z-index: 100;
   transform: translateY(-30rpx);
@@ -304,13 +307,13 @@
 }
 /* 未诊断态：整体内容上移 50rpx（在原位置基础上） */
 .page-index-undiag .brand-area {
-  transform: translateY(-50rpx);
+  transform: translateY(-150rpx);
 }
 .page-index-undiag .intro-video {
-  transform: translateY(-80rpx);
+  transform: translateY(-180rpx);
 }
 .page-index-undiag .intro-video + .action-area-undiag {
-  transform: translateY(-80rpx);
+  transform: translateY(-180rpx);
 }
 
 /* 未诊断态：视频已承载主 CTA，action-area 只剩 ticker，不再向上覆盖视频 */
@@ -709,23 +712,138 @@
   color: #F67C9F;
 }
 
-/* Banner广告 */
+/* Banner广告 - 强化点击引导 */
 .banner-ad {
+  position: relative;
   flex-shrink: 0;
-  margin: 24rpx 32rpx 20rpx;
-  border-radius: 20rpx;
+  margin: 28rpx 24rpx 24rpx;
+  border-radius: 24rpx;
   overflow: hidden;
-  box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 8rpx 28rpx rgba(246, 124, 159, 0.18),
+    0 2rpx 10rpx rgba(0, 0, 0, 0.06);
+  border: 2rpx solid rgba(246, 124, 159, 0.35);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  animation: bannerBreath 2.6s ease-in-out infinite;
+}
+
+.banner-ad-hover {
+  transform: scale(0.98);
+  box-shadow: 0 4rpx 16rpx rgba(246, 124, 159, 0.22);
+}
+
+@keyframes bannerBreath {
+  0%, 100% {
+    box-shadow: 0 8rpx 28rpx rgba(246, 124, 159, 0.18), 0 2rpx 10rpx rgba(0,0,0,0.06);
+  }
+  50% {
+    box-shadow: 0 10rpx 36rpx rgba(246, 124, 159, 0.32), 0 2rpx 12rpx rgba(0,0,0,0.08);
+  }
 }
 
 .banner-image {
   width: 100%;
   height: 100%;
+  display: block;
+}
+
+/* 斜向光带扫过动效 */
+.banner-shine {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0) 35%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0) 65%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  animation: bannerShine 3.2s ease-in-out infinite;
+}
+
+@keyframes bannerShine {
+  0% { left: -60%; }
+  60%, 100% { left: 120%; }
+}
+
+/* 顶部反种草角标 */
+.banner-badge {
+  position: absolute;
+  top: 16rpx;
+  left: 16rpx;
+  display: flex;
+  align-items: center;
+  padding: 6rpx 16rpx;
+  background: linear-gradient(135deg, #FF6B8B 0%, #F67C9F 100%);
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 12rpx rgba(246, 124, 159, 0.45);
+}
+
+.banner-badge-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: #FFFFFF;
+  margin-right: 8rpx;
+  box-shadow: 0 0 8rpx rgba(255, 255, 255, 0.9);
+  animation: bannerDot 1.4s ease-in-out infinite;
+}
+
+@keyframes bannerDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.7); }
+}
+
+.banner-badge-text {
+  font-size: 22rpx;
+  color: #FFFFFF;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+}
+
+/* 底部点击引导胶囊 */
+.banner-cta {
+  position: absolute;
+  right: 16rpx;
+  bottom: 16rpx;
+  display: flex;
+  align-items: center;
+  padding: 10rpx 20rpx;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8rpx);
+  border-radius: 32rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.35);
+}
+
+.banner-cta-text {
+  font-size: 22rpx;
+  color: #FFFFFF;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+}
+
+.banner-cta-arrow {
+  font-size: 28rpx;
+  color: #FFFFFF;
+  margin-left: 8rpx;
+  font-weight: 700;
+  animation: bannerArrow 1.2s ease-in-out infinite;
+}
+
+@keyframes bannerArrow {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(6rpx); }
 }
 
 .banner-placeholder {
   width: 100%;
-  height: 100%;
+  height: 240rpx;
   background: linear-gradient(135deg, #F5F0EB, #EDE5DA);
   display: flex;
   align-items: center;

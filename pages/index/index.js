@@ -216,9 +216,9 @@ Page({
     wx.navigateTo({ url: '/pages/reports/reports' })
   },
 
-  // Banner点击
+  // Banner点击：进入反种草列表页
   onBannerTap() {
-    // TODO: 跳转广告链接
+    wx.switchTab({ url: '/pages/outfit/outfit' })
   },
 
   // 首页宣传视频事件（用于排查黑屏）

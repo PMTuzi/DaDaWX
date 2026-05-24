@@ -98,19 +98,6 @@
 
   <!-- 核心入口 -->
   <view class="action-area {{hasReport ? '' : 'action-area-undiag'}}">
-    <!-- 已诊断：穿搭决策为主按钮 -->
-    <view wx:if="{{hasReport}}" class="diagnose-btn btn-primary btn-sparkle" bindtap="onGoOutfit">
-      <view class="sparkle sparkle-1">✦</view>
-      <view class="sparkle sparkle-2">✧</view>
-      <view class="sparkle sparkle-3">✦</view>
-      <view class="sparkle sparkle-4">✧</view>
-      <view class="btn-icon icon icon-dress"></view>
-      <view class="btn-text">
-        <text class="btn-main">开始穿搭「 反种草 」</text>
-        <text class="btn-sub">基于风格诊断报告，进行购物决策</text>
-      </view>
-    </view>
-
     <!-- 实时动态轮播 -->
     <view class="live-ticker">
       <swiper class="ticker-swiper" vertical autoplay circular interval="3000" duration="500">
@@ -121,11 +108,23 @@
     </view>
   </view>
 
-  <!-- Banner广告 -->
-  <view class="banner-ad" wx:if="{{hasReport}}" bindtap="onBannerTap">
+  <!-- Banner广告：点击进入反种草页 -->
+  <view class="banner-ad" wx:if="{{hasReport}}" bindtap="onBannerTap" hover-class="banner-ad-hover">
     <image class="banner-image" src="{{bannerImage}}" mode="widthFix" wx:if="{{bannerImage}}"></image>
     <view class="banner-placeholder" wx:else>
       <text class="banner-placeholder-text">广告位</text>
+    </view>
+    <!-- 高亮光晕动效 -->
+    <view class="banner-shine"></view>
+    <!-- 顶部角标 -->
+    <view class="banner-badge">
+      <text class="banner-badge-dot"></text>
+      <text class="banner-badge-text">反种草</text>
+    </view>
+    <!-- 底部点击引导 -->
+    <view class="banner-cta">
+      <text class="banner-cta-text">点击进入 · 反种草穿搭决策</text>
+      <text class="banner-cta-arrow">›</text>
     </view>
   </view>
 

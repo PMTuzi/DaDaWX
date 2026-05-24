@@ -238,7 +238,7 @@ Page({
   data: {
     report: null,
     activeTab: 'optimize',
-    tabKeys: ['optimize', 'dna', 'hairmakeup', 'style'],
+    tabKeys: ['optimize', 'hairmakeup', 'dna', 'style'],
     tabLabels: { dna: '面部&骨相', style: '皮肤&风格', hairmakeup: '发型&妆容', optimize: '颜值&蜕变' },
     shared: false,
     // Canvas 雷达图

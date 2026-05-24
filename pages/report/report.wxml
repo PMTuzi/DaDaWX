@@ -17,11 +17,11 @@
     <view class="tab-item {{activeTab === 'optimize' ? 'active' : ''}}" data-tab="optimize" bindtap="onTabTap">
       <text class="tab-label">颜值蜕变</text>
     </view>
-    <view class="tab-item {{activeTab === 'dna' ? 'active' : ''}}" data-tab="dna" bindtap="onTabTap">
-      <text class="tab-label">面部骨相</text>
-    </view>
     <view class="tab-item {{activeTab === 'hairmakeup' ? 'active' : ''}}" data-tab="hairmakeup" bindtap="onTabTap">
       <text class="tab-label">发型妆容</text>
+    </view>
+    <view class="tab-item {{activeTab === 'dna' ? 'active' : ''}}" data-tab="dna" bindtap="onTabTap">
+      <text class="tab-label">面部骨相</text>
     </view>
     <view class="tab-item {{activeTab === 'style' ? 'active' : ''}}" data-tab="style" bindtap="onTabTap">
       <text class="tab-label">色彩风格</text>
