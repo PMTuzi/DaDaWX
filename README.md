@@ -75,6 +75,36 @@
 - **访问方式**：公网 + 小程序访问
 - **环境变量**：通过云托管控制台配置，无需 `.env` 文件
 
+### 部署方式
+
+#### 方式 A：CLI 一键部署（推荐）
+
+前置：本机已安装 [`@cloudbase/cli`](https://docs.cloudbase.net/cli-v1/intro)，并执行过 `tcb login`。配置文件 `server/cloudbaserc.json` 已记录环境 ID 与服务名。
+
+```bash
+cd server
+tcb cloudrun deploy --serviceName dada-server
+# 跳过确认：附加 --force
+```
+
+构建过程在云端进行（基于 `server/Dockerfile`），完成后控制台 → 云托管 → `dada-server` 可看到新版本流量。
+
+#### 方式 B：控制台手动发版
+
+打开 [https://tcb.cloud.tencent.com/dev?envId=dada-d9gw8x8fb426caba5#/platform-run](https://tcb.cloud.tencent.com/dev?envId=dada-d9gw8x8fb426caba5#/platform-run) → 选 `dada-server` → "新建版本"：
+
+- 上传方式选「本地代码上传」或「代码仓库拉取」
+- 监听端口：`3000`
+- Dockerfile 路径：`server/Dockerfile`
+- 流量切换：建议先 50% 灰度，观察日志无报错再切 100%
+
+#### 部署后校验
+
+```bash
+curl https://dada-server-260180-4-1435078506.sh.run.tcloudbase.com/api/health
+```
+返回 `{"status":"ok"}` 即代表新版本已生效。
+
 ### 小程序配置
 
 1. 使用微信开发者工具打开项目根目录

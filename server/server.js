@@ -29,10 +29,14 @@ if (isProd) {
   }))
 }
 
-// CORS：生产环境限制来源
+// CORS：生产环境限制来源（腾讯云托管 + 微信小程序）
 if (isProd) {
   app.use(cors({
-    origin: ['https://api.cyberpm.tech', 'https://servicewechat.com'],
+    origin: [
+      'https://servicewechat.com',
+      /\.tcloudbase\.com$/,
+      /\.tcb\.qcloud\.la$/
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'HEAD'],
     credentials: true
   }))
