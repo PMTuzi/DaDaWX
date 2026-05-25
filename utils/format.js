@@ -18,6 +18,29 @@ function getScoreLevel(score) {
   return { text: '待提升', color: '#e74c3c' }
 }
 
+// 颜值百分位（颜值打败 X% 的人）
+// 基于 0-10 分整体评分，按近似正态分布做分段映射
+function calcPercentile(score) {
+  if (score == null || isNaN(score)) return null
+  const s = Math.max(0, Math.min(10, Number(score)))
+  const anchors = [
+    [0, 1], [3, 10], [4, 25], [5, 50], [6, 70],
+    [7, 85], [7.5, 90], [8, 94], [8.5, 96.5],
+    [9, 98], [9.5, 99], [10, 99.5]
+  ]
+  let prev = anchors[0]
+  for (let i = 1; i < anchors.length; i++) {
+    const cur = anchors[i]
+    if (s <= cur[0]) {
+      const t = (s - prev[0]) / (cur[0] - prev[0])
+      const p = prev[1] + t * (cur[1] - prev[1])
+      return Math.round(p * 10) / 10
+    }
+    prev = cur
+  }
+  return 99
+}
+
 // 肤色季型中文
 function getSeasonName(season) {
   const map = {
@@ -79,6 +102,7 @@ function generatePosterData(report) {
 module.exports = {
   formatDate,
   getScoreLevel,
+  calcPercentile,
   getSeasonName,
   getFaceShapeName,
   getMatchLevel,

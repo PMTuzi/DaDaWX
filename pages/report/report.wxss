@@ -972,3 +972,191 @@
   border: 2rpx solid #fff;
   box-shadow: 0 2rpx 8rpx rgba(241, 132, 155, 0.2);
 }
+
+/* ==================== 颜值百分位（顶部） ==================== */
+.score-percentile {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 8rpx;
+  padding: 6rpx 16rpx;
+  background: linear-gradient(135deg, rgba(255, 235, 240, 0.9) 0%, rgba(255, 224, 230, 0.9) 100%);
+  border-radius: 999rpx;
+  border: 1rpx solid rgba(241, 132, 155, 0.25);
+}
+.percentile-icon {
+  font-size: 18rpx;
+  color: #F1849B;
+  margin-right: 6rpx;
+}
+.percentile-text {
+  font-size: 22rpx;
+  color: #8a4a58;
+  letter-spacing: 0.5rpx;
+}
+.percentile-num {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #e8506a;
+  margin: 0 2rpx;
+}
+
+/* ==================== 明星相似度模块 ==================== */
+.celeb-subtitle {
+  font-size: 24rpx;
+  color: #999;
+  margin: -8rpx 0 24rpx;
+  letter-spacing: 1rpx;
+}
+.celeb-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+.celeb-item {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  padding: 20rpx;
+  border-radius: 16rpx;
+  background: linear-gradient(135deg, #fffaf6 0%, #fff5ec 100%);
+  border: 1rpx solid rgba(212, 184, 122, 0.18);
+}
+.celeb-rank {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 20rpx;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #b8a888 0%, #8e7e5c 100%);
+  box-shadow: 0 2rpx 8rpx rgba(140, 110, 60, 0.18);
+}
+.celeb-rank.rank-1 {
+  background: linear-gradient(135deg, #ffd56b 0%, #d4a23a 100%);
+  box-shadow: 0 4rpx 12rpx rgba(212, 162, 58, 0.35);
+}
+.celeb-rank.rank-2 {
+  background: linear-gradient(135deg, #d8d8d8 0%, #a8a8a8 100%);
+}
+.celeb-rank.rank-3 {
+  background: linear-gradient(135deg, #e0a878 0%, #b07840 100%);
+}
+.celeb-rank-text {
+  line-height: 1;
+}
+.celeb-avatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-right: 20rpx;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f5e8c8 0%, #d4b87a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx solid #fff;
+  box-shadow: 0 2rpx 8rpx rgba(140, 110, 60, 0.18);
+}
+.celeb-avatar-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.celeb-avatar-fallback {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #8e7e5c;
+  line-height: 1;
+}
+.celeb-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+.celeb-name-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10rpx;
+}
+.celeb-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2c2418;
+  letter-spacing: 1rpx;
+}
+.celeb-similarity-badge {
+  display: inline-flex;
+  align-items: baseline;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  background: rgba(212, 184, 122, 0.12);
+}
+.celeb-similarity-num {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #b8924a;
+  letter-spacing: 0.5rpx;
+}
+.celeb-similarity-unit {
+  font-size: 20rpx;
+  color: #b8924a;
+  margin-left: 2rpx;
+}
+.celeb-bar-wrap {
+  width: 100%;
+  height: 10rpx;
+  border-radius: 999rpx;
+  background: rgba(212, 184, 122, 0.15);
+  overflow: hidden;
+  margin-bottom: 12rpx;
+}
+.celeb-bar-fill {
+  height: 100%;
+  border-radius: 999rpx;
+  background: linear-gradient(90deg, #d4b87a 0%, #b8924a 100%);
+  transition: width 0.6s ease;
+}
+.celeb-match {
+  font-size: 24rpx;
+  color: #6b5a3e;
+  line-height: 1.5;
+  letter-spacing: 0.5rpx;
+}
+.celeb-match-label {
+  display: inline-block;
+  padding: 2rpx 10rpx;
+  margin-right: 8rpx;
+  border-radius: 6rpx;
+  background: rgba(212, 184, 122, 0.18);
+  font-size: 20rpx;
+  color: #8e7e5c;
+}
+.celeb-match-text {
+  color: #6b5a3e;
+}
+.celeb-empty {
+  padding: 40rpx 20rpx;
+  text-align: center;
+  color: #999;
+}
+.celeb-empty-icon {
+  display: block;
+  font-size: 48rpx;
+  color: #d4b87a;
+  margin-bottom: 12rpx;
+}
+.celeb-empty-text {
+  font-size: 26rpx;
+  color: #888;
+  line-height: 1.6;
+}

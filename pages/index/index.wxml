@@ -15,7 +15,6 @@
   <!-- 顶部品牌区 -->
   <view class="header {{hasReport ? 'header-diagnosed' : ''}}">
     <view class="brand-area {{hasReport ? 'brand-area-small' : ''}}">
-      <image class="brand-logo" src="/images/logo.png" mode="aspectFit"></image>
       <view class="brand-text">
         <view class="logo">美哒 Meeta</view>
         <view class="slogan">{{slogan}}</view>
@@ -53,6 +52,11 @@
             <block wx:for="{{latestReport.basic.tags}}" wx:key="*this" wx:for-item="t" wx:for-index="i">
               <text class="tag tag-warm" wx:if="{{t && t.indexOf('视龄') !== 0 && i !== latestReport.basic.tags.length - 1}}">{{t}}</text>
             </block>
+          </view>
+          <!-- 颜值百分位 -->
+          <view class="score-percentile" wx:if="{{latestReport.basic.percentile != null}}">
+            <text class="percentile-icon">▲</text>
+            <text class="percentile-text">颜值打败 <text class="percentile-num">{{latestReport.basic.percentile}}%</text> 的人</text>
           </view>
         </view>
       </view>
@@ -158,6 +162,33 @@
     </view>
     <view class="level-table-body" wx:if="{{showLevelTable}}">
       <image class="level-table-img" src="/images/颜值等级对照表.jpg" mode="widthFix" bindtap="onPreviewLevelTable"></image>
+    </view>
+  </view>
+  <!-- 未诊断态：底部能力标签横向轮播（双排反向） -->
+  <view class="feature-marquee" wx:if="{{!hasReport}}">
+    <view class="feature-marquee-row">
+      <view class="feature-marquee-track">
+        <view class="feature-chip" wx:for="{{featureTagsRow1}}" wx:key="*this" wx:for-item="ft">
+          <text class="feature-chip-dot">◆</text>
+          <text class="feature-chip-text">{{ft}}</text>
+        </view>
+        <view class="feature-chip" wx:for="{{featureTagsRow1}}" wx:key="*this" wx:for-item="ft">
+          <text class="feature-chip-dot">◆</text>
+          <text class="feature-chip-text">{{ft}}</text>
+        </view>
+      </view>
+    </view>
+    <view class="feature-marquee-row">
+      <view class="feature-marquee-track feature-marquee-track-rev">
+        <view class="feature-chip" wx:for="{{featureTagsRow2}}" wx:key="*this" wx:for-item="ft">
+          <text class="feature-chip-dot">◆</text>
+          <text class="feature-chip-text">{{ft}}</text>
+        </view>
+        <view class="feature-chip" wx:for="{{featureTagsRow2}}" wx:key="*this" wx:for-item="ft">
+          <text class="feature-chip-dot">◆</text>
+          <text class="feature-chip-text">{{ft}}</text>
+        </view>
+      </view>
     </view>
   </view>
 

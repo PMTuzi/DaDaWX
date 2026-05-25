@@ -26,6 +26,9 @@
     <view class="tab-item {{activeTab === 'style' ? 'active' : ''}}" data-tab="style" bindtap="onTabTap">
       <text class="tab-label">色彩风格</text>
     </view>
+    <view class="tab-item {{activeTab === 'celebrity' ? 'active' : ''}}" data-tab="celebrity" bindtap="onTabTap">
+      <text class="tab-label">明星相似</text>
+    </view>
   </view>
 
   <!-- 综合评分头部 -->
@@ -51,6 +54,11 @@
               <text class="htag-age-text">{{util.cleanAge(t)}}</text>
             </view>
           </block>
+        </view>
+        <!-- 颜值百分位 -->
+        <view class="score-percentile" wx:if="{{report.basic.percentile != null}}">
+          <text class="percentile-icon">▲</text>
+          <text class="percentile-text">颜值打败 <text class="percentile-num">{{report.basic.percentile}}%</text> 的人</text>
         </view>
         <!-- 标签 -->
         <view class="header-tags">
@@ -486,6 +494,58 @@
       <view class="insight-card" wx:if="{{report.modules.optimize.keyInsight}}">
         <text class="insight-icon">✦</text>
         <text class="insight-content">{{report.modules.optimize.keyInsight}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ==================== 模块5: 明星相似度 ==================== -->
+  <view class="module-content" wx:if="{{activeTab === 'celebrity'}}">
+    <view class="section-card" wx:if="{{report.modules.celebrity && report.modules.celebrity.top5 && report.modules.celebrity.top5.length}}">
+      <view class="section-title">明星相似度分析</view>
+      <view class="celeb-subtitle">基于面部骨相、五官比例与气质类型综合匹配</view>
+
+      <view class="celeb-list">
+        <view class="celeb-item" wx:for="{{report.modules.celebrity.top5}}" wx:key="name" wx:for-index="ci">
+          <view class="celeb-rank rank-{{ci + 1}}">
+            <text class="celeb-rank-text">{{ci + 1}}</text>
+          </view>
+          <!-- 头像（无图时显示首字母占位） -->
+          <view class="celeb-avatar">
+            <image class="celeb-avatar-img" wx:if="{{item.imageUrl}}" src="{{item.imageUrl}}" mode="aspectFill" data-ci="{{ci}}" binderror="onCelebImgError"></image>
+            <text class="celeb-avatar-fallback" wx:else>{{item.name ? item.name.substring(0, 1) : '★'}}</text>
+          </view>
+          <view class="celeb-info">
+            <view class="celeb-name-row">
+              <text class="celeb-name">{{item.name}}</text>
+              <view class="celeb-similarity-badge">
+                <text class="celeb-similarity-num">{{item.similarity}}</text>
+                <text class="celeb-similarity-unit">%</text>
+              </view>
+            </view>
+            <view class="celeb-bar-wrap">
+              <view class="celeb-bar-fill" style="width: {{item.similarity}}%"></view>
+            </view>
+            <view class="celeb-match" wx:if="{{item.matchPoint}}">
+              <text class="celeb-match-label">相似点</text>
+              <text class="celeb-match-text">{{item.matchPoint}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 洞察 -->
+      <view class="insight-card" wx:if="{{report.modules.celebrity.keyInsight}}">
+        <text class="insight-icon">✦</text>
+        <text class="insight-content">{{report.modules.celebrity.keyInsight}}</text>
+      </view>
+    </view>
+
+    <!-- 数据缺失提示 -->
+    <view class="section-card" wx:if="{{!report.modules.celebrity || !report.modules.celebrity.top5 || !report.modules.celebrity.top5.length}}">
+      <view class="section-title">明星相似度分析</view>
+      <view class="celeb-empty">
+        <text class="celeb-empty-icon">◈</text>
+        <text class="celeb-empty-text">本次报告暂未生成明星相似度数据，重新诊断后即可查看 Top 3 相似明星。</text>
       </view>
     </view>
   </view>

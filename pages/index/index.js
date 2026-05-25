@@ -1,6 +1,6 @@
 // pages/index/index.js
 const { wxLogin, ensureLogin, request, API, uploadImage } = require('../../utils/api')
-const { formatDate, getScoreLevel } = require('../../utils/format')
+const { formatDate, getScoreLevel, calcPercentile } = require('../../utils/format')
 
 Page({
   data: {
@@ -15,7 +15,28 @@ Page({
     loginNickname: '',
     pendingAction: '', // 'diagnose'（穿搭决策入口已移至「反种草」Tab）
     // 颜值等级对照表折叠态
-    showLevelTable: true
+    showLevelTable: true,
+    // 底部能力标签（两排反向滚动）
+    featureTagsRow1: [
+      '明星脸匹配',
+      '客观颜值评分',
+      '面部特征分析',
+      '颜值优化建议',
+      '骨相轮廓识别',
+      '面部黄金比例',
+      '气质类型解析',
+      '微表情诊断'
+    ],
+    featureTagsRow2: [
+      '穿搭风格建议',
+      '四季色彩分析',
+      '形象风格分析',
+      '身材比例测算',
+      '发型脸型适配',
+      '妆容色调推荐',
+      '配饰搭配指南',
+      '场景着装方案'
+    ]
   },
 
   onToggleLevelTable() {
@@ -51,6 +72,10 @@ Page({
     const reports = wx.getStorageSync('reports') || []
     if (reports.length > 0) {
       const latest = reports[0]
+      // 老报告兜底补算颜值百分位
+      if (latest.basic && (latest.basic.percentile == null || isNaN(latest.basic.percentile))) {
+        latest.basic.percentile = calcPercentile(latest.basic.overallScore)
+      }
       this.setData({
         hasReport: true,
         latestReport: latest,

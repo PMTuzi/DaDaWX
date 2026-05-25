@@ -26,18 +26,7 @@
   align-items: center;
   justify-content: flex-start;
   margin-bottom: 20rpx;
-  margin-left: -20rpx;
   gap: 16rpx;
-}
-
-.brand-logo {
-  width: 350rpx;
-  height: 350rpx;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 11;
-  margin-left: -20rpx;
-  margin-top: 30rpx;
 }
 
 .brand-text {
@@ -45,7 +34,7 @@
   flex-direction: column;
   position: relative;
   z-index: 100;
-  margin-left: -50rpx;
+  margin-top: -400rpx;
 }
 
 .header-diagnosed {
@@ -66,7 +55,7 @@
 }
 
 .header-diagnosed .report-summary {
-  margin-top: -104rpx;
+  margin-top: 16rpx;
   margin-bottom: 20rpx;
 }
 
@@ -1066,4 +1055,89 @@
   width: 100%;
   display: block;
   border-radius: 8rpx;
+}
+
+/* 颜值百分位徽章 */
+.score-percentile {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 12rpx;
+  padding: 6rpx 16rpx;
+  background: linear-gradient(135deg, rgba(255, 235, 240, 0.9) 0%, rgba(255, 224, 230, 0.9) 100%);
+  border-radius: 999rpx;
+  border: 1rpx solid rgba(241, 132, 155, 0.25);
+  align-self: flex-start;
+}
+.score-percentile .percentile-icon {
+  font-size: 18rpx;
+  color: #F1849B;
+  margin-right: 6rpx;
+}
+.score-percentile .percentile-text {
+  font-size: 22rpx;
+  color: #8a4a58;
+  letter-spacing: 0.5rpx;
+}
+.score-percentile .percentile-num {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #e8506a;
+  margin: 0 2rpx;
+}
+
+/* 未诊断态：底部能力标签横向无缝轮播（双排反向） */
+.feature-marquee {
+  margin: -150rpx 0 40rpx;
+  padding: 16rpx 0;
+  overflow: hidden;
+  position: relative;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 8%, #000 92%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 8%, #000 92%, transparent 100%);
+}
+.feature-marquee-row {
+  overflow: hidden;
+  padding: 8rpx 0;
+}
+.feature-marquee-track {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: max-content;
+  animation: feature-marquee-scroll 60s linear infinite;
+}
+.feature-marquee-track-rev {
+  animation: feature-marquee-scroll-rev 72s linear infinite;
+}
+.feature-chip {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-right: 20rpx;
+  padding: 14rpx 28rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(135deg, rgba(235, 244, 252, 0.92) 0%, rgba(214, 230, 245, 0.88) 100%);
+  border: 1rpx solid rgba(120, 160, 200, 0.22);
+  box-shadow: 0 2rpx 12rpx rgba(90, 130, 180, 0.08), inset 0 1rpx 0 rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8rpx);
+}
+.feature-chip-dot {
+  font-size: 18rpx;
+  color: #7aa6cf;
+  margin-right: 10rpx;
+  letter-spacing: 0;
+}
+.feature-chip-text {
+  font-size: 24rpx;
+  color: #3d5a7a;
+  letter-spacing: 2rpx;
+  font-weight: 500;
+  white-space: nowrap;
+}
+@keyframes feature-marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes feature-marquee-scroll-rev {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
 }

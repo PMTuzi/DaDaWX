@@ -1,5 +1,25 @@
 // 通义千问 API 服务
 const axios = require('axios')
+const fs = require('fs')
+const path = require('path')
+
+// 读取明星头像映射表中"已有可用图片"的名单（仅这些明星会有头像展示）
+let _celebWhitelistCache = null
+let _celebWhitelistTs = 0
+function getCelebWhitelist() {
+  // 30s 内复用，避免高并发反复读盘
+  const now = Date.now()
+  if (_celebWhitelistCache && now - _celebWhitelistTs < 30000) return _celebWhitelistCache
+  try {
+    const file = path.join(__dirname, '..', 'data', 'celeb-images.json')
+    const map = JSON.parse(fs.readFileSync(file, 'utf-8')) || {}
+    _celebWhitelistCache = Object.keys(map).filter(k => map[k] && map[k].url)
+  } catch (_) {
+    _celebWhitelistCache = []
+  }
+  _celebWhitelistTs = now
+  return _celebWhitelistCache
+}
 
 // 连接池：复用 TCP 连接，避免每次请求创建新连接
 const httpAgent = new (require('http').Agent)({ keepAlive: true, maxSockets: 100, timeout: 60000 })
@@ -61,7 +81,17 @@ async function analyzePart1(imageInput, photoType = 'face', gender = 'auto', use
   const ageInfo = userInfo.age ? `${userInfo.age}岁` : ''
   const bodyInfo = (userInfo.height || userInfo.weight) ? `，身高${userInfo.height || '?'}cm，体重${userInfo.weight || '?'}kg` : ''
   const genderText = gender === 'male' ? '男性' : (gender === 'female' ? '女性' : '人物（请先根据照片自动识别性别，并基于识别结果做相应分析）')
-  const prompt = `你是一位顶级形象分析AI，请仔细观察这张${photoType === 'face' ? '人脸正面' : '全身'}${genderText}照片${ageInfo ? '（' + ageInfo + bodyInfo + '）' : ''}，完成两个模块的深度分析。
+
+  // 明星白名单：限制 AI 只能从已有头像的明星中挑选 top3
+  const celebWhitelist = getCelebWhitelist()
+  const celebConstraintHead = celebWhitelist.length
+    ? `\n\n=== ⚠️ module5_celebrity 强制约束（违反本约束的输出会被直接丢弃）===\ntop5 中每个 name 字段必须严格等于下方列表中的某一项，不允许出现任何列表外的明星，不允许改字/简称/添加后缀（如"·"或"刘亦菲版小龙女"）。\n【可选明星名单（共${celebWhitelist.length}位）】：\n${celebWhitelist.join('、')}\n哪怕用户性别与名单不匹配，也必须从该名单中按"面部骨相/气质/视觉风格"维度挑选最接近的 3 位。请在输出前自检 3 个 name 是否字字一致存在于上述名单中，否则视为格式错误。\n=== 约束结束 ===\n`
+    : ''
+  const celebConstraintTail = celebWhitelist.length
+    ? `\n- 【再次强调】module5_celebrity.top5 中每个 name 必须是上文白名单的精确值，禁止输出名单之外的明星`
+    : ''
+
+  const prompt = `你是一位顶级形象分析AI，请仔细观察这张${photoType === 'face' ? '人脸正面' : '全身'}${genderText}照片${ageInfo ? '（' + ageInfo + bodyInfo + '）' : ''}，完成两个模块的深度分析。${celebConstraintHead}
 
 【重要规则】
 1. 必须严格基于照片具体特征做判断，不同人必须有明显差异，要给出清晰的分析结果
@@ -203,10 +233,21 @@ async function analyzePart1(imageInput, photoType = 'face', gender = 'auto', use
     ],
     "skincareAdvice": ["护肤建议1", "建议2", "建议3"],
     "keyInsight": "1-2句肤色+风格核心洞察"
+  },
+  "module5_celebrity": {
+    "title": "明星相似度分析",
+    "top5": [
+      { "name": "★必须从下方明星白名单中选择，禁止输出名单之外的人★", "similarity": "相似度百分比 0-100 整数，第1位最相似(85-95区间)，依次递减，第3位通常 65-80", "matchPoint": "相似的具体特征点1-2句（如 眼型/脸型/骨相/气质/视龄段）" }
+    ],
+    "keyInsight": "1-2句明星脸气质核心定位，点出用户最贴近的明星脸气质类型"
   }
 }
 
-要求：problems至少3个，goodColors至少8个带真实hex色值，badColors至少4个。
+要求：
+- problems至少3个，goodColors至少8个带真实hex色值，badColors至少4个
+- module5_celebrity.top5 必须返回3个明星，相似度严格按从高到低排序，且任意两位之间相似度差距不少于2%（避免完全雷同）
+- 明星选择应基于实际面部骨相与气质类型的近似度，而非泛泛"美女/帅哥"，禁止重复推荐同一明星
+- 明星名字必须与"明星名单白名单"完全一致（如有提供），不得改字、不得简称、不得输出列表之外的明星${celebConstraintTail}
 请严格按照JSON格式输出，不要包含任何其他文字说明。`
 
   const maxRetries = 1

@@ -2,6 +2,7 @@
 // 新架构：数据驱动报告，前端渲染雷达图/色块/比例条
 
 const { request, API } = require('../../utils/api')
+const { calcPercentile } = require('../../utils/format')
 
 // ============ 关键词 → CDN 配图 映射表 ============
 // 思路：根据报告里的实际描述文案选图，让图与文字相关。
@@ -238,8 +239,8 @@ Page({
   data: {
     report: null,
     activeTab: 'dna',
-    tabKeys: ['optimize', 'hairmakeup', 'dna', 'style'],
-    tabLabels: { dna: '面部&骨相', style: '皮肤&风格', hairmakeup: '发型&妆容', optimize: '颜值&蜕变' },
+    tabKeys: ['optimize', 'hairmakeup', 'dna', 'style', 'celebrity'],
+    tabLabels: { dna: '面部&骨相', style: '皮肤&风格', hairmakeup: '发型&妆容', optimize: '颜值&蜕变', celebrity: '明星相似' },
     shared: false,
     // Canvas 雷达图
     radarCanvasId: '',
@@ -270,6 +271,11 @@ Page({
       wx.showToast({ title: '报告不存在', icon: 'none' })
       setTimeout(() => wx.navigateBack(), 1500)
       return
+    }
+
+    // 老报告兜底补算颜值百分位
+    if (report.basic && (report.basic.percentile == null || isNaN(report.basic.percentile))) {
+      report.basic.percentile = calcPercentile(report.basic.overallScore)
     }
 
     this.setData({
@@ -319,6 +325,18 @@ Page({
       report.photoUrl = ''
     }
     this.setData({ report })
+  },
+
+  // 明星头像加载失败：清空 imageUrl 改用首字母占位
+  onCelebImgError(e) {
+    const ci = e.currentTarget.dataset.ci
+    const report = this.data.report
+    if (!report || !report.modules || !report.modules.celebrity) return
+    const list = report.modules.celebrity.top5 || []
+    if (list[ci]) {
+      list[ci].imageUrl = ''
+      this.setData({ [`report.modules.celebrity.top5[${ci}].imageUrl`]: '' })
+    }
   },
 
   // ==================== Canvas 雷达图绘制 ====================

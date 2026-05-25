@@ -4,9 +4,88 @@ const router = express.Router()
 const { authRequired } = require('../middleware/auth')
 const { analyzePart1, analyzePart2 } = require('../services/qwen')
 const { analyzeClothingVision, generateSingleConsult, generateCompareConsult, detectCategory, generateBeautyPlan } = require('../services/qwen')
+const { getCelebImagesBatch } = require('../services/celeb-image')
 const reportStore = require('../store/report-store')
 const userStore = require('../store/user-store')
 const consultStore = require('../store/consult-store')
+const fs = require('fs')
+const path = require('path')
+
+// 读取明星映射表（每次诊断重新读，量小可接受；亦可加缓存）
+function loadCelebMap() {
+  try {
+    const file = path.join(__dirname, '..', 'data', 'celeb-images.json')
+    return JSON.parse(fs.readFileSync(file, 'utf-8')) || {}
+  } catch (_) {
+    return {}
+  }
+}
+
+// 颜值百分位映射（与前端 utils/format.js 保持一致）
+function calcPercentile(score) {
+  if (score == null || isNaN(score)) return null
+  const s = Math.max(0, Math.min(10, Number(score)))
+  const anchors = [
+    [0, 1], [3, 10], [4, 25], [5, 50], [6, 70],
+    [7, 85], [7.5, 90], [8, 94], [8.5, 96.5],
+    [9, 98], [9.5, 99], [10, 99.5]
+  ]
+  let prev = anchors[0]
+  for (let i = 1; i < anchors.length; i++) {
+    const cur = anchors[i]
+    if (s <= cur[0]) {
+      const t = (s - prev[0]) / (cur[0] - prev[0])
+      const p = prev[1] + t * (cur[1] - prev[1])
+      return Math.round(p * 10) / 10
+    }
+    prev = cur
+  }
+  return 99
+}
+
+// 给 celebrity.top5 注入 imageUrl，并对名单外明星做兜底替换
+async function enrichCelebrityImages(celebrity) {
+  if (!celebrity || !Array.isArray(celebrity.top5) || !celebrity.top5.length) return celebrity
+
+  const celebMap = loadCelebMap()
+  const whitelist = Object.keys(celebMap).filter(k => celebMap[k] && celebMap[k].url)
+  const whiteSet = new Set(whitelist)
+
+  // 兜底：把名单外的 name 替换为名单中"未被使用"的明星，相似度沿用 AI 原值
+  // 这样保证 5 个都有头像可显示。被替换的项打 _replaced 标记便于排查。
+  const used = new Set()
+  const top5 = celebrity.top5.map(it => {
+    if (!it || !it.name) return it
+    const name = String(it.name).trim()
+    if (whiteSet.has(name) && !used.has(name)) {
+      used.add(name)
+      return { ...it, name }
+    }
+    // 名单外或重复 → 找一个未被使用的白名单明星顶替
+    const fallback = whitelist.find(n => !used.has(n))
+    if (fallback) {
+      used.add(fallback)
+      console.warn(`[AI] celeb 兜底替换: "${name}" → "${fallback}"`)
+      return { ...it, name: fallback, _replaced: true, _origName: name }
+    }
+    return { ...it, name }
+  })
+
+  // 批量取头像（命中本地映射时秒回）；最终只保留 top3
+  const top3 = top5.slice(0, 3)
+  const names = top3.map(it => it && it.name).filter(Boolean)
+  try {
+    const urls = await getCelebImagesBatch(names, 6000)
+    celebrity.top5 = top3.map(it => ({
+      ...it,
+      imageUrl: (it && it.name && urls[it.name]) || (celebMap[it.name] && celebMap[it.name].url) || null
+    }))
+  } catch (e) {
+    console.warn('[AI] 明星头像注入失败:', e.message)
+    celebrity.top5 = top3
+  }
+  return celebrity
+}
 
 // ============ 异步任务存储（内存） ============
 const tasks = new Map()
@@ -93,10 +172,12 @@ router.post('/start-analysis', authRequired, async (req, res) => {
       if (overallScore > faceScore + 1) {
         overallScore = Math.round((faceScore + 1) * 10) / 10
       }
+      const percentile = calcPercentile(overallScore)
 
       const result = {
         basic: {
           overallScore,
+          percentile,
           tags: [
             part1Data.module1_dna?.faceType || '待分析',
             part1Data.module1_dna?.colorIntensity || '待分析',
@@ -119,11 +200,18 @@ router.post('/start-analysis', authRequired, async (req, res) => {
           dna: part1Data.module1_dna,
           style: part1Data.module2_style,
           hairmakeup: part2Data.module3_hairmakeup,
-          optimize: part2Data.module4_optimize
+          optimize: part2Data.module4_optimize,
+          celebrity: part1Data.module5_celebrity || null
         },
         images: {},
         photoUrl: photoUrl || '',
         imageComplete: false
+      }
+
+      // 抓取明星头像（同步，最多等 6s）
+      task.step = '抓取明星头像'; task.progress = 90
+      if (result.modules.celebrity) {
+        await enrichCelebrityImages(result.modules.celebrity)
       }
 
       task.status = 'done'
@@ -205,11 +293,16 @@ router.post('/full-analysis', authRequired, async (req, res) => {
     if (overallScore > faceScore + 1) {
       overallScore = Math.round((faceScore + 1) * 10) / 10
     }
+    const percentile = calcPercentile(overallScore)
 
     const result = {
-      basic: { overallScore, tags: [part1Data.module1_dna?.faceType || '待分析', part1Data.module2_style?.season || '待分析', part1Data.module2_style?.mainStyle || '待分析'] },
-      modules: { dna: part1Data.module1_dna, style: part1Data.module2_style, hairmakeup: part2Data.module3_hairmakeup, optimize: part2Data.module4_optimize },
+      basic: { overallScore, percentile, tags: [part1Data.module1_dna?.faceType || '待分析', part1Data.module2_style?.season || '待分析', part1Data.module2_style?.mainStyle || '待分析'] },
+      modules: { dna: part1Data.module1_dna, style: part1Data.module2_style, hairmakeup: part2Data.module3_hairmakeup, optimize: part2Data.module4_optimize, celebrity: part1Data.module5_celebrity || null },
       images: {}, photoUrl: photoUrl || '', imageComplete: false
+    }
+
+    if (result.modules.celebrity) {
+      await enrichCelebrityImages(result.modules.celebrity)
     }
 
     res.json({ code: 0, data: result })
