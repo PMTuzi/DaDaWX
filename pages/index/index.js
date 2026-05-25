@@ -14,8 +14,6 @@ Page({
     loginAvatarUrl: '',
     loginNickname: '',
     pendingAction: '', // 'diagnose'（穿搭决策入口已移至「反种草」Tab）
-    // 颜值等级对照表折叠态
-    showLevelTable: true,
     // 底部能力标签（两排反向滚动）
     featureTagsRow1: [
       '明星脸匹配',
@@ -36,15 +34,10 @@ Page({
       '妆容色调推荐',
       '配饰搭配指南',
       '场景着装方案'
-    ]
-  },
-
-  onToggleLevelTable() {
-    this.setData({ showLevelTable: !this.data.showLevelTable })
-  },
-
-  onPreviewLevelTable() {
-    wx.previewImage({ urls: ['/images/颜值等级对照表.jpg'] })
+    ],
+    // 首页宣传视频显示控制（用于网络抖动后重试加载）
+    introVideoVisible: true,
+    introVideoRetry: 0
   },
 
   onLoad() {
@@ -237,12 +230,22 @@ Page({
     wx.navigateTo({ url: '/pages/reports/reports' })
   },
 
-  // 首页宣传视频事件（用于排查黑屏）
+  // 首页宣传视频事件（用于排查黑屏 + 网络抖动后自动重试）
   onIntroVideoError(e) {
     console.error('[introVideo] error:', e && e.detail);
+    const retry = this.data.introVideoRetry || 0;
+    if (retry >= 3) return;
+    // 卸载 video 组件后重新挂载，触发重新加载（应对 ERR_NETWORK_CHANGED 等瞬时错误）
+    this.setData({ introVideoVisible: false, introVideoRetry: retry + 1 });
+    setTimeout(() => {
+      this.setData({ introVideoVisible: true });
+    }, 800 + retry * 600);
   },
   onIntroVideoLoaded(e) {
     console.log('[introVideo] loadedmetadata:', e && e.detail);
+    if (this.data.introVideoRetry) {
+      this.setData({ introVideoRetry: 0 });
+    }
   },
   onIntroVideoPlay() {
     console.log('[introVideo] play');

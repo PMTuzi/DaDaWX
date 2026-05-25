@@ -1013,50 +1013,6 @@
   text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.15);
 }
 
-/* ========== 颜值等级对照表（首页底部可折叠） ========== */
-.level-table {
-  margin: 24rpx 24rpx 60rpx;
-  background: #fff;
-  border: 1rpx solid #f0f0f0;
-  border-radius: 16rpx;
-  overflow: hidden;
-}
-.level-table-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 28rpx 32rpx;
-  background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
-}
-.level-table-header-hover {
-  background: #efefef;
-}
-.level-table-title {
-  font-size: 28rpx;
-  color: #333;
-  font-weight: 600;
-  letter-spacing: 1rpx;
-}
-.level-table-arrow {
-  font-size: 36rpx;
-  color: #999;
-  transform: rotate(90deg);
-  transition: transform 0.25s ease;
-  line-height: 1;
-}
-.level-table-arrow-open {
-  transform: rotate(-90deg);
-}
-.level-table-body {
-  padding: 16rpx;
-  background: #fff;
-}
-.level-table-img {
-  width: 100%;
-  display: block;
-  border-radius: 8rpx;
-}
-
 /* 颜值百分位徽章 */
 .score-percentile {
   display: inline-flex;
