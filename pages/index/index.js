@@ -8,13 +8,12 @@ Page({
     hasReport: false,
     latestReport: null,
     scoreLevel: null,
-    bannerImage: '/images/finalbanner2.jpg',
     tickerList: [],
     // 登录确认弹窗
     showLoginModal: false,
     loginAvatarUrl: '',
     loginNickname: '',
-    pendingAction: '' // 'diagnose' | 'outfit'
+    pendingAction: '' // 'diagnose'（穿搭决策入口已移至「反种草」Tab）
   },
 
   onLoad() {
@@ -53,11 +52,6 @@ Page({
   // 立即诊断 - 需要登录确认
   onStartDiagnose() {
     this.requireLogin('diagnose')
-  },
-
-  // 穿搭决策 - 需要登录确认
-  onGoOutfit() {
-    this.requireLogin('outfit')
   },
 
   // 跳转 28 天蜕变计划
@@ -192,14 +186,6 @@ Page({
   navigateTo(action) {
     if (action === 'diagnose') {
       wx.navigateTo({ url: '/pages/diagnose/diagnose' })
-    } else if (action === 'outfit') {
-      // 没有穿搭记录时直接进入信息填写页，有记录时进入列表页
-      const consults = wx.getStorageSync('consultRecords') || []
-      if (consults.length === 0) {
-        wx.navigateTo({ url: '/pages/consult-publish/consult-publish' })
-      } else {
-        wx.switchTab({ url: '/pages/outfit/outfit' })
-      }
     }
   },
 
@@ -214,11 +200,6 @@ Page({
   // 查看历史报告
   onViewHistory() {
     wx.navigateTo({ url: '/pages/reports/reports' })
-  },
-
-  // Banner点击：进入反种草列表页
-  onBannerTap() {
-    wx.switchTab({ url: '/pages/outfit/outfit' })
   },
 
   // 首页宣传视频事件（用于排查黑屏）

@@ -31,13 +31,13 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "首页",
+        "text": "形象风格",
         "iconPath": "images/tab-home.png",
         "selectedIconPath": "images/tab-home-active.png"
       },
       {
         "pagePath": "pages/outfit/outfit",
-        "text": "反种草",
+        "text": "穿搭决策",
         "iconPath": "images/tab-outfit.png",
         "selectedIconPath": "images/tab-outfit-active.png"
       },

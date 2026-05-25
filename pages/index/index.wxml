@@ -109,24 +109,7 @@
   </view>
 
   <!-- Banner广告：点击进入反种草页 -->
-  <view class="banner-ad" wx:if="{{hasReport}}" bindtap="onBannerTap" hover-class="banner-ad-hover">
-    <image class="banner-image" src="{{bannerImage}}" mode="widthFix" wx:if="{{bannerImage}}"></image>
-    <view class="banner-placeholder" wx:else>
-      <text class="banner-placeholder-text">广告位</text>
-    </view>
-    <!-- 高亮光晕动效 -->
-    <view class="banner-shine"></view>
-    <!-- 顶部角标 -->
-    <view class="banner-badge">
-      <text class="banner-badge-dot"></text>
-      <text class="banner-badge-text">反种草</text>
-    </view>
-    <!-- 底部点击引导 -->
-    <view class="banner-cta">
-      <text class="banner-cta-text">点击进入 · 反种草穿搭决策</text>
-      <text class="banner-cta-arrow">›</text>
-    </view>
-  </view>
+  <!-- 已下线：首页定位为身份名片，穿搭决策入口仅保留在「反种草」Tab -->
 
   <!-- 登录确认弹窗 -->
   <view class="login-modal-mask" wx:if="{{showLoginModal}}" bindtap="onCloseLoginModal">

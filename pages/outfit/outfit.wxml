@@ -7,6 +7,51 @@
     <view class="header-subtitle">上传衣物照片，AI 帮你理性分析</view>
   </view>
 
+  <!-- 你的风格标签卡片：把诊断结果带入决策场景 -->
+  <view class="style-tags-card" wx:if="{{hasReport && latestReport}}">
+    <view class="style-tags-head" bindtap="onToggleStyleTags">
+      <view class="style-tags-title">
+        <text class="style-tags-icon">✦</text>
+        <text class="style-tags-label">你的风格标签</text>
+      </view>
+      <text class="style-tags-toggle">{{styleTagsExpanded ? '收起 ︿' : '展开 ﹀'}}</text>
+    </view>
+    <scroll-view class="style-tags-chips" scroll-x="{{true}}" enhanced="{{true}}" show-scrollbar="{{false}}" bindtap="onToggleStyleTags">
+      <text class="style-chip" wx:if="{{latestReport.modules.style.mainStyle}}">{{latestReport.modules.style.mainStyle}}</text>
+      <text class="style-chip" wx:if="{{latestReport.modules.style.season}}">{{latestReport.modules.style.season}}</text>
+      <text class="style-chip" wx:if="{{latestReport.modules.style.skinType}}">{{latestReport.modules.style.skinType}}</text>
+      <text class="style-chip" wx:if="{{latestReport.modules.dna.faceType}}">{{latestReport.modules.dna.faceType}}</text>
+    </scroll-view>
+
+    <!-- 展开区：报告关键字段 -->
+    <view class="style-tags-detail" wx:if="{{styleTagsExpanded}}">
+      <view class="detail-row" wx:if="{{latestReport.modules.dna.faceType || latestReport.modules.dna.boneType}}">
+        <text class="detail-key">面部 · 骨相</text>
+        <text class="detail-val">{{latestReport.modules.dna.faceType}}{{latestReport.modules.dna.faceType && latestReport.modules.dna.boneType ? ' · ' : ''}}{{latestReport.modules.dna.boneType}}</text>
+      </view>
+      <view class="detail-row" wx:if="{{latestReport.modules.style.season || latestReport.modules.style.skinType}}">
+        <text class="detail-key">皮肤 · 色彩季</text>
+        <text class="detail-val">{{latestReport.modules.style.skinType}}{{latestReport.modules.style.skinType && latestReport.modules.style.season ? ' · ' : ''}}{{latestReport.modules.style.season}}</text>
+      </view>
+      <view class="detail-row" wx:if="{{latestReport.modules.style.mainStyle}}">
+        <text class="detail-key">主风格</text>
+        <text class="detail-val">{{latestReport.modules.style.mainStyle}}</text>
+      </view>
+      <view class="detail-row" wx:if="{{latestReport.modules.style.styleFeatures.mass || latestReport.modules.style.styleFeatures.curve || latestReport.modules.style.styleFeatures.movement}}">
+        <text class="detail-key">量感 · 曲直 · 动静</text>
+        <text class="detail-val">{{latestReport.modules.style.styleFeatures.mass || '-'}} · {{latestReport.modules.style.styleFeatures.curve || '-'}} · {{latestReport.modules.style.styleFeatures.movement || '-'}}</text>
+      </view>
+      <view class="detail-row detail-row-multi" wx:if="{{latestReport.modules.optimize.coreConclusion}}">
+        <text class="detail-key">核心结论</text>
+        <text class="detail-val">{{latestReport.modules.optimize.coreConclusion}}</text>
+      </view>
+      <view class="detail-cta" bindtap="onViewFullReport">
+        <text>查看完整报告</text>
+        <text class="detail-cta-arrow">›</text>
+      </view>
+    </view>
+  </view>
+
   <!-- 统一入口卡片（仅有历史时显示在顶部，空列表时移入视频内） -->
   <view class="unified-card" wx:if="{{showHistory}}" bindtap="onStartConsult">
     <view class="card-icon icon icon-dress"></view>

@@ -57,7 +57,7 @@
   <!-- 行动区 -->
   <view class="action-area safe-bottom">
     <button class="start-btn {{isUploading || !photoUrl ? 'disabled' : ''}}" bindtap="onStartAnalysis" disabled="{{isUploading || !photoUrl}}" loading="{{isUploading}}">
-      <text class="start-text">{{isUploading ? '上传中...' : '开始 AI 诊断'}}</text>
+      <text class="start-text">{{isUploading ? '上传中...' : '开始诊断'}}</text>
       <text class="start-arrow" wx:if="{{!isUploading}}">→</text>
     </button>
     <view class="action-tip">

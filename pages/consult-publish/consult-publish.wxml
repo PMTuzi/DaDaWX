@@ -175,7 +175,7 @@
   <!-- 提交按钮 -->
   <view class="submit-area safe-bottom">
     <button class="submit-btn" bindtap="onSubmit" disabled="{{submitting}}">
-      {{submitting ? '处理中...' : '交给哒哒'}}
+      {{submitting ? '处理中...' : '拒绝种草'}}
     </button>
   </view>
 </view>

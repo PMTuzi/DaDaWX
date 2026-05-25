@@ -4,6 +4,8 @@ const app = getApp()
 Page({
   data: {
     hasReport: false,
+    latestReport: null,
+    styleTagsExpanded: false,
     recentConsults: [],
     showHistory: false
   },
@@ -20,7 +22,23 @@ Page({
 
   checkReport() {
     const reports = wx.getStorageSync('reports') || []
-    this.setData({ hasReport: reports.length > 0 })
+    const latest = reports[0] || null
+    this.setData({
+      hasReport: reports.length > 0,
+      latestReport: latest
+    })
+  },
+
+  // 展开/收起风格标签详情
+  onToggleStyleTags() {
+    this.setData({ styleTagsExpanded: !this.data.styleTagsExpanded })
+  },
+
+  // 查看完整报告
+  onViewFullReport() {
+    const r = this.data.latestReport
+    if (!r || !r.id) return
+    wx.navigateTo({ url: `/pages/report/report?id=${r.id}` })
   },
 
   loadHistory() {

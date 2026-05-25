@@ -237,7 +237,7 @@ function buildCdnImages(report) {
 Page({
   data: {
     report: null,
-    activeTab: 'optimize',
+    activeTab: 'dna',
     tabKeys: ['optimize', 'hairmakeup', 'dna', 'style'],
     tabLabels: { dna: '面部&骨相', style: '皮肤&风格', hairmakeup: '发型&妆容', optimize: '颜值&蜕变' },
     shared: false,
@@ -274,15 +274,36 @@ Page({
 
     this.setData({
       report,
+      activeTab: this.getInitialTab(id),
       scoreRotation: Math.round((report.basic.overallScore / 10) * 360),
       cdnImages: buildCdnImages(report)
     })
     setTimeout(() => this.drawRadarChart(), 300)
   },
 
+  // 首次进入默认 dna，再次进入恢复用户最近停留的 tab（按报告 id 维度记录）
+  getInitialTab(id) {
+    const validTabs = this.data.tabKeys
+    try {
+      const map = wx.getStorageSync('reportLastTab') || {}
+      const last = id && map[id]
+      if (last && validTabs.indexOf(last) >= 0) return last
+    } catch (e) {}
+    return 'dna'
+  },
+
   onTabTap(e) {
     const tab = e.currentTarget.dataset.tab
     this.setData({ activeTab: tab })
+    // 持久化用户最近停留的 tab
+    try {
+      const report = this.data.report
+      if (report && report.id) {
+        const map = wx.getStorageSync('reportLastTab') || {}
+        map[report.id] = tab
+        wx.setStorageSync('reportLastTab', map)
+      }
+    } catch (e) {}
     // 切换Tab后重绘雷达图
     setTimeout(() => this.drawRadarChart(), 100)
   },
