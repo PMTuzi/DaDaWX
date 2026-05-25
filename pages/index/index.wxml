@@ -150,8 +150,8 @@
     <text class="beauty-fab-text">蜕变</text>
   </view>
 
-  <!-- 颜值等级对照表（可折叠） -->
-  <view class="level-table">
+  <!-- 颜值等级对照表（可折叠，仅已诊断态显示） -->
+  <view class="level-table" wx:if="{{hasReport}}">
     <view class="level-table-header" bindtap="onToggleLevelTable" hover-class="level-table-header-hover">
       <text class="level-table-title">颜值等级对照表</text>
       <text class="level-table-arrow {{showLevelTable ? 'level-table-arrow-open' : ''}}">›</text>
