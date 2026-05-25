@@ -83,12 +83,16 @@ router.post('/start-analysis', authRequired, async (req, res) => {
         }
       })
 
-      // 计算评分
+      // 计算评分（与 prompt【评分标准】对齐：face 主导 50%，去掉 +7*15% 的安全分基线）
       task.step = '生成报告'; task.progress = 80
-      const faceScore = part1Data.module1_dna?.faceScore || 7
-      const skinScore = ((part1Data.module2_style?.brightness || 7) + (part1Data.module2_style?.purity || 7)) / 2
-      const styleScore = part1Data.module2_style?.mainScore || 7
-      const overallScore = Math.round((faceScore * 0.35 + skinScore * 0.3 + styleScore * 0.2 + 7 * 0.15) * 10) / 10
+      const faceScore = part1Data.module1_dna?.faceScore || 5
+      const skinScore = ((part1Data.module2_style?.brightness || 5) + (part1Data.module2_style?.purity || 5)) / 2
+      const styleScore = part1Data.module2_style?.mainScore || 5
+      let overallScore = Math.round((faceScore * 0.5 + skinScore * 0.3 + styleScore * 0.2) * 10) / 10
+      // 反诋纪律：face 是核心，skin/style 不得把总分拉高超过 face+1，避免"脸4分总分6"的假象
+      if (overallScore > faceScore + 1) {
+        overallScore = Math.round((faceScore + 1) * 10) / 10
+      }
 
       const result = {
         basic: {
@@ -193,10 +197,14 @@ router.post('/full-analysis', authRequired, async (req, res) => {
       }
     })
 
-    const faceScore = part1Data.module1_dna?.faceScore || 7
-    const skinScore = ((part1Data.module2_style?.brightness || 7) + (part1Data.module2_style?.purity || 7)) / 2
-    const styleScore = part1Data.module2_style?.mainScore || 7
-    const overallScore = Math.round((faceScore * 0.35 + skinScore * 0.3 + styleScore * 0.2 + 7 * 0.15) * 10) / 10
+    const faceScore = part1Data.module1_dna?.faceScore || 5
+    const skinScore = ((part1Data.module2_style?.brightness || 5) + (part1Data.module2_style?.purity || 5)) / 2
+    const styleScore = part1Data.module2_style?.mainScore || 5
+    let overallScore = Math.round((faceScore * 0.5 + skinScore * 0.3 + styleScore * 0.2) * 10) / 10
+    // 反诋纪律：face 是核心，skin/style 不得把总分拉高超过 face+1
+    if (overallScore > faceScore + 1) {
+      overallScore = Math.round((faceScore + 1) * 10) / 10
+    }
 
     const result = {
       basic: { overallScore, tags: [part1Data.module1_dna?.faceType || '待分析', part1Data.module2_style?.season || '待分析', part1Data.module2_style?.mainStyle || '待分析'] },
