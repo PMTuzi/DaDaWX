@@ -13,7 +13,17 @@ Page({
     showLoginModal: false,
     loginAvatarUrl: '',
     loginNickname: '',
-    pendingAction: '' // 'diagnose'（穿搭决策入口已移至「反种草」Tab）
+    pendingAction: '', // 'diagnose'（穿搭决策入口已移至「反种草」Tab）
+    // 颜值等级对照表折叠态
+    showLevelTable: true
+  },
+
+  onToggleLevelTable() {
+    this.setData({ showLevelTable: !this.data.showLevelTable })
+  },
+
+  onPreviewLevelTable() {
+    wx.previewImage({ urls: ['/images/颜值等级对照表.jpg'] })
   },
 
   onLoad() {

@@ -25,6 +25,9 @@
       <view class="image-add" wx:if="{{images.length < 4}}" bindtap="onAddImage">
         <text class="add-icon">+</text>
         <text class="add-text">添加图片</text>
+        <view class="add-pulse" wx:if="{{images.length === 0}}"></view>
+        <view class="add-pulse add-pulse-2" wx:if="{{images.length === 0}}"></view>
+        <view class="add-finger" wx:if="{{images.length === 0}}"></view>
       </view>
     </view>
     <!-- 模式提示 -->
