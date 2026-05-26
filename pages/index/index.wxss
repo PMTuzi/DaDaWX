@@ -308,6 +308,16 @@
 .page-index-undiag .brand-area {
   transform: translateY(-150rpx);
 }
+/* 未诊断态：品牌文案放大，强化主页气势 */
+.page-index-undiag .logo {
+  font-size: 64rpx;
+  letter-spacing: 8rpx;
+  margin-bottom: 10rpx;
+}
+.page-index-undiag .slogan {
+  font-size: 30rpx;
+  letter-spacing: 3rpx;
+}
 .page-index-undiag .intro-video {
   transform: translateY(-180rpx);
 }

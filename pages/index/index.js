@@ -246,17 +246,15 @@ Page({
     try {
       wx.showShareMenu({ withShareTicket: true, menus: ['shareAppMessage', 'shareTimeline'] })
     } catch (e) {}
-    // 恢复分享解锁状态
-    try {
-      if (wx.getStorageSync('reportShared')) {
-        this.setData({ shared: true })
-      }
-    } catch (e) {}
+    // 恢复分享解锁状态（2 分钟内有效，超时自动重新锁定）
+    this._refreshShareLock()
     this.loadLatestReport()
     this.generateTickerList()
   },
 
   onShow() {
+    // 每次进入页面都重新计算解锁是否过期
+    this._refreshShareLock()
     // 检查是否有从 report 中转/历史报告进入要显示的指定 id
     const pendingId = wx.getStorageSync('pendingReportId')
     if (pendingId) {
@@ -269,10 +267,12 @@ Page({
 
   onHide() {
     this.stopTaskPolling()
+    this._clearShareLockTimer()
   },
 
   onUnload() {
     this.stopTaskPolling()
+    this._clearShareLockTimer()
   },
 
   startTaskPolling() {
@@ -624,8 +624,9 @@ Page({
 
   // ==================== 底部操作 ====================
   async onSaveAllImages() {
+    this._refreshShareLock()
     if (!this.data.shared) {
-      wx.showToast({ title: '点击右上角···转发解锁', icon: 'none', duration: 2200 })
+      wx.showToast({ title: '点击右上角···转发解锁（2分钟内有效）', icon: 'none', duration: 2200 })
       return
     }
     try {
@@ -654,8 +655,9 @@ Page({
   },
 
   onReDiagnose() {
+    this._refreshShareLock()
     if (!this.data.shared) {
-      wx.showToast({ title: '点击右上角···转发解锁', icon: 'none', duration: 2200 })
+      wx.showToast({ title: '点击右上角···转发解锁（2分钟内有效）', icon: 'none', duration: 2200 })
       return
     }
     wx.navigateTo({ url: '/pages/diagnose/diagnose' })
@@ -936,13 +938,63 @@ Page({
   },
   onIntroVideoPlay() {},
 
-  onShareAppMessage() {
-    // 一旦用户从右上角菜单触发转发，立即解锁并持久化
-    if (!this.data.shared) {
-      this.setData({ shared: true })
-      try { wx.setStorageSync('reportShared', true) } catch (e) {}
-      wx.showToast({ title: '已解锁保存与重新诊断', icon: 'none', duration: 1800 })
+  // ==================== 分享解锁（2 分钟有效） ====================
+  // 时长 ms：超过此时间后自动重新锁定
+  _SHARE_UNLOCK_TTL: 2 * 60 * 1000,
+
+  // 从存储里恢复解锁状态：未过期则保持解锁并安排到期定时器；已过期则清理
+  _refreshShareLock() {
+    let ts = 0
+    try { ts = Number(wx.getStorageSync('reportSharedAt')) || 0 } catch (e) {}
+    const remain = ts ? (this._SHARE_UNLOCK_TTL - (Date.now() - ts)) : 0
+    if (ts && remain > 0) {
+      if (!this.data.shared) this.setData({ shared: true })
+      this._scheduleShareLockExpire(remain)
+    } else {
+      if (ts) {
+        try { wx.removeStorageSync('reportSharedAt') } catch (e) {}
+        try { wx.removeStorageSync('reportShared') } catch (e) {}  // 清理旧字段
+      }
+      if (this.data.shared) this.setData({ shared: false })
+      this._clearShareLockTimer()
     }
+  },
+
+  _scheduleShareLockExpire(ms) {
+    this._clearShareLockTimer()
+    this._shareLockTimer = setTimeout(() => {
+      try { wx.removeStorageSync('reportSharedAt') } catch (e) {}
+      try { wx.removeStorageSync('reportShared') } catch (e) {}
+      if (this.data && this.data.shared) {
+        this.setData({ shared: false })
+        wx.showToast({ title: '解锁已过期，再次分享可继续', icon: 'none', duration: 1800 })
+      }
+      this._shareLockTimer = null
+    }, ms)
+  },
+
+  _clearShareLockTimer() {
+    if (this._shareLockTimer) {
+      clearTimeout(this._shareLockTimer)
+      this._shareLockTimer = null
+    }
+  },
+
+  // 用户触发分享时调用：写入解锁时间戳并安排到期
+  _unlockByShare(silent) {
+    const now = Date.now()
+    try { wx.setStorageSync('reportSharedAt', now) } catch (e) {}
+    const wasUnlocked = this.data.shared
+    if (!wasUnlocked) this.setData({ shared: true })
+    this._scheduleShareLockExpire(this._SHARE_UNLOCK_TTL)
+    if (!wasUnlocked && !silent) {
+      wx.showToast({ title: '已解锁 2 分钟，请抓紧操作', icon: 'none', duration: 1800 })
+    }
+  },
+
+  onShareAppMessage() {
+    // 一旦用户从右上角菜单触发转发，立即解锁，2 分钟内有效
+    this._unlockByShare()
     if (this.data.hasReport) {
       const report = this.data.latestReport
       const score = report?.basic?.overallScore || ''
@@ -960,10 +1012,7 @@ Page({
   },
 
   onShareTimeline() {
-    if (!this.data.shared) {
-      this.setData({ shared: true })
-      try { wx.setStorageSync('reportShared', true) } catch (e) {}
-    }
+    this._unlockByShare(true)
     const report = this.data.latestReport
     const score = report?.basic?.overallScore || ''
     return {
