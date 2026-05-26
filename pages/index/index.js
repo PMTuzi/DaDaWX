@@ -242,6 +242,16 @@ Page({
     if (options && options.id) {
       wx.setStorageSync('pendingReportId', options.id)
     }
+    // 启用右上角胶囊菜单中的"转发"
+    try {
+      wx.showShareMenu({ withShareTicket: true, menus: ['shareAppMessage', 'shareTimeline'] })
+    } catch (e) {}
+    // 恢复分享解锁状态
+    try {
+      if (wx.getStorageSync('reportShared')) {
+        this.setData({ shared: true })
+      }
+    } catch (e) {}
     this.loadLatestReport()
     this.generateTickerList()
   },
@@ -613,7 +623,7 @@ Page({
   // ==================== 底部操作 ====================
   async onSaveAllImages() {
     if (!this.data.shared) {
-      wx.showToast({ title: '请先分享解锁', icon: 'none' })
+      wx.showToast({ title: '点击右上角···转发解锁', icon: 'none', duration: 2200 })
       return
     }
     try {
@@ -643,7 +653,7 @@ Page({
 
   onReDiagnose() {
     if (!this.data.shared) {
-      wx.showToast({ title: '请先分享解锁', icon: 'none' })
+      wx.showToast({ title: '点击右上角···转发解锁', icon: 'none', duration: 2200 })
       return
     }
     wx.navigateTo({ url: '/pages/diagnose/diagnose' })
@@ -925,8 +935,13 @@ Page({
   onIntroVideoPlay() {},
 
   onShareAppMessage() {
-    if (this.data.hasReport && !this.data.shared) {
+    // 一旦用户从右上角菜单触发转发，立即解锁并持久化
+    if (!this.data.shared) {
       this.setData({ shared: true })
+      try { wx.setStorageSync('reportShared', true) } catch (e) {}
+      wx.showToast({ title: '已解锁保存与重新诊断', icon: 'none', duration: 1800 })
+    }
+    if (this.data.hasReport) {
       const report = this.data.latestReport
       const score = report?.basic?.overallScore || ''
       return {
@@ -939,6 +954,20 @@ Page({
       title: '美哒AI - 你的「反种草」形象诊断师',
       path: '/pages/index/index',
       imageUrl: '/images/finalbanner1.jpg'
+    }
+  },
+
+  onShareTimeline() {
+    if (!this.data.shared) {
+      this.setData({ shared: true })
+      try { wx.setStorageSync('reportShared', true) } catch (e) {}
+    }
+    const report = this.data.latestReport
+    const score = report?.basic?.overallScore || ''
+    return {
+      title: score ? `我的形象风格AI评分：${score}分` : 'AI形象风格诊断',
+      query: '',
+      imageUrl: '/images/打分分享banner.jpg'
     }
   },
 

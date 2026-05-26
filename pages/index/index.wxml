@@ -442,7 +442,11 @@
 
     <!-- 报告末尾流式操作收尾区 -->
     <view class="report-actions">
-      <view class="report-actions-row">
+      <view class="report-actions-tip" wx:if="{{!shared}}">
+        <text class="report-actions-tip-icon">↗</text>
+        <text>转发任意聊天即可解锁保存与重新诊断</text>
+      </view>
+      <view class="report-actions-row" wx:if="{{shared}}">
         <button class="report-action-btn save" bindtap="onSaveAllImages">
           <text class="report-action-icon">⤓</text>
           <text class="report-action-text">保存形象诊断卡</text>
@@ -450,6 +454,16 @@
         <button class="report-action-btn redo" bindtap="onReDiagnose">
           <text class="report-action-icon">↻</text>
           <text class="report-action-text">重新拍照诊断</text>
+        </button>
+      </view>
+      <view class="report-actions-row" wx:else>
+        <button class="report-action-btn save locked" open-type="share">
+          <text class="report-action-icon">↗</text>
+          <text class="report-action-text">转发解锁·保存</text>
+        </button>
+        <button class="report-action-btn redo locked" open-type="share">
+          <text class="report-action-icon">↗</text>
+          <text class="report-action-text">转发解锁·重测</text>
         </button>
       </view>
     </view>

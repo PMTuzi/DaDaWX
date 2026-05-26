@@ -1150,7 +1150,7 @@
   border: 1rpx solid #DCE5EF;
 }
 .report-action-btn.locked {
-  opacity: 0.4;
+  opacity: 0.85;
 }
 .report-action-icon {
   font-size: 28rpx;
