@@ -524,7 +524,7 @@ Page({
   drawDNARadar(ctx, w, h, data) {
     if (!data?.faceFeatures) return
     const features = data.faceFeatures.slice(0, 5)
-    this._drawRadar(ctx, w, h, features.map(f => f.name), features.map(f => f.score || 5), '#D4B87A', '骨相评分')
+    this._drawRadar(ctx, w, h, features.map(f => f.name), features.map(f => f.score || 5), '#2D9BFF', '骨相评分')
   },
 
   drawStyleRadar(ctx, w, h, data) {
