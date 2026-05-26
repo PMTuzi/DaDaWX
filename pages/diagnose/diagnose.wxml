@@ -23,12 +23,38 @@
     <view class="scan-corner br"></view>
 
     <block wx:if="{{photoUrl}}">
-      <view class="photo-frame">
+      <view class="photo-frame {{analyzing ? 'is-scanning' : ''}}">
         <image class="photo-img" src="{{photoUrl}}" mode="aspectFill" />
-        <view class="scan-sweep"></view>
+        <view class="scan-sweep" wx:if="{{!analyzing}}"></view>
         <view class="photo-mask"></view>
+
+        <!-- 蓝色科技风扫描覆盖层 -->
+        <block wx:if="{{analyzing}}">
+          <view class="tech-overlay"></view>
+          <view class="tech-grid"></view>
+          <view class="tech-corner tl"></view>
+          <view class="tech-corner tr"></view>
+          <view class="tech-corner bl"></view>
+          <view class="tech-corner br"></view>
+          <view class="tech-scan-line"></view>
+
+          <view class="tech-status">
+            <view class="tech-tag">
+              <view class="tech-dot"></view>
+              <text>AI ANALYZING</text>
+            </view>
+            <view class="tech-label">{{scanLabel}}</view>
+            <view class="tech-percent">
+              <text class="tech-percent-num">{{progress}}</text>
+              <text class="tech-percent-sym">%</text>
+            </view>
+            <view class="tech-progress">
+              <view class="tech-progress-inner" style="width: {{progress}}%"></view>
+            </view>
+          </view>
+        </block>
       </view>
-      <view class="rechoose-btn" bindtap="onRechoose">
+      <view class="rechoose-btn" bindtap="onRechoose" wx:if="{{!analyzing}}">
         <text class="rechoose-icon">↻</text>
         <text>重新选择</text>
       </view>
@@ -47,16 +73,68 @@
   </view>
 
   <!-- 拍照贴士 -->
-  <view class="tips-grid" wx:if="{{guideVisible}}">
+  <view class="tips-grid" wx:if="{{guideVisible && !analyzing}}">
     <view class="tip-chip"><view class="dot"></view><text>正对镜头</text></view>
     <view class="tip-chip"><view class="dot"></view><text>光线均匀</text></view>
     <view class="tip-chip"><view class="dot"></view><text>素颜淡妆</text></view>
     <view class="tip-chip"><view class="dot"></view><text>不遮轮廓</text></view>
   </view>
 
+  <!-- 扫描态：底部互动卡片 -->
+  <view class="scan-insights" wx:if="{{analyzing}}">
+    <!-- 实时事实滚动 -->
+    <view class="insight-fact">
+      <view class="fact-icon-wrap">
+        <view class="fact-icon-ring"></view>
+        <text class="fact-icon">{{funFacts[currentFactIndex].icon}}</text>
+      </view>
+      <view class="fact-body">
+        <view class="fact-title">{{funFacts[currentFactIndex].title}}</view>
+        <view class="fact-sub">{{funFacts[currentFactIndex].sub}}</view>
+      </view>
+      <view class="fact-pager">
+        <view class="pager-dot {{idx === currentFactIndex ? 'active' : ''}}" wx:for="{{funFacts}}" wx:for-index="idx" wx:for-item="_" wx:key="idx"></view>
+      </view>
+    </view>
+
+    <!-- 数据指标三连 -->
+    <view class="insight-stats">
+      <view class="stat-cell">
+        <text class="stat-num">3000<text class="stat-unit">亿</text></text>
+        <text class="stat-label">大模型参数</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-cell">
+        <text class="stat-num">136<text class="stat-unit">点</text></text>
+        <text class="stat-label">面部关键点</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-cell">
+        <text class="stat-num">12<text class="stat-unit">维</text></text>
+        <text class="stat-label">气质评估</text>
+      </view>
+    </view>
+
+    <!-- 信任徽章 -->
+    <view class="insight-trust">
+      <view class="trust-avatars">
+        <view class="trust-avatar a1"></view>
+        <view class="trust-avatar a2"></view>
+        <view class="trust-avatar a3"></view>
+      </view>
+      <text class="trust-text">已为 <text class="trust-num">128,673</text> 位用户完成形象诊断</text>
+    </view>
+
+    <view class="insight-footnote">
+      <view class="foot-dot"></view>
+      <text>请保持页面打开，AI 正在为你定制专属报告</text>
+      <view class="foot-dot"></view>
+    </view>
+  </view>
+
   <!-- 行动区 -->
-  <view class="action-area safe-bottom">
-    <button class="start-btn {{isUploading || !photoUrl ? 'disabled' : ''}}" bindtap="onStartAnalysis" disabled="{{isUploading || !photoUrl}}" loading="{{isUploading}}">
+  <view class="action-area safe-bottom" wx:if="{{!analyzing}}">
+    <button class="start-btn {{(isUploading || !photoUrl) ? 'disabled' : ''}}" bindtap="onStartAnalysis" disabled="{{isUploading || !photoUrl}}" loading="{{isUploading}}">
       <text class="start-text">{{isUploading ? '上传中...' : '开始诊断'}}</text>
       <text class="start-arrow" wx:if="{{!isUploading}}">→</text>
     </button>

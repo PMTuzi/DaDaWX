@@ -315,7 +315,7 @@ Page({
       taskState.clear('diagnose')
       this.setData({ diagnoseTask: null })
     } else if (t.status === 'running') {
-      wx.navigateTo({ url: '/pages/analyzing/analyzing?view=1' })
+      wx.navigateTo({ url: '/pages/diagnose/diagnose?view=1' })
     }
   },
 
@@ -450,7 +450,13 @@ Page({
   onPreventBubble() {},
 
   navigateTo(action) {
-    if (action === 'diagnose') wx.navigateTo({ url: '/pages/diagnose/diagnose' })
+    if (action === 'diagnose') {
+      const t = taskState.get('diagnose')
+      const url = (t && t.status === 'running')
+        ? '/pages/diagnose/diagnose?view=1'
+        : '/pages/diagnose/diagnose'
+      wx.navigateTo({ url })
+    }
   },
 
   // ====================== 报告 Tab/雷达图（迁移自 report.js）======================
@@ -660,7 +666,11 @@ Page({
       wx.showToast({ title: '点击右上角···转发解锁（2分钟内有效）', icon: 'none', duration: 2200 })
       return
     }
-    wx.navigateTo({ url: '/pages/diagnose/diagnose' })
+    const t = taskState.get('diagnose')
+    const url = (t && t.status === 'running')
+      ? '/pages/diagnose/diagnose?view=1'
+      : '/pages/diagnose/diagnose'
+    wx.navigateTo({ url })
   },
 
   _roundRect(ctx, x, y, w, h, r) {
