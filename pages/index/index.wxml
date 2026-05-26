@@ -510,6 +510,15 @@
         </swiper-item>
       </swiper>
     </view>
+    <!-- 信任徽章：社交证明 -->
+    <view class="undiag-trust">
+      <view class="undiag-trust-avatars">
+        <view class="undiag-trust-avatar a1"></view>
+        <view class="undiag-trust-avatar a2"></view>
+        <view class="undiag-trust-avatar a3"></view>
+      </view>
+      <text class="undiag-trust-text">已为 <text class="undiag-trust-num">128,673</text> 位用户完成形象诊断</text>
+    </view>
   </view>
 
   <!-- 登录确认弹窗 -->
