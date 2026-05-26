@@ -653,9 +653,9 @@
   width: 12rpx;
   height: 12rpx;
   border-radius: 50%;
-  background: #B89968;
+  background: #2E7BD6;
   flex-shrink: 0;
-  box-shadow: 0 0 0 4rpx rgba(184, 153, 104, 0.18);
+  box-shadow: 0 0 0 4rpx rgba(46, 123, 214, 0.18);
   animation: task-bar-pulse 1.4s ease-in-out infinite;
 }
 .task-bar-label {
@@ -667,14 +667,14 @@
 }
 .task-bar-progress {
   font-size: 22rpx;
-  color: #B89968;
+  color: #2E7BD6;
   font-weight: 600;
   font-family: 'Menlo', 'Courier New', monospace;
   flex-shrink: 0;
 }
 .task-bar-cta {
   font-size: 22rpx;
-  color: #B89968;
+  color: #2E7BD6;
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -690,7 +690,7 @@
 }
 .task-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #B89968, #D4B883);
+  background: linear-gradient(90deg, #2E7BD6, #6BB6FF);
   border-radius: 3rpx;
   transition: width 0.4s ease;
 }
