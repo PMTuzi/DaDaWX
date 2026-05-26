@@ -167,13 +167,85 @@ function request(url, options = {}) {
   })
 }
 
-// 上传图片：仅 OSS 直传（架构简化，不再有任何降级路径）
+// 上传图片：先压缩到长边 1024 + JPEG 80%，再 OSS 直传
 async function uploadImage(filePath) {
   try {
-    return await uploadImageViaOSS(filePath)
+    const compressed = await compressImageForUpload(filePath)
+    return await uploadImageViaOSS(compressed)
   } catch (err) {
     _ossTokenCache = null  // 失败清缓存，下次重新取凭证
     throw err
+  }
+}
+
+// 压缩图片：长边 ≤ 1024px，JPEG quality 80
+// 失败时回退原图，保证主流程不被卡住
+async function compressImageForUpload(filePath) {
+  if (!filePath || /^https?:\/\//.test(filePath) || /^cloud:\/\//.test(filePath)) {
+    return filePath
+  }
+  const MAX_SIDE = 1024
+  const QUALITY = 80
+  const t0 = Date.now()
+  try {
+    const info = await new Promise((resolve, reject) => {
+      wx.getImageInfo({ src: filePath, success: resolve, fail: reject })
+    })
+    const w = info.width || 0
+    const h = info.height || 0
+    const longSide = Math.max(w, h)
+
+    // 已小于阈值：仅做 JPEG 质量压缩
+    if (!longSide || longSide <= MAX_SIDE) {
+      try {
+        const r = await new Promise((resolve, reject) => {
+          wx.compressImage({ src: filePath, quality: QUALITY, success: resolve, fail: reject })
+        })
+        const out = r && r.tempFilePath ? r.tempFilePath : filePath
+        console.log(`[compress] keep size ${w}x${h} q${QUALITY} ${Date.now()-t0}ms`)
+        return out
+      } catch (e) {
+        return filePath
+      }
+    }
+
+    // 计算目标尺寸（保持长宽比）
+    const ratio = MAX_SIDE / longSide
+    const targetW = Math.round(w * ratio)
+    const targetH = Math.round(h * ratio)
+
+    // 优先用 compressImage 的 compressedWidth/Height（基础库 2.26.0+）
+    try {
+      const r = await new Promise((resolve, reject) => {
+        wx.compressImage({
+          src: filePath,
+          quality: QUALITY,
+          compressedWidth: targetW,
+          compressHeight: targetH,
+          success: resolve,
+          fail: reject
+        })
+      })
+      if (r && r.tempFilePath) {
+        console.log(`[compress] ${w}x${h} -> ${targetW}x${targetH} q${QUALITY} ${Date.now()-t0}ms`)
+        return r.tempFilePath
+      }
+    } catch (e) {
+      console.warn('[compress] 尺寸压缩失败，仅做质量压缩:', e && e.errMsg)
+    }
+
+    // 回退：仅做 JPEG 质量压缩（不缩放）
+    try {
+      const r = await new Promise((resolve, reject) => {
+        wx.compressImage({ src: filePath, quality: QUALITY, success: resolve, fail: reject })
+      })
+      return (r && r.tempFilePath) || filePath
+    } catch (e) {
+      return filePath
+    }
+  } catch (e) {
+    console.warn('[compress] 跳过压缩:', e && e.errMsg)
+    return filePath
   }
 }
 
