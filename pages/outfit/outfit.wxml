@@ -1,6 +1,20 @@
 <!--pages/outfit/outfit.wxml-->
 <wxs src="../../utils/helpers.wxs" module="h" />
 <view class="page-outfit">
+  <!-- 顶部后台任务进度条 -->
+  <view class="task-bar task-bar-{{consultTask.status}}" wx:if="{{consultTask}}" bindtap="onTapConsultTask">
+    <view class="task-bar-row">
+      <text class="task-bar-dot"></text>
+      <text class="task-bar-label">{{consultTask.label || 'AI 穿搭决策中'}}</text>
+      <text class="task-bar-progress" wx:if="{{consultTask.status === 'running'}}">{{consultTask.progress}}%</text>
+      <text class="task-bar-cta" wx:if="{{consultTask.status === 'done'}}">查看 ›</text>
+      <text class="task-bar-cta task-bar-cta-error" wx:if="{{consultTask.status === 'error'}}">查看错误 ›</text>
+    </view>
+    <view class="task-bar-track">
+      <view class="task-bar-fill" style="width: {{consultTask.status === 'running' ? consultTask.progress : 100}}%"></view>
+    </view>
+  </view>
+
   <!-- 顶部标题 -->
   <view class="page-header">
     <view class="header-title">穿搭决策</view>

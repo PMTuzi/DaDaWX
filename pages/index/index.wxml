@@ -12,6 +12,20 @@
   module.exports = { cleanAge: cleanAge };
 </wxs>
 <view class="page-index {{hasReport ? '' : 'page-index-undiag'}}">
+  <!-- 顶部后台任务进度条 -->
+  <view class="task-bar task-bar-{{diagnoseTask.status}}" wx:if="{{diagnoseTask}}" bindtap="onTapDiagnoseTask">
+    <view class="task-bar-row">
+      <text class="task-bar-dot"></text>
+      <text class="task-bar-label">{{diagnoseTask.label || 'AI 形象诊断中'}}</text>
+      <text class="task-bar-progress" wx:if="{{diagnoseTask.status === 'running'}}">{{diagnoseTask.progress}}%</text>
+      <text class="task-bar-cta" wx:if="{{diagnoseTask.status === 'done'}}">查看 ›</text>
+      <text class="task-bar-cta task-bar-cta-error" wx:if="{{diagnoseTask.status === 'error'}}">查看错误 ›</text>
+    </view>
+    <view class="task-bar-track">
+      <view class="task-bar-fill" style="width: {{diagnoseTask.status === 'running' ? diagnoseTask.progress : 100}}%"></view>
+    </view>
+  </view>
+
   <!-- 顶部品牌区 -->
   <view class="header {{hasReport ? 'header-diagnosed' : ''}}">
     <view class="brand-area {{hasReport ? 'brand-area-small' : ''}}">
@@ -46,11 +60,6 @@
                 <text class="age-chip-icon">✦</text>
                 <text class="age-chip-text">{{util.cleanAge(t)}}</text>
               </view>
-            </block>
-          </view>
-          <view class="score-tags">
-            <block wx:for="{{latestReport.basic.tags}}" wx:key="*this" wx:for-item="t" wx:for-index="i">
-              <text class="tag tag-warm" wx:if="{{t && t.indexOf('视龄') !== 0 && i !== latestReport.basic.tags.length - 1}}">{{t}}</text>
             </block>
           </view>
           <!-- 颜值百分位 -->

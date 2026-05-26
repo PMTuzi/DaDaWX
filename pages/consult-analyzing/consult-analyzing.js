@@ -1,5 +1,6 @@
 // pages/consult-analyzing/consult-analyzing.js
 const { request, API, checkServerReachable, pollConsultTask } = require('../../utils/api')
+const taskState = require('../../utils/task-state')
 
 // 用闭包变量代替实例属性，避免微信小程序 Page 构造器限制
 // 实例级状态
@@ -48,6 +49,7 @@ Page({
     }
     this.startAnalysis().catch(err => {
       console.error('[consult-analyzing] 未捕获异常:', err)
+      taskState.set('consult', { status: 'error', errorMsg: err && err.message ? err.message : '分析过程异常' })
       if (this._alive) {
         this.onError(err && err.message ? err.message : '分析过程异常')
       }
@@ -69,6 +71,9 @@ Page({
   safeSetData(data) {
     if (this._alive) {
       try { this.setData(data) } catch (e) {}
+    }
+    if (data && typeof data.progress === 'number') {
+      taskState.set('consult', { status: 'running', progress: data.progress, label: 'AI 穿搭决策中' })
     }
   },
 
@@ -168,6 +173,15 @@ Page({
 
       const record = this.saveResult(result, consultData)
 
+      // 通知全局：决策完成，可在穿搭决策 Tab 查看
+      taskState.set('consult', {
+        status: 'done',
+        progress: 100,
+        label: '穿搭决策完成',
+        resultUrl: `/pages/consult-result/consult-result?id=${record.id}`,
+        resultId: record.id
+      })
+
       // 即使页面已卸载，也通知用户结果已保存
       if (!this._alive) {
         wx.showToast({ title: '决策完成，请在穿搭页查看', icon: 'none', duration: 3000 })
@@ -177,6 +191,7 @@ Page({
       setTimeout(() => {
         if (!this._alive) return
         try {
+          taskState.clear('consult')
           wx.redirectTo({
             url: `/pages/consult-result/consult-result?id=${record.id}`,
             fail: () => {
@@ -196,6 +211,7 @@ Page({
     } catch (err) {
       this._stopCreep()
       console.error('[consult-analyzing] 分析失败:', err)
+      taskState.set('consult', { status: 'error', errorMsg: err.message || '分析失败，请重试' })
       this.onError(err.message || '分析失败，请重试')
     }
   },

@@ -113,10 +113,10 @@ Page({
         `localPhoto=${encodeURIComponent(savedPhoto || this.data.photoUrl)}`
       ].join('&')
 
-      wx.navigateTo({
+      wx.redirectTo({
         url: `/pages/analyzing/analyzing?${params}`,
         fail: (err) => {
-          console.error('[diagnose] navigateTo 失败:', err)
+          console.error('[diagnose] redirectTo 失败:', err)
           wx.showToast({ title: '页面跳转失败', icon: 'none' })
         }
       })

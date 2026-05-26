@@ -9,13 +9,17 @@ function formatDate(date) {
   return `${year}-${month}-${day} ${hour}:${minute}`
 }
 
-// 评分等级
+// 评分等级（与服务端 prompt 评分锚点保持一致）
 function getScoreLevel(score) {
-  if (score >= 9) return { text: '极佳', color: '#27ae60' }
-  if (score >= 8) return { text: '优秀', color: '#2ecc71' }
-  if (score >= 7) return { text: '良好', color: '#f39c12' }
-  if (score >= 6) return { text: '中等', color: '#e67e22' }
-  return { text: '待提升', color: '#e74c3c' }
+  const s = Number(score) || 0
+  if (s >= 9) return { text: '顶级·惊艳天仙', color: '#c9a227' }
+  if (s >= 8) return { text: '极佳·明星水准', color: '#27ae60' }
+  if (s >= 7) return { text: '优秀·气质美女', color: '#2ecc71' }
+  if (s >= 6) return { text: '中上·小家美女', color: '#f39c12' }
+  if (s >= 5) return { text: '中等·大众顺眼', color: '#e67e22' }
+  if (s >= 4) return { text: '尚可·中等偏下', color: '#d35400' }
+  if (s >= 3) return { text: '普通·大众化水准', color: '#c0392b' }
+  return { text: '低谷·极差观感', color: '#7f1d1d' }
 }
 
 // 颜值百分位（颜值打败 X% 的人）

@@ -238,9 +238,9 @@ function buildCdnImages(report) {
 Page({
   data: {
     report: null,
-    activeTab: 'dna',
-    tabKeys: ['optimize', 'hairmakeup', 'dna', 'style', 'celebrity'],
-    tabLabels: { dna: '面部&骨相', style: '皮肤&风格', hairmakeup: '发型&妆容', optimize: '颜值&蜕变', celebrity: '明星相似' },
+    activeTab: 'celebrity',
+    tabKeys: ['celebrity', 'optimize', 'hairmakeup', 'dna', 'style'],
+    tabLabels: { celebrity: '明星相似', optimize: '颜值&蜕变', hairmakeup: '发型&妆容', dna: '面部&骨相', style: '皮肤&风格' },
     shared: false,
     // Canvas 雷达图
     radarCanvasId: '',
@@ -280,36 +280,18 @@ Page({
 
     this.setData({
       report,
-      activeTab: this.getInitialTab(id),
+      activeTab: 'celebrity',
       scoreRotation: Math.round((report.basic.overallScore / 10) * 360),
       cdnImages: buildCdnImages(report)
     })
     setTimeout(() => this.drawRadarChart(), 300)
   },
 
-  // 首次进入默认 dna，再次进入恢复用户最近停留的 tab（按报告 id 维度记录）
-  getInitialTab(id) {
-    const validTabs = this.data.tabKeys
-    try {
-      const map = wx.getStorageSync('reportLastTab') || {}
-      const last = id && map[id]
-      if (last && validTabs.indexOf(last) >= 0) return last
-    } catch (e) {}
-    return 'dna'
-  },
+  // 每次进入报告页都从第一个 tab（明星相似）开始，不保留上次停留位置
 
   onTabTap(e) {
     const tab = e.currentTarget.dataset.tab
     this.setData({ activeTab: tab })
-    // 持久化用户最近停留的 tab
-    try {
-      const report = this.data.report
-      if (report && report.id) {
-        const map = wx.getStorageSync('reportLastTab') || {}
-        map[report.id] = tab
-        wx.setStorageSync('reportLastTab', map)
-      }
-    } catch (e) {}
     // 切换Tab后重绘雷达图
     setTimeout(() => this.drawRadarChart(), 100)
   },

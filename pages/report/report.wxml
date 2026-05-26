@@ -14,6 +14,9 @@
 <view class="page-report" wx:if="{{report}}">
   <!-- 顶部Tab导航 -->
   <view class="tab-bar">
+    <view class="tab-item {{activeTab === 'celebrity' ? 'active' : ''}}" data-tab="celebrity" bindtap="onTabTap">
+      <text class="tab-label">明星风格</text>
+    </view>
     <view class="tab-item {{activeTab === 'optimize' ? 'active' : ''}}" data-tab="optimize" bindtap="onTabTap">
       <text class="tab-label">颜值蜕变</text>
     </view>
@@ -25,9 +28,6 @@
     </view>
     <view class="tab-item {{activeTab === 'style' ? 'active' : ''}}" data-tab="style" bindtap="onTabTap">
       <text class="tab-label">色彩风格</text>
-    </view>
-    <view class="tab-item {{activeTab === 'celebrity' ? 'active' : ''}}" data-tab="celebrity" bindtap="onTabTap">
-      <text class="tab-label">明星相似</text>
     </view>
   </view>
 
@@ -509,11 +509,7 @@
           <view class="celeb-rank rank-{{ci + 1}}">
             <text class="celeb-rank-text">{{ci + 1}}</text>
           </view>
-          <!-- 头像（无图时显示首字母占位） -->
-          <view class="celeb-avatar">
-            <image class="celeb-avatar-img" wx:if="{{item.imageUrl}}" src="{{item.imageUrl}}" mode="aspectFill" data-ci="{{ci}}" binderror="onCelebImgError"></image>
-            <text class="celeb-avatar-fallback" wx:else>{{item.name ? item.name.substring(0, 1) : '★'}}</text>
-          </view>
+          <!-- 头像区已移除，使用排名编号 + 信息双列布局 -->
           <view class="celeb-info">
             <view class="celeb-name-row">
               <text class="celeb-name">{{item.name}}</text>

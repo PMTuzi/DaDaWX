@@ -1,6 +1,7 @@
 // pages/index/index.js
 const { wxLogin, ensureLogin, request, API, uploadImage } = require('../../utils/api')
 const { formatDate, getScoreLevel, calcPercentile } = require('../../utils/format')
+const taskState = require('../../utils/task-state')
 
 Page({
   data: {
@@ -37,7 +38,9 @@ Page({
     ],
     // 首页宣传视频显示控制（用于网络抖动后重试加载）
     introVideoVisible: true,
-    introVideoRetry: 0
+    introVideoRetry: 0,
+    // 顶部后台任务进度条（诊断）
+    diagnoseTask: null
   },
 
   onLoad() {
@@ -48,6 +51,53 @@ Page({
 
   onShow() {
     this.loadLatestReport()
+    this.startTaskPolling()
+  },
+
+  onHide() {
+    this.stopTaskPolling()
+  },
+
+  onUnload() {
+    this.stopTaskPolling()
+  },
+
+  startTaskPolling() {
+    this.stopTaskPolling()
+    const tick = () => {
+      const t = taskState.get('diagnose')
+      this.setData({ diagnoseTask: t })
+      // 完成态：刷新最新报告，30s 后自动清理
+      if (t && t.status === 'done' && !this._doneClearTimer) {
+        this.loadLatestReport()
+        this._doneClearTimer = setTimeout(() => {
+          taskState.clear('diagnose')
+          this.setData({ diagnoseTask: null })
+          this._doneClearTimer = null
+        }, 30000)
+      }
+    }
+    tick()
+    this._taskTimer = setInterval(tick, 600)
+  },
+
+  stopTaskPolling() {
+    if (this._taskTimer) { clearInterval(this._taskTimer); this._taskTimer = null }
+    if (this._doneClearTimer) { clearTimeout(this._doneClearTimer); this._doneClearTimer = null }
+  },
+
+  onTapDiagnoseTask() {
+    const t = taskState.get('diagnose')
+    if (!t) return
+    if (t.status === 'done' && t.resultUrl) {
+      taskState.clear('diagnose')
+      this.setData({ diagnoseTask: null })
+      wx.navigateTo({ url: t.resultUrl })
+    } else if (t.status === 'error') {
+      wx.showModal({ title: '诊断失败', content: t.errorMsg || '请重新尝试', confirmText: '关闭', showCancel: false })
+      taskState.clear('diagnose')
+      this.setData({ diagnoseTask: null })
+    }
   },
 
   async checkLogin() {

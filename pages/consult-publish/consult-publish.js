@@ -433,10 +433,10 @@ Page({
       getApp().globalData.consultData = consultData
       wx.setStorageSync('consultData', consultData)
 
-      wx.navigateTo({
+      wx.redirectTo({
         url: `/pages/consult-analyzing/consult-analyzing?type=${type}`,
         fail: (err) => {
-          console.error('[consult-publish] navigateTo 失败:', err)
+          console.error('[consult-publish] redirectTo 失败:', err)
           wx.showToast({ title: '页面跳转失败', icon: 'none' })
         }
       })

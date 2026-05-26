@@ -1,6 +1,7 @@
 // pages/analyzing/analyzing.js
 // 异步任务模式：提交分析 → 轮询结果，避免 callContainer 超时
 const { request, API, runDiagnosis } = require('../../utils/api')
+const taskState = require('../../utils/task-state')
 
 Page({
   data: {
@@ -44,6 +45,7 @@ Page({
 
     this.startAnalysis().catch(err => {
       console.error('[analyzing] startAnalysis未捕获异常:', err)
+      taskState.set('diagnose', { status: 'error', errorMsg: err && err.message ? err.message : '诊断异常' })
       if (this._alive) this.onError(err && err.message ? err.message : '诊断异常')
     })
   },
@@ -61,6 +63,10 @@ Page({
 
   safeSetData(data) {
     if (this._alive) { try { this.setData(data) } catch (e) {} }
+    // 同步进度到全局任务状态（即使页面已卸载也继续更新）
+    if (data && typeof data.progress === 'number') {
+      taskState.set('diagnose', { status: 'running', progress: data.progress, label: 'AI 形象诊断中' })
+    }
   },
 
   _startCreep(maxProgress, interval) {
@@ -149,6 +155,15 @@ Page({
 
       this.saveReport(report)
 
+      // 通知全局：诊断完成，可在首页查看
+      taskState.set('diagnose', {
+        status: 'done',
+        progress: 100,
+        label: '形象诊断完成',
+        resultUrl: `/pages/report/report?id=${report.id}`,
+        resultId: report.id
+      })
+
       if (!this._alive) {
         wx.showToast({ title: '诊断完成，请在首页查看', icon: 'none', duration: 3000 })
         return
@@ -157,6 +172,8 @@ Page({
       setTimeout(() => {
         if (!this._alive) return
         try {
+          // 用户仍在 loading 页：直接跳到报告，并清空全局状态（已在当前页消化）
+          taskState.clear('diagnose')
           wx.redirectTo({
             url: `/pages/report/report?id=${report.id}`,
             fail: () => {
@@ -172,6 +189,7 @@ Page({
       }, 500)
     } catch (err) {
       console.error('[analyzing] 诊断失败:', err)
+      taskState.set('diagnose', { status: 'error', errorMsg: err.message || '诊断失败，请重试' })
       this.onError(err.message || '诊断失败，请重试')
     }
   },

@@ -1,5 +1,6 @@
 // pages/outfit/outfit.js
 const app = getApp()
+const taskState = require('../../utils/task-state')
 
 Page({
   data: {
@@ -7,7 +8,8 @@ Page({
     latestReport: null,
     styleTagsExpanded: false,
     recentConsults: [],
-    showHistory: false
+    showHistory: false,
+    consultTask: null
   },
 
   onLoad() {
@@ -18,6 +20,52 @@ Page({
   onShow() {
     this.checkReport()
     this.loadHistory()
+    this.startTaskPolling()
+  },
+
+  onHide() {
+    this.stopTaskPolling()
+  },
+
+  onUnload() {
+    this.stopTaskPolling()
+  },
+
+  startTaskPolling() {
+    this.stopTaskPolling()
+    const tick = () => {
+      const t = taskState.get('consult')
+      this.setData({ consultTask: t })
+      if (t && t.status === 'done' && !this._doneClearTimer) {
+        this.loadHistory()
+        this._doneClearTimer = setTimeout(() => {
+          taskState.clear('consult')
+          this.setData({ consultTask: null })
+          this._doneClearTimer = null
+        }, 30000)
+      }
+    }
+    tick()
+    this._taskTimer = setInterval(tick, 600)
+  },
+
+  stopTaskPolling() {
+    if (this._taskTimer) { clearInterval(this._taskTimer); this._taskTimer = null }
+    if (this._doneClearTimer) { clearTimeout(this._doneClearTimer); this._doneClearTimer = null }
+  },
+
+  onTapConsultTask() {
+    const t = taskState.get('consult')
+    if (!t) return
+    if (t.status === 'done' && t.resultUrl) {
+      taskState.clear('consult')
+      this.setData({ consultTask: null })
+      wx.navigateTo({ url: t.resultUrl })
+    } else if (t.status === 'error') {
+      wx.showModal({ title: '决策失败', content: t.errorMsg || '请重新尝试', confirmText: '关闭', showCancel: false })
+      taskState.clear('consult')
+      this.setData({ consultTask: null })
+    }
   },
 
   checkReport() {
