@@ -13,6 +13,10 @@ Page({
   },
 
   onLoad() {
+    // 启用右上角胶囊菜单中的"转发"
+    try {
+      wx.showShareMenu({ withShareTicket: true, menus: ['shareAppMessage', 'shareTimeline'] })
+    } catch (e) {}
     this.loadUserInfo()
   },
 
@@ -224,5 +228,33 @@ Page({
         }
       }
     })
+  },
+
+  // 与首页保持一致的分享文案/图片
+  _buildShareTitle() {
+    let pct = 90
+    try {
+      const reports = wx.getStorageSync('reports') || []
+      const latest = reports[0] && reports[0].basic ? reports[0] : null
+      const v = latest && latest.basic && latest.basic.percentile
+      if (v != null && !isNaN(v)) pct = v
+    } catch (e) {}
+    return `我的颜值打败了 ${pct}% 的人，你敢测吗？AI 帮你打个真分`
+  },
+
+  onShareAppMessage() {
+    return {
+      title: this._buildShareTitle(),
+      path: '/pages/index/index',
+      imageUrl: '/images/yanzhi1.jpg'
+    }
+  },
+
+  onShareTimeline() {
+    return {
+      title: this._buildShareTitle(),
+      query: '',
+      imageUrl: '/images/yanzhi1.jpg'
+    }
   }
 })

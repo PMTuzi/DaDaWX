@@ -917,6 +917,8 @@ Page({
         setTimeout(() => {
           wx.canvasToTempFilePath({
             canvas,
+            fileType: 'jpg',
+            quality: 0.85,
             success: (r) => resolve(r.tempFilePath),
             fail: reject
           })
@@ -995,30 +997,25 @@ Page({
   onShareAppMessage() {
     // 一旦用户从右上角菜单触发转发，立即解锁，2 分钟内有效
     this._unlockByShare()
-    if (this.data.hasReport) {
-      const report = this.data.latestReport
-      const score = report?.basic?.overallScore || ''
-      return {
-        title: score ? `我的形象风格AI评分：${score}分，快来测测你的风格！` : 'AI形象风格诊断，快来测测你的风格！',
-        path: '/pages/index/index',
-        imageUrl: '/images/打分分享banner.jpg'
-      }
-    }
+    const report = this.data.latestReport
+    const pct = report?.basic?.percentile
+    const pctNum = (pct != null && !isNaN(pct)) ? pct : 90
     return {
-      title: '美哒AI - 你的「反种草」形象诊断师',
+      title: `我的颜值打败了 ${pctNum}% 的人，你敢测吗？AI 帮你打个真分`,
       path: '/pages/index/index',
-      imageUrl: '/images/finalbanner1.jpg'
+      imageUrl: '/images/yanzhi1.jpg'
     }
   },
 
   onShareTimeline() {
     this._unlockByShare(true)
     const report = this.data.latestReport
-    const score = report?.basic?.overallScore || ''
+    const pct = report?.basic?.percentile
+    const pctNum = (pct != null && !isNaN(pct)) ? pct : 90
     return {
-      title: score ? `我的形象风格AI评分：${score}分` : 'AI形象风格诊断',
+      title: `我的颜值打败了 ${pctNum}% 的人，你敢测吗？AI 帮你打个真分`,
       query: '',
-      imageUrl: '/images/打分分享banner.jpg'
+      imageUrl: '/images/yanzhi1.jpg'
     }
   },
 

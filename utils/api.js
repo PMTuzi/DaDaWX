@@ -179,7 +179,8 @@ async function uploadImage(filePath) {
 }
 
 // 压缩图片：长边 ≤ 1024px，JPEG quality 80
-// 失败时回退原图，保证主流程不被卡住
+// 主路径：offscreen canvas（无 2MB 限制）
+// 失败直接回退原图（不再调用 wx.compressImage，因为 >2MB 必报 80051）
 async function compressImageForUpload(filePath) {
   if (!filePath || /^https?:\/\//.test(filePath) || /^cloud:\/\//.test(filePath)) {
     return filePath
@@ -187,66 +188,71 @@ async function compressImageForUpload(filePath) {
   const MAX_SIDE = 1024
   const QUALITY = 80
   const t0 = Date.now()
+
+  let w = 0, h = 0
+  let canvasSrc = filePath
   try {
     const info = await new Promise((resolve, reject) => {
       wx.getImageInfo({ src: filePath, success: resolve, fail: reject })
     })
-    const w = info.width || 0
-    const h = info.height || 0
-    const longSide = Math.max(w, h)
+    w = info.width || 0
+    h = info.height || 0
+    // info.path 通常是 canvas 可直接加载的本地路径
+    if (info.path) canvasSrc = info.path
+  } catch (e) {
+    console.warn('[compress] getImageInfo 失败:', e && e.errMsg)
+  }
 
-    // 已小于阈值：仅做 JPEG 质量压缩
-    if (!longSide || longSide <= MAX_SIDE) {
-      try {
-        const r = await new Promise((resolve, reject) => {
-          wx.compressImage({ src: filePath, quality: QUALITY, success: resolve, fail: reject })
-        })
-        const out = r && r.tempFilePath ? r.tempFilePath : filePath
-        console.log(`[compress] keep size ${w}x${h} q${QUALITY} ${Date.now()-t0}ms`)
-        return out
-      } catch (e) {
-        return filePath
-      }
-    }
-
-    // 计算目标尺寸（保持长宽比）
-    const ratio = MAX_SIDE / longSide
-    const targetW = Math.round(w * ratio)
-    const targetH = Math.round(h * ratio)
-
-    // 优先用 compressImage 的 compressedWidth/Height（基础库 2.26.0+）
+  if (wx.createOffscreenCanvas) {
     try {
-      const r = await new Promise((resolve, reject) => {
-        wx.compressImage({
-          src: filePath,
-          quality: QUALITY,
-          compressedWidth: targetW,
-          compressHeight: targetH,
-          success: resolve,
-          fail: reject
-        })
-      })
-      if (r && r.tempFilePath) {
-        console.log(`[compress] ${w}x${h} -> ${targetW}x${targetH} q${QUALITY} ${Date.now()-t0}ms`)
-        return r.tempFilePath
-      }
+      const out = await compressViaCanvas(canvasSrc, w, h, MAX_SIDE, QUALITY)
+      console.log(`[compress] canvas ${w}x${h} -> ${MAX_SIDE} q${QUALITY} ${Date.now()-t0}ms`)
+      return out
     } catch (e) {
-      console.warn('[compress] 尺寸压缩失败，仅做质量压缩:', e && e.errMsg)
-    }
-
-    // 回退：仅做 JPEG 质量压缩（不缩放）
-    try {
-      const r = await new Promise((resolve, reject) => {
-        wx.compressImage({ src: filePath, quality: QUALITY, success: resolve, fail: reject })
-      })
-      return (r && r.tempFilePath) || filePath
-    } catch (e) {
+      console.warn('[compress] canvas 失败，回退原图直传:', e && (e.errMsg || e.message))
       return filePath
     }
+  }
+
+  // 极老基础库（无 createOffscreenCanvas）：尝试 wx.compressImage（仅小图可用）
+  try {
+    const r = await new Promise((resolve, reject) => {
+      wx.compressImage({ src: filePath, quality: QUALITY, success: resolve, fail: reject })
+    })
+    return (r && r.tempFilePath) || filePath
   } catch (e) {
-    console.warn('[compress] 跳过压缩:', e && e.errMsg)
+    console.warn('[compress] compressImage 失败，回退原图:', e && e.errMsg)
     return filePath
   }
+}
+
+// 用 offscreen canvas 压缩：绕开 wx.compressImage 的 2MB 源大小限制
+function compressViaCanvas(src, w, h, maxSide, quality) {
+  return new Promise((resolve, reject) => {
+    if (!wx.createOffscreenCanvas) {
+      reject(new Error('createOffscreenCanvas not supported'))
+      return
+    }
+    const longSide = Math.max(w, h) || maxSide
+    const ratio = longSide > maxSide ? (maxSide / longSide) : 1
+    const tw = Math.max(1, Math.round((w || maxSide) * ratio))
+    const th = Math.max(1, Math.round((h || maxSide) * ratio))
+    const canvas = wx.createOffscreenCanvas({ type: '2d', width: tw, height: th })
+    const ctx = canvas.getContext('2d')
+    const img = canvas.createImage()
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, tw, th)
+      wx.canvasToTempFilePath({
+        canvas,
+        fileType: 'jpg',
+        quality: (quality || 80) / 100,
+        success: (r) => resolve(r.tempFilePath),
+        fail: reject
+      })
+    }
+    img.onerror = (e) => reject(e || new Error('image load fail'))
+    img.src = src
+  })
 }
 
 // OSS 缓存凭证

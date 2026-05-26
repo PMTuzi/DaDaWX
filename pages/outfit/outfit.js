@@ -125,9 +125,9 @@ Page({
 
   onShareAppMessage() {
     return {
-      title: 'AI穿搭决策 - 帮你不踩雷',
+      title: '测完才知道：我适合的根本不是网红风',
       path: '/pages/outfit/outfit',
-      imageUrl: '/images/finalbanner2.jpg'
+      imageUrl: '/images/yanzhi2.jpg'
     }
   }
 })
