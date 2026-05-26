@@ -23,22 +23,80 @@
   letter-spacing: 1rpx;
 }
 
-/* 统一入口卡片 - 金色主按钮风格 */
+/* 统一入口卡片 - 黑金主按钮风格 */
 .unified-card {
+  position: relative;
   display: flex;
   align-items: center;
   margin: 0 32rpx;
   padding: 36rpx 40rpx;
   gap: 24rpx;
-  background: #F1849B;
+  background:
+    linear-gradient(135deg, rgba(212, 184, 131, 0.18) 0%, rgba(212, 184, 131, 0) 55%),
+    linear-gradient(180deg, #1A1612 0%, #2A2520 100%);
   border-radius: 24rpx;
-  box-shadow: 0 8rpx 32rpx rgba(241, 132, 155, 0.3);
+  border: 1rpx solid rgba(212, 184, 131, 0.5);
+  box-shadow:
+    0 10rpx 32rpx rgba(20, 16, 12, 0.35),
+    0 0 0 0 rgba(212, 184, 131, 0.0),
+    inset 0 1rpx 0 rgba(255, 240, 200, 0.12);
+  overflow: hidden;
+  animation: unified-card-glow 4.5s ease-in-out infinite;
+}
+@keyframes unified-card-glow {
+  0%, 100% {
+    box-shadow:
+      0 10rpx 32rpx rgba(20, 16, 12, 0.35),
+      0 0 0 0 rgba(212, 184, 131, 0),
+      inset 0 1rpx 0 rgba(255, 240, 200, 0.12);
+  }
+  50% {
+    box-shadow:
+      0 10rpx 32rpx rgba(20, 16, 12, 0.35),
+      0 0 14rpx 2rpx rgba(212, 184, 131, 0.18),
+      inset 0 1rpx 0 rgba(255, 240, 200, 0.14);
+  }
+}
+.unified-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 50%;
+  border-radius: 24rpx 24rpx 0 0;
+  background: linear-gradient(180deg, rgba(255, 246, 220, 0.08), rgba(255, 246, 220, 0));
+  pointer-events: none;
+}
+.unified-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -50%;
+  width: 35%;
+  height: 100%;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 246, 220, 0) 35%,
+    rgba(255, 246, 220, 0.18) 50%,
+    rgba(255, 246, 220, 0) 65%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  animation: unified-card-shine 4.5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes unified-card-shine {
+  0%   { left: -50%; opacity: 0; }
+  25%  { opacity: 1; }
+  70%  { opacity: 1; }
+  100% { left: 130%; opacity: 0; }
 }
 
 .unified-card .card-icon {
   font-size: 56rpx;
-  color: #fff;
+  color: #D4B883;
   flex-shrink: 0;
+  text-shadow: 0 0 12rpx rgba(212, 184, 131, 0.4);
 }
 
 .unified-card .card-info {
@@ -50,20 +108,24 @@
 
 .unified-card .card-title {
   font-size: 34rpx;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: 1rpx;
+  font-weight: 800;
+  letter-spacing: 1.5rpx;
+  background: linear-gradient(135deg, #F5E6B8 0%, #D4B883 50%, #B89968 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .unified-card .card-subtitle {
   font-size: 22rpx;
-  color: rgba(255, 255, 255, 0.85);
+  color: #E6DCC8;
+  letter-spacing: 0.5rpx;
 }
 
 .unified-card .card-arrow {
   font-size: 36rpx;
-  color: #fff;
-  opacity: 0.9;
+  color: #D4B883;
+  opacity: 0.95;
   flex-shrink: 0;
 }
 

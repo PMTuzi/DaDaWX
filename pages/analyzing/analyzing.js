@@ -24,6 +24,21 @@ Page({
   onLoad(options) {
     this._alive = true
     this._timers = []
+
+    // 「查看进度」模式：从全局任务状态读取进度，不再触发新任务
+    if (options && (options.view === '1' || options.view === 1)) {
+      this._viewOnly = true
+      const t = taskState.get('diagnose') || {}
+      this.setData({
+        analyzing: true,
+        imageUrl: t.imageUrl || '',
+        localPhoto: t.localPhoto || '',
+        photoType: t.photoType || 'face'
+      })
+      this._startViewPolling()
+      return
+    }
+
     try {
       const imageUrl = decodeURIComponent(options.imageUrl || '')
       let userTags = []
@@ -43,11 +58,66 @@ Page({
       console.error('[analyzing] onLoad 参数解析失败:', e)
     }
 
+    // 把预览图写入 taskState，view 模式下可以恢复
+    try {
+      taskState.set('diagnose', {
+        status: 'running',
+        progress: 0,
+        label: 'AI 形象诊断中',
+        imageUrl: this.data.imageUrl,
+        localPhoto: this.data.localPhoto,
+        photoType: this.data.photoType
+      })
+    } catch (e) {}
+
     this.startAnalysis().catch(err => {
       console.error('[analyzing] startAnalysis未捕获异常:', err)
       taskState.set('diagnose', { status: 'error', errorMsg: err && err.message ? err.message : '诊断异常' })
       if (this._alive) this.onError(err && err.message ? err.message : '诊断异常')
     })
+  },
+
+  _startViewPolling() {
+    const sync = () => {
+      if (!this._alive) return
+      const t = taskState.get('diagnose')
+      if (!t) {
+        // 任务已被消费/清空：返回首页
+        wx.switchTab({ url: '/pages/index/index' })
+        return
+      }
+      const progress = typeof t.progress === 'number' ? t.progress : 0
+      this.setData({ progress })
+      // 推断当前步骤（与 startAnalysis 中的进度阈值保持一致）
+      const steps = this.data.steps.map((s, i) => {
+        let status = 'pending'
+        if (progress >= 100) status = 'done'
+        else if (progress >= 90 && i <= 4) status = i === 4 ? 'active' : 'done'
+        else if (progress >= 80 && i <= 3) status = i === 3 ? 'active' : 'done'
+        else if (progress >= 40 && i <= 2) status = i === 2 ? 'active' : 'done'
+        else if (progress >= 20 && i <= 1) status = i === 1 ? 'active' : 'done'
+        else if (progress >= 10 && i <= 0) status = i === 0 ? 'done' : 'pending'
+        return Object.assign({}, s, { status })
+      })
+      this.setData({ steps })
+
+      if (t.status === 'done' && t.resultUrl) {
+        taskState.clear('diagnose')
+        wx.redirectTo({
+          url: t.resultUrl,
+          fail: () => { wx.switchTab({ url: '/pages/index/index' }) }
+        })
+        return
+      }
+      if (t.status === 'error') {
+        this.onError(t.errorMsg || '诊断失败')
+        taskState.clear('diagnose')
+        return
+      }
+    }
+    sync()
+    this._viewTimer = setInterval(sync, 800)
+    this._timers.push(this._viewTimer)
   },
 
   onUnload() {

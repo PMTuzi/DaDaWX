@@ -24,6 +24,36 @@ Page({
     this._timers = []
     const type = options.type || 'keep'
     const steps = this.getSteps(type)
+
+    // 「查看进度」模式：从全局任务状态读取进度，不再触发新分析
+    if (options && (options.view === '1' || options.view === 1)) {
+      this._viewOnly = true
+      const t = taskState.get('consult') || {}
+      const previewImages = Array.isArray(t.previewImages) ? t.previewImages : []
+      const previewImage = previewImages[0] || t.previewImage || ''
+      this.setData({
+        type: t.type || type,
+        steps: this.getSteps(t.type || type),
+        previewImage,
+        previewImages,
+        previewIndex: 0,
+        animating: true
+      })
+      // 多图轮播
+      if (previewImages.length >= 2) {
+        this._previewTimer = setInterval(() => {
+          if (!this._alive) return
+          const list = this.data.previewImages || []
+          if (!list.length) return
+          const next = (this.data.previewIndex + 1) % list.length
+          this.safeSetData({ previewIndex: next, previewImage: list[next] })
+        }, 3000)
+        this._timers.push(this._previewTimer)
+      }
+      this._startViewPolling()
+      return
+    }
+
     // 收集所有图片用于扫描动画展示（多图轮播）
     let previewImages = []
     try {
@@ -35,6 +65,18 @@ Page({
     } catch (e) {}
     const previewImage = previewImages[0] || ''
     this.setData({ type, steps, previewImage, previewImages, previewIndex: 0 })
+
+    // 把预览图写入 taskState，view 模式下可以恢复
+    try {
+      taskState.set('consult', {
+        status: 'running',
+        progress: 0,
+        label: 'AI 穿搭决策中',
+        type,
+        previewImages,
+        previewImage
+      })
+    } catch (e) {}
 
     // 多图（2-4 张）每 1.6s 轮换一次
     if (previewImages.length >= 2) {
@@ -54,6 +96,41 @@ Page({
         this.onError(err && err.message ? err.message : '分析过程异常')
       }
     })
+  },
+
+  _startViewPolling() {
+    const sync = () => {
+      if (!this._alive) return
+      const t = taskState.get('consult')
+      if (!t) {
+        wx.switchTab({ url: '/pages/outfit/outfit' })
+        return
+      }
+      const progress = typeof t.progress === 'number' ? t.progress : 0
+      const total = (this.data.steps || []).length || 4
+      const activeIdx = Math.min(total - 1, Math.floor((progress / 100) * total))
+      const steps = (this.data.steps || []).map((s, i) => Object.assign({}, s, {
+        status: progress >= 100 ? 'done' : (i < activeIdx ? 'done' : (i === activeIdx ? 'active' : 'pending'))
+      }))
+      this.setData({ progress, steps, currentStep: activeIdx })
+
+      if (t.status === 'done' && t.resultUrl) {
+        taskState.clear('consult')
+        wx.redirectTo({
+          url: t.resultUrl,
+          fail: () => { wx.switchTab({ url: '/pages/outfit/outfit' }) }
+        })
+        return
+      }
+      if (t.status === 'error') {
+        this.onError(t.errorMsg || '分析失败')
+        taskState.clear('consult')
+        return
+      }
+    }
+    sync()
+    this._viewTimer = setInterval(sync, 800)
+    this._timers.push(this._viewTimer)
   },
 
   onUnload() {

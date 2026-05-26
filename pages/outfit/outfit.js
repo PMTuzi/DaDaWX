@@ -65,6 +65,8 @@ Page({
       wx.showModal({ title: '决策失败', content: t.errorMsg || '请重新尝试', confirmText: '关闭', showCancel: false })
       taskState.clear('consult')
       this.setData({ consultTask: null })
+    } else if (t.status === 'running') {
+      wx.navigateTo({ url: '/pages/consult-analyzing/consult-analyzing?view=1' })
     }
   },
 
