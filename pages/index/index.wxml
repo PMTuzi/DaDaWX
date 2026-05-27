@@ -120,7 +120,6 @@
         <!-- 第一印象人格标签 · 9 型 -->
         <view class="impression-persona" wx:if="{{latestReport.modules.impression.persona}}">
           <view class="persona-badge">
-            <text class="persona-badge-no">No.{{latestReport.modules.impression.persona.id}}/9</text>
             <text class="persona-badge-label">第一印象人格</text>
           </view>
           <view class="persona-main">

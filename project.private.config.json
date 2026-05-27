@@ -5,15 +5,8 @@
     "miniprogram": {
       "list": [
         {
-          "name": "pages/persona-preview/persona-preview",
+          "name": "pages/index/index",
           "pathName": "pages/index/index",
-          "query": "",
-          "scene": null,
-          "launchMode": "default"
-        },
-        {
-          "name": "pages/persona-preview/persona-preview",
-          "pathName": "pages/persona-preview/persona-preview",
           "query": "",
           "launchMode": "default",
           "scene": null

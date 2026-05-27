@@ -92,9 +92,6 @@
         <view class="fact-title">{{funFacts[currentFactIndex].title}}</view>
         <view class="fact-sub">{{funFacts[currentFactIndex].sub}}</view>
       </view>
-      <view class="fact-pager">
-        <view class="pager-dot {{idx === currentFactIndex ? 'active' : ''}}" wx:for="{{funFacts}}" wx:for-index="idx" wx:for-item="_" wx:key="idx"></view>
-      </view>
     </view>
 
     <!-- 数据指标三连 -->
