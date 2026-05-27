@@ -59,8 +59,8 @@
     </view>
   </view>
 
-  <!-- 浮动 蜕变 入口 -->
-  <view class="beauty-fab" bindtap="onGoBeautyPlan" hover-class="beauty-fab-hover">
+  <!-- 浮动 蜕变 入口（仅已诊断态，与首页逻辑一致） -->
+  <view class="beauty-fab" wx:if="{{hasReport}}" bindtap="onGoBeautyPlan" hover-class="beauty-fab-hover">
     <text class="beauty-fab-text">蜕变</text>
   </view>
 </view>

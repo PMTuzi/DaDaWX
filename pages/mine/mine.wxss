@@ -5,14 +5,34 @@
 }
 
 .user-header {
-  background: #F1849B;
-  padding: 60rpx 32rpx 40rpx;
+  background: linear-gradient(135deg, #E8F4FC 0%, #C7E4F5 50%, #9FCFEC 100%);
+  padding: 60rpx 32rpx 56rpx;
+  position: relative;
+  overflow: hidden;
+}
+.user-header::before {
+  content: '';
+  position: absolute;
+  top: -40rpx; right: -40rpx;
+  width: 220rpx; height: 220rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.55) 0%, transparent 70%);
+}
+.user-header::after {
+  content: '';
+  position: absolute;
+  bottom: -60rpx; left: -30rpx;
+  width: 180rpx; height: 180rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
 }
 
 .user-info {
   display: flex;
   align-items: center;
   gap: 24rpx;
+  position: relative;
+  z-index: 1;
 }
 
 .avatar-wrapper {
@@ -21,7 +41,8 @@
   height: 120rpx;
   border-radius: 50%;
   overflow: hidden;
-  border: 4rpx solid rgba(255, 255, 255, 0.3);
+  border: 3rpx solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 4rpx 16rpx rgba(95, 158, 200, 0.25), inset 0 0 0 2rpx rgba(255, 255, 255, 0.4);
 }
 
 .avatar-btn {
@@ -71,20 +92,22 @@
 
 .user-name-input {
   display: block;
-  font-size: 34rpx;
+  font-size: 36rpx;
   font-weight: 700;
-  color: #ffffff;
+  color: #2A5878;
   margin-bottom: 8rpx;
   background: transparent;
   border: none;
   padding: 0;
   height: 48rpx;
   line-height: 48rpx;
+  letter-spacing: 2rpx;
 }
 
 .user-stat {
   font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.6);
+  color: #5F92B5;
+  letter-spacing: 1rpx;
 }
 
 .user-login {
@@ -97,32 +120,34 @@
   width: 120rpx;
   height: 120rpx;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 4rpx solid rgba(255, 255, 255, 0.3);
+  border: 3rpx solid rgba(255, 255, 255, 0.85);
 }
 
 .avatar-placeholder-text {
   font-size: 22rpx;
-  color: rgba(255, 255, 255, 0.8);
+  color: #5F92B5;
 }
 
 .login-text {
   font-size: 32rpx;
-  color: #ffffff;
+  color: #2A5878;
   font-weight: 600;
+  letter-spacing: 2rpx;
 }
 
 .stats-bar {
   display: flex;
   align-items: center;
   background: #ffffff;
-  margin: -20rpx 24rpx 0;
-  border-radius: 20rpx;
-  padding: 28rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
+  margin: -28rpx 24rpx 0;
+  border-radius: 24rpx;
+  padding: 32rpx 28rpx;
+  box-shadow: 0 8rpx 24rpx rgba(95, 158, 200, 0.16);
+  border: 1rpx solid rgba(159, 207, 236, 0.4);
   position: relative;
   z-index: 10;
 }
@@ -134,36 +159,40 @@
 
 .stat-num {
   display: block;
-  font-size: 40rpx;
+  font-size: 42rpx;
   font-weight: 800;
-  color: #1a1a2e;
+  color: #2A5878;
+  letter-spacing: 1rpx;
 }
 
 .stat-label {
   display: block;
   font-size: 22rpx;
-  color: #999;
-  margin-top: 4rpx;
+  color: #5F92B5;
+  margin-top: 6rpx;
+  letter-spacing: 1rpx;
 }
 
 .stat-divider {
   width: 1rpx;
   height: 60rpx;
-  background: #eeeeee;
+  background: linear-gradient(180deg, transparent, rgba(95, 158, 200, 0.4), transparent);
 }
 
 .menu-section {
   margin: 24rpx 24rpx 0;
   background: #ffffff;
-  border-radius: 20rpx;
+  border-radius: 24rpx;
   overflow: hidden;
+  box-shadow: 0 4rpx 16rpx rgba(95, 158, 200, 0.1);
+  border: 1rpx solid rgba(159, 207, 236, 0.3);
 }
 
 .menu-item {
   display: flex;
   align-items: center;
-  padding: 28rpx 24rpx;
-  border-bottom: 1rpx solid #f5f5f5;
+  padding: 30rpx 28rpx;
+  border-bottom: 1rpx solid rgba(159, 207, 236, 0.25);
 }
 
 .menu-item:last-child {
@@ -175,27 +204,31 @@
   margin-right: 20rpx;
   width: 40rpx;
   text-align: center;
+  color: #5F92B5;
 }
 
 .menu-text {
   flex: 1;
   font-size: 28rpx;
-  color: #333;
+  color: #2A5878;
+  letter-spacing: 1rpx;
 }
 
 .menu-arrow {
   font-size: 32rpx;
-  color: #cccccc;
+  color: #9FCFEC;
 }
 
 .menu-badge {
-  background: #e8a87c;
+  background: linear-gradient(135deg, #C7E4F5, #5F92B5);
   color: #fff;
   font-size: 20rpx;
-  padding: 2rpx 12rpx;
+  padding: 2rpx 14rpx;
   border-radius: 16rpx;
   margin-right: 12rpx;
   font-weight: 600;
+  letter-spacing: 1rpx;
+  box-shadow: 0 2rpx 6rpx rgba(95, 158, 200, 0.3);
 }
 
 .menu-item.logout {
@@ -204,7 +237,8 @@
 
 .menu-item.logout .menu-text {
   text-align: center;
-  color: #e74c3c;
+  color: #5F92B5;
+  font-weight: 500;
 }
 
 /* 浮动「蜕变」FAB */
@@ -215,11 +249,11 @@
   width: 120rpx;
   height: 120rpx;
   border-radius: 50%;
-  background: linear-gradient(135deg, #FFB6C1 0%, #F1849B 60%, #E5739A 100%);
+  background: linear-gradient(135deg, #E8F4FC 0%, #9FCFEC 50%, #5F92B5 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8rpx 24rpx rgba(241, 132, 155, 0.45),
+  box-shadow: 0 8rpx 24rpx rgba(95, 158, 200, 0.45),
               0 0 0 6rpx rgba(255, 255, 255, 0.85);
   z-index: 99;
 }
@@ -231,5 +265,5 @@
   font-size: 30rpx;
   font-weight: 800;
   letter-spacing: 4rpx;
-  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.15);
+  text-shadow: 0 2rpx 4rpx rgba(42, 88, 120, 0.4);
 }
