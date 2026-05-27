@@ -7,54 +7,144 @@ Page({
     images: [],
     maxImages: 4,
     minImages: 1,
-    // ===== 单品标签 =====
+
+    // ===== 流程控制 =====
+    currentIdx: 0,
+    mode: 'buy',                // 'buy' | 'compare'，由图片数自动决定
+    slideKeys: ['upload', 'category', 'scene', 'trouble', 'extra'],
+    nextLabel: '下一步',
+
+    // ===== 单品 =====
     category: '',
-    categoryDetected: false, // AI是否已识别类别
+    categoryDetected: false,
+    categoryDetecting: false,
+    categoryOptions: ['上衣', '裤装', '裙装', '连衣裙', '外套', '鞋', '包', '配饰'],
+    showCategoryInput: false,
+    customCategory: '',
+
     priceRange: '',
     priceRangeIndex: -1,
     priceRangeOptions: ['100元以下', '100-300元', '300-500元', '500-1000元', '1000元以上'],
-    // 身型特点（多选 0-3）
+
     bodyFeatures: [],
     bodyFeatureOptions: ['肩宽', '窄肩', '微胖', '偏瘦', '腿粗', '腿短', '腰粗', '小个子', '高个子', '手臂粗'],
-    // 穿着场景（多选 0-2）
+
     wearScenes: [],
     wearSceneOptions: ['日常通勤', '休闲逛街', '约会聚会', '运动户外', '正式场合', '居家休闲'],
-    // 穿搭困扰（单选）
+
     trouble: '',
     troubleIndex: -1,
     troubleOptions: ['不知道怎么搭', '怕显胖/显矮/显黑', '颜色不知道配什么', '不知道适不适合自己', '担心过时快', '不确定质感好不好', '没有困扰'],
-    // ===== 对比标签 =====
-    // 对比场景（单选，必填）
+
+    // ===== 对比 =====
     compareScene: '',
     compareSceneIndex: -1,
     compareSceneOptions: ['日常通勤', '约会聚会', '休闲逛街', '运动户外', '正式场合', '聚会派对'],
-    // 各款价格
+
     priceList: [],
     priceListIndexes: [],
-    // 风格差异（多选 0-3）
+
     styleDiff: [],
     styleDiffOptions: ['简约vs华丽', '休闲vs正式', '甜美vs酷飒', '基础vs设计感', '低调vs吸睛', '经典vs流行', '日常vs派对'],
-    // 纠结原因（单选）
+
     reason: '',
     reasonIndex: -1,
     reasonOptions: ['不知道哪个更适合我', '不确定哪个更百搭', '不知道哪个质感更好', '价格差异大不知怎么选', '都喜欢不知道选哪个', '不确定哪个颜色更衬我'],
-    // 状态
+
     submitting: false,
-    imageErrors: []
+    summaryText: ''
   },
 
   onLoad() {
     try { wx.setNavigationBarTitle({ title: '发布咨询' }) } catch (e) {}
+    this.refreshSlideKeys()
   },
 
-  onError(err) {
-    console.error('[consult-publish] 页面错误:', err)
+  // ============ 流程控制 ============
+  refreshSlideKeys() {
+    const compare = this.data.images.length > 1
+    const mode = compare ? 'compare' : 'buy'
+    const slideKeys = compare
+      ? ['upload', 'compareScene', 'reason', 'extra']
+      : ['upload', 'category', 'scene', 'trouble', 'extra']
+    // 如果模式切换导致 currentIdx 越界，回退
+    let currentIdx = this.data.currentIdx
+    if (currentIdx >= slideKeys.length) currentIdx = slideKeys.length - 1
+    this.setData({ mode, slideKeys, currentIdx })
+    this.updateNextLabel()
   },
 
-  // ===== 图片相关 =====
+  updateNextLabel() {
+    const key = this.data.slideKeys[this.data.currentIdx]
+    let label = '下一步'
+    if (key === 'upload' && this.data.images.length === 0) label = '请先上传'
+    if (key === 'extra') label = '完成'
+    // 选填步骤显示「跳过」
+    if (key === 'scene' && !this.data.wearScenes.length) label = '跳过'
+    if (key === 'trouble' && !this.data.trouble) label = '跳过'
+    if (key === 'reason' && !this.data.reason) label = '跳过'
+    this.setData({ nextLabel: label })
+  },
+
+  onSwiperChange(e) {
+    if (e.detail.source === 'touch' || e.detail.source === 'autoplay' || e.detail.source === '') {
+      this.setData({ currentIdx: e.detail.current })
+      this.updateNextLabel()
+    }
+  },
+
+  onPrev() {
+    if (this.data.currentIdx <= 0) return
+    this.setData({ currentIdx: this.data.currentIdx - 1 })
+    this.updateNextLabel()
+  },
+
+  onNext() {
+    const key = this.data.slideKeys[this.data.currentIdx]
+
+    // 必填校验
+    if (key === 'upload' && this.data.images.length < 1) {
+      wx.showToast({ title: '请先上传至少 1 张照片', icon: 'none' }); return
+    }
+    if (key === 'category' && !this.data.category) {
+      wx.showToast({ title: '请选择穿搭类别', icon: 'none' }); return
+    }
+    if (key === 'compareScene' && !this.data.compareScene) {
+      wx.showToast({ title: '请选择对比场景', icon: 'none' }); return
+    }
+
+    if (this.data.currentIdx < this.data.slideKeys.length - 1) {
+      this.setData({ currentIdx: this.data.currentIdx + 1 })
+      this.updateNextLabel()
+    }
+  },
+
+  // ============ 图片相关 ============
   onAddImage() {
     const remaining = this.data.maxImages - this.data.images.length
     if (remaining <= 0) return
+
+    const handleNewImages = (newImages) => {
+      if (newImages.length === 0) return
+      const images = [...this.data.images, ...newImages]
+      this.setData({ images })
+
+      if (images.length > 1) {
+        const pl = [...this.data.priceList]
+        const pli = [...this.data.priceListIndexes]
+        while (pl.length < images.length) {
+          pl.push('')
+          pli.push(-1)
+        }
+        this.setData({ priceList: pl, priceListIndexes: pli })
+      }
+
+      if (images.length === 1 && !this.data.category) {
+        this.autoDetectCategory(images[0].path).catch(() => {})
+      }
+      this.refreshSlideKeys()
+      this.updateSummary()
+    }
 
     try {
       wx.chooseMedia({
@@ -69,47 +159,20 @@ Page({
                 wx.showToast({ title: '图片太小，请重新选择', icon: 'none' })
                 return
               }
-              newImages.push({
-                path: f.tempFilePath,
-                thumb: f.tempFilePath,
-                size: f.size
-              })
+              newImages.push({ path: f.tempFilePath, thumb: f.tempFilePath, size: f.size })
             })
-            if (newImages.length === 0) return
-
-            const images = [...this.data.images, ...newImages]
-            this.setData({ images })
-
-            // 多张图片时动态扩展 priceList
-            if (images.length > 1) {
-              const pl = [...this.data.priceList]
-              const pli = [...this.data.priceListIndexes]
-              while (pl.length < images.length) {
-                pl.push('')
-                pli.push(-1)
-              }
-              this.setData({ priceList: pl, priceListIndexes: pli })
-            }
-
-            // 单张图片时自动识别类别
-            if (images.length === 1 && !this.data.category) {
-              this.autoDetectCategory(images[0].path).catch(err => {
-                console.warn('[consult-publish] autoDetectCategory 未捕获:', err)
-              })
-            }
+            handleNewImages(newImages)
           } catch (e) {
             console.error('[consult-publish] 选择图片回调出错:', e)
             wx.showToast({ title: '图片处理失败', icon: 'none' })
           }
         },
         fail: (err) => {
-          // 用户取消选择不算错误
           if (err.errMsg && err.errMsg.indexOf('cancel') > -1) return
           console.warn('[consult-publish] chooseMedia 失败:', err.errMsg)
         }
       })
     } catch (e) {
-      // chooseMedia API 不可用时的兼容
       console.warn('[consult-publish] chooseMedia 不可用，尝试 chooseImage:', e)
       wx.chooseImage({
         count: remaining,
@@ -117,29 +180,8 @@ Page({
         sourceType: ['album', 'camera'],
         success: (res) => {
           try {
-            const newImages = res.tempFiles.map(f => ({
-              path: f.tempFilePath,
-              thumb: f.tempFilePath,
-              size: f.size
-            }))
-            if (newImages.length === 0) return
-
-            const images = [...this.data.images, ...newImages]
-            this.setData({ images })
-
-            if (images.length > 1) {
-              const pl = [...this.data.priceList]
-              const pli = [...this.data.priceListIndexes]
-              while (pl.length < images.length) {
-                pl.push('')
-                pli.push(-1)
-              }
-              this.setData({ priceList: pl, priceListIndexes: pli })
-            }
-
-            if (images.length === 1 && !this.data.category) {
-              this.autoDetectCategory(images[0].path).catch(() => {})
-            }
+            const newImages = res.tempFiles.map(f => ({ path: f.tempFilePath, thumb: f.tempFilePath, size: f.size }))
+            handleNewImages(newImages)
           } catch (e2) {
             console.error('[consult-publish] chooseImage 回调出错:', e2)
           }
@@ -149,37 +191,27 @@ Page({
     }
   },
 
-  // AI自动识别穿搭类别
   async autoDetectCategory(imagePath) {
-    try { this.setData({ categoryDetected: false }) } catch (e) {}
+    this.setData({ categoryDetected: false, categoryDetecting: true })
     try {
-      // 服务器不可达时直接跳过，不浪费时间尝试上传和API调用
       const { checkServerReachable } = require('../../utils/api')
       const reachable = await checkServerReachable()
-      if (!reachable) {
-        console.log('[consult-publish] 服务器不可达，跳过AI类别识别')
-        return
-      }
+      if (!reachable) { this.setData({ categoryDetecting: false }); return }
 
-      // 先持久化临时文件，防止上传超时后微信回收临时路径
-      let safePath = imagePath
       try {
         const fs = wx.getFileSystemManager()
         fs.accessSync(imagePath)
-      } catch (e) {
-        console.warn('[consult-publish] 原始临时路径不可访问，跳过AI类别识别')
-        return
-      }
+      } catch (e) { this.setData({ categoryDetecting: false }); return }
 
-      // 仅 OSS 直传：失败就跳过分类识别（不阻塞用户继续操作）
       let imageUrl
       try {
         imageUrl = await Promise.race([
-          uploadImage(safePath),
+          uploadImage(imagePath),
           new Promise((_, reject) => setTimeout(() => reject(new Error('上传超时')), 15000))
         ])
       } catch (e) {
-        console.warn('[consult-publish] OSS 上传失败，跳过AI类别识别:', e.message)
+        console.warn('[consult-publish] OSS 上传失败:', e.message)
+        this.setData({ categoryDetecting: false })
         return
       }
 
@@ -192,14 +224,21 @@ Page({
       if (result && result.code === 0 && result.data && result.data.category) {
         const detected = String(result.data.category).trim()
         if (detected) {
+          const opts = [...this.data.categoryOptions]
+          if (!opts.includes(detected)) opts.unshift(detected)
           this.setData({
             category: detected,
-            categoryDetected: true
+            categoryDetected: true,
+            categoryOptions: opts,
+            showCategoryInput: false
           })
+          this.updateSummary()
         }
       }
     } catch (err) {
       console.warn('[consult-publish] 类别识别失败:', err && err.message)
+    } finally {
+      this.setData({ categoryDetecting: false })
     }
   },
 
@@ -209,14 +248,17 @@ Page({
     images.splice(idx, 1)
     this.setData({ images })
 
-    // 同步 priceList
     if (images.length > 1) {
       const pl = [...this.data.priceList]
       const pli = [...this.data.priceListIndexes]
       pl.splice(idx, 1)
       pli.splice(idx, 1)
       this.setData({ priceList: pl, priceListIndexes: pli })
+    } else {
+      this.setData({ priceList: [], priceListIndexes: [] })
     }
+    this.refreshSlideKeys()
+    this.updateSummary()
   },
 
   onPreviewImage(e) {
@@ -227,58 +269,80 @@ Page({
     })
   },
 
-  // ===== 单品标签 =====
-  onCategoryInput(e) {
+  // ============ 通用：单选 chip ============
+  onSingleChipTap(e) {
+    const { field, value } = e.currentTarget.dataset
+    if (!field) return
+    const patch = {}
+    patch[field] = this.data[field] === value ? '' : value
+    if (field === 'priceRange') {
+      patch.priceRangeIndex = this.data.priceRangeOptions.indexOf(patch[field])
+    } else if (field === 'trouble') {
+      patch.troubleIndex = this.data.troubleOptions.indexOf(patch[field])
+    } else if (field === 'compareScene') {
+      patch.compareSceneIndex = this.data.compareSceneOptions.indexOf(patch[field])
+    } else if (field === 'reason') {
+      patch.reasonIndex = this.data.reasonOptions.indexOf(patch[field])
+    } else if (field === 'category') {
+      patch.categoryDetected = false
+      patch.showCategoryInput = false
+      patch.customCategory = ''
+    }
+    this.setData(patch)
+    this.updateNextLabel()
+    this.updateSummary()
+  },
+
+  onTapOtherCategory() {
+    const showing = this.data.showCategoryInput
     this.setData({
-      category: e.detail.value,
+      showCategoryInput: !showing,
+      category: showing ? this.data.category : '',
       categoryDetected: false
     })
   },
 
-  onPriceRangeChange(e) {
+  onCustomCategoryInput(e) {
+    const val = e.detail.value
     this.setData({
-      priceRangeIndex: e.detail.value,
-      priceRange: this.data.priceRangeOptions[e.detail.value]
+      customCategory: val,
+      category: val,
+      categoryDetected: false
     })
+    this.updateSummary()
+  },
+
+  // ============ 多选 chip ============
+  onWearSceneTap(e) {
+    const val = e.currentTarget.dataset.value
+    let list = [...this.data.wearScenes]
+    const idx = list.indexOf(val)
+    if (idx > -1) list.splice(idx, 1)
+    else if (list.length < 2) list.push(val)
+    else { wx.showToast({ title: '最多选 2 项', icon: 'none' }); return }
+    this.setData({ wearScenes: list })
+    this.updateNextLabel()
+    this.updateSummary()
   },
 
   onBodyFeatureTap(e) {
     const val = e.currentTarget.dataset.value
     let list = [...this.data.bodyFeatures]
     const idx = list.indexOf(val)
-    if (idx > -1) {
-      list.splice(idx, 1)
-    } else if (list.length < 3) {
-      list.push(val)
-    }
+    if (idx > -1) list.splice(idx, 1)
+    else if (list.length < 3) list.push(val)
+    else { wx.showToast({ title: '最多选 3 项', icon: 'none' }); return }
     this.setData({ bodyFeatures: list })
   },
 
-  onWearSceneTap(e) {
+  onStyleDiffTap(e) {
     const val = e.currentTarget.dataset.value
-    let list = [...this.data.wearScenes]
+    let list = [...this.data.styleDiff]
     const idx = list.indexOf(val)
-    if (idx > -1) {
-      list.splice(idx, 1)
-    } else if (list.length < 2) {
-      list.push(val)
-    }
-    this.setData({ wearScenes: list })
-  },
-
-  onTroubleChange(e) {
-    this.setData({
-      troubleIndex: e.detail.value,
-      trouble: this.data.troubleOptions[e.detail.value]
-    })
-  },
-
-  // ===== 对比标签 =====
-  onCompareSceneChange(e) {
-    this.setData({
-      compareSceneIndex: e.detail.value,
-      compareScene: this.data.compareSceneOptions[e.detail.value]
-    })
+    if (idx > -1) list.splice(idx, 1)
+    else if (list.length < 3) list.push(val)
+    else { wx.showToast({ title: '最多选 3 项', icon: 'none' }); return }
+    this.setData({ styleDiff: list })
   },
 
   onPriceListChange(e) {
@@ -290,26 +354,23 @@ Page({
     this.setData({ priceList: pl, priceListIndexes: pli })
   },
 
-  onStyleDiffTap(e) {
-    const val = e.currentTarget.dataset.value
-    let list = [...this.data.styleDiff]
-    const idx = list.indexOf(val)
-    if (idx > -1) {
-      list.splice(idx, 1)
-    } else if (list.length < 3) {
-      list.push(val)
+  // ============ 汇总 ============
+  updateSummary() {
+    const d = this.data
+    const parts = []
+    if (d.images.length > 1) {
+      parts.push(`${d.images.length} 件 PK`)
+      if (d.compareScene) parts.push(d.compareScene)
+      if (d.reason) parts.push(d.reason)
+    } else if (d.images.length === 1) {
+      if (d.category) parts.push(d.category)
+      if (d.wearScenes.length) parts.push(d.wearScenes.join('/'))
+      if (d.trouble) parts.push(d.trouble)
     }
-    this.setData({ styleDiff: list })
+    this.setData({ summaryText: parts.length ? parts.join(' · ') : '' })
   },
 
-  onReasonChange(e) {
-    this.setData({
-      reasonIndex: e.detail.value,
-      reason: this.data.reasonOptions[e.detail.value]
-    })
-  },
-
-  // 将临时图片保存到持久化目录，确保跨页面/跨会话可用
+  // ============ 持久化图片 ============
   async saveImageToLocal(tempPath) {
     try {
       const fs = wx.getFileSystemManager()
@@ -319,16 +380,15 @@ Page({
       fs.saveFileSync(tempPath, destPath)
       return destPath
     } catch (e) {
-      console.warn('[consult-publish] 保存本地图片失败，使用临时路径:', e.message)
+      console.warn('[consult-publish] 保存本地图片失败:', e.message)
       return tempPath
     }
   },
 
-  // ===== 提交 =====
+  // ============ 提交 ============
   async onSubmit() {
     if (this.data.submitting) return
 
-    // 登录拦截
     try {
       await ensureLogin()
     } catch (e) {
@@ -336,39 +396,36 @@ Page({
       return
     }
 
-    // 校验图片
     if (this.data.images.length < 1) {
-      wx.showToast({ title: '请上传至少1张图片', icon: 'none' })
+      wx.showToast({ title: '请上传至少 1 张图片', icon: 'none' })
+      this.setData({ currentIdx: 0 })
       return
     }
 
     const isCompare = this.data.images.length > 1
 
-    // 单品必填校验
-    if (!isCompare) {
-      if (!this.data.category) {
-        wx.showToast({ title: '请选择穿搭类别', icon: 'none' }); return
-      }
+    if (!isCompare && !this.data.category) {
+      wx.showToast({ title: '请选择穿搭类别', icon: 'none' })
+      const idx = this.data.slideKeys.indexOf('category')
+      if (idx > -1) this.setData({ currentIdx: idx })
+      return
     }
-
-    // 对比必填校验
-    if (isCompare) {
-      if (!this.data.compareScene) {
-        wx.showToast({ title: '请选择对比场景', icon: 'none' }); return
-      }
+    if (isCompare && !this.data.compareScene) {
+      wx.showToast({ title: '请选择对比场景', icon: 'none' })
+      const idx = this.data.slideKeys.indexOf('compareScene')
+      if (idx > -1) this.setData({ currentIdx: idx })
+      return
     }
 
     this.setData({ submitting: true })
 
     try {
-      // 1. 将临时图片保存到持久化本地目录（确保图片始终可显示）
       const imageDataList = []
       for (const img of this.data.images) {
         const localPath = await this.saveImageToLocal(img.path)
         imageDataList.push({ localPath })
       }
 
-      // 2. 上传到 OSS（必须成功，否则分析页临时图片会过期）
       const { checkServerReachable } = require('../../utils/api')
       const serverReachable = await checkServerReachable()
       if (!serverReachable) {
@@ -378,7 +435,6 @@ Page({
       }
       const uploadPromises = imageDataList.map(async (item, i) => {
         const uploadPath = item.localPath || this.data.images[i].path
-        // 单图最多 2 次上传机会（避免冷启动单次失败）
         let lastErr
         for (let attempt = 0; attempt < 2; attempt++) {
           try {
@@ -407,14 +463,8 @@ Page({
         return
       }
 
-      // 根据图片数量自动决定类型
       const type = isCompare ? 'compare' : 'buy'
-
-      // 组装咨询数据
-      const consultData = {
-        type,
-        images: imageDataList,
-      }
+      const consultData = { type, images: imageDataList }
 
       if (!isCompare) {
         consultData.category = this.data.category
@@ -429,7 +479,6 @@ Page({
         consultData.reason = this.data.reason
       }
 
-      // 同时用 globalData 和 storage 传递数据，确保可靠
       getApp().globalData.consultData = consultData
       wx.setStorageSync('consultData', consultData)
 

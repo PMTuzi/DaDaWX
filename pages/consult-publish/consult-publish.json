@@ -1,5 +1,6 @@
 {
   "navigationBarTitleText": "发布咨询",
   "navigationBarBackgroundColor": "#FFFFFF",
-  "navigationBarTextStyle": "black"
+  "navigationBarTextStyle": "black",
+  "disableScroll": true
 }
