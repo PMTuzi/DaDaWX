@@ -2,6 +2,11 @@
 <wxs src="../../utils/helpers.wxs" module="h" />
 <view class="page-publish">
 
+  <!-- 自定义返回按钮 -->
+  <view class="nav-back" bindtap="onBack" hover-class="nav-back-hover">
+    <text class="nav-back-icon">‹</text>
+  </view>
+
   <!-- 顶部进度 -->
   <view class="topbar">
     <view class="dots">

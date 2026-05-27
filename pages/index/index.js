@@ -2,6 +2,7 @@
 const { wxLogin, ensureLogin, request, API, uploadImage } = require('../../utils/api')
 const { formatDate, getScoreLevel, calcPercentile } = require('../../utils/format')
 const taskState = require('../../utils/task-state')
+const { mixinTaskBars } = require('../../utils/task-bars')
 
 // 9 型第一印象人格定义（模块级常量，避免 Page 选项过滤导致 this 上访问不到）
 const IMPRESSION_PERSONAS = {
@@ -241,6 +242,7 @@ Page({
     introVideoVisible: true,
     introVideoRetry: 0,
     diagnoseTask: null,
+    consultTask: null,
     // ===== 报告详情态 =====
     activeTab: 'impression',
     tabKeys: ['impression', 'celebrity', 'optimize', 'hairmakeup', 'dna', 'style'],
@@ -275,60 +277,49 @@ Page({
       this.setData({ currentReportId: pendingId })
     }
     this.loadLatestReport()
-    this.startTaskPolling()
+    if (!this._taskBarsMixed) { mixinTaskBars(this, { onDone: (type) => { if (type === 'diagnose') this.loadLatestReport() } }); this._taskBarsMixed = true }
+    this.startTaskBars()
   },
 
   onHide() {
-    this.stopTaskPolling()
+    this.stopTaskBars()
     this._clearShareLockTimer()
   },
 
   onUnload() {
-    this.stopTaskPolling()
+    this.stopTaskBars()
     this._clearShareLockTimer()
   },
 
-  startTaskPolling() {
-    this.stopTaskPolling()
-    const tick = () => {
-      const t = taskState.get('diagnose')
-      this.setData({ diagnoseTask: t })
-      if (t && t.status === 'done' && !this._doneClearTimer) {
-        this.loadLatestReport()
-        this._doneClearTimer = setTimeout(() => {
-          taskState.clear('diagnose')
-          this.setData({ diagnoseTask: null })
-          this._doneClearTimer = null
-        }, 30000)
-      }
-    }
-    tick()
-    this._taskTimer = setInterval(tick, 600)
-  },
-
-  stopTaskPolling() {
-    if (this._taskTimer) { clearInterval(this._taskTimer); this._taskTimer = null }
-    if (this._doneClearTimer) { clearTimeout(this._doneClearTimer); this._doneClearTimer = null }
-  },
-
   onTapDiagnoseTask() {
-    const t = taskState.get('diagnose')
+    // 兼容旧调用入口；统一委托 onTapTaskBar
+    this.onTapTaskBar({ currentTarget: { dataset: { type: 'diagnose' } } })
+  },
+
+  // 覆盖 mixin 的 onTapTaskBar：诊断完成后留在首页，原地刷新
+  onTapTaskBar(e) {
+    const type = e.currentTarget.dataset.type
+    const t = taskState.get(type)
     if (!t) return
-    if (t.status === 'done' && t.resultUrl) {
+    if (type === 'diagnose' && t.status === 'done' && t.resultUrl) {
       taskState.clear('diagnose')
       this.setData({ diagnoseTask: null })
-      // resultUrl 形如 /pages/report/report?id=xxx，提取 id 后直接刷新当前页
       const m = /id=([^&]+)/.exec(t.resultUrl)
-      if (m && m[1]) {
-        this.setData({ currentReportId: m[1] })
-      }
+      if (m && m[1]) this.setData({ currentReportId: m[1] })
       this.loadLatestReport()
+      return
+    }
+    // 其他类型 / 状态走默认逻辑
+    if (t.status === 'done' && t.resultUrl) {
+      taskState.clear(type)
+      this.setData({ [type + 'Task']: null })
+      wx.navigateTo({ url: t.resultUrl })
     } else if (t.status === 'error') {
-      wx.showModal({ title: '诊断失败', content: t.errorMsg || '请重新尝试', confirmText: '关闭', showCancel: false })
-      taskState.clear('diagnose')
-      this.setData({ diagnoseTask: null })
+      wx.showModal({ title: type === 'diagnose' ? '诊断失败' : '决策失败', content: t.errorMsg || '请重新尝试', confirmText: '关闭', showCancel: false })
+      taskState.clear(type)
+      this.setData({ [type + 'Task']: null })
     } else if (t.status === 'running') {
-      wx.navigateTo({ url: '/pages/diagnose/diagnose?view=1' })
+      wx.navigateTo({ url: type === 'diagnose' ? '/pages/diagnose/diagnose?view=1' : '/pages/consult-analyzing/consult-analyzing?view=1' })
     }
   },
 

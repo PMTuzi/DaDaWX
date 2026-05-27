@@ -1,19 +1,9 @@
 <!--pages/outfit/outfit.wxml-->
 <wxs src="../../utils/helpers.wxs" module="h" />
+<import src="../../templates/task-bars.wxml" />
 <view class="page-outfit">
-  <!-- 顶部后台任务进度条 -->
-  <view class="task-bar task-bar-{{consultTask.status}}" wx:if="{{consultTask}}" bindtap="onTapConsultTask">
-    <view class="task-bar-row">
-      <text class="task-bar-dot"></text>
-      <text class="task-bar-label">{{consultTask.label || 'AI 穿搭决策中'}}</text>
-      <text class="task-bar-progress" wx:if="{{consultTask.status === 'running'}}">{{consultTask.progress}}%</text>
-      <text class="task-bar-cta" wx:if="{{consultTask.status === 'done'}}">查看 ›</text>
-      <text class="task-bar-cta task-bar-cta-error" wx:if="{{consultTask.status === 'error'}}">查看错误 ›</text>
-    </view>
-    <view class="task-bar-track">
-      <view class="task-bar-fill" style="width: {{consultTask.status === 'running' ? consultTask.progress : 100}}%"></view>
-    </view>
-  </view>
+  <!-- 顶部后台任务进度条（形象诊断 / 穿搭决策） -->
+  <template is="task-bars" data="{{diagnoseTask, consultTask}}" />
 
   <!-- 顶部标题 -->
   <view class="page-header">
@@ -131,7 +121,7 @@
           <image class="history-thumb" wx:if="{{item.images && item.images.length && h.getThumbUrl(item.images, item.recommendedIndex)}}"
             src="{{h.getThumbUrl(item.images, item.recommendedIndex)}}" mode="aspectFill" binderror="onThumbError" data-index="{{index}}"></image>
           <view class="history-thumb history-thumb-placeholder" wx:else>
-            <view class="icon icon-dress" style="font-size:32rpx;color:#C8A97E;"></view>
+            <view class="icon icon-dress" style="font-size:32rpx;color:#C9A45C;"></view>
           </view>
         </view>
         <view class="history-body">

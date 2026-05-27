@@ -1,33 +1,49 @@
 <!--pages/consult-result/consult-result.wxml-->
 <wxs src="../../utils/helpers.wxs" module="h" />
 <view class="page-result" wx:if="{{record}}">
-  <!-- 顶部决策结论 -->
+  <!-- 顶部决策结论卡片（5层结构） -->
   <view class="verdict-section {{isCompare ? 'verdict-compare' : (record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? 'verdict-accept' : 'verdict-reject')}}">
     <view class="verdict-bg-glow"></view>
     <view class="verdict-bg-glow-2"></view>
-    <!-- 主内容：左侧图片+分数环，右侧决策信息 -->
-    <view class="verdict-main" style="display:flex; align-items:flex-start; padding:28rpx 28rpx 16rpx; position:relative; z-index:2;">
-      <!-- 左侧：图片 + 分数环 -->
-      <view style="display:flex; flex-direction:column; align-items:center; gap:16rpx; flex-shrink:0;">
-        <view class="user-images count-{{record.images.length}}" wx:if="{{record.images && record.images.length}}">
-          <image class="user-image" wx:for="{{record.images}}" wx:key="index"
-            src="{{item.localPath || item.imageUrl}}" mode="aspectFill" bindtap="onPreviewImage" data-url="{{item.localPath || item.imageUrl}}"
-            binderror="onImageError"></image>
-        </view>
+
+    <!-- L0: 报告头（编号 + 生成时间） -->
+    <view class="report-header">
+      <view class="rh-left">
+        <text class="rh-brand">DADA · AI REPORT</text>
+        <text class="rh-no">{{record.reportNo || ''}}</text>
+      </view>
+      <view class="rh-right">
+        <text class="rh-time">{{record.createTime}}</text>
+      </view>
+    </view>
+
+    <!-- 商品图片陈列区（对比模式标注 A/B/C/D） -->
+    <view class="product-gallery" wx:if="{{record.images && record.images.length}}">
+      <view class="pg-item count-{{record.images.length}}" wx:for="{{record.images}}" wx:key="index"
+        bindtap="onPreviewImage" data-url="{{item.localPath || item.imageUrl}}">
+        <image class="pg-image" src="{{item.localPath || item.imageUrl}}" mode="aspectFill"
+          binderror="onImageError" data-index="{{index}}"></image>
+        <view class="pg-tag" wx:if="{{isCompare}}">{{['A','B','C','D','E','F'][index]}}</view>
+      </view>
+    </view>
+
+    <!-- L1: 分数 + 决策章 + 档位 + 置信度 + 契合度 -->
+    <view class="verdict-main">
+      <view class="vm-left">
         <view class="score-ring-wrap" wx:if="{{record.totalScore}}">
           <view class="score-ring-outer {{isCompare ? 'ring-compare' : (record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? 'ring-accept' : 'ring-reject')}}">
             <view class="score-ring-inner-wrap">
               <view class="score-ring-glass"></view>
               <view class="score-ring-inner">
                 <text class="score-big">{{h.toFixed1(record.totalScore)}}</text>
-                <text class="score-max">.0</text>
+                <text class="score-max">/10</text>
               </view>
               <view class="score-ring-label">综合评分</view>
             </view>
           </view>
         </view>
       </view>
-      <!-- 右侧：决策标签 + 理由 -->
+
       <view class="verdict-right">
         <view class="verdict-stamp {{isCompare ? 'stamp-compare' : (record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? 'stamp-accept' : 'stamp-reject')}}">
           <view class="stamp-border">
@@ -35,62 +51,233 @@
             <text class="stamp-text">{{record.verdict}}</text>
           </view>
         </view>
-        <view class="personal-reason {{isCompare ? 'reason-compare' : (record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? 'reason-accept' : 'reason-reject')}}" wx:if="{{record.personalReason}}">
-          <view class="reason-icon icon icon-user" style="font-size:20rpx;"></view>
-          <text class="reason-text">{{record.personalReason}}</text>
+
+        <!-- 档位 + 置信度 -->
+        <view class="meta-row" wx:if="{{record.tierLabel || record.confidence}}">
+          <view class="tier-pill" wx:if="{{record.tierLabel}}">
+            <text class="tier-dot"></text>
+            <text class="tier-text">{{record.tierLabel}}</text>
+          </view>
+          <view class="conf-pill" wx:if="{{record.confidence}}">
+            <text class="conf-label">AI 置信度</text>
+            <text class="conf-value">{{record.confidence}}%</text>
+          </view>
+        </view>
+
+        <!-- 契合度进度条 -->
+        <view class="match-row" wx:if="{{record.matchRate}}">
+          <view class="match-head">
+            <text class="match-label">个人契合度</text>
+            <text class="match-value">{{record.matchRate}}%</text>
+          </view>
+          <view class="match-bar"><view class="match-bar-inner" style="width: {{record.matchRate}}%"></view></view>
         </view>
       </view>
+    </view>
+
+    <!-- L2: 个性化理由 -->
+    <view class="personal-reason {{isCompare ? 'reason-compare' : (record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? 'reason-accept' : 'reason-reject')}}" wx:if="{{record.personalReason}}">
+      <view class="reason-icon icon icon-user" style="font-size:20rpx;"></view>
+      <text class="reason-text">{{record.personalReason}}</text>
     </view>
   </view>
 
-  <!-- ===== 单品模式 ===== -->
-  <block wx:if="{{!isCompare}}">
-    <!-- 雷达图 -->
-    <view class="card radar-card">
-      <view class="card-title">评分雷达图</view>
-      <canvas type="2d" id="radarCanvas" class="radar-canvas"></canvas>
+  <!-- Tab 导航：多维对比 / 穿搭建议 -->
+  <view class="cr-tab-bar">
+    <view class="cr-tab-item {{activeTab === 'compare' ? 'active' : ''}}" data-tab="compare" bindtap="onTabTap">
+      <text class="cr-tab-label">多维对比</text>
     </view>
+    <view class="cr-tab-item {{activeTab === 'advice' ? 'active' : ''}}" data-tab="advice" bindtap="onTabTap">
+      <text class="cr-tab-label">穿搭建议</text>
+    </view>
+  </view>
 
-    <!-- 各维度详情 -->
-    <view class="card">
-      <view class="card-title"><view class="icon icon-chart" style="font-size:28rpx;margin-right:6rpx;"></view> 各维度分析</view>
-      <view class="dimension-list">
-        <view class="dimension-item" wx:for="{{dimensionList}}" wx:key="key">
-          <view class="dim-header">
-            <view class="dim-name-wrap">
-              <view class="dim-icon-circle"><view class="icon icon-{{item.icon}}" style="font-size:22rpx;"></view></view>
-              <text class="dim-name">{{item.name}}</text>
-            </view>
-            <view class="dim-score-badge">
-              <text class="dim-score">{{item.score}}</text>
-              <text class="dim-score-max">/10</text>
-            </view>
-          </view>
-          <view class="score-bar">
-            <view class="score-bar-inner {{item.score >= 7 ? 'bar-positive' : item.score < 5 ? 'bar-negative' : ''}}" style="width: {{item.score * 10}}%"></view>
-          </view>
-          <view class="dim-detail" wx:if="{{item.pros || item.cons}}">
-            <view class="detail-pros" wx:if="{{item.pros}}">
-              <view class="detail-icon-bubble bubble-pros"><view class="icon icon-good" style="font-size:18rpx;"></view></view>
-              <view class="detail-text-wrap">
-                <text class="detail-label">亮点</text>
-                <text class="detail-content">{{item.pros}}</text>
+  <!-- ===== Tab 1: 多维对比 ===== -->
+  <view class="tab-pane" hidden="{{activeTab !== 'compare'}}">
+    <!-- 单品模式 -->
+    <block wx:if="{{!isCompare}}">
+      <view class="card radar-card">
+        <view class="card-title">评分雷达图</view>
+        <canvas type="2d" id="radarCanvas" class="radar-canvas"></canvas>
+      </view>
+
+      <view class="card">
+        <view class="card-title"><view class="icon icon-chart" style="font-size:28rpx;margin-right:6rpx;"></view> 各维度分析</view>
+        <view class="dimension-list">
+          <view class="dimension-item" wx:for="{{dimensionList}}" wx:key="key">
+            <view class="dim-header">
+              <view class="dim-name-wrap">
+                <view class="dim-icon-circle"><view class="icon icon-{{item.icon}}" style="font-size:22rpx;"></view></view>
+                <text class="dim-name">{{item.name}}</text>
+              </view>
+              <view class="dim-score-badge">
+                <text class="dim-score">{{item.score}}</text>
+                <text class="dim-score-max">/10</text>
               </view>
             </view>
-            <view class="detail-cons" wx:if="{{item.cons}}">
-              <view class="detail-icon-bubble bubble-cons"><view class="icon icon-warning" style="font-size:18rpx;"></view></view>
-              <view class="detail-text-wrap">
-                <text class="detail-label">注意</text>
-                <text class="detail-content">{{item.cons}}</text>
+            <view class="score-bar">
+              <view class="score-bar-inner {{item.score >= 7 ? 'bar-positive' : item.score < 5 ? 'bar-negative' : ''}}" style="width: {{item.score * 10}}%"></view>
+            </view>
+            <view class="dim-detail" wx:if="{{item.pros || item.cons}}">
+              <view class="detail-pros" wx:if="{{item.pros}}">
+                <view class="detail-icon-bubble bubble-pros"><view class="icon icon-good" style="font-size:18rpx;"></view></view>
+                <view class="detail-text-wrap">
+                  <text class="detail-label">亮点</text>
+                  <text class="detail-content">{{item.pros}}</text>
+                </view>
+              </view>
+              <view class="detail-cons" wx:if="{{item.cons}}">
+                <view class="detail-icon-bubble bubble-cons"><view class="icon icon-warning" style="font-size:18rpx;"></view></view>
+                <view class="detail-text-wrap">
+                  <text class="detail-label">注意</text>
+                  <text class="detail-content">{{item.cons}}</text>
+                </view>
               </view>
             </view>
           </view>
         </view>
       </view>
+    </block>
+
+    <!-- 对比模式 -->
+    <block wx:if="{{isCompare}}">
+      <view class="card final-choice-card" wx:if="{{record.finalChoice}}">
+        <view class="card-title"><view class="icon icon-trophy" style="font-size:28rpx;margin-right:4rpx;"></view> 最终推荐</view>
+        <view class="final-choice">
+          <view class="choice-label">{{record.finalChoice.label}}</view>
+          <view class="choice-reason">{{record.finalChoice.reason}}</view>
+        </view>
+      </view>
+
+      <view class="card radar-card">
+        <view class="card-title">评分雷达图（{{record.rankings[0].label}}）</view>
+        <canvas type="2d" id="radarCanvas" class="radar-canvas"></canvas>
+      </view>
+
+      <view class="card">
+        <view class="card-title">综合排名</view>
+        <view class="rank-list">
+          <view class="rank-item {{index === 0 ? 'rank-top' : ''}}" wx:for="{{record.rankings}}" wx:key="index">
+            <view class="rank-badge">{{index + 1}}</view>
+            <view class="rank-letter">{{['A','B','C','D','E','F'][item.index]}}</view>
+            <text class="rank-label">{{item.label}}</text>
+            <text class="rank-score">{{h.toFixed1(item.totalScore)}}分</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="card">
+        <view class="card-title">多维横向对比</view>
+        <view class="compare-table">
+          <view class="table-header">
+            <view class="table-cell cell-dim" wx:for="{{compareHeaders}}" wx:key="*this">
+              {{item}}
+            </view>
+          </view>
+          <view class="table-row" wx:for="{{compareRows}}" wx:key="dimension">
+            <view class="table-cell cell-dim">{{item.dimension}}</view>
+            <view class="table-cell" wx:for="{{item.values}}" wx:key="*this"
+              style="color: {{item >= 8 ? '#50B896' : item >= 6 ? '#E8A87C' : '#CC7878'}}">
+              {{item}}
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="card" wx:if="{{record.comparisons}}">
+        <view class="card-title"><view class="icon icon-balance" style="font-size:28rpx;margin-right:4rpx;"></view> 各款优缺点</view>
+        <view class="comparison-list">
+          <view class="comparison-item" wx:for="{{record.comparisons}}" wx:key="index">
+            <view class="comp-header">
+              <view class="comp-letter">{{['A','B','C','D','E','F'][item.index !== undefined ? item.index : index]}}</view>
+              <text class="comp-label">{{item.label}}</text>
+            </view>
+            <view class="comp-detail" wx:if="{{item.pros || item.cons}}">
+              <view class="comp-pros" wx:if="{{item.pros}}">
+                <view class="comp-icon-bubble bubble-pros"><view class="icon icon-good" style="font-size:18rpx;"></view></view>
+                <view class="comp-text-wrap">
+                  <text class="comp-detail-label">亮点</text>
+                  <text class="comp-detail-content">{{item.pros}}</text>
+                </view>
+              </view>
+              <view class="comp-cons" wx:if="{{item.cons}}">
+                <view class="comp-icon-bubble bubble-cons"><view class="icon icon-warning" style="font-size:18rpx;"></view></view>
+                <view class="comp-text-wrap">
+                  <text class="comp-detail-label">注意</text>
+                  <text class="comp-detail-content">{{item.cons}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- ===== Tab 2: 穿搭建议 ===== -->
+  <view class="tab-pane" hidden="{{activeTab !== 'advice'}}">
+    <!-- 用户输入回显 chips -->
+    <view class="card" wx:if="{{echoChips.length}}">
+      <view class="card-title">本次咨询</view>
+      <view class="echo-row echo-row-incard">
+        <view class="echo-chip" wx:for="{{echoChips}}" wx:key="label">
+          <text class="echo-key">{{item.label}}</text>
+          <text class="echo-val">{{item.value}}</text>
+        </view>
+      </view>
     </view>
 
-    <!-- 穿搭优化建议 -->
-    <view class="card" wx:if="{{record.tips && record.tips.length > 0}}">
+    <!-- 风格定位 + 关键词 + 色调 -->
+    <view class="card" wx:if="{{record.styleTier || (record.styleKeywords && record.styleKeywords.length) || (record.colorTone && (record.colorTone.main || record.colorTone.mood))}}">
+      <view class="card-title"><view class="icon icon-palette" style="font-size:28rpx;margin-right:4rpx;"></view> 风格定位</view>
+      <view class="style-block style-block-incard">
+        <view class="style-tier" wx:if="{{record.styleTier}}">
+          <text class="style-tier-bar"></text>
+          <text class="style-tier-text">{{record.styleTier}}</text>
+        </view>
+        <view class="kw-row" wx:if="{{record.styleKeywords && record.styleKeywords.length}}">
+          <view class="kw-tag" wx:for="{{record.styleKeywords}}" wx:key="*this">#{{item}}</view>
+        </view>
+        <view class="color-tone" wx:if="{{record.colorTone && (record.colorTone.main || record.colorTone.mood)}}">
+          <view class="ct-swatches">
+            <text class="ct-sw ct-sw-main" wx:if="{{record.colorTone.main}}">{{record.colorTone.main}}</text>
+            <text class="ct-sw ct-sw-accent" wx:if="{{record.colorTone.accent}}">{{record.colorTone.accent}}</text>
+          </view>
+          <text class="ct-mood" wx:if="{{record.colorTone.mood}}">— {{record.colorTone.mood}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 性价比 / 最佳搭配 / 风险点 -->
+    <view class="card" wx:if="{{record.priceVerdict || record.bestPartner || record.warningFlag}}">
+      <view class="card-title"><view class="icon icon-sparkle" style="font-size:28rpx;margin-right:4rpx;"></view> 关键洞察</view>
+      <view class="insight-grid insight-grid-incard">
+        <view class="insight-row" wx:if="{{record.priceVerdict}}">
+          <text class="insight-icon">¥</text>
+          <view class="insight-body">
+            <text class="insight-label">性价比</text>
+            <text class="insight-text">{{record.priceVerdict}}</text>
+          </view>
+        </view>
+        <view class="insight-row" wx:if="{{record.bestPartner}}">
+          <text class="insight-icon">★</text>
+          <view class="insight-body">
+            <text class="insight-label">最佳搭配</text>
+            <text class="insight-text">{{record.bestPartner}}</text>
+          </view>
+        </view>
+        <view class="insight-row insight-warn" wx:if="{{record.warningFlag}}">
+          <text class="insight-icon">!</text>
+          <view class="insight-body">
+            <text class="insight-label">风险点</text>
+            <text class="insight-text">{{record.warningFlag}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 穿搭优化建议（单品） -->
+    <view class="card" wx:if="{{!isCompare && record.tips && record.tips.length > 0}}">
       <view class="card-title">穿搭优化建议</view>
       <view class="tips-list">
         <view class="tip-item" wx:for="{{record.tips}}" wx:key="*this">
@@ -99,88 +286,10 @@
         </view>
       </view>
     </view>
-  </block>
 
-  <!-- ===== 对比模式 ===== -->
-  <block wx:if="{{isCompare}}">
-    <!-- 最终推荐 -->
-    <view class="card final-choice-card" wx:if="{{record.finalChoice}}">
-      <view class="card-title"><view class="icon icon-trophy" style="font-size:28rpx;margin-right:4rpx;"></view> 最终推荐</view>
-      <view class="final-choice">
-        <view class="choice-label">{{record.finalChoice.label}}</view>
-        <view class="choice-reason">{{record.finalChoice.reason}}</view>
-      </view>
-    </view>
-
-    <!-- 雷达图 -->
-    <view class="card radar-card">
-      <view class="card-title">评分雷达图（{{record.rankings[0].label}}）</view>
-      <canvas type="2d" id="radarCanvas" class="radar-canvas"></canvas>
-    </view>
-
-    <!-- 排名 -->
-    <view class="card">
-      <view class="card-title">综合排名</view>
-      <view class="rank-list">
-        <view class="rank-item {{index === 0 ? 'rank-top' : ''}}" wx:for="{{record.rankings}}" wx:key="index">
-          <view class="rank-badge">{{index + 1}}</view>
-          <text class="rank-label">{{item.label}}</text>
-          <text class="rank-score">{{h.toFixed1(item.totalScore)}}分</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- 横向对比表格 -->
-    <view class="card">
-      <view class="card-title">多维横向对比</view>
-      <view class="compare-table">
-        <view class="table-header">
-          <view class="table-cell cell-dim" wx:for="{{compareHeaders}}" wx:key="*this">
-            {{item}}
-          </view>
-        </view>
-        <view class="table-row" wx:for="{{compareRows}}" wx:key="dimension">
-          <view class="table-cell cell-dim">{{item.dimension}}</view>
-          <view class="table-cell" wx:for="{{item.values}}" wx:key="*this"
-            style="color: {{item >= 8 ? '#27ae60' : item >= 6 ? '#f39c12' : '#e74c3c'}}">
-            {{item}}
-          </view>
-        </view>
-      </view>
-    </view>
-
-    <!-- 各款优缺点 -->
-    <view class="card" wx:if="{{record.comparisons}}">
-      <view class="card-title"><view class="icon icon-balance" style="font-size:28rpx;margin-right:4rpx;"></view> 各款优缺点</view>
-      <view class="comparison-list">
-        <view class="comparison-item" wx:for="{{record.comparisons}}" wx:key="index">
-          <view class="comp-header">
-            <view class="comp-icon-circle"><view class="icon icon-dress" style="font-size:22rpx;"></view></view>
-            <text class="comp-label">{{item.label}}</text>
-          </view>
-          <view class="comp-detail" wx:if="{{item.pros || item.cons}}">
-            <view class="comp-pros" wx:if="{{item.pros}}">
-              <view class="comp-icon-bubble bubble-pros"><view class="icon icon-good" style="font-size:18rpx;"></view></view>
-              <view class="comp-text-wrap">
-                <text class="comp-detail-label">亮点</text>
-                <text class="comp-detail-content">{{item.pros}}</text>
-              </view>
-            </view>
-            <view class="comp-cons" wx:if="{{item.cons}}">
-              <view class="comp-icon-bubble bubble-cons"><view class="icon icon-warning" style="font-size:18rpx;"></view></view>
-              <view class="comp-text-wrap">
-                <text class="comp-detail-label">注意</text>
-                <text class="comp-detail-content">{{item.cons}}</text>
-              </view>
-            </view>
-          </view>
-        </view>
-      </view>
-    </view>
-
-    <!-- 最佳场景 -->
-    <view class="card" wx:if="{{record.bestScenarios}}">
-      <view class="card-title"><view class="icon icon-sparkle" style="font-size:28rpx;margin-right:4rpx;"></view> 最佳使用场景</view>
+    <!-- 最佳场景（对比） -->
+    <view class="card" wx:if="{{isCompare && record.bestScenarios}}">
+      <view class="card-title"><view class="icon icon-target" style="font-size:28rpx;margin-right:4rpx;"></view> 最佳使用场景</view>
       <view class="scenario-list">
         <view class="scenario-item" wx:for="{{record.bestScenarios}}" wx:key="index">
           <view class="scenario-icon-circle"><view class="icon icon-target" style="font-size:20rpx;"></view></view>
@@ -191,26 +300,26 @@
         </view>
       </view>
     </view>
-  </block>
 
-  <!-- ===== 哒哒评论（通用） ===== -->
-  <view class="card dada-comment-card" wx:if="{{record.dadaComment}}">
-    <view class="card-title"><view class="icon icon-cat" style="font-size:28rpx;margin-right:4rpx;"></view>哒哒说</view>
-    <view class="dada-comment">{{record.dadaComment}}</view>
-  </view>
-
-  <!-- ===== 穿搭建议（通用） ===== -->
-  <view class="card" wx:if="{{record.outfitAdvice && record.outfitAdvice.length > 0}}">
-    <view class="card-title"><view class="icon icon-dress" style="font-size:28rpx;margin-right:4rpx;"></view> 搭配建议</view>
-    <view class="advice-list">
-      <view class="advice-item" wx:for="{{record.outfitAdvice}}" wx:key="type">
-        <view class="advice-icon icon icon-{{item.icon}}" style="font-size:36rpx;"></view>
-        <view class="advice-content">
-          <view class="advice-title">{{item.title}}</view>
-          <view class="advice-desc">{{item.description}}</view>
-          <view class="advice-reason">{{item.reason}}</view>
+    <!-- 搭配建议（通用） -->
+    <view class="card" wx:if="{{record.outfitAdvice && record.outfitAdvice.length > 0}}">
+      <view class="card-title"><view class="icon icon-dress" style="font-size:28rpx;margin-right:4rpx;"></view> 搭配建议</view>
+      <view class="advice-list">
+        <view class="advice-item" wx:for="{{record.outfitAdvice}}" wx:key="type">
+          <view class="advice-icon icon icon-{{item.icon}}" style="font-size:36rpx;"></view>
+          <view class="advice-content">
+            <view class="advice-title">{{item.title}}</view>
+            <view class="advice-desc">{{item.description}}</view>
+            <view class="advice-reason">{{item.reason}}</view>
+          </view>
         </view>
       </view>
+    </view>
+
+    <!-- 哒哒说（通用） -->
+    <view class="card dada-comment-card" wx:if="{{record.dadaComment}}">
+      <view class="card-title"><view class="icon icon-cat" style="font-size:28rpx;margin-right:4rpx;"></view>哒哒说</view>
+      <view class="dada-comment">{{record.dadaComment}}</view>
     </view>
   </view>
 

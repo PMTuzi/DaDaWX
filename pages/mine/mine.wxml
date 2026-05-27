@@ -1,4 +1,5 @@
 <!--pages/mine/mine.wxml-->
+<import src="../../templates/task-bars.wxml" />
 <view class="page-mine">
   <!-- 用户信息 -->
   <view class="user-header">
@@ -38,6 +39,9 @@
       <text class="stat-label">穿搭决策</text>
     </view>
   </view>
+
+  <!-- 顶部后台任务进度条（形象诊断 / 穿搭决策） -->
+  <template is="task-bars" data="{{diagnoseTask, consultTask}}" />
 
   <!-- 功能列表 -->
   <view class="menu-section">

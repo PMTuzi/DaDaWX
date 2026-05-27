@@ -4,11 +4,43 @@
 .page-diagnose {
   position: relative;
   min-height: 100vh;
-  background: linear-gradient(180deg, #DFF3FF 0%, #EFF9FF 35%, #FFFFFF 70%);
-  padding-top: 56rpx;
+  background: linear-gradient(180deg, #C7E4F5 0%, #E8F4FC 30%, #EFF9FF 55%, #FFFFFF 80%);
+  padding-top: calc(env(safe-area-inset-top) + 210rpx);
   padding-bottom: calc(220rpx + env(safe-area-inset-bottom));
   overflow: hidden;
-  color: #1a1a1a;
+  color: #1F1A17;
+}
+
+/* 自定义返回按钮（与右侧胶囊菜单同高对齐） */
+.nav-back {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 8rpx);
+  left: 16rpx;
+  width: 76rpx;
+  height: 64rpx;
+  border-radius: 32rpx;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1rpx solid rgba(184, 153, 104, 0.35);
+  box-shadow: 0 4rpx 12rpx rgba(184, 153, 104, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  backdrop-filter: blur(10rpx);
+  padding-bottom: 4rpx;
+  box-sizing: border-box;
+}
+
+.nav-back-hover {
+  background: rgba(255, 255, 255, 0.95);
+  transform: scale(0.94);
+}
+
+.nav-back-icon {
+  font-size: 44rpx;
+  font-weight: 500;
+  color: #8C6E3A;
+  line-height: 1;
 }
 
 /* 极简网格（隐去多余装饰，仅保留淡雅纹理） */
@@ -32,27 +64,28 @@
   pointer-events: none;
 }
 
+/* 顶部光晕加强：与背景渐变一起营造沉浸式天空感 */
 .bg-glow-1 {
-  top: -160rpx;
+  top: -200rpx;
   right: -160rpx;
-  width: 480rpx;
-  height: 480rpx;
-  background: radial-gradient(circle, rgba(91, 214, 240, 0.5) 0%, transparent 70%);
+  width: 560rpx;
+  height: 560rpx;
+  background: radial-gradient(circle, rgba(245, 230, 184, 0.85) 0%, transparent 70%);
 }
 
 .bg-glow-2 {
   display: block;
-  top: 280rpx;
-  left: -180rpx;
-  width: 420rpx;
-  height: 420rpx;
-  background: radial-gradient(circle, rgba(45, 155, 255, 0.35) 0%, transparent 70%);
+  top: 200rpx;
+  left: -200rpx;
+  width: 480rpx;
+  height: 480rpx;
+  background: radial-gradient(circle, rgba(91, 174, 222, 0.4) 0%, transparent 70%);
 }
 
 /* ============ 顶部品牌头 ============ */
 .hero {
   position: relative;
-  padding: 24rpx 48rpx 8rpx;
+  padding: 32rpx 48rpx 8rpx;
   z-index: 2;
 }
 
@@ -61,12 +94,12 @@
   align-items: center;
   gap: 10rpx;
   padding: 8rpx 20rpx;
-  background: rgba(45, 155, 255, 0.1);
-  border: 1rpx solid rgba(45, 155, 255, 0.3);
+  background: rgba(184, 153, 104, 0.12);
+  border: 1rpx solid rgba(184, 153, 104, 0.35);
   border-radius: 20rpx;
   font-size: 20rpx;
   font-weight: 600;
-  color: #2D9BFF;
+  color: #8C6E3A;
   letter-spacing: 2rpx;
   margin-bottom: 20rpx;
 }
@@ -75,8 +108,8 @@
   width: 10rpx;
   height: 10rpx;
   border-radius: 50%;
-  background: #2D9BFF;
-  box-shadow: 0 0 12rpx rgba(45, 155, 255, 0.6);
+  background: #B89968;
+  box-shadow: 0 0 12rpx rgba(184, 153, 104, 0.7);
   animation: pulse 1.6s ease-in-out infinite;
 }
 
@@ -89,11 +122,7 @@
   font-size: 56rpx;
   font-weight: 800;
   letter-spacing: 4rpx;
-  color: #2D9BFF;
-  background: linear-gradient(90deg, #5BD6F0 0%, #2D9BFF 50%, #2B7FE6 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #1a1a1a;
   margin-bottom: 12rpx;
 }
 
@@ -137,15 +166,15 @@
 }
 
 .step.active .step-dot {
-  background: #2D9BFF;
+  background: linear-gradient(135deg, #D4B883 0%, #B89968 100%);
   border-color: transparent;
   color: #fff;
-  box-shadow: 0 8rpx 24rpx rgba(45, 155, 255, 0.4);
+  box-shadow: 0 8rpx 24rpx rgba(184, 153, 104, 0.45);
 }
 
 .step.next .step-dot {
-  border-color: rgba(45, 155, 255, 0.5);
-  color: #2D9BFF;
+  border-color: rgba(184, 153, 104, 0.55);
+  color: #B89968;
 }
 
 .step-label {
@@ -156,7 +185,7 @@
 
 .step.active .step-label,
 .step.next .step-label {
-  color: #1a1a1a;
+  color: #1F1A17;
 }
 
 .step-bar {
@@ -185,12 +214,12 @@
 
 @keyframes cardBreath {
   0%, 100% {
-    box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.04), 0 0 0 0 rgba(45, 155, 255, 0.35);
+    box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.04), 0 0 0 0 rgba(184, 153, 104, 0.4);
     border-color: #f0f0f0;
   }
   50% {
-    box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.04), 0 0 0 8rpx rgba(45, 155, 255, 0);
-    border-color: rgba(45, 155, 255, 0.5);
+    box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.04), 0 0 0 8rpx rgba(184, 153, 104, 0);
+    border-color: rgba(184, 153, 104, 0.55);
   }
 }
 
@@ -202,7 +231,7 @@
   position: absolute;
   width: 36rpx;
   height: 36rpx;
-  border-color: #2D9BFF;
+  border-color: #B89968;
   border-style: solid;
   border-width: 0;
 }
@@ -235,7 +264,7 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 2rpx dashed rgba(45, 155, 255, 0.5);
+  border: 2rpx dashed rgba(184, 153, 104, 0.55);
   animation: rotate 12s linear infinite;
 }
 
@@ -249,13 +278,13 @@
   position: absolute;
   inset: 20rpx;
   border-radius: 50%;
-  background: rgba(45, 155, 255, 0.08);
+  background: rgba(184, 153, 104, 0.1);
 }
 
 .upload-icon {
   position: relative;
   font-size: 64rpx;
-  color: #2D9BFF;
+  color: #B89968;
   z-index: 1;
 }
 
@@ -264,7 +293,7 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 2rpx solid rgba(45, 155, 255, 0.6);
+  border: 2rpx solid rgba(184, 153, 104, 0.6);
   animation: uploadPulse 2s ease-out infinite;
   pointer-events: none;
 }
@@ -292,11 +321,11 @@
   width: 72rpx;
   height: 72rpx;
   z-index: 2;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><g fill='none' stroke='%232D9BFF' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M26 38V18a4 4 0 1 1 8 0v14'/><path d='M34 28a4 4 0 0 1 8 0v6'/><path d='M42 30a4 4 0 0 1 8 0v10c0 8-5 14-13 14h-6c-5 0-8-2-10-6l-6-12a4 4 0 0 1 7-4l4 6'/></g><circle cx='32' cy='10' r='3' fill='%232D9BFF'/><path d='M22 8l-4-3M42 8l4-3M32 4V0' stroke='%232D9BFF' stroke-width='2' stroke-linecap='round'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><g fill='none' stroke='%23B89968' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M26 38V18a4 4 0 1 1 8 0v14'/><path d='M34 28a4 4 0 0 1 8 0v6'/><path d='M42 30a4 4 0 0 1 8 0v10c0 8-5 14-13 14h-6c-5 0-8-2-10-6l-6-12a4 4 0 0 1 7-4l4 6'/></g><circle cx='32' cy='10' r='3' fill='%23B89968'/><path d='M22 8l-4-3M42 8l4-3M32 4V0' stroke='%23B89968' stroke-width='2' stroke-linecap='round'/></svg>");
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center;
-  filter: drop-shadow(0 4rpx 8rpx rgba(45, 155, 255, 0.4));
+  filter: drop-shadow(0 4rpx 8rpx rgba(184, 153, 104, 0.45));
   animation: fingerTap 1.4s ease-in-out infinite;
   transform-origin: 70% 30%;
 }
@@ -316,7 +345,7 @@
 .upload-title {
   font-size: 30rpx;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #1F1A17;
   letter-spacing: 2rpx;
   margin-top: 8rpx;
 }
@@ -389,7 +418,7 @@
 
 .rechoose-icon {
   font-size: 28rpx;
-  color: #2D9BFF;
+  color: #B89968;
 }
 
 /* ============ 蓝色科技风扫描覆盖层 ============ */
@@ -848,7 +877,7 @@
   width: 8rpx;
   height: 8rpx;
   border-radius: 50%;
-  background: #2D9BFF;
+  background: #B89968;
   flex-shrink: 0;
 }
 
@@ -860,7 +889,7 @@
   right: 0;
   padding: 24rpx 32rpx;
   padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
-  background: linear-gradient(180deg, rgba(239, 249, 255, 0) 0%, #EFF9FF 30%);
+  background: linear-gradient(180deg, rgba(232, 244, 252, 0) 0%, #E8F4FC 30%);
   z-index: 100;
 }
 
@@ -871,14 +900,14 @@
   align-items: center;
   justify-content: center;
   gap: 16rpx;
-  background: linear-gradient(135deg, #8FE0FF 0%, #5BBEFF 55%, #2D9BFF 100%) !important;
-  color: #FFFFFF !important;
+  background: linear-gradient(135deg, #F5E6B8 0%, #D4B883 50%, #B89968 100%) !important;
+  color: #1F1A17 !important;
   border-radius: 48rpx !important;
   font-size: 32rpx;
   font-weight: 700;
   letter-spacing: 4rpx;
   border: none !important;
-  box-shadow: 0 8rpx 20rpx rgba(45, 155, 255, 0.28), inset 0 1rpx 0 rgba(255, 255, 255, 0.55);
+  box-shadow: 0 8rpx 20rpx rgba(184, 153, 104, 0.35), inset 0 1rpx 0 rgba(255, 255, 255, 0.55);
   position: relative;
   overflow: hidden;
 }
@@ -922,5 +951,5 @@
   width: 6rpx;
   height: 6rpx;
   border-radius: 50%;
-  background: #2D9BFF;
+  background: #B89968;
 }

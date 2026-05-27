@@ -12,19 +12,9 @@
   module.exports = { cleanAge: cleanAge };
 </wxs>
 <view class="page-index {{hasReport ? 'page-index-diag' : 'page-index-undiag'}}">
-  <!-- 顶部后台任务进度条 -->
-  <view class="task-bar task-bar-{{diagnoseTask.status}}" wx:if="{{diagnoseTask}}" bindtap="onTapDiagnoseTask">
-    <view class="task-bar-row">
-      <text class="task-bar-dot"></text>
-      <text class="task-bar-label">{{diagnoseTask.label || 'AI 形象诊断中'}}</text>
-      <text class="task-bar-progress" wx:if="{{diagnoseTask.status === 'running'}}">{{diagnoseTask.progress}}%</text>
-      <text class="task-bar-cta" wx:if="{{diagnoseTask.status === 'done'}}">查看 ›</text>
-      <text class="task-bar-cta task-bar-cta-error" wx:if="{{diagnoseTask.status === 'error'}}">查看错误 ›</text>
-    </view>
-    <view class="task-bar-track">
-      <view class="task-bar-fill" style="width: {{diagnoseTask.status === 'running' ? diagnoseTask.progress : 100}}%"></view>
-    </view>
-  </view>
+  <!-- 顶部后台任务进度条（形象诊断 / 穿搭决策） -->
+  <import src="../../templates/task-bars.wxml" />
+  <template is="task-bars" data="{{diagnoseTask, consultTask}}" />
 
   <!-- 顶部品牌区（已诊断态保留小尺寸） -->
   <view class="header {{hasReport ? 'header-diagnosed' : ''}}">

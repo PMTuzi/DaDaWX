@@ -1,0 +1,34 @@
+<!-- 形象诊断 / 穿搭决策 全局任务进度条 · 可在 index/outfit/mine 复用 -->
+<template name="task-bars">
+  <view class="task-bars" wx:if="{{diagnoseTask || consultTask}}">
+    <!-- 形象诊断进度条 -->
+    <view class="task-bar task-bar-diagnose task-bar-{{diagnoseTask.status}}" wx:if="{{diagnoseTask}}" data-type="diagnose" bindtap="onTapTaskBar">
+      <view class="task-bar-row">
+        <text class="task-bar-typetag task-bar-typetag-diagnose">形象诊断</text>
+        <text class="task-bar-dot"></text>
+        <text class="task-bar-label">{{diagnoseTask.label || 'AI 形象诊断中'}}</text>
+        <text class="task-bar-progress" wx:if="{{diagnoseTask.status === 'running'}}">{{diagnoseTask.progress}}%</text>
+        <text class="task-bar-cta" wx:if="{{diagnoseTask.status === 'done'}}">查看 ›</text>
+        <text class="task-bar-cta task-bar-cta-error" wx:if="{{diagnoseTask.status === 'error'}}">查看错误 ›</text>
+      </view>
+      <view class="task-bar-track">
+        <view class="task-bar-fill" style="width: {{diagnoseTask.status === 'running' ? diagnoseTask.progress : 100}}%"></view>
+      </view>
+    </view>
+
+    <!-- 穿搭决策进度条 -->
+    <view class="task-bar task-bar-consult task-bar-{{consultTask.status}}" wx:if="{{consultTask}}" data-type="consult" bindtap="onTapTaskBar">
+      <view class="task-bar-row">
+        <text class="task-bar-typetag task-bar-typetag-consult">穿搭决策</text>
+        <text class="task-bar-dot"></text>
+        <text class="task-bar-label">{{consultTask.label || 'AI 穿搭决策中'}}</text>
+        <text class="task-bar-progress" wx:if="{{consultTask.status === 'running'}}">{{consultTask.progress}}%</text>
+        <text class="task-bar-cta" wx:if="{{consultTask.status === 'done'}}">查看 ›</text>
+        <text class="task-bar-cta task-bar-cta-error" wx:if="{{consultTask.status === 'error'}}">查看错误 ›</text>
+      </view>
+      <view class="task-bar-track">
+        <view class="task-bar-fill" style="width: {{consultTask.status === 'running' ? consultTask.progress : 100}}%"></view>
+      </view>
+    </view>
+  </view>
+</template>

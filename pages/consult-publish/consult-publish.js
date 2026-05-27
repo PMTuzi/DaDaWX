@@ -99,6 +99,15 @@ Page({
     this.updateNextLabel()
   },
 
+  onBack() {
+    const pages = getCurrentPages()
+    if (pages.length > 1) {
+      wx.navigateBack({ delta: 1 })
+    } else {
+      wx.switchTab({ url: '/pages/outfit/outfit' })
+    }
+  },
+
   onNext() {
     const key = this.data.slideKeys[this.data.currentIdx]
 

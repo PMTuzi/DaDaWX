@@ -107,14 +107,15 @@ router.post('/generate-single-consult', authRequired, async (req, res) => {
         setTask(taskId, { status: 'failed', error: 'AI 分析格式异常，请重试' })
         return
       }
+      const merged = safeMergeSingleResult(result)
 
-      const record = { type: 'single', ...result, images: images || [], category: category || '' }
+      const record = { type: 'single', ...merged, images: images || [], category: category || '' }
       consultStore.saveConsultRecord(req.user.openid, record).catch(e =>
         console.error('[穿搭咨询] 保存记录失败:', e.message))
       userStore.incrementConsultCount(req.user.openid).catch(e =>
         console.error('[穿搭咨询] 更新计数失败:', e.message))
 
-      setTask(taskId, { status: 'done', result })
+      setTask(taskId, { status: 'done', result: merged })
     } catch (err) {
       console.error('[穿搭咨询] 单品决策失败:', err.message)
       setTask(taskId, { status: 'failed', error: 'AI 分析失败：' + (err.message || '未知错误') })
@@ -147,14 +148,15 @@ router.post('/generate-compare-consult', authRequired, async (req, res) => {
         setTask(taskId, { status: 'failed', error: 'AI 分析格式异常，请重试' })
         return
       }
+      const merged = safeMergeCompareResult(result)
 
-      const record = { type: 'compare', ...result, images: images || [] }
+      const record = { type: 'compare', ...merged, images: images || [] }
       consultStore.saveConsultRecord(req.user.openid, record).catch(e =>
         console.error('[穿搭咨询] 保存记录失败:', e.message))
       userStore.incrementConsultCount(req.user.openid).catch(e =>
         console.error('[穿搭咨询] 更新计数失败:', e.message))
 
-      setTask(taskId, { status: 'done', result })
+      setTask(taskId, { status: 'done', result: merged })
     } catch (err) {
       console.error('[穿搭咨询] 多选一决策失败:', err.message)
       setTask(taskId, { status: 'failed', error: 'AI 分析失败：' + (err.message || '未知错误') })

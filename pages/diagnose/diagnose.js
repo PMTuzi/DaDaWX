@@ -95,6 +95,15 @@ Page({
   },
 
   // 选择照片（拍照或相册）
+  onBack() {
+    const pages = getCurrentPages()
+    if (pages.length > 1) {
+      wx.navigateBack({ delta: 1 })
+    } else {
+      wx.switchTab({ url: '/pages/index/index' })
+    }
+  },
+
   onChoosePhoto() {
     if (this.data.analyzing) return
     try {

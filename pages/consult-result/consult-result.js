@@ -12,7 +12,21 @@ Page({
     compareHeaders: [],
     compareRows: [],
     // 单品模式：动态维度列表
-    dimensionList: []
+    dimensionList: [],
+    // 顶部卡片：用户输入回显 chips
+    echoChips: [],
+    // 当前激活 tab：'compare'(多维对比) | 'advice'(穿搭建议)
+    activeTab: 'compare'
+  },
+
+  onTabTap(e) {
+    const tab = e.currentTarget.dataset.tab
+    if (!tab || tab === this.data.activeTab) return
+    this.setData({ activeTab: tab })
+    if (tab === 'compare') {
+      // 切回对比 tab 时重新绘制雷达图（canvas 在隐藏后可能丢失）
+      setTimeout(() => this.drawRadar(), 200)
+    }
   },
 
   onLoad(options) {
@@ -34,13 +48,33 @@ Page({
     }
 
     const isCompare = record.type === 'compare'
-    this.setData({ record, isCompare })
+    this.setData({ record, isCompare, echoChips: this.buildEchoChips(record, isCompare) })
 
     if (isCompare) {
       this.initCompareData(record)
     } else {
       this.initSingleData(record)
     }
+  },
+
+  buildEchoChips(record, isCompare) {
+    const chips = []
+    if (isCompare) {
+      if (record.compareScene) chips.push({ label: '场景', value: record.compareScene })
+      if (Array.isArray(record.priceList) && record.priceList.length) {
+        chips.push({ label: '价位', value: record.priceList.join(' / ') })
+      }
+    } else {
+      if (record.category) chips.push({ label: '类别', value: record.category })
+      if (record.priceRange) chips.push({ label: '价位', value: record.priceRange })
+      if (Array.isArray(record.wearScenes) && record.wearScenes.length) {
+        chips.push({ label: '场景', value: record.wearScenes.slice(0, 2).join('·') })
+      }
+      if (record.consultScene) {
+        chips.push({ label: '决策', value: record.consultScene === 'buy' ? '购买决策' : '留存决策' })
+      }
+    }
+    return chips
   },
 
   initSingleData(record) {

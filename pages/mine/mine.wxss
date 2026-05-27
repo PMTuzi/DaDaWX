@@ -1,12 +1,20 @@
-/* pages/mine/mine.wxss */
+/* pages/mine/mine.wxss —— 金色天蓝混合风（与首页对齐） */
 .page-mine {
   min-height: 100vh;
   background: #FFFFFF;
 }
 
+/* 任务进度条：放在 user-header 之后，sticky 时避开胶囊菜单 */
+.page-mine .task-bars {
+  position: relative;
+  top: 0;
+  margin-top: -32rpx;
+}
+
+/* 头部：浅天蓝渐变 + 金色装饰光晕 */
 .user-header {
   background: linear-gradient(135deg, #E8F4FC 0%, #C7E4F5 50%, #9FCFEC 100%);
-  padding: 60rpx 32rpx 56rpx;
+  padding: calc(env(safe-area-inset-top) + 200rpx) 32rpx 56rpx;
   position: relative;
   overflow: hidden;
 }
@@ -14,9 +22,9 @@
   content: '';
   position: absolute;
   top: -40rpx; right: -40rpx;
-  width: 220rpx; height: 220rpx;
+  width: 240rpx; height: 240rpx;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,255,255,0.55) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(245, 230, 184, 0.7) 0%, transparent 70%);
 }
 .user-header::after {
   content: '';
@@ -24,7 +32,7 @@
   bottom: -60rpx; left: -30rpx;
   width: 180rpx; height: 180rpx;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255,255,255,0.5) 0%, transparent 70%);
 }
 
 .user-info {
@@ -41,8 +49,10 @@
   height: 120rpx;
   border-radius: 50%;
   overflow: hidden;
-  border: 3rpx solid rgba(255, 255, 255, 0.85);
-  box-shadow: 0 4rpx 16rpx rgba(95, 158, 200, 0.25), inset 0 0 0 2rpx rgba(255, 255, 255, 0.4);
+  border: 3rpx solid #FFFFFF;
+  box-shadow: 0 4rpx 16rpx rgba(184, 153, 104, 0.3),
+              0 0 0 3rpx rgba(212, 184, 131, 0.45),
+              inset 0 0 0 2rpx rgba(255, 255, 255, 0.4);
 }
 
 .avatar-btn {
@@ -74,7 +84,7 @@
   width: 120rpx;
   height: 120rpx;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -82,6 +92,7 @@
 
 .avatar-default-icon {
   font-size: 56rpx;
+  color: #B89968;
 }
 
 .user-detail {
@@ -94,7 +105,7 @@
   display: block;
   font-size: 36rpx;
   font-weight: 700;
-  color: #2A5878;
+  color: #1F1A17;
   margin-bottom: 8rpx;
   background: transparent;
   border: none;
@@ -106,7 +117,7 @@
 
 .user-stat {
   font-size: 24rpx;
-  color: #5F92B5;
+  color: #8C7340;
   letter-spacing: 1rpx;
 }
 
@@ -120,25 +131,27 @@
   width: 120rpx;
   height: 120rpx;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 3rpx solid rgba(255, 255, 255, 0.85);
+  border: 3rpx solid #FFFFFF;
+  box-shadow: 0 4rpx 12rpx rgba(184, 153, 104, 0.25);
 }
 
 .avatar-placeholder-text {
   font-size: 22rpx;
-  color: #5F92B5;
+  color: #B89968;
 }
 
 .login-text {
   font-size: 32rpx;
-  color: #2A5878;
+  color: #1F1A17;
   font-weight: 600;
   letter-spacing: 2rpx;
 }
 
+/* 统计卡：白底 + 金色数字 + 天蓝阴影 */
 .stats-bar {
   display: flex;
   align-items: center;
@@ -146,8 +159,9 @@
   margin: -28rpx 24rpx 0;
   border-radius: 24rpx;
   padding: 32rpx 28rpx;
-  box-shadow: 0 8rpx 24rpx rgba(95, 158, 200, 0.16);
-  border: 1rpx solid rgba(159, 207, 236, 0.4);
+  box-shadow: 0 8rpx 24rpx rgba(95, 158, 200, 0.18),
+              0 2rpx 8rpx rgba(184, 153, 104, 0.1);
+  border: 1rpx solid rgba(212, 184, 131, 0.35);
   position: relative;
   z-index: 10;
 }
@@ -161,14 +175,17 @@
   display: block;
   font-size: 42rpx;
   font-weight: 800;
-  color: #2A5878;
+  background: linear-gradient(135deg, #D4B883 0%, #B89968 60%, #8C6E3A 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   letter-spacing: 1rpx;
 }
 
 .stat-label {
   display: block;
   font-size: 22rpx;
-  color: #5F92B5;
+  color: #8C7340;
   margin-top: 6rpx;
   letter-spacing: 1rpx;
 }
@@ -176,23 +193,25 @@
 .stat-divider {
   width: 1rpx;
   height: 60rpx;
-  background: linear-gradient(180deg, transparent, rgba(95, 158, 200, 0.4), transparent);
+  background: linear-gradient(180deg, transparent, rgba(184, 153, 104, 0.4), transparent);
 }
 
+/* 菜单：白底 + 金色图标 + 天蓝细描边 */
 .menu-section {
   margin: 24rpx 24rpx 0;
   background: #ffffff;
   border-radius: 24rpx;
   overflow: hidden;
-  box-shadow: 0 4rpx 16rpx rgba(95, 158, 200, 0.1);
-  border: 1rpx solid rgba(159, 207, 236, 0.3);
+  box-shadow: 0 4rpx 16rpx rgba(95, 158, 200, 0.1),
+              0 2rpx 6rpx rgba(184, 153, 104, 0.06);
+  border: 1rpx solid rgba(212, 184, 131, 0.28);
 }
 
 .menu-item {
   display: flex;
   align-items: center;
   padding: 30rpx 28rpx;
-  border-bottom: 1rpx solid rgba(159, 207, 236, 0.25);
+  border-bottom: 1rpx solid rgba(159, 207, 236, 0.22);
 }
 
 .menu-item:last-child {
@@ -204,31 +223,31 @@
   margin-right: 20rpx;
   width: 40rpx;
   text-align: center;
-  color: #5F92B5;
+  color: #B89968;
 }
 
 .menu-text {
   flex: 1;
   font-size: 28rpx;
-  color: #2A5878;
+  color: #1F1A17;
   letter-spacing: 1rpx;
 }
 
 .menu-arrow {
   font-size: 32rpx;
-  color: #9FCFEC;
+  color: #C9A45C;
 }
 
 .menu-badge {
-  background: linear-gradient(135deg, #C7E4F5, #5F92B5);
-  color: #fff;
+  background: linear-gradient(135deg, #F5E6B8 0%, #D4B883 50%, #B89968 100%);
+  color: #1F1A17;
   font-size: 20rpx;
   padding: 2rpx 14rpx;
   border-radius: 16rpx;
   margin-right: 12rpx;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 1rpx;
-  box-shadow: 0 2rpx 6rpx rgba(95, 158, 200, 0.3);
+  box-shadow: 0 2rpx 6rpx rgba(184, 153, 104, 0.35);
 }
 
 .menu-item.logout {
@@ -237,11 +256,11 @@
 
 .menu-item.logout .menu-text {
   text-align: center;
-  color: #5F92B5;
+  color: #8C7340;
   font-weight: 500;
 }
 
-/* 浮动「蜕变」FAB */
+/* 浮动「蜕变」FAB —— 金色为主，天蓝光环 */
 .beauty-fab {
   position: fixed;
   right: 32rpx;
@@ -249,21 +268,21 @@
   width: 120rpx;
   height: 120rpx;
   border-radius: 50%;
-  background: linear-gradient(135deg, #E8F4FC 0%, #9FCFEC 50%, #5F92B5 100%);
+  background: linear-gradient(135deg, #F5E6B8 0%, #D4B883 50%, #B89968 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8rpx 24rpx rgba(95, 158, 200, 0.45),
-              0 0 0 6rpx rgba(255, 255, 255, 0.85);
+  box-shadow: 0 8rpx 24rpx rgba(184, 153, 104, 0.45),
+              0 0 0 6rpx rgba(199, 228, 245, 0.85);
   z-index: 99;
 }
 .beauty-fab-hover {
   transform: scale(0.94);
 }
 .beauty-fab-text {
-  color: #ffffff;
+  color: #1F1A17;
   font-size: 30rpx;
   font-weight: 800;
   letter-spacing: 4rpx;
-  text-shadow: 0 2rpx 4rpx rgba(42, 88, 120, 0.4);
+  text-shadow: 0 2rpx 4rpx rgba(255, 255, 255, 0.45);
 }

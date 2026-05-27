@@ -444,6 +444,12 @@ Page({
         type: consultData.type,
         createTime,
         category: consultData.category || (result.scores && result.scores[0] && result.scores[0].category) || '',
+        // 用户输入回显（顶部卡片 echo chips 使用）
+        priceRange: consultData.priceRange || '',
+        wearScenes: consultData.wearScenes || [],
+        consultScene: consultData.consultScene || '',
+        compareScene: consultData.compareScene || '',
+        priceList: consultData.priceList || [],
         ...result,
         images: consultData.images || []
       }
@@ -512,6 +518,20 @@ Page({
       }
 
       const records = wx.getStorageSync('consultRecords') || []
+
+      // 生成报告编号 No.YYYYMMDD-XXX（按当日序列累计）
+      const ymd = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`
+      const seqKey = 'consultSeq_' + ymd
+      const seq = (wx.getStorageSync(seqKey) || 0) + 1
+      try { wx.setStorageSync(seqKey, seq) } catch (e) {}
+      record.reportNo = `No.${ymd}-${String(seq).padStart(3, '0')}`
+
+      // 兜底：若 AI 未返回 tierLabel，按总分映射
+      if (!record.tierLabel && typeof record.totalScore === 'number') {
+        const t = record.totalScore
+        record.tierLabel = t >= 9 ? '卓越' : t >= 8 ? '优秀' : t >= 6.5 ? '良好' : t >= 5 ? '一般' : '欠佳'
+      }
+
       records.unshift(record)
       if (records.length > 20) records.length = 20
       wx.setStorageSync('consultRecords', records)

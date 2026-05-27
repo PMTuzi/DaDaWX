@@ -1,6 +1,7 @@
 // pages/mine/mine.js
 // 使用微信头像昵称填写能力（wx.getUserProfile 已废弃）
 const { request, API, ensureLogin, uploadImage, saveLocalPhoto } = require('../../utils/api')
+const { mixinTaskBars } = require('../../utils/task-bars')
 
 Page({
   data: {
@@ -9,7 +10,9 @@ Page({
     reportCount: 0,
     favoriteCount: 0,
     consultCount: 0,
-    isLoggedIn: false
+    isLoggedIn: false,
+    diagnoseTask: null,
+    consultTask: null
   },
 
   onLoad() {
@@ -22,6 +25,16 @@ Page({
 
   onShow() {
     this.loadUserInfo()
+    if (!this._taskBarsMixed) { mixinTaskBars(this); this._taskBarsMixed = true }
+    this.startTaskBars()
+  },
+
+  onHide() {
+    this.stopTaskBars && this.stopTaskBars()
+  },
+
+  onUnload() {
+    this.stopTaskBars && this.stopTaskBars()
   },
 
   loadUserInfo() {
@@ -202,7 +215,7 @@ Page({
   onAbout() {
     wx.showModal({
       title: '关于美哒',
-      content: '国内首款「反种草」AI 形象风格分析平台\n版本: 1.0.0\n\n基于美哒 Meeta自研大模型，为您提供专业级形象分析与穿搭决策。',
+      content: '国内首款「反种草」AI 形象风格分析平台\n版本: 1.0.0\n\n基于美哒 Meeta自研大模型，为您提供专业级形象分析与穿搭决策',
       showCancel: false
     })
   },
