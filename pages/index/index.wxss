@@ -2260,6 +2260,16 @@
   flex-shrink: 0;
   filter: drop-shadow(0 4rpx 12rpx rgba(212,184,131,0.4));
 }
+.persona-photo {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.5);
+  border: 3rpx solid rgba(212,184,131,0.6);
+  box-shadow: 0 4rpx 16rpx rgba(212,184,131,0.4), inset 0 0 0 2rpx rgba(255,255,255,0.85);
+  object-fit: cover;
+}
 .persona-text {
   flex: 1;
   display: flex;

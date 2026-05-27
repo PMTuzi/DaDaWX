@@ -123,7 +123,8 @@
             <text class="persona-badge-label">第一印象人格</text>
           </view>
           <view class="persona-main">
-            <text class="persona-emoji">{{latestReport.modules.impression.persona.emoji}}</text>
+            <image class="persona-photo" src="{{latestReport.modules.impression.persona.image}}" mode="aspectFill" wx:if="{{latestReport.modules.impression.persona.image}}" />
+            <text class="persona-emoji" wx:else>{{latestReport.modules.impression.persona.emoji}}</text>
             <view class="persona-text">
               <view class="persona-name-row">
                 <text class="persona-animal">{{latestReport.modules.impression.persona.animal}}</text>

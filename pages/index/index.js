@@ -3,6 +3,19 @@ const { wxLogin, ensureLogin, request, API, uploadImage } = require('../../utils
 const { formatDate, getScoreLevel, calcPercentile } = require('../../utils/format')
 const taskState = require('../../utils/task-state')
 
+// 9 型第一印象人格定义（模块级常量，避免 Page 选项过滤导致 this 上访问不到）
+const IMPRESSION_PERSONAS = {
+  deer:    { id: 1, animal: '小鹿', style: '温柔亲和型', emoji: '🦌', image: '/images/9型人格/小鹿1.jpg', tagline: '一眼就让人卸下防备的那种温度', traits: ['亲和力', '柔和'] },
+  rabbit:  { id: 2, animal: '白兔', style: '天真元气型', emoji: '🐰', image: '/images/9型人格/兔子.jpg', tagline: '把"少女感"穿在了脸上', traits: ['少女感', '元气'] },
+  lark:    { id: 3, animal: '云雀', style: '诗意氛围感', emoji: '🕊️', image: '/images/9型人格/云雀.jpg', tagline: '画面感选手，走过都自带 BGM', traits: ['氛围感', '空气感'] },
+  fox:     { id: 4, animal: '灵狐', style: '风情张力型', emoji: '🦊', image: '/images/9型人格/灵狐.jpg', tagline: '不动声色，就能把人勾住', traits: ['魅惑感', '张力'] },
+  phoenix: { id: 5, animal: '凤凰', style: '锋芒独特型', emoji: '🐦‍🔥', image: '/images/9型人格/凤凰.jpg', tagline: '记忆点拉满，撞脸概率几乎为 0', traits: ['记忆点', '锋芒'] },
+  swan:    { id: 6, animal: '天鹅', style: '清冷高级型', emoji: '🦢', image: '/images/9型人格/天鹅.jpg', tagline: '骨相与气质都站在"高级"这一边', traits: ['高级感', '清冷'] },
+  leopard: { id: 7, animal: '野豹', style: '冷艳精英型', emoji: '🐆', image: '/images/9型人格/野豹.jpg', tagline: '气场比五官先到一步', traits: ['冷艳', '精英'] },
+  wolf:    { id: 8, animal: '孤狼', style: '特立独行型', emoji: '🐺', image: '/images/9型人格/孤狼.jpg', tagline: '不靠谁，每一帧都自成一派', traits: ['辨识度', '独立'] },
+  cat:     { id: 9, animal: '猫咪', style: '灵动百搭型', emoji: '🐱', image: '/images/9型人格/猫咪.jpg', tagline: '没有短板，怎么拍都好看', traits: ['百搭', '灵动'] }
+}
+
 // ============ 关键词 → 配图 映射（从 report.js 迁移）============
 function pickByKeyword(text, mapping, fallback) {
   if (!text) return fallback || ''
@@ -530,6 +543,11 @@ Page({
     // 已有 AI 输出数据时优先使用
     const existed = report && report.modules && report.modules.impression
     if (existed && Array.isArray(existed.scores) && existed.scores.length === 6 && typeof existed.attractIndex === 'number') {
+      // 兜底/刷新 persona.image（兼容老缓存数据，覆盖旧的 .png 路径）
+      if (existed.persona && existed.persona.key) {
+        const def = IMPRESSION_PERSONAS[existed.persona.key]
+        if (def && def.image) existed.persona.image = def.image
+      }
       return existed
     }
     const dims = [
@@ -581,18 +599,8 @@ Page({
     return { scores, attractIndex, percentile, persona }
   },
 
-  // 9 型第一印象人格定义
-  _IMPRESSION_PERSONAS: {
-    deer:    { id: 1, animal: '小鹿', style: '温柔亲和型', emoji: '🦌', tagline: '一眼就让人卸下防备的那种温度', traits: ['亲和力', '柔和'] },
-    rabbit:  { id: 2, animal: '白兔', style: '天真元气型', emoji: '🐰', tagline: '把"少女感"穿在了脸上', traits: ['少女感', '元气'] },
-    lark:    { id: 3, animal: '云雀', style: '诗意氛围感', emoji: '🕊️', tagline: '画面感选手，走过都自带 BGM', traits: ['氛围感', '空气感'] },
-    fox:     { id: 4, animal: '灵狐', style: '风情张力型', emoji: '🦊', tagline: '不动声色，就能把人勾住', traits: ['魅惑感', '张力'] },
-    phoenix: { id: 5, animal: '凤凰', style: '锋芒独特型', emoji: '🐦‍🔥', tagline: '记忆点拉满，撞脸概率几乎为 0', traits: ['记忆点', '锋芒'] },
-    swan:    { id: 6, animal: '天鹅', style: '清冷高级型', emoji: '🦢', tagline: '骨相与气质都站在"高级"这一边', traits: ['高级感', '清冷'] },
-    leopard: { id: 7, animal: '野豹', style: '冷艳精英型', emoji: '🐆', tagline: '气场比五官先到一步', traits: ['冷艳', '精英'] },
-    wolf:    { id: 8, animal: '孤狼', style: '特立独行型', emoji: '🐺', tagline: '不靠谁，每一帧都自成一派', traits: ['辨识度', '独立'] },
-    cat:     { id: 9, animal: '猫咪', style: '灵动百搭型', emoji: '🐱', tagline: '没有短板，怎么拍都好看', traits: ['百搭', '灵动'] }
-  },
+  // 9 型第一印象人格定义（保留为页面属性以兼容老引用，实际使用模块级常量）
+  _IMPRESSION_PERSONAS: IMPRESSION_PERSONAS,
 
   _pickImpressionPersona(scores) {
     const get = (k) => {
@@ -612,7 +620,7 @@ Page({
     const top1 = sorted[0].key
     const top1Score = sorted[0].score
     const stdDev = Math.sqrt(variance)
-    const PERSONAS = this._IMPRESSION_PERSONAS
+    const PERSONAS = IMPRESSION_PERSONAS
     let key = ''
 
     // 严格互斥：从最苛刻 → 最宽松，命中即返回
