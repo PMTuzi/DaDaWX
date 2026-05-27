@@ -77,6 +77,9 @@
 
     <!-- Tab导航（sticky 锁在模块内容上方）+ 右侧分享胶囊 -->
     <view class="dr-tab-bar">
+      <view class="dr-tab-item {{activeTab === 'impression' ? 'active' : ''}}" data-tab="impression" bindtap="onTabTap">
+        <text class="dr-tab-label">第一印象</text>
+      </view>
       <view class="dr-tab-item {{activeTab === 'celebrity' ? 'active' : ''}}" data-tab="celebrity" bindtap="onTabTap">
         <text class="dr-tab-label">明星风格</text>
       </view>
@@ -91,6 +94,64 @@
       </view>
       <view class="dr-tab-item {{activeTab === 'style' ? 'active' : ''}}" data-tab="style" bindtap="onTabTap">
         <text class="dr-tab-label">色彩风格</text>
+      </view>
+    </view>
+
+    <!-- 模块: 第一印象 · 魅力六边形 -->
+    <view class="module-content" wx:if="{{activeTab === 'impression' && latestReport.modules.impression}}">
+      <view class="section-card impression-card">
+        <view class="section-title">第一印象 · 魅力六边形</view>
+        <view class="impression-index">
+          <view class="impr-idx-ring">
+            <view class="impr-idx-num-wrap">
+              <text class="impr-idx-num">{{latestReport.modules.impression.attractIndex}}</text>
+              <text class="impr-idx-unit">/100</text>
+            </view>
+            <text class="impr-idx-label">吸引力指数</text>
+          </view>
+          <view class="impr-idx-meta">
+            <text class="impr-idx-tag">ATTRACTION INDEX</text>
+            <text class="impr-idx-sub">基于「魅力六维」加权综合评估</text>
+            <view class="impr-idx-percentile" wx:if="{{latestReport.modules.impression.percentile}}">
+              <text class="impr-idx-percent-icon">▲</text>
+              <text>击败 <text class="impr-idx-percent-num">{{latestReport.modules.impression.percentile}}%</text> 的同龄人</text>
+            </view>
+          </view>
+        </view>
+        <view class="radar-wrap">
+          <canvas type="2d" id="radar-impression" class="radar-canvas"></canvas>
+        </view>
+        <view class="sub-section">
+          <view class="sub-title">六维评分</view>
+          <view class="dr-score-list">
+            <view class="dr-feature-row" wx:for="{{latestReport.modules.impression.scores}}" wx:key="key">
+              <text class="dr-feature-name impr-feat-name">{{item.name}}</text>
+              <view class="dr-bar-wrap">
+                <view class="dr-bar-bg">
+                  <view class="dr-bar-fill impr-bar-fill" style="width: {{item.score * 10}}%;"></view>
+                </view>
+              </view>
+              <text class="dr-feature-val impr-feat-val">{{item.score}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="sub-section">
+          <view class="sub-title">维度解析 · 你的形象原因</view>
+          <view class="impression-desc">
+            <view class="impr-desc-item" wx:for="{{latestReport.modules.impression.scores}}" wx:key="key">
+              <view class="impr-desc-head">
+                <text class="impr-desc-name">{{item.name}}</text>
+                <text class="impr-desc-score">{{item.score}}/10</text>
+              </view>
+              <text class="impr-desc-sub">{{item.desc}}</text>
+              <text class="impr-desc-text">{{item.reason}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="insight-card" wx:if="{{latestReport.modules.impression.keyInsight}}">
+          <text class="insight-icon">✦</text>
+          <text class="insight-content">{{latestReport.modules.impression.keyInsight}}</text>
+        </view>
       </view>
     </view>
 

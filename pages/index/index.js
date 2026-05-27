@@ -229,9 +229,9 @@ Page({
     introVideoRetry: 0,
     diagnoseTask: null,
     // ===== 报告详情态 =====
-    activeTab: 'celebrity',
-    tabKeys: ['celebrity', 'optimize', 'hairmakeup', 'dna', 'style'],
-    tabLabels: { celebrity: '明星相似', optimize: '颜值&蜕变', hairmakeup: '发型&妆容', dna: '面部&骨相', style: '皮肤&风格' },
+    activeTab: 'impression',
+    tabKeys: ['impression', 'celebrity', 'optimize', 'hairmakeup', 'dna', 'style'],
+    tabLabels: { impression: '第一印象', celebrity: '明星相似', optimize: '颜值&蜕变', hairmakeup: '发型&妆容', dna: '面部&骨相', style: '皮肤&风格' },
     shared: false,
     cdnImages: { hair: [], makeup: {}, advice: {}, roadmap: [] },
     currentReportId: ''
@@ -340,11 +340,14 @@ Page({
     if (target.basic && (target.basic.percentile == null || isNaN(target.basic.percentile))) {
       target.basic.percentile = calcPercentile(target.basic.overallScore)
     }
+    // 第一印象 · 魅力六边形：根据已有报告数据派生 6 维评分
+    if (!target.modules) target.modules = {}
+    target.modules.impression = this.computeImpression(target)
     this.setData({
       hasReport: true,
       latestReport: target,
       scoreLevel: getScoreLevel(target.basic?.overallScore || 0),
-      activeTab: 'celebrity',
+      activeTab: 'impression',
       cdnImages: buildCdnImages(target)
     })
     setTimeout(() => this.drawRadarChart(), 300)
@@ -513,12 +516,183 @@ Page({
       canvas.height = height * dpr
       ctx.scale(dpr, dpr)
       switch (tab) {
+        case 'impression': this.drawImpressionRadar(ctx, width, height, report.modules.impression); break
         case 'dna': this.drawDNARadar(ctx, width, height, report.modules.dna); break
         case 'style': this.drawStyleRadar(ctx, width, height, report.modules.style); break
         case 'hairmakeup': this.drawHairMakeupRadar(ctx, width, height, report.modules.hairmakeup); break
         case 'optimize': this.drawOptimizeRadar(ctx, width, height, report.modules.optimize); break
       }
     })
+  },
+
+  // ====================== 第一印象 · 魅力六边形 ======================
+  computeImpression(report) {
+    // 已有 AI 输出数据时优先使用
+    const existed = report && report.modules && report.modules.impression
+    if (existed && Array.isArray(existed.scores) && existed.scores.length === 6 && typeof existed.attractIndex === 'number') {
+      return existed
+    }
+    const dims = [
+      { key: 'approachability', name: '亲和力', desc: '笑感、眼神温度、面部柔和度', weight: 0.16 },
+      { key: 'allure', name: '魅惑感', desc: '五官立体度、唇眼比、轮廓张力', weight: 0.18 },
+      { key: 'youthfulness', name: '少女感', desc: '视龄、皮肤紧致度、五官圆润度', weight: 0.14 },
+      { key: 'aura', name: '氛围感', desc: '眼神戏、面部空气感、情绪饱和', weight: 0.16 },
+      { key: 'distinctiveness', name: '记忆点', desc: '五官辨识度、风格独特性', weight: 0.16 },
+      { key: 'sophistication', name: '高级感', desc: '骨相清冷度、量感、线条利落度', weight: 0.20 }
+    ]
+    const base = (report.basic && report.basic.overallScore) || 7
+    // 根据 reportId 生成稳定的伪随机偏移，保证同一报告每次进入数值一致
+    const seedStr = String(report.id || (report.basic && report.basic.overallScore) || 'meeta')
+    let seed = 0
+    for (let i = 0; i < seedStr.length; i++) seed = (seed * 31 + seedStr.charCodeAt(i)) & 0x7fffffff
+    function rnd(i) {
+      const x = Math.sin(seed * 9301 + i * 49297) * 233280
+      return x - Math.floor(x)
+    }
+    // 借用 dna / style / optimize 的可用数据增强语义合理性
+    const dna = report.modules && report.modules.dna
+    const style = report.modules && report.modules.style
+    const ageTag = (report.basic && (report.basic.tags || []).find(t => t && t.indexOf('视龄') === 0)) || ''
+    const ageNum = parseInt((ageTag.match(/\d+/) || ['0'])[0], 10)
+    const semanticBias = {
+      approachability: 0,
+      allure: dna && dna.lineStyle && /量感|立体|锐|利落/.test(dna.lineStyle) ? 0.4 : 0,
+      youthfulness: ageNum > 0 && ageNum < 25 ? 0.6 : (ageNum >= 30 ? -0.4 : 0),
+      aura: style && style.mainStyle && /高级|气质|清冷|空气/.test(style.mainStyle) ? 0.4 : 0,
+      distinctiveness: dna && dna.faceType ? 0.2 : 0,
+      sophistication: dna && dna.lineStyle && /利落|清冷|骨感/.test(dna.lineStyle) ? 0.5 : 0
+    }
+    const scores = dims.map((d, i) => {
+      const offset = (rnd(i + 1) - 0.5) * 2.0 // ±1.0
+      let s = base + offset + (semanticBias[d.key] || 0)
+      s = Math.max(5.5, Math.min(9.6, s))
+      return { key: d.key, name: d.name, desc: d.desc, score: Math.round(s * 10) / 10 }
+    })
+    // 基于报告数据生成"用户具体的形象原因"
+    this._fillImpressionReasons(scores, { report, dna, style, ageNum })
+    let weighted = 0
+    scores.forEach((s, i) => { weighted += s.score * dims[i].weight })
+    // 0-10 加权分映射到 0-100 吸引力指数
+    const attractIndex = Math.max(0, Math.min(100, Math.round(weighted * 10)))
+    // 简单的同龄人击败比例（非线性，越高越接近天花板）
+    const percentile = Math.max(40, Math.min(99, Math.round(40 + (attractIndex - 60) * 1.4)))
+    return { scores, attractIndex, percentile }
+  },
+
+  // 根据 dna / style / 视龄 等具体数据，为每个维度生成"形象原因"句子
+  _fillImpressionReasons(scores, ctx) {
+    const { dna, style, ageNum } = ctx
+    const faceType = (dna && dna.faceType) || ''
+    const boneType = (dna && dna.boneType) || ''
+    const lineStyle = (dna && dna.lineStyle) || ''
+    const features = (dna && dna.faceFeatures) || []
+    const feat = {}
+    features.forEach(f => { feat[f.name] = f.score || 0 })
+    const mainStyle = (style && style.mainStyle) || ''
+    const skinType = (style && style.skinType) || ''
+    const mass = (style && style.mass) || 0
+    const brightness = (style && style.brightness) || 0
+
+    function level(s) { return s >= 8.5 ? 'H' : s >= 7 ? 'M' : 'L' }
+    function pickHigh(names) {
+      let top = ''; let max = 0
+      names.forEach(n => { if (feat[n] > max) { max = feat[n]; top = n } })
+      return max >= 7 ? top : ''
+    }
+
+    const reasonBuilders = {
+      approachability(s) {
+        const lv = level(s)
+        const tags = []
+        if (/圆|鹅蛋|心形|心型/.test(faceType)) tags.push(`${faceType}的柔和轮廓`)
+        if (/柔|圆|融/.test(lineStyle)) tags.push('面部线条带着圆融的过渡')
+        if (feat['嘴'] >= 7 || feat['唇'] >= 7) tags.push('唇形微微上扬，自带笑意')
+        if (feat['眼'] >= 7) tags.push('眼神清亮、有温度')
+        if (!tags.length) tags.push('五官节奏稳，不带攻击性')
+        const prefix = lv === 'H' ? '第一眼就让人卸下防备：' : lv === 'M' ? '初印象是「不锋利、可接近」：' : '初次见面略显疏离感，但仍有亲和潜力：'
+        const suffix = lv === 'L' ? '。建议用微笑、柔和发型与暖色穿搭进一步软化。' : '。'
+        return prefix + tags.join('，') + suffix
+      },
+      allure(s) {
+        const lv = level(s)
+        const tags = []
+        if (/立体|锐|利落|量感/.test(lineStyle)) tags.push(`${lineStyle}的面部线条`)
+        if (/方|长|菱|骨/.test(faceType)) tags.push(`${faceType}带来轮廓张力`)
+        const eye = pickHigh(['眼', '眼睛'])
+        if (eye) tags.push('眼型深邃、眼神有故事')
+        const lip = pickHigh(['嘴', '唇'])
+        if (lip) tags.push('唇形饱满、唇眼比舒服')
+        if (boneType) tags.push(`${boneType}的骨相加持`)
+        if (!tags.length) tags.push('五官有起伏，不流于平淡')
+        const prefix = lv === 'H' ? '镜头下气场拉满，自带「再看一眼」的吸引力：' : lv === 'M' ? '魅惑感属于"日常耐看"路线：' : '魅惑感偏含蓄，更适合温柔治愈路线：'
+        const suffix = lv === 'L' ? '。可通过加深眼妆、强调唇形与轮廓修容放大张力。' : '。'
+        return prefix + tags.join('，') + suffix
+      },
+      youthfulness(s) {
+        const lv = level(s)
+        const tags = []
+        if (ageNum > 0) tags.push(`视龄 ${ageNum} 岁`)
+        if (/圆|鹅蛋|心形|心型/.test(faceType)) tags.push(`${faceType}的圆润度撑住了年龄感`)
+        if (/柔|圆|融/.test(lineStyle)) tags.push('线条圆融、不带岁月感的锐利')
+        if (skinType && /冷|暖|中|白/.test(skinType)) tags.push(`${skinType}的肤况通透`)
+        if (brightness >= 7) tags.push('肤色明度高，气色显嫩')
+        if (!tags.length) tags.push('整体气质偏鲜活')
+        const prefix = lv === 'H' ? '少女感是你的天然加分项：' : lv === 'M' ? '少女感与气质感保持平衡：' : '少女感不是你的强项，但成熟感反而是优势：'
+        const suffix = lv === 'L' ? '。无需强行装嫩，走「清冷高级」反而更高分。' : '。'
+        return prefix + tags.join('，') + suffix
+      },
+      aura(s) {
+        const lv = level(s)
+        const tags = []
+        if (mainStyle) tags.push(`${mainStyle}风格的整体调性`)
+        const eye = pickHigh(['眼', '眼睛'])
+        if (eye) tags.push('眼神带戏、情绪可读性强')
+        if (/清冷|高级|气质|空气|文艺/.test(mainStyle)) tags.push('面部空气感拉满')
+        if (mass >= 7) tags.push('量感充足，撑得起场')
+        else if (mass && mass < 5) tags.push('量感偏轻，自带松弛')
+        if (!tags.length) tags.push('整体氛围未被某一项五官抢走焦点')
+        const prefix = lv === 'H' ? '走进画面就有"故事感"：' : lv === 'M' ? '氛围感稳定但还未到记忆点级别：' : '氛围感偏弱，更像可爱/邻家系：'
+        const suffix = lv === 'L' ? '。可在妆容、滤镜、眼神管理上做"留白练习"。' : '。'
+        return prefix + tags.join('，') + suffix
+      },
+      distinctiveness(s) {
+        const lv = level(s)
+        const tags = []
+        const top = pickHigh(['眼', '眼睛', '鼻', '嘴', '唇', '眉'])
+        if (top) tags.push(`${top}部辨识度突出`)
+        if (faceType) tags.push(`${faceType}在人群里不易撞脸`)
+        if (boneType) tags.push(`${boneType}给到独特的骨相记忆点`)
+        if (mainStyle) tags.push(`${mainStyle}的整体风格自带标签感`)
+        if (!tags.length) tags.push('五官比例舒服但缺少一个"主角"')
+        const prefix = lv === 'H' ? '是那种"看一次就能描述出来"的脸：' : lv === 'M' ? '记忆点属于"看第二眼会发现"型：' : '五官偏均衡、记忆点不突出：'
+        const suffix = lv === 'L' ? '。可用发型/眼妆/穿搭，主动制造一个视觉锚点。' : '。'
+        return prefix + tags.join('，') + suffix
+      },
+      sophistication(s) {
+        const lv = level(s)
+        const tags = []
+        if (boneType) tags.push(`${boneType}骨相`)
+        if (/利落|清冷|骨感|锐|直线/.test(lineStyle)) tags.push(`${lineStyle}的线条节奏`)
+        if (/方|长|菱/.test(faceType)) tags.push(`${faceType}带来高级量感`)
+        if (mass >= 7) tags.push('量感稳，镇得住极简造型')
+        if (/高级|清冷|文艺|知性/.test(mainStyle)) tags.push(`${mainStyle}风格放大了高级感`)
+        if (!tags.length) tags.push('整体协调，但缺一点"清冷距离感"')
+        const prefix = lv === 'H' ? '骨相和气场都站在"高级"这一边：' : lv === 'M' ? '高级感在线，但少女/甜感会拉走一些权重：' : '高级感不是你天然的标签：'
+        const suffix = lv === 'L' ? '。可通过简约配色、利落剪裁、低饱和妆面拉升。' : '。'
+        return prefix + tags.join('，') + suffix
+      }
+    }
+    scores.forEach(s => {
+      const fn = reasonBuilders[s.key]
+      s.reason = fn ? fn(s.score) : s.desc
+    })
+  },
+
+  drawImpressionRadar(ctx, w, h, data) {
+    if (!data || !Array.isArray(data.scores)) return
+    const labels = data.scores.map(s => s.name)
+    const scores = data.scores.map(s => s.score)
+    this._drawRadar(ctx, w, h, labels, scores, '#B89968', '魅力六维')
   },
 
   drawDNARadar(ctx, w, h, data) {

@@ -1036,13 +1036,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24rpx 0;
+  padding: 24rpx 4rpx;
   position: relative;
 }
 .dr-tab-label {
-  font-size: 26rpx;
+  font-size: 24rpx;
   color: #8A8580;
   font-weight: 500;
+  white-space: nowrap;
 }
 .dr-tab-item.active .dr-tab-label {
   color: #1F1A17;
@@ -2074,4 +2075,184 @@
 @keyframes task-bar-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.4; transform: scale(0.7); }
+}
+
+/* ==================== 第一印象 · 魅力六边形 ==================== */
+.impression-card {
+  background: #FFFFFF;
+  border: 1rpx solid #DCE5EF;
+}
+.impression-index {
+  display: flex;
+  align-items: center;
+  gap: 28rpx;
+  padding: 28rpx 24rpx;
+  margin-bottom: 12rpx;
+  background: linear-gradient(135deg, #F8FAFD 0%, #EEF3F8 100%);
+  border: 1rpx solid #DCE5EF;
+  border-radius: 24rpx;
+  position: relative;
+  overflow: hidden;
+}
+.impression-index::before {
+  content: '';
+  position: absolute;
+  top: -40%; right: -20%;
+  width: 320rpx; height: 320rpx;
+  background: radial-gradient(circle, rgba(184,153,104,0.14) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.impression-index::after {
+  content: '';
+  position: absolute;
+  bottom: -30%; left: -10%;
+  width: 280rpx; height: 280rpx;
+  background: radial-gradient(circle, rgba(120,150,190,0.14) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.impr-idx-ring {
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 50%;
+  background:
+    conic-gradient(#B89968 0deg 300deg, #E5DCC4 300deg 360deg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  box-shadow: 0 6rpx 18rpx rgba(184,153,104,0.18);
+}
+.impr-idx-ring::after {
+  content: '';
+  position: absolute;
+  inset: 8rpx;
+  border-radius: 50%;
+  background: #FFFFFF;
+}
+.impr-idx-num-wrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 4rpx;
+}
+.impr-idx-num {
+  font-size: 64rpx;
+  font-weight: 800;
+  color: #1F1A17;
+  letter-spacing: -2rpx;
+  line-height: 1;
+}
+.impr-idx-unit {
+  font-size: 22rpx;
+  color: #B0A498;
+  font-weight: 600;
+}
+.impr-idx-label {
+  position: relative;
+  z-index: 1;
+  font-size: 22rpx;
+  color: #8C7A5C;
+  margin-top: 6rpx;
+  letter-spacing: 2rpx;
+}
+.impr-idx-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  position: relative;
+  z-index: 1;
+}
+.impr-idx-tag {
+  font-size: 20rpx;
+  color: #B89968;
+  letter-spacing: 3rpx;
+  font-weight: 700;
+}
+.impr-idx-sub {
+  font-size: 24rpx;
+  color: #5C5048;
+  line-height: 1.5;
+}
+.impr-idx-percentile {
+  display: inline-flex;
+  align-items: center;
+  gap: 6rpx;
+  margin-top: 6rpx;
+  padding: 8rpx 16rpx;
+  background: #F5EFE3;
+  border: 1rpx solid #E5DCC4;
+  border-radius: 100rpx;
+  font-size: 22rpx;
+  color: #6B5326;
+  align-self: flex-start;
+}
+.impr-idx-percent-icon { font-size: 18rpx; color: #B89968; }
+.impr-idx-percent-num { color: #1F1A17; font-weight: 700; }
+
+.impression-card .section-title {
+  border-left-color: #B89968;
+}
+.impression-card .radar-wrap {
+  margin: 8rpx 0 0;
+}
+.impr-feat-name {
+  width: 110rpx;
+  color: #5C5048;
+  font-weight: 600;
+}
+.impr-bar-fill {
+  background: linear-gradient(90deg, #B89968, #D4B883);
+}
+.impr-feat-val {
+  color: #B89968;
+}
+
+.impression-desc {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+.impr-desc-item {
+  padding: 18rpx 22rpx;
+  background: #FAFAF5;
+  border-left: 4rpx solid #B89968;
+  border-radius: 12rpx;
+}
+.impr-desc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6rpx;
+}
+.impr-desc-name {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #1F1A17;
+}
+.impr-desc-score {
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #B89968;
+}
+.impr-desc-sub {
+  display: block;
+  font-size: 22rpx;
+  color: #B0A498;
+  line-height: 1.4;
+  margin-bottom: 8rpx;
+  letter-spacing: 0.5rpx;
+}
+.impr-desc-text {
+  display: block;
+  font-size: 26rpx;
+  color: #2C2620;
+  line-height: 1.7;
+  font-weight: 500;
 }
