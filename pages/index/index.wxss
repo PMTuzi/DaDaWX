@@ -77,7 +77,7 @@
 
 .slogan {
   font-size: 24rpx;
-  color: #4F6B62;
+  color: #8B7355;
   letter-spacing: 2rpx;
 }
 
@@ -141,13 +141,13 @@
 
 .summary-tap-text {
   font-size: 22rpx;
-  color: #4F6B62;
+  color: #8C7A5C;
   font-weight: 500;
   letter-spacing: 1rpx;
 }
 
 .summary-tap-hint .summary-arrow {
-  color: #4F6B62;
+  color: #8C7A5C;
   font-size: 26rpx;
 }
 
@@ -221,7 +221,7 @@
   gap: 6rpx;
   padding: 6rpx 16rpx;
   border-radius: 999rpx;
-  background: #EAF2EE;
+  background: #F5EFE3;
   border: 1rpx solid rgba(45, 155, 255, 0.4);
   flex-shrink: 0;
 }
@@ -235,7 +235,7 @@
 .age-chip-text {
   font-size: 22rpx;
   font-weight: 600;
-  color: #2E5048;
+  color: #6B5326;
   letter-spacing: 1rpx;
   line-height: 1;
 }
@@ -259,7 +259,7 @@
 
 .summary-conclusion {
   font-size: 24rpx;
-  color: #2C3A36;
+  color: #5C5048;
   line-height: 1.6;
   flex: 1;
   display: -webkit-box;
@@ -270,7 +270,7 @@
 
 .summary-date {
   font-size: 20rpx;
-  color: #94A8A0;
+  color: #C0B5A6;
   flex-shrink: 0;
   margin-top: 4rpx;
   letter-spacing: 0.5rpx;
@@ -614,7 +614,7 @@
 
 .ticker-text {
   font-size: 22rpx;
-  color: #4F6B62;
+  color: #8B7355;
   line-height: 48rpx;
   padding: 0 24rpx;
   overflow: hidden;
@@ -640,7 +640,7 @@
   border-radius: 24rpx;
   padding: 36rpx 24rpx;
   box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.04);
-  border: 1rpx solid #E5EBE7;
+  border: 1rpx solid #F0EBE5;
 }
 
 .step {
@@ -653,18 +653,18 @@
 
 .step-icon {
   font-size: 48rpx;
-  color: #5C9385;
+  color: #C8A97E;
 }
 
 .step-text {
   font-size: 24rpx;
-  color: #4F6B62;
+  color: #8B7355;
   font-weight: 500;
 }
 
 .step-arrow {
   font-size: 32rpx;
-  color: #5C9385;
+  color: #C8A97E;
   margin-top: -20rpx;
 }
 
@@ -679,7 +679,7 @@
   background: #fff;
   border-radius: 24rpx;
   box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.04);
-  border: 1rpx solid #E5EBE7;
+  border: 1rpx solid #F0EBE5;
 }
 
 .outfit-entry:active {
@@ -853,7 +853,7 @@
 .banner-placeholder {
   width: 100%;
   height: 240rpx;
-  background: linear-gradient(135deg, #EEF4F0, #EDE5DA);
+  background: linear-gradient(135deg, #F5F0EB, #EDE5DA);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1355,8 +1355,8 @@
   font-size: 22rpx;
   padding: 6rpx 20rpx;
   border-radius: 20rpx;
-  background: #EAF2EE;
-  color: #2E5048;
+  background: #F5EFE3;
+  color: #6B5326;
   font-weight: 600;
   border: 1rpx solid rgba(45, 155, 255,0.3);
   box-shadow: 0 2rpx 6rpx rgba(40,60,90,0.05);
@@ -1375,7 +1375,7 @@
 }
 .summary-text {
   font-size: 22rpx;
-  color: #2C3A36;
+  color: #5C5048;
   line-height: 1.6;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -1420,7 +1420,7 @@
 .sub-section {
   margin-top: 32rpx;
   padding-top: 24rpx;
-  border-top: 1rpx solid #EEF4F0;
+  border-top: 1rpx solid #F5F0EB;
 }
 .sub-title {
   font-size: 28rpx;
@@ -1454,7 +1454,7 @@
   justify-content: center;
 }
 .prop-segment.upper { background: #F5ECD7; }
-.prop-segment.middle { background: #E5EBE7; }
+.prop-segment.middle { background: #F0EBE5; }
 .prop-segment.lower { background: #E8E5E0; }
 .prop-label { font-size: 20rpx; color: #999; }
 .prop-val { font-size: 22rpx; font-weight: 600; color: #666; }
@@ -1474,7 +1474,7 @@
 .dr-bar-wrap { flex: 1; }
 .dr-bar-bg {
   height: 16rpx;
-  background: #EEF4F0;
+  background: #F5F0EB;
   border-radius: 8rpx;
   overflow: hidden;
 }
@@ -1495,7 +1495,7 @@
 .attr-grid { display: flex; gap: 20rpx; }
 .attr-item {
   flex: 1;
-  background: #F6F9F7;
+  background: #FAFAF5;
   border-radius: 16rpx;
   padding: 20rpx;
   text-align: center;
@@ -1541,7 +1541,7 @@
   font-size: 20rpx;
   padding: 4rpx 12rpx;
   border-radius: 12rpx;
-  background: #EEF4F0;
+  background: #F5F0EB;
   color: #2D9BFF;
 }
 
@@ -1570,7 +1570,7 @@
 .hair-card {
   display: flex;
   gap: 16rpx;
-  background: #F6F9F7;
+  background: #FAFAF5;
   border-radius: 16rpx;
   padding: 20rpx;
 }
@@ -1665,7 +1665,7 @@
 .optimize-timeline {
   font-size: 22rpx;
   color: #2D9BFF;
-  background: #F6F9F7;
+  background: #FAFAF5;
   padding: 4rpx 12rpx;
   border-radius: 12rpx;
 }
@@ -1715,7 +1715,7 @@
 /* 洞察卡 */
 .insight-card {
   margin-top: 24rpx;
-  background: linear-gradient(135deg, #F6F9F7, #EEF4F0);
+  background: linear-gradient(135deg, #FAFAF5, #F5F0EB);
   border-radius: 16rpx;
   padding: 24rpx;
   display: flex;
@@ -1861,7 +1861,7 @@
 .share-icon { font-size: 28rpx; }
 .save-all-btn { background: #1F1A17; color: #fff; }
 .rediagnose-btn {
-  background: #F6F9F7;
+  background: #FAFAF5;
   color: #666;
   flex: 0.8;
 }
@@ -2099,7 +2099,7 @@
   position: absolute;
   top: -40%; right: -20%;
   width: 320rpx; height: 320rpx;
-  background: radial-gradient(circle, rgba(74,133,118,0.14) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(184,153,104,0.14) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -2117,7 +2117,7 @@
   height: 180rpx;
   border-radius: 50%;
   background:
-    conic-gradient(#4A8576 0deg 300deg, #E5EFE9 300deg 360deg);
+    conic-gradient(#B89968 0deg 300deg, #E5DCC4 300deg 360deg);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2125,7 +2125,7 @@
   position: relative;
   z-index: 1;
   flex-shrink: 0;
-  box-shadow: 0 6rpx 18rpx rgba(74,133,118,0.18);
+  box-shadow: 0 6rpx 18rpx rgba(184,153,104,0.18);
 }
 .impr-idx-ring::after {
   content: '';
@@ -2157,7 +2157,7 @@
   position: relative;
   z-index: 1;
   font-size: 22rpx;
-  color: #4F6B62;
+  color: #8C7A5C;
   margin-top: 6rpx;
   letter-spacing: 2rpx;
 }
@@ -2171,13 +2171,13 @@
 }
 .impr-idx-tag {
   font-size: 20rpx;
-  color: #4A8576;
+  color: #B89968;
   letter-spacing: 3rpx;
   font-weight: 700;
 }
 .impr-idx-sub {
   font-size: 24rpx;
-  color: #2C3A36;
+  color: #5C5048;
   line-height: 1.5;
 }
 .impr-idx-percentile {
@@ -2186,32 +2186,151 @@
   gap: 6rpx;
   margin-top: 6rpx;
   padding: 8rpx 16rpx;
-  background: #EAF2EE;
-  border: 1rpx solid #E5EFE9;
+  background: #F5EFE3;
+  border: 1rpx solid #E5DCC4;
   border-radius: 100rpx;
   font-size: 22rpx;
-  color: #2E5048;
+  color: #6B5326;
   align-self: flex-start;
 }
-.impr-idx-percent-icon { font-size: 18rpx; color: #4A8576; }
+.impr-idx-percent-icon { font-size: 18rpx; color: #B89968; }
 .impr-idx-percent-num { color: #1F1A17; font-weight: 700; }
 
+/* 第一印象人格标签（9 型） · 醒目 hero 块 */
+.impression-persona {
+  position: relative;
+  margin: 24rpx 0 4rpx;
+  padding: 32rpx 28rpx 28rpx;
+  border-radius: 24rpx;
+  background:
+    radial-gradient(120% 100% at 0% 0%, rgba(212,184,131,0.18) 0%, transparent 60%),
+    linear-gradient(135deg, #1F1A17 0%, #2C2620 100%);
+  color: #FFFFFF;
+  overflow: hidden;
+  box-shadow: 0 10rpx 32rpx rgba(31,26,23,0.28);
+}
+.impression-persona::before {
+  content: '';
+  position: absolute;
+  top: -60rpx; right: -60rpx;
+  width: 280rpx; height: 280rpx;
+  background: radial-gradient(circle, rgba(212,184,131,0.35) 0%, transparent 70%);
+  pointer-events: none;
+}
+.impression-persona::after {
+  content: '';
+  position: absolute;
+  inset: 4rpx;
+  border-radius: 22rpx;
+  border: 1rpx solid rgba(212,184,131,0.28);
+  pointer-events: none;
+}
+.persona-badge {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 18rpx;
+}
+.persona-badge-no {
+  font-size: 22rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+  color: #1F1A17;
+  background: linear-gradient(90deg, #E5C988, #B89968);
+  padding: 6rpx 14rpx;
+  border-radius: 100rpx;
+}
+.persona-badge-label {
+  font-size: 22rpx;
+  color: rgba(229,201,136,0.85);
+  letter-spacing: 4rpx;
+}
+.persona-main {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+}
+.persona-emoji {
+  font-size: 100rpx;
+  line-height: 1;
+  flex-shrink: 0;
+  filter: drop-shadow(0 4rpx 12rpx rgba(212,184,131,0.4));
+}
+.persona-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+.persona-name-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.persona-animal {
+  font-size: 64rpx;
+  font-weight: 800;
+  color: #FFE7B8;
+  letter-spacing: 4rpx;
+  line-height: 1.1;
+  text-shadow: 0 4rpx 16rpx rgba(212,184,131,0.4);
+}
+.persona-divider {
+  font-size: 32rpx;
+  color: rgba(229,201,136,0.6);
+  margin: 0 4rpx;
+}
+.persona-style {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #E5C988;
+  letter-spacing: 1rpx;
+}
+.persona-tagline {
+  font-size: 26rpx;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.6;
+}
+.persona-traits {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 20rpx;
+  padding-top: 18rpx;
+  border-top: 1rpx solid rgba(212,184,131,0.18);
+}
+.persona-trait {
+  font-size: 22rpx;
+  color: #E5C988;
+  background: rgba(212,184,131,0.14);
+  border: 1rpx solid rgba(212,184,131,0.32);
+  padding: 6rpx 18rpx;
+  border-radius: 100rpx;
+  letter-spacing: 0.5rpx;
+}
+
 .impression-card .section-title {
-  border-left-color: #4A8576;
+  border-left-color: #B89968;
 }
 .impression-card .radar-wrap {
   margin: 8rpx 0 0;
 }
 .impr-feat-name {
   width: 110rpx;
-  color: #2C3A36;
+  color: #5C5048;
   font-weight: 600;
 }
 .impr-bar-fill {
-  background: linear-gradient(90deg, #4A8576, #7BB29F);
+  background: linear-gradient(90deg, #B89968, #D4B883);
 }
 .impr-feat-val {
-  color: #4A8576;
+  color: #B89968;
 }
 
 .impression-desc {
@@ -2221,8 +2340,8 @@
 }
 .impr-desc-item {
   padding: 18rpx 22rpx;
-  background: #F6F9F7;
-  border-left: 4rpx solid #4A8576;
+  background: #FAFAF5;
+  border-left: 4rpx solid #B89968;
   border-radius: 12rpx;
 }
 .impr-desc-head {
@@ -2239,7 +2358,7 @@
 .impr-desc-score {
   font-size: 22rpx;
   font-weight: 700;
-  color: #4A8576;
+  color: #B89968;
 }
 .impr-desc-sub {
   display: block;

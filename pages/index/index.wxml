@@ -100,7 +100,7 @@
     <!-- 模块: 第一印象 · 魅力六边形 -->
     <view class="module-content" wx:if="{{activeTab === 'impression' && latestReport.modules.impression}}">
       <view class="section-card impression-card">
-        <view class="section-title">第一印象 · 魅力六边形</view>
+        <view class="section-title">第一印象 · {{latestReport.modules.impression.persona ? latestReport.modules.impression.persona.animal + '型' : '魅力六边形'}}</view>
         <view class="impression-index">
           <view class="impr-idx-ring">
             <view class="impr-idx-num-wrap">
@@ -111,11 +111,31 @@
           </view>
           <view class="impr-idx-meta">
             <text class="impr-idx-tag">ATTRACTION INDEX</text>
-            <text class="impr-idx-sub">基于「魅力六维」加权综合评估</text>
             <view class="impr-idx-percentile" wx:if="{{latestReport.modules.impression.percentile}}">
               <text class="impr-idx-percent-icon">▲</text>
               <text>击败 <text class="impr-idx-percent-num">{{latestReport.modules.impression.percentile}}%</text> 的同龄人</text>
             </view>
+          </view>
+        </view>
+        <!-- 第一印象人格标签 · 9 型 -->
+        <view class="impression-persona" wx:if="{{latestReport.modules.impression.persona}}">
+          <view class="persona-badge">
+            <text class="persona-badge-no">No.{{latestReport.modules.impression.persona.id}}/9</text>
+            <text class="persona-badge-label">第一印象人格</text>
+          </view>
+          <view class="persona-main">
+            <text class="persona-emoji">{{latestReport.modules.impression.persona.emoji}}</text>
+            <view class="persona-text">
+              <view class="persona-name-row">
+                <text class="persona-animal">{{latestReport.modules.impression.persona.animal}}</text>
+                <text class="persona-divider">｜</text>
+                <text class="persona-style">{{latestReport.modules.impression.persona.style}}</text>
+              </view>
+              <text class="persona-tagline">{{latestReport.modules.impression.persona.tagline}}</text>
+            </view>
+          </view>
+          <view class="persona-traits">
+            <text class="persona-trait" wx:for="{{latestReport.modules.impression.persona.traits}}" wx:key="*this" wx:for-item="tr"># {{tr}}</text>
           </view>
         </view>
         <view class="radar-wrap">

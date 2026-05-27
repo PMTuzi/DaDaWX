@@ -1,7 +1,26 @@
 {
   "libVersion": "3.16.0",
   "projectname": "dada",
-  "condition": {},
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "pages/persona-preview/persona-preview",
+          "pathName": "pages/index/index",
+          "query": "",
+          "scene": null,
+          "launchMode": "default"
+        },
+        {
+          "name": "pages/persona-preview/persona-preview",
+          "pathName": "pages/persona-preview/persona-preview",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        }
+      ]
+    }
+  },
   "setting": {
     "urlCheck": false,
     "coverView": true,

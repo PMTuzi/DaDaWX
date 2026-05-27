@@ -576,7 +576,83 @@ Page({
     const attractIndex = Math.max(0, Math.min(100, Math.round(weighted * 10)))
     // 简单的同龄人击败比例（非线性，越高越接近天花板）
     const percentile = Math.max(40, Math.min(99, Math.round(40 + (attractIndex - 60) * 1.4)))
-    return { scores, attractIndex, percentile }
+    // 9 型人格标签
+    const persona = this._pickImpressionPersona(scores)
+    return { scores, attractIndex, percentile, persona }
+  },
+
+  // 9 型第一印象人格定义
+  _IMPRESSION_PERSONAS: {
+    deer:    { id: 1, animal: '小鹿', style: '温柔亲和型', emoji: '🦌', tagline: '一眼就让人卸下防备的那种温度', traits: ['亲和力', '柔和'] },
+    rabbit:  { id: 2, animal: '白兔', style: '天真元气型', emoji: '🐰', tagline: '把"少女感"穿在了脸上', traits: ['少女感', '元气'] },
+    lark:    { id: 3, animal: '云雀', style: '诗意氛围感', emoji: '🕊️', tagline: '画面感选手，走过都自带 BGM', traits: ['氛围感', '空气感'] },
+    fox:     { id: 4, animal: '灵狐', style: '风情张力型', emoji: '🦊', tagline: '不动声色，就能把人勾住', traits: ['魅惑感', '张力'] },
+    phoenix: { id: 5, animal: '凤凰', style: '锋芒独特型', emoji: '🐦‍🔥', tagline: '记忆点拉满，撞脸概率几乎为 0', traits: ['记忆点', '锋芒'] },
+    swan:    { id: 6, animal: '天鹅', style: '清冷高级型', emoji: '🦢', tagline: '骨相与气质都站在"高级"这一边', traits: ['高级感', '清冷'] },
+    leopard: { id: 7, animal: '野豹', style: '冷艳精英型', emoji: '🐆', tagline: '气场比五官先到一步', traits: ['冷艳', '精英'] },
+    wolf:    { id: 8, animal: '孤狼', style: '特立独行型', emoji: '🐺', tagline: '不靠谁，每一帧都自成一派', traits: ['辨识度', '独立'] },
+    cat:     { id: 9, animal: '猫咪', style: '灵动百搭型', emoji: '🐱', tagline: '没有短板，怎么拍都好看', traits: ['百搭', '灵动'] }
+  },
+
+  _pickImpressionPersona(scores) {
+    const get = (k) => {
+      const s = scores.find(x => x.key === k)
+      return s ? s.score : 0
+    }
+    const a  = get('approachability')
+    const al = get('allure')
+    const y  = get('youthfulness')
+    const au = get('aura')
+    const d  = get('distinctiveness')
+    const so = get('sophistication')
+    const arr = scores.map(s => s.score)
+    const avg = arr.reduce((s, v) => s + v, 0) / arr.length
+    const variance = arr.reduce((s, v) => s + (v - avg) * (v - avg), 0) / arr.length
+    const sorted = [...scores].sort((x, y) => y.score - x.score)
+    const top1 = sorted[0].key
+    const top1Score = sorted[0].score
+    const stdDev = Math.sqrt(variance)
+    const PERSONAS = this._IMPRESSION_PERSONAS
+    let key = ''
+
+    // 严格互斥：从最苛刻 → 最宽松，命中即返回
+    // 1) 猫咪·灵动百搭：六维全部 ≥ 7.0 且标准差 < 0.7（真均衡型）
+    if (!key && stdDev < 0.7 && Math.min(a, al, y, au, d, so) >= 7.0) key = 'cat'
+    // 2) 凤凰·锋芒独特：记忆点 ≥ 8.2 且 魅惑感 ≥ 7.8 且 高级感 ≥ 7.2
+    if (!key && d >= 8.2 && al >= 7.8 && so >= 7.2) key = 'phoenix'
+    // 3) 野豹·冷艳精英：高级感 ≥ 7.8 且 魅惑感 ≥ 7.4 且 亲和力 ≤ 6.5 且 少女感 ≤ 6.5
+    if (!key && so >= 7.8 && al >= 7.4 && a <= 6.5 && y <= 6.5) key = 'leopard'
+    // 4) 天鹅·清冷高级：高级感 ≥ 7.8 且 氛围感 ≥ 7.2 且 亲和力 ≤ 6.8 且 魅惑感 < 7.4
+    if (!key && so >= 7.8 && au >= 7.2 && a <= 6.8 && al < 7.4) key = 'swan'
+    // 5) 孤狼·特立独行：记忆点 ≥ 7.6 且 亲和力 ≤ 6.2 且 少女感 ≤ 6.2
+    if (!key && d >= 7.6 && a <= 6.2 && y <= 6.2) key = 'wolf'
+    // 6) 灵狐·风情张力：魅惑感 ≥ 7.6 且 为 top1（容差 0.05），且 少女感 ≤ 7.0
+    if (!key && al >= 7.6 && al >= top1Score - 0.05 && y <= 7.0) key = 'fox'
+    // 7) 云雀·诗意氛围：氛围感 ≥ 7.6 且 为 top1，且 高级感 ≥ 6.8
+    if (!key && au >= 7.6 && au >= top1Score - 0.05 && so >= 6.8) key = 'lark'
+    // 8) 白兔·天真元气：少女感 ≥ 7.6 且 为 top1，且 亲和力 ≥ 6.8
+    if (!key && y >= 7.6 && y >= top1Score - 0.05 && a >= 6.8) key = 'rabbit'
+    // 9) 小鹿·温柔亲和：亲和力 ≥ 7.2 且 为 top1
+    if (!key && a >= 7.2 && a >= top1Score - 0.05) key = 'deer'
+
+    // 兜底：top1 ≥ 7.0 → 按维度归类；否则全员均衡偏低 → 猫咪
+    if (!key) {
+      if (top1Score >= 7.0) {
+        switch (top1) {
+          case 'approachability': key = 'deer'; break
+          case 'youthfulness':    key = 'rabbit'; break
+          case 'aura':            key = 'lark'; break
+          case 'allure':          key = 'fox'; break
+          case 'distinctiveness': key = 'wolf'; break
+          case 'sophistication':  key = 'swan'; break
+          default: key = 'cat'
+        }
+      } else {
+        key = 'cat'
+      }
+    }
+    const p = PERSONAS[key]
+    return { key, ...p }
   },
 
   // 根据 dna / style / 视龄 等具体数据，为每个维度生成"形象原因"句子
@@ -692,7 +768,7 @@ Page({
     if (!data || !Array.isArray(data.scores)) return
     const labels = data.scores.map(s => s.name)
     const scores = data.scores.map(s => s.score)
-    this._drawRadar(ctx, w, h, labels, scores, '#4A8576', '魅力六维')
+    this._drawRadar(ctx, w, h, labels, scores, '#B89968', '魅力六维')
   },
 
   drawDNARadar(ctx, w, h, data) {
@@ -1178,28 +1254,44 @@ Page({
     }
   },
 
-  onShareAppMessage() {
-    // 一旦用户从右上角菜单触发转发，立即解锁，2 分钟内有效
-    this._unlockByShare()
+  // 转发样式池：两种文案/封面随机出现，让分享卡更有新鲜感
+  _pickShareCard() {
     const report = this.data.latestReport
     const pct = report?.basic?.percentile
     const pctNum = (pct != null && !isNaN(pct)) ? pct : 90
+    const impr = report?.modules?.impression
+    const idx = impr?.attractIndex || 88
+    const styles = [
+      {
+        title: `我的颜值打败了 ${pctNum}% 的人，你敢测吗？AI 帮你打个真分`,
+        imageUrl: '/images/yanzhi1.jpg'
+      },
+      {
+        title: '原来别人眼里的我，第一印象是「__」',
+        imageUrl: '/images/第一印象.jpg'
+      }
+    ]
+    return styles[Math.floor(Math.random() * styles.length)]
+  },
+
+  onShareAppMessage() {
+    // 一旦用户从右上角菜单触发转发，立即解锁，2 分钟内有效
+    this._unlockByShare()
+    const card = this._pickShareCard()
     return {
-      title: `我的颜值打败了 ${pctNum}% 的人，你敢测吗？AI 帮你打个真分`,
+      title: card.title,
       path: '/pages/index/index',
-      imageUrl: '/images/yanzhi1.jpg'
+      imageUrl: card.imageUrl
     }
   },
 
   onShareTimeline() {
     this._unlockByShare(true)
-    const report = this.data.latestReport
-    const pct = report?.basic?.percentile
-    const pctNum = (pct != null && !isNaN(pct)) ? pct : 90
+    const card = this._pickShareCard()
     return {
-      title: `我的颜值打败了 ${pctNum}% 的人，你敢测吗？AI 帮你打个真分`,
+      title: card.title,
       query: '',
-      imageUrl: '/images/yanzhi1.jpg'
+      imageUrl: card.imageUrl
     }
   },
 
