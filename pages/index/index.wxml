@@ -30,7 +30,11 @@
   <view class="header {{hasReport ? 'header-diagnosed' : ''}}">
     <view class="brand-area {{hasReport ? 'brand-area-small' : ''}}">
       <view class="brand-text">
-        <view class="logo">美哒 Meeta</view>
+        <view class="logo">
+          <text class="logo-zh">美哒</text>
+          <text class="logo-sep"></text>
+          <text class="logo-en">Meeta</text>
+        </view>
         <view class="slogan" wx:if="{{!hasReport}}">{{slogan}}</view>
       </view>
     </view>

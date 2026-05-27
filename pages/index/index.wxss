@@ -50,8 +50,63 @@
   margin-bottom: 20rpx;
 }
 
+.header-diagnosed .brand-area {
+  justify-content: center;
+}
+
 .header-diagnosed .brand-text {
   margin-top: 20rpx;
+  align-items: center;
+}
+
+.header-diagnosed .logo {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 14rpx;
+  padding: 8rpx 40rpx;
+  letter-spacing: 0;
+  position: relative;
+}
+.header-diagnosed .logo::before,
+.header-diagnosed .logo::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 36rpx;
+  height: 2rpx;
+  background: linear-gradient(90deg, transparent, #B89968);
+  transform: translateY(-50%);
+}
+.header-diagnosed .logo::before { left: 0; }
+.header-diagnosed .logo::after {
+  right: 0;
+  background: linear-gradient(90deg, #B89968, transparent);
+}
+.header-diagnosed .logo-zh {
+  font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+  font-weight: 900;
+  font-size: 68rpx;
+  letter-spacing: 8rpx;
+  color: #2A2118;
+  text-shadow: 0 2rpx 0 rgba(184,153,104,0.25);
+}
+.header-diagnosed .logo-sep {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  background: #C9A45C;
+  flex-shrink: 0;
+  align-self: center;
+  box-shadow: 0 0 10rpx rgba(201,164,92,0.7);
+}
+.header-diagnosed .logo-en {
+  font-family: "Georgia", "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 50rpx;
+  letter-spacing: 3rpx;
+  color: #B89968;
 }
 
 .header-diagnosed .report-summary {
