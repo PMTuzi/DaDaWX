@@ -692,7 +692,7 @@ Page({
     if (!data || !Array.isArray(data.scores)) return
     const labels = data.scores.map(s => s.name)
     const scores = data.scores.map(s => s.score)
-    this._drawRadar(ctx, w, h, labels, scores, '#B89968', '魅力六维')
+    this._drawRadar(ctx, w, h, labels, scores, '#4A8576', '魅力六维')
   },
 
   drawDNARadar(ctx, w, h, data) {
