@@ -17,6 +17,20 @@ const IMPRESSION_PERSONAS = {
   cat:     { id: 9, animal: '猫咪', style: '灵动百搭型', emoji: '🐱', image: '/images/9型人格/猫咪.jpg', tagline: '没有短板，怎么拍都好看', traits: ['百搭', '灵动'] }
 }
 
+// 9 型原型向量 — 维度顺序：[亲和力, 魅惑感, 少女感, 氛围感, 记忆点, 高级感]
+// 用于 z-score 余弦相似度匹配。猫咪不参与原型匹配（只在六维全部 ≥ 8.0 时单独命中）。
+const PERSONA_PROTOTYPES = {
+  deer:    [ 1.5, -0.5,  0.8,  0.3, -0.8, -0.5 ],
+  rabbit:  [ 0.8, -1.0,  1.6,  0.2, -0.7, -0.8 ],
+  lark:    [ 0.2, -0.3,  0.5,  1.5, -0.3,  0.6 ],
+  fox:     [-0.3,  1.6, -0.5,  0.4,  0.6,  0.2 ],
+  phoenix: [-0.2,  0.8, -0.3,  0.3,  1.6,  0.6 ],
+  swan:    [-0.5, -0.3,  0.3,  0.8,  0.2,  1.6 ],
+  leopard: [-1.2,  1.2, -1.0,  0.0,  0.5,  1.4 ],
+  wolf:    [-1.5,  0.3, -1.2, -0.2,  1.4,  0.8 ]
+}
+const IMPRESSION_DIM_ORDER = ['approachability', 'allure', 'youthfulness', 'aura', 'distinctiveness', 'sophistication']
+
 // ============ 关键词 → 配图 映射（从 report.js 迁移）============
 function pickByKeyword(text, mapping, fallback) {
   if (!text) return fallback || ''
@@ -531,14 +545,15 @@ Page({
 
   // ====================== 第一印象 · 魅力六边形 ======================
   computeImpression(report) {
-    // 已有 AI 输出数据时优先使用
+    const dna = report && report.modules && report.modules.dna
+    const style = report && report.modules && report.modules.style
+    const ageTag = (report && report.basic && (report.basic.tags || []).find(t => t && t.indexOf('视龄') === 0)) || ''
+    const ageNum = parseInt((ageTag.match(/\d+/) || ['0'])[0], 10)
+
+    // 已有 AI 输出数据时优先使用六维分数；persona 强制按新规则重算（修复旧规则全员猫咪问题）
     const existed = report && report.modules && report.modules.impression
     if (existed && Array.isArray(existed.scores) && existed.scores.length === 6 && typeof existed.attractIndex === 'number') {
-      // 兜底/刷新 persona.image（兼容老缓存数据，覆盖旧的 .png 路径）
-      if (existed.persona && existed.persona.key) {
-        const def = IMPRESSION_PERSONAS[existed.persona.key]
-        if (def && def.image) existed.persona.image = def.image
-      }
+      existed.persona = this._pickImpressionPersona(existed.scores, { dna, style, ageNum })
       return existed
     }
     const dims = [
@@ -558,23 +573,71 @@ Page({
       const x = Math.sin(seed * 9301 + i * 49297) * 233280
       return x - Math.floor(x)
     }
-    // 借用 dna / style / optimize 的可用数据增强语义合理性
-    const dna = report.modules && report.modules.dna
-    const style = report.modules && report.modules.style
-    const ageTag = (report.basic && (report.basic.tags || []).find(t => t && t.indexOf('视龄') === 0)) || ''
-    const ageNum = parseInt((ageTag.match(/\d+/) || ['0'])[0], 10)
-    const semanticBias = {
-      approachability: 0,
-      allure: dna && dna.lineStyle && /量感|立体|锐|利落/.test(dna.lineStyle) ? 0.4 : 0,
-      youthfulness: ageNum > 0 && ageNum < 25 ? 0.6 : (ageNum >= 30 ? -0.4 : 0),
-      aura: style && style.mainStyle && /高级|气质|清冷|空气/.test(style.mainStyle) ? 0.4 : 0,
-      distinctiveness: dna && dna.faceType ? 0.2 : 0,
-      sophistication: dna && dna.lineStyle && /利落|清冷|骨感/.test(dna.lineStyle) ? 0.5 : 0
+
+    // —— 数据驱动信号：用 dna / style / 视龄 直接驱动六维差异（取代弱随机）——
+    const lineStyle = (dna && dna.lineStyle) || ''
+    const boneType = (dna && dna.boneType) || ''
+    const mainStyle = (style && style.mainStyle) || ''
+    const features = (dna && dna.faceFeatures) || []
+    const featMap = {}
+    features.forEach(f => { if (f && f.name) featMap[f.name] = f.score || 0 })
+    const colgu = featMap['颧骨'] || 0
+    const jaw   = featMap['下颌线'] || 0
+    const brow  = featMap['眉骨'] || 0
+    const nose  = featMap['鼻梁'] || 0
+    const chin  = featMap['下巴'] || 0
+    const massVal = (style && typeof style.mass === 'number') ? style.mass : 5
+
+    const isSharp     = /利落|分明|锋|刚/.test(lineStyle)
+    const isSoft      = /柔和|流畅|圆润/.test(lineStyle)
+    const isBalanced  = /刚柔并济/.test(lineStyle)
+    const isBoneDom   = /骨相/.test(boneType)
+    const isSkinDom   = /皮相/.test(boneType)
+    const isYoung     = ageNum > 0 && ageNum < 23
+    const isMature    = ageNum >= 30
+    const styleTag    = mainStyle || ''
+
+    // 每维的"明确信号"（量级 ±2 左右），主要由数据决定，随机仅用于打破并列
+    const signals = {
+      approachability:
+          (isSoft ? 1.2 : 0) + (isSharp ? -1.0 : 0)
+        + (isSkinDom ? 0.6 : 0) + (isBoneDom ? -0.6 : 0)
+        + (/可爱|甜|柔|少年|自然/.test(styleTag) ? 0.7 : 0)
+        + (/戏剧|冷|高级|前卫/.test(styleTag) ? -0.8 : 0),
+      allure:
+          (jaw - 6) * 0.3 + (nose - 6) * 0.2
+        + (isSharp ? 0.6 : 0) + (isSoft ? -0.4 : 0)
+        + (/浪漫|戏剧|魅力/.test(styleTag) ? 1.0 : 0)
+        + (/少年|甜美|可爱/.test(styleTag) ? -0.8 : 0)
+        + (massVal >= 6 ? 0.4 : (massVal <= 3 ? -0.4 : 0)),
+      youthfulness:
+          (isYoung ? 1.5 : 0) + (isMature ? -1.4 : 0)
+        + (isSkinDom ? 0.8 : 0) + (isBoneDom ? -0.6 : 0)
+        + (/少年|自然|甜美|可爱/.test(styleTag) ? 0.8 : 0)
+        + (/戏剧|优雅|前卫/.test(styleTag) ? -0.6 : 0),
+      aura:
+          (isBalanced ? 0.8 : 0)
+        + (/优雅|浪漫|高级|戏剧/.test(styleTag) ? 0.8 : 0)
+        + (/少年|可爱/.test(styleTag) ? -0.4 : 0)
+        + (isMature ? 0.4 : 0),
+      distinctiveness:
+          (colgu - 6) * 0.3 + (brow - 6) * 0.25 + (chin - 6) * 0.2
+        + (isBoneDom ? 0.8 : 0)
+        + (/戏剧|前卫|异域/.test(styleTag) ? 1.2 : 0)
+        + (/自然|甜美/.test(styleTag) ? -0.5 : 0),
+      sophistication:
+          (isSharp ? 1.0 : 0) + (isSoft ? -0.6 : 0)
+        + (isBoneDom ? 1.0 : 0) + (isSkinDom ? -0.6 : 0)
+        + (jaw - 6) * 0.2 + (colgu - 6) * 0.2
+        + (/优雅|高级|戏剧|前卫/.test(styleTag) ? 0.8 : 0)
+        + (/少年|甜美|可爱/.test(styleTag) ? -1.0 : 0)
+        + (isMature ? 0.4 : 0)
     }
     const scores = dims.map((d, i) => {
-      const offset = (rnd(i + 1) - 0.5) * 2.0 // ±1.0
-      let s = base + offset + (semanticBias[d.key] || 0)
-      s = Math.max(5.5, Math.min(9.6, s))
+      const sig = signals[d.key] || 0
+      const noise = (rnd(i + 1) - 0.5) * 0.6 // ±0.3 小噪声打破并列
+      let s = base + sig + noise
+      s = Math.max(5.0, Math.min(9.7, s))
       return { key: d.key, name: d.name, desc: d.desc, score: Math.round(s * 10) / 10 }
     })
     // 基于报告数据生成"用户具体的形象原因"
@@ -585,73 +648,64 @@ Page({
     const attractIndex = Math.max(0, Math.min(100, Math.round(weighted * 10)))
     // 简单的同龄人击败比例（非线性，越高越接近天花板）
     const percentile = Math.max(40, Math.min(99, Math.round(40 + (attractIndex - 60) * 1.4)))
-    // 9 型人格标签
-    const persona = this._pickImpressionPersona(scores)
+    // 9 型人格（新规则：z-score 余弦相似度 + 语义加权）
+    const persona = this._pickImpressionPersona(scores, { dna, style, ageNum })
     return { scores, attractIndex, percentile, persona }
   },
 
   // 9 型第一印象人格定义（保留为页面属性以兼容老引用，实际使用模块级常量）
   _IMPRESSION_PERSONAS: IMPRESSION_PERSONAS,
 
-  _pickImpressionPersona(scores) {
-    const get = (k) => {
+  _pickImpressionPersona(scores, ctx) {
+    ctx = ctx || {}
+    // 维度顺序需与 PERSONA_PROTOTYPES 一致
+    const arr = IMPRESSION_DIM_ORDER.map(k => {
       const s = scores.find(x => x.key === k)
       return s ? s.score : 0
-    }
-    const a  = get('approachability')
-    const al = get('allure')
-    const y  = get('youthfulness')
-    const au = get('aura')
-    const d  = get('distinctiveness')
-    const so = get('sophistication')
-    const arr = scores.map(s => s.score)
-    const avg = arr.reduce((s, v) => s + v, 0) / arr.length
-    const variance = arr.reduce((s, v) => s + (v - avg) * (v - avg), 0) / arr.length
-    const sorted = [...scores].sort((x, y) => y.score - x.score)
-    const top1 = sorted[0].key
-    const top1Score = sorted[0].score
-    const stdDev = Math.sqrt(variance)
-    const PERSONAS = IMPRESSION_PERSONAS
-    let key = ''
+    })
+    const mean = arr.reduce((s, v) => s + v, 0) / arr.length
+    const variance = arr.reduce((s, v) => s + (v - mean) * (v - mean), 0) / arr.length
+    const stdDev = Math.sqrt(variance) || 1e-6
+    const minScore = Math.min.apply(null, arr)
 
-    // 严格互斥：从最苛刻 → 最宽松，命中即返回
-    // 1) 猫咪·灵动百搭：六维全部 ≥ 7.0 且标准差 < 0.7（真均衡型）
-    if (!key && stdDev < 0.7 && Math.min(a, al, y, au, d, so) >= 7.0) key = 'cat'
-    // 2) 凤凰·锋芒独特：记忆点 ≥ 8.2 且 魅惑感 ≥ 7.8 且 高级感 ≥ 7.2
-    if (!key && d >= 8.2 && al >= 7.8 && so >= 7.2) key = 'phoenix'
-    // 3) 野豹·冷艳精英：高级感 ≥ 7.8 且 魅惑感 ≥ 7.4 且 亲和力 ≤ 6.5 且 少女感 ≤ 6.5
-    if (!key && so >= 7.8 && al >= 7.4 && a <= 6.5 && y <= 6.5) key = 'leopard'
-    // 4) 天鹅·清冷高级：高级感 ≥ 7.8 且 氛围感 ≥ 7.2 且 亲和力 ≤ 6.8 且 魅惑感 < 7.4
-    if (!key && so >= 7.8 && au >= 7.2 && a <= 6.8 && al < 7.4) key = 'swan'
-    // 5) 孤狼·特立独行：记忆点 ≥ 7.6 且 亲和力 ≤ 6.2 且 少女感 ≤ 6.2
-    if (!key && d >= 7.6 && a <= 6.2 && y <= 6.2) key = 'wolf'
-    // 6) 灵狐·风情张力：魅惑感 ≥ 7.6 且 为 top1（容差 0.05），且 少女感 ≤ 7.0
-    if (!key && al >= 7.6 && al >= top1Score - 0.05 && y <= 7.0) key = 'fox'
-    // 7) 云雀·诗意氛围：氛围感 ≥ 7.6 且 为 top1，且 高级感 ≥ 6.8
-    if (!key && au >= 7.6 && au >= top1Score - 0.05 && so >= 6.8) key = 'lark'
-    // 8) 白兔·天真元气：少女感 ≥ 7.6 且 为 top1，且 亲和力 ≥ 6.8
-    if (!key && y >= 7.6 && y >= top1Score - 0.05 && a >= 6.8) key = 'rabbit'
-    // 9) 小鹿·温柔亲和：亲和力 ≥ 7.2 且 为 top1
-    if (!key && a >= 7.2 && a >= top1Score - 0.05) key = 'deer'
-
-    // 兜底：top1 ≥ 7.0 → 按维度归类；否则全员均衡偏低 → 猫咪
-    if (!key) {
-      if (top1Score >= 7.0) {
-        switch (top1) {
-          case 'approachability': key = 'deer'; break
-          case 'youthfulness':    key = 'rabbit'; break
-          case 'aura':            key = 'lark'; break
-          case 'allure':          key = 'fox'; break
-          case 'distinctiveness': key = 'wolf'; break
-          case 'sophistication':  key = 'swan'; break
-          default: key = 'cat'
-        }
-      } else {
-        key = 'cat'
-      }
+    // 1) 真·猫咪：六维 min ≥ 8.0（极稀有，预期 <3%）
+    if (minScore >= 8.0) {
+      return Object.assign({ key: 'cat' }, IMPRESSION_PERSONAS.cat)
     }
-    const p = PERSONAS[key]
-    return { key, ...p }
+
+    // 2) z-score 形态匹配：把分数标准化只看"形状"，与 8 个原型计算余弦相似度
+    const userZ = arr.map(v => (v - mean) / stdDev)
+    function dot(a, b) { let s = 0; for (let i = 0; i < a.length; i++) s += a[i] * b[i]; return s }
+    function norm(a) { return Math.sqrt(dot(a, a)) }
+    function cosine(a, b) { return dot(a, b) / (norm(a) * norm(b) + 1e-6) }
+
+    // 3) 语义偏置：dna / style / 视龄 给某些人格小幅加分
+    const lineStyle = (ctx.dna && ctx.dna.lineStyle) || ''
+    const boneType  = (ctx.dna && ctx.dna.boneType) || ''
+    const mainStyle = (ctx.style && ctx.style.mainStyle) || ''
+    const ageNum    = ctx.ageNum || 0
+    const boost = { deer:0, rabbit:0, lark:0, fox:0, phoenix:0, swan:0, leopard:0, wolf:0 }
+
+    if (/利落|分明|锋|刚/.test(lineStyle)) { boost.swan += 0.06; boost.leopard += 0.06; boost.wolf += 0.05 }
+    if (/柔和|流畅|圆润/.test(lineStyle)) { boost.deer += 0.06; boost.rabbit += 0.05; boost.lark += 0.04 }
+    if (/骨相/.test(boneType))            { boost.swan += 0.05; boost.leopard += 0.05; boost.wolf += 0.04 }
+    if (/皮相/.test(boneType))            { boost.deer += 0.05; boost.rabbit += 0.05 }
+    if (/戏剧|前卫/.test(mainStyle))      { boost.phoenix += 0.07; boost.leopard += 0.05 }
+    if (/浪漫|魅力/.test(mainStyle))      { boost.fox += 0.07; boost.swan += 0.04 }
+    if (/少年|自然/.test(mainStyle))      { boost.rabbit += 0.05; boost.wolf += 0.04 }
+    if (/优雅|高级/.test(mainStyle))      { boost.swan += 0.07; boost.lark += 0.04 }
+    if (/可爱|甜美/.test(mainStyle))      { boost.rabbit += 0.07; boost.deer += 0.05 }
+    if (ageNum > 0 && ageNum < 23)        { boost.rabbit += 0.04; boost.deer += 0.03 }
+    if (ageNum >= 30)                     { boost.swan += 0.03; boost.leopard += 0.03 }
+
+    let bestKey = 'deer'
+    let bestScore = -Infinity
+    Object.keys(PERSONA_PROTOTYPES).forEach(k => {
+      const sim = cosine(userZ, PERSONA_PROTOTYPES[k])
+      const total = sim + (boost[k] || 0)
+      if (total > bestScore) { bestScore = total; bestKey = k }
+    })
+    return Object.assign({ key: bestKey }, IMPRESSION_PERSONAS[bestKey])
   },
 
   // 根据 dna / style / 视龄 等具体数据，为每个维度生成"形象原因"句子
