@@ -5,42 +5,10 @@
   position: relative;
   min-height: 100vh;
   background: linear-gradient(180deg, #C7E4F5 0%, #E8F4FC 30%, #EFF9FF 55%, #FFFFFF 80%);
-  padding-top: calc(env(safe-area-inset-top) + 210rpx);
+  padding-top: 40rpx;
   padding-bottom: calc(220rpx + env(safe-area-inset-bottom));
   overflow: hidden;
   color: #1F1A17;
-}
-
-/* 自定义返回按钮（与右侧胶囊菜单同高对齐） */
-.nav-back {
-  position: fixed;
-  top: calc(env(safe-area-inset-top) + 8rpx);
-  left: 16rpx;
-  width: 76rpx;
-  height: 64rpx;
-  border-radius: 32rpx;
-  background: rgba(255, 255, 255, 0.85);
-  border: 1rpx solid rgba(184, 153, 104, 0.35);
-  box-shadow: 0 4rpx 12rpx rgba(184, 153, 104, 0.18);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-  backdrop-filter: blur(10rpx);
-  padding-bottom: 4rpx;
-  box-sizing: border-box;
-}
-
-.nav-back-hover {
-  background: rgba(255, 255, 255, 0.95);
-  transform: scale(0.94);
-}
-
-.nav-back-icon {
-  font-size: 44rpx;
-  font-weight: 500;
-  color: #8C6E3A;
-  line-height: 1;
 }
 
 /* 极简网格（隐去多余装饰，仅保留淡雅纹理） */

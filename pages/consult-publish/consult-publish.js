@@ -155,49 +155,65 @@ Page({
       this.updateSummary()
     }
 
-    try {
-      wx.chooseMedia({
-        count: remaining,
-        mediaType: ['image'],
-        sourceType: ['album', 'camera'],
-        success: (res) => {
-          try {
-            const newImages = []
-            res.tempFiles.forEach(f => {
-              if (f.size < 5 * 1024) {
-                wx.showToast({ title: '图片太小，请重新选择', icon: 'none' })
-                return
-              }
-              newImages.push({ path: f.tempFilePath, thumb: f.tempFilePath, size: f.size })
-            })
-            handleNewImages(newImages)
-          } catch (e) {
-            console.error('[consult-publish] 选择图片回调出错:', e)
-            wx.showToast({ title: '图片处理失败', icon: 'none' })
+    const pickFrom = (sourceType) => {
+      // 相册多选 / 拍照单张
+      const count = sourceType === 'camera' ? 1 : remaining
+      try {
+        wx.chooseMedia({
+          count,
+          mediaType: ['image'],
+          sourceType: [sourceType],
+          success: (res) => {
+            try {
+              const newImages = []
+              res.tempFiles.forEach(f => {
+                if (f.size < 5 * 1024) {
+                  wx.showToast({ title: '图片太小，请重新选择', icon: 'none' })
+                  return
+                }
+                newImages.push({ path: f.tempFilePath, thumb: f.tempFilePath, size: f.size })
+              })
+              handleNewImages(newImages)
+            } catch (e) {
+              console.error('[consult-publish] 选择图片回调出错:', e)
+              wx.showToast({ title: '图片处理失败', icon: 'none' })
+            }
+          },
+          fail: (err) => {
+            if (err.errMsg && err.errMsg.indexOf('cancel') > -1) return
+            console.warn('[consult-publish] chooseMedia 失败:', err.errMsg)
           }
-        },
-        fail: (err) => {
-          if (err.errMsg && err.errMsg.indexOf('cancel') > -1) return
-          console.warn('[consult-publish] chooseMedia 失败:', err.errMsg)
-        }
-      })
-    } catch (e) {
-      console.warn('[consult-publish] chooseMedia 不可用，尝试 chooseImage:', e)
-      wx.chooseImage({
-        count: remaining,
-        sizeType: ['compressed'],
-        sourceType: ['album', 'camera'],
-        success: (res) => {
-          try {
-            const newImages = res.tempFiles.map(f => ({ path: f.tempFilePath, thumb: f.tempFilePath, size: f.size }))
-            handleNewImages(newImages)
-          } catch (e2) {
-            console.error('[consult-publish] chooseImage 回调出错:', e2)
-          }
-        },
-        fail: () => {}
-      })
+        })
+      } catch (e) {
+        console.warn('[consult-publish] chooseMedia 不可用，回退 chooseImage:', e)
+        wx.chooseImage({
+          count,
+          sizeType: ['compressed'],
+          sourceType: [sourceType],
+          success: (res) => {
+            try {
+              const newImages = (res.tempFiles || res.tempFilePaths || []).map(f => {
+                if (typeof f === 'string') return { path: f, thumb: f, size: 0 }
+                return { path: f.path || f.tempFilePath, thumb: f.path || f.tempFilePath, size: f.size }
+              })
+              handleNewImages(newImages)
+            } catch (e2) {
+              console.error('[consult-publish] chooseImage 回调出错:', e2)
+            }
+          },
+          fail: () => {}
+        })
+      }
     }
+
+    wx.showActionSheet({
+      itemList: [`从相册选择（最多 ${remaining} 张）`, '拍照'],
+      success: (r) => {
+        if (r.tapIndex === 0) pickFrom('album')
+        else if (r.tapIndex === 1) pickFrom('camera')
+      },
+      fail: () => {}
+    })
   },
 
   async autoDetectCategory(imagePath) {

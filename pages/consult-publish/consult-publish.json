@@ -1,6 +1,6 @@
 {
-  "navigationBarTitleText": "发布咨询",
-  "navigationStyle": "custom",
+  "navigationBarTitleText": "穿搭决策",
+  "navigationBarBackgroundColor": "#E8F4FC",
   "navigationBarTextStyle": "black",
   "disableScroll": true
 }

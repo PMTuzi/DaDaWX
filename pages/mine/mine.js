@@ -166,7 +166,7 @@ Page({
 
   onGoReports() {
     this.requireLogin(() => {
-      wx.navigateTo({ url: '/pages/reports/reports' })
+      wx.switchTab({ url: '/pages/index/index' })
     })
   },
 
