@@ -6,22 +6,75 @@
 }
 
 .page-header {
-  padding: 40rpx 32rpx 24rpx;
+  padding: 56rpx 32rpx 32rpx;
+  text-align: center;
 }
 
 .header-title {
-  font-size: 44rpx;
-  font-weight: 800;
-  color: #333;
-  margin-bottom: 8rpx;
-  letter-spacing: 2rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22rpx;
+  margin-bottom: 18rpx;
+}
+.header-title-text {
+  font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+  font-size: 60rpx;
+  font-weight: 900;
+  letter-spacing: 14rpx;
+  padding-left: 14rpx;
+  background: linear-gradient(180deg, #2A2118 0%, #4A3B26 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.header-orn {
+  font-size: 28rpx;
+  color: #C9A45C;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.header-orn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 64rpx;
+  height: 1rpx;
+  transform: translateY(-50%);
+}
+.header-orn-l::before {
+  right: 100%;
+  margin-right: 12rpx;
+  background: linear-gradient(90deg, transparent, #C9A45C);
+}
+.header-orn-r::before {
+  left: 100%;
+  margin-left: 12rpx;
+  background: linear-gradient(90deg, #C9A45C, transparent);
 }
 
 .header-subtitle {
-  font-size: 26rpx;
-  color: #8B7355;
-  letter-spacing: 1rpx;
+  font-family: "Georgia", "PingFang SC", serif;
+  font-size: 24rpx;
+  font-style: italic;
+  color: #B89968;
+  letter-spacing: 4rpx;
+  position: relative;
+  display: inline-block;
+  padding: 0 24rpx;
 }
+.header-subtitle::before,
+.header-subtitle::after {
+  content: '·';
+  color: #C9A45C;
+  font-size: 36rpx;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-58%);
+}
+.header-subtitle::before { left: 0; }
+.header-subtitle::after { right: 0; }
 
 /* 统一入口卡片 - 黑金主按钮风格 */
 .unified-card {
