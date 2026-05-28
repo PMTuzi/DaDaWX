@@ -5,17 +5,13 @@
   <!-- 顶部后台任务进度条（形象诊断 / 穿搭决策） -->
   <template is="task-bars" data="{{diagnoseTask, consultTask}}" />
 
-  <!-- 顶部标题 -->
+  <!-- 顶部标题（参考首页已诊断态品牌区） -->
   <view class="page-header">
-    <view class="ph-meta">
-      <view class="ph-rule"></view>
-      <text class="ph-meta-text">№ 01 / VOL. AI</text>
+    <view class="ph-logo">
+      <text class="ph-logo-zh">穿搭决策</text>
+      <text class="ph-logo-sep"></text>
+      <text class="ph-logo-en">Outfit</text>
     </view>
-    <view class="ph-zh">穿搭决策<text class="ph-zh-dot">.</text></view>
-    <view class="ph-en">
-      <text class="ph-en-line">OUTFIT · DECISIONS</text>
-    </view>
-    <view class="ph-rule ph-rule-bottom"></view>
   </view>
 
   <!-- 你的风格标签卡片：把诊断结果带入决策场景 -->

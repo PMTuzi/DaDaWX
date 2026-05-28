@@ -6,64 +6,56 @@
 }
 
 .page-header {
-  padding: 40rpx 36rpx 24rpx;
-  text-align: left;
+  padding: 48rpx 32rpx 28rpx;
+  display: flex;
+  justify-content: center;
 }
 
-.ph-meta {
-  display: flex;
+.ph-logo {
+  display: inline-flex;
   align-items: center;
-  gap: 16rpx;
-  margin-bottom: 20rpx;
+  justify-content: center;
+  gap: 24rpx;
 }
 
-.ph-rule {
-  flex: 1;
-  height: 1rpx;
-  background: #1A1812;
-  opacity: 0.55;
-}
-
-.ph-meta-text {
-  flex-shrink: 0;
-  font-size: 16rpx;
-  letter-spacing: 3rpx;
-  color: #4A3B26;
-  font-weight: 600;
-}
-
-.ph-zh {
+.ph-logo-zh {
   font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
-  font-size: 56rpx;
   font-weight: 800;
+  font-size: 56rpx;
   letter-spacing: 8rpx;
+  color: #1F1812;
   line-height: 1;
-  color: #1A1812;
 }
 
-.ph-zh-dot {
-  color: #C9A45C;
+.ph-logo-sep {
+  width: 3rpx;
+  height: 40rpx;
+  border-radius: 2rpx;
+  background: linear-gradient(180deg, transparent 0%, #C9A45C 50%, transparent 100%);
+  flex-shrink: 0;
+  align-self: center;
 }
 
-.ph-en {
-  display: flex;
-  flex-direction: column;
-  margin-top: 14rpx;
-}
-
-.ph-en-line {
+.ph-logo-en {
   font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
-  font-size: 18rpx;
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: 6rpx;
-  color: #8B7B6A;
+  font-weight: 700;
+  font-size: 28rpx;
+  letter-spacing: 8rpx;
+  color: #B89968;
+  text-transform: uppercase;
+  padding-left: 4rpx;
 }
 
-.ph-rule-bottom {
-  margin-top: 24rpx;
-  height: 1rpx;
-}
+.ph-title,
+.ph-sub,
+.ph-meta,
+.ph-rule,
+.ph-meta-text,
+.ph-zh,
+.ph-zh-dot,
+.ph-en,
+.ph-en-line,
+.ph-rule-bottom { display: none; }
 
 .header-title-text {
   font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
