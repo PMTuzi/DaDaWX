@@ -6,7 +6,7 @@
 }
 
 .page-header {
-  padding: 64rpx 36rpx 40rpx;
+  padding: 40rpx 36rpx 24rpx;
   text-align: left;
 }
 
@@ -14,7 +14,7 @@
   display: flex;
   align-items: center;
   gap: 16rpx;
-  margin-bottom: 36rpx;
+  margin-bottom: 20rpx;
 }
 
 .ph-rule {
@@ -26,17 +26,17 @@
 
 .ph-meta-text {
   flex-shrink: 0;
-  font-size: 18rpx;
-  letter-spacing: 4rpx;
+  font-size: 16rpx;
+  letter-spacing: 3rpx;
   color: #4A3B26;
   font-weight: 600;
 }
 
 .ph-zh {
   font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
-  font-size: 92rpx;
+  font-size: 56rpx;
   font-weight: 800;
-  letter-spacing: 12rpx;
+  letter-spacing: 8rpx;
   line-height: 1;
   color: #1A1812;
 }
@@ -48,20 +48,20 @@
 .ph-en {
   display: flex;
   flex-direction: column;
-  margin-top: 22rpx;
+  margin-top: 14rpx;
 }
 
 .ph-en-line {
   font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
-  font-size: 22rpx;
+  font-size: 18rpx;
   font-weight: 600;
   line-height: 1;
-  letter-spacing: 8rpx;
+  letter-spacing: 6rpx;
   color: #8B7B6A;
 }
 
 .ph-rule-bottom {
-  margin-top: 40rpx;
+  margin-top: 24rpx;
   height: 1rpx;
 }
 
