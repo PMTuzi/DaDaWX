@@ -384,20 +384,20 @@
 }
 
 .stamp-accept .stamp-border {
-  background: linear-gradient(135deg, #F1849B 0%, #D96A85 100%);
-  box-shadow: 0 8rpx 22rpx rgba(217, 106, 133, 0.42),
+  background: linear-gradient(135deg, #FF5F8C 0%, #FF8FA8 50%, #FFA876 100%);
+  box-shadow: 0 8rpx 22rpx rgba(255, 95, 140, 0.40),
               inset 0 -2rpx 0 rgba(0,0,0,0.06);
 }
 
 .stamp-reject .stamp-border {
-  background: linear-gradient(135deg, #5BB0FF 0%, #1A6FB8 100%);
-  box-shadow: 0 8rpx 22rpx rgba(26, 111, 184, 0.42),
+  background: linear-gradient(135deg, #1565C0 0%, #29B6F6 50%, #4DD0E1 100%);
+  box-shadow: 0 8rpx 22rpx rgba(21, 101, 192, 0.42),
               inset 0 -2rpx 0 rgba(0,0,0,0.06);
 }
 
 .stamp-compare .stamp-border {
-  background: linear-gradient(135deg, #F5D28A 0%, #C9A45C 100%);
-  box-shadow: 0 8rpx 22rpx rgba(201, 164, 92, 0.45),
+  background: linear-gradient(135deg, #E5C988 0%, #D4B883 50%, #B8893A 100%);
+  box-shadow: 0 8rpx 22rpx rgba(184, 137, 58, 0.42),
               inset 0 -2rpx 0 rgba(0,0,0,0.06);
 }
 
@@ -416,11 +416,11 @@
 }
 
 .stamp-accept .stamp-icon {
-  color: #D96A85;
+  color: #FF5F8C;
 }
 
 .stamp-reject .stamp-icon {
-  color: #1A6FB8;
+  color: #1565C0;
 }
 
 .stamp-compare .stamp-icon {
@@ -1158,30 +1158,35 @@
 /* L1: 主体（分数环 + 印章 居中对齐） */
 .verdict-section .verdict-main {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 24rpx;
-  padding: 20rpx 28rpx 12rpx;
+  gap: 20rpx;
+  padding: 24rpx 28rpx 16rpx;
   position: relative;
   z-index: 2;
 }
 
 .vm-left {
   flex-shrink: 0;
+  display: flex;
+  justify-content: center;
 }
 
 .verdict-right {
-  flex: 1;
+  width: 100%;
   min-width: 0;
   margin-left: 0;
   display: flex;
   flex-direction: column;
-  gap: 12rpx;
+  align-items: center;
+  gap: 14rpx;
 }
 
 /* meta 行：档位 + 置信度 */
 .meta-row {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12rpx;
   margin-top: 0;
   flex-wrap: wrap;

@@ -51,18 +51,6 @@
             <text class="stamp-text">{{record.verdict}}</text>
           </view>
         </view>
-
-        <!-- 档位 + 置信度 -->
-        <view class="meta-row" wx:if="{{record.tierLabel || record.confidence}}">
-          <view class="tier-pill" wx:if="{{record.tierLabel}}">
-            <text class="tier-dot"></text>
-            <text class="tier-text">{{record.tierLabel}}</text>
-          </view>
-          <view class="conf-pill" wx:if="{{record.confidence}}">
-            <text class="conf-label">AI 置信度</text>
-            <text class="conf-value">{{record.confidence}}%</text>
-          </view>
-        </view>
       </view>
     </view>
 

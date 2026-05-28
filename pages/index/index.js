@@ -1154,84 +1154,203 @@ Page({
         }
 
         let y = scoreCardY + scoreCardH + 16
-        const conclusion = report.modules.optimize?.coreConclusion
-        if (conclusion) {
-          ctx.font = '11px sans-serif'
-          const conLines = this._wrapText(ctx, conclusion, cw - 32, 4)
-          const conH = 20 + 18 + conLines.length * 16 + 14
-          const sumGrad = ctx.createLinearGradient(p, y, p + cw, y + conH)
-          sumGrad.addColorStop(0, '#FFF3E0'); sumGrad.addColorStop(1, '#FFE4EC')
-          ctx.fillStyle = sumGrad
-          this._roundRect(ctx, p, y, cw, conH, 12); ctx.fill()
-          ctx.strokeStyle = 'rgba(183,110,121,0.18)'; ctx.lineWidth = 1
-          this._roundRect(ctx, p, y, cw, conH, 12); ctx.stroke()
-          ctx.font = 'bold 12px sans-serif'; ctx.fillStyle = '#B76E79'; ctx.textAlign = 'left'
-          ctx.fillText('✦ 核心结论', p + 14, y + 20)
-          ctx.font = '11px sans-serif'; ctx.fillStyle = '#6B5550'
-          conLines.forEach((line, i) => ctx.fillText(line, p + 14, y + 42 + i * 16))
-          y += conH + 12
+
+        // ==================== 第一印象完整模块 ====================
+        const imp = report.modules && report.modules.impression
+        if (imp) {
+          // —— 标题行：✦ 第一印象 · X型 + 惊艳/耐看胶囊 ——
+          ctx.font = 'bold 14px sans-serif'; ctx.fillStyle = '#3D2C28'; ctx.textAlign = 'left'
+          const titleText = '✦ 第一印象' + (imp.persona ? ' · ' + (imp.persona.animal || '') + '型' : '')
+          ctx.fillText(titleText, p, y + 16)
+          const titleW = ctx.measureText(titleText).width
+          if (imp.appealType) {
+            ctx.font = 'bold 10px sans-serif'
+            const tagText = imp.appealType
+            const tagW = ctx.measureText(tagText).width + 16
+            const tagX = p + titleW + 8
+            const tagY = y + 4
+            const tg = ctx.createLinearGradient(tagX, tagY, tagX + tagW, tagY + 18)
+            if (imp.appealType === '惊艳型') {
+              tg.addColorStop(0, '#C77DFF'); tg.addColorStop(0.5, '#E5A3FF'); tg.addColorStop(1, '#FFB16B')
+            } else {
+              tg.addColorStop(0, '#1E88E5'); tg.addColorStop(0.5, '#4FC3F7'); tg.addColorStop(1, '#4DD0E1')
+            }
+            ctx.fillStyle = tg
+            this._roundRect(ctx, tagX, tagY, tagW, 18, 9); ctx.fill()
+            ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.font = 'bold 10px sans-serif'
+            ctx.fillText(tagText, tagX + tagW / 2, tagY + 13)
+            ctx.textAlign = 'left'
+          }
+          y += 28
+
+          // —— 吸引力指数 ——
+          ctx.font = 'bold 32px sans-serif'
+          const aiGrad = ctx.createLinearGradient(p, y, p, y + 32)
+          aiGrad.addColorStop(0, '#B76E79'); aiGrad.addColorStop(1, '#E8A87C')
+          ctx.fillStyle = aiGrad
+          const aiText = String(imp.attractIndex || 0)
+          ctx.fillText(aiText, p, y + 28)
+          const aiW = ctx.measureText(aiText).width
+          ctx.font = '11px sans-serif'; ctx.fillStyle = '#B89E8F'
+          ctx.fillText('/100', p + aiW + 4, y + 28)
+          ctx.font = '9.5px sans-serif'; ctx.fillStyle = '#888'
+          ctx.fillText('ATTRACTION INDEX · 吸引力指数', p, y + 44)
+          if (imp.percentile) {
+            ctx.font = 'bold 11px sans-serif'; ctx.fillStyle = '#B76E79'; ctx.textAlign = 'right'
+            ctx.fillText(`▲ 击败 ${imp.percentile}% 同龄人`, p + cw, y + 28)
+            ctx.textAlign = 'left'
+          }
+          y += 56
+
+          // —— 9 型人格 hero 块 ——
+          if (imp.persona) {
+            const persona = imp.persona
+            const phH = 92
+            const phGrad = ctx.createLinearGradient(p, y, p + cw, y + phH)
+            phGrad.addColorStop(0, 'rgba(229,201,136,0.25)'); phGrad.addColorStop(1, 'rgba(232,168,124,0.10)')
+            ctx.fillStyle = phGrad
+            this._roundRect(ctx, p, y, cw, phH, 12); ctx.fill()
+            ctx.strokeStyle = 'rgba(212,184,131,0.40)'; ctx.lineWidth = 1
+            this._roundRect(ctx, p, y, cw, phH, 12); ctx.stroke()
+
+            const phR = 28
+            const phCX = p + 16 + phR
+            const phCY = y + phH / 2
+            let drewPhoto = false
+            if (persona.image) {
+              const pImg = await this._loadImage(canvas, persona.image)
+              if (pImg) {
+                ctx.beginPath(); ctx.arc(phCX, phCY, phR + 2, 0, Math.PI * 2)
+                const rg = ctx.createLinearGradient(phCX - phR, phCY - phR, phCX + phR, phCY + phR)
+                rg.addColorStop(0, '#E5C988'); rg.addColorStop(1, '#B89968')
+                ctx.fillStyle = rg; ctx.fill()
+                ctx.save(); ctx.beginPath()
+                ctx.arc(phCX, phCY, phR, 0, Math.PI * 2); ctx.clip()
+                ctx.drawImage(pImg, phCX - phR, phCY - phR, phR * 2, phR * 2)
+                ctx.restore()
+                drewPhoto = true
+              }
+            }
+            if (!drewPhoto && persona.emoji) {
+              ctx.fillStyle = 'rgba(255,255,255,0.55)'
+              ctx.beginPath(); ctx.arc(phCX, phCY, phR, 0, Math.PI * 2); ctx.fill()
+              ctx.font = '38px sans-serif'; ctx.textAlign = 'center'
+              ctx.fillText(persona.emoji, phCX, phCY + 14)
+              ctx.textAlign = 'left'
+            }
+
+            const tx = phCX + phR + 16
+            ctx.font = 'bold 17px sans-serif'; ctx.fillStyle = '#8B4F58'
+            ctx.fillText(persona.animal || '', tx, y + 26)
+            const aW = ctx.measureText(persona.animal || '').width
+            ctx.font = '12px sans-serif'; ctx.fillStyle = '#A07876'
+            ctx.fillText('｜' + (persona.style || ''), tx + aW + 2, y + 26)
+            if (persona.tagline) {
+              ctx.font = '10.5px sans-serif'; ctx.fillStyle = '#6B5550'
+              const tagMaxW = (p + cw - 12) - tx
+              const tlLines = this._wrapText(ctx, persona.tagline, tagMaxW, 2)
+              tlLines.forEach((line, i) => ctx.fillText(line, tx, y + 44 + i * 14))
+            }
+            if (persona.traits && persona.traits.length) {
+              ctx.font = 'bold 9px sans-serif'
+              let trX = tx
+              const trY = y + phH - 18
+              persona.traits.slice(0, 3).forEach(tr => {
+                const trText = '# ' + tr
+                const trW = ctx.measureText(trText).width + 12
+                if (trX + trW > p + cw - 8) return
+                ctx.fillStyle = 'rgba(229,201,136,0.42)'
+                this._roundRect(ctx, trX, trY, trW, 13, 6); ctx.fill()
+                ctx.fillStyle = '#8B6B3A'; ctx.textAlign = 'center'
+                ctx.fillText(trText, trX + trW / 2, trY + 9)
+                ctx.textAlign = 'left'
+                trX += trW + 6
+              })
+            }
+            y += phH + 14
+          }
+
+          // —— 六维评分 ——
+          const scores = imp.scores || []
+          if (scores.length) {
+            ctx.font = 'bold 12px sans-serif'; ctx.fillStyle = '#3D2C28'; ctx.textAlign = 'left'
+            ctx.fillText('六维评分', p, y + 14)
+            y += 22
+            scores.forEach((s, i) => {
+              const rowY = y + i * 22
+              ctx.font = '11px sans-serif'; ctx.fillStyle = '#5C4A45'; ctx.textAlign = 'left'
+              ctx.fillText(s.name || '', p, rowY + 13)
+              const barX = p + 60
+              const barW = cw - 60 - 36
+              const barY = rowY + 6
+              ctx.fillStyle = 'rgba(183,110,121,0.10)'
+              this._roundRect(ctx, barX, barY, barW, 7, 3.5); ctx.fill()
+              const sv = Math.max(0, Math.min(10, Number(s.score) || 0))
+              const fillW = barW * (sv / 10)
+              if (fillW > 0) {
+                const bg = ctx.createLinearGradient(barX, barY, barX + fillW, barY + 7)
+                bg.addColorStop(0, '#E8A87C'); bg.addColorStop(1, '#B76E79')
+                ctx.fillStyle = bg
+                this._roundRect(ctx, barX, barY, fillW, 7, 3.5); ctx.fill()
+              }
+              ctx.font = 'bold 11px sans-serif'; ctx.fillStyle = '#8B4F58'; ctx.textAlign = 'right'
+              ctx.fillText(sv.toFixed(1), p + cw, rowY + 13)
+              ctx.textAlign = 'left'
+            })
+            y += scores.length * 22 + 10
+          }
+
+          // —— 维度解析 ——
+          if (scores.length) {
+            ctx.font = 'bold 12px sans-serif'; ctx.fillStyle = '#3D2C28'; ctx.textAlign = 'left'
+            ctx.fillText('维度解析 · 你的形象原因', p, y + 14)
+            y += 24
+            scores.forEach(s => {
+              ctx.font = 'bold 11px sans-serif'; ctx.fillStyle = '#8B4F58'; ctx.textAlign = 'left'
+              ctx.fillText(s.name || '', p, y + 12)
+              ctx.font = '10px sans-serif'; ctx.fillStyle = '#B89E8F'; ctx.textAlign = 'right'
+              ctx.fillText(`${(Number(s.score) || 0).toFixed(1)}/10`, p + cw, y + 12)
+              ctx.textAlign = 'left'
+              y += 16
+              if (s.desc) {
+                ctx.font = '9.5px sans-serif'; ctx.fillStyle = '#B89E8F'
+                ctx.fillText(s.desc, p, y + 11)
+                y += 14
+              }
+              if (s.reason) {
+                ctx.font = '10.5px sans-serif'; ctx.fillStyle = '#5C4A45'
+                const lines = this._wrapText(ctx, s.reason, cw, 5)
+                lines.forEach(line => {
+                  ctx.fillText(line, p, y + 12)
+                  y += 15
+                })
+              }
+              y += 8
+            })
+          }
+
+          // —— 关键洞察 ——
+          if (imp.keyInsight) {
+            ctx.font = '11px sans-serif'
+            const lines = this._wrapText(ctx, imp.keyInsight, cw - 28, 5)
+            const insightH = 32 + lines.length * 16 + 4
+            const ig = ctx.createLinearGradient(p, y, p + cw, y + insightH)
+            ig.addColorStop(0, '#FFF3E0'); ig.addColorStop(1, '#FFE4EC')
+            ctx.fillStyle = ig
+            this._roundRect(ctx, p, y, cw, insightH, 12); ctx.fill()
+            ctx.strokeStyle = 'rgba(183,110,121,0.20)'; ctx.lineWidth = 1
+            this._roundRect(ctx, p, y, cw, insightH, 12); ctx.stroke()
+            ctx.font = 'bold 11px sans-serif'; ctx.fillStyle = '#B76E79'; ctx.textAlign = 'left'
+            ctx.fillText('✦ 关键洞察', p + 14, y + 20)
+            ctx.font = '10.5px sans-serif'; ctx.fillStyle = '#6B5550'
+            lines.forEach((line, i) => ctx.fillText(line, p + 14, y + 40 + i * 16))
+            y += insightH + 12
+          }
         }
 
-        const sections = [
-          { title: '🧬 面部&骨相', color: '#B76E79', show: !!report.modules.dna,
-            lines: () => {
-              const d = report.modules.dna
-              const l = [`${d.faceType || ''} · ${d.boneType || ''}`]
-              if (d.keyInsight) l.push('✦ ' + d.keyInsight)
-              return l
-            } },
-          { title: '🎨 皮肤&风格', color: '#C38D9E', show: !!report.modules.style,
-            lines: () => {
-              const d = report.modules.style
-              const l = [`${d.skinType || ''} · ${d.season || ''} · ${d.mainStyle || ''}`]
-              if (d.keyInsight) l.push('✦ ' + d.keyInsight)
-              return l
-            } },
-          { title: '✂️ 发型&妆容', color: '#E8A87C', show: !!report.modules.hairmakeup,
-            lines: () => {
-              const d = report.modules.hairmakeup
-              const top = d.hairRecommend?.top3?.[0]
-              const l = [top ? `推荐：${top.name} ${top.score}/10` : '']
-              if (d.keyInsight) l.push('✦ ' + d.keyInsight)
-              return l.filter(Boolean)
-            } },
-          { title: '🌟 颜值&蜕变', color: '#D4A574', show: !!report.modules.optimize,
-            lines: () => {
-              const d = report.modules.optimize
-              const l = []
-              if (d.keyInsight) l.push('✦ ' + d.keyInsight)
-              return l
-            } }
-        ]
-
-        sections.forEach(sec => {
-          if (!sec.show) return
-          const lines = sec.lines()
-          if (!lines.length) return
-          const textLines = []
-          lines.forEach(line => {
-            ctx.font = '10.5px sans-serif'
-            textLines.push(...this._wrapText(ctx, line, cw - 28, 3))
-          })
-          const cardH = 16 + 18 + textLines.length * 16 + 10
-          ctx.fillStyle = '#fff'
-          this._roundRect(ctx, p, y, cw, cardH, 12); ctx.fill()
-          ctx.fillStyle = sec.color
-          this._roundRect(ctx, p, y, 4, cardH, 2); ctx.fill()
-          ctx.font = 'bold 12px sans-serif'; ctx.fillStyle = '#3D2C28'; ctx.textAlign = 'left'
-          ctx.fillText(sec.title, p + 14, y + 20)
-          ctx.font = '10.5px sans-serif'
-          let lineY = y + 38
-          textLines.forEach(line => {
-            ctx.fillStyle = line.startsWith('✦') ? '#B89E8F' : '#5C4A45'
-            ctx.fillText(line, p + 14, lineY)
-            lineY += 16
-          })
-          y += cardH + 10
-        })
-
+        // ==================== 页脚 ====================
         const footerH = 56
-        const footerY = Math.min(y + 4, h - footerH - 16)
+        const footerY = y + 8
         const fGrad = ctx.createLinearGradient(p, footerY, p + cw, footerY + footerH)
         fGrad.addColorStop(0, '#B76E79'); fGrad.addColorStop(1, '#E8A87C')
         ctx.fillStyle = fGrad
@@ -1240,12 +1359,19 @@ Page({
         ctx.fillText('美哒 Meeta', w / 2, footerY + 24)
         ctx.font = '10px sans-serif'; ctx.fillStyle = 'rgba(255,255,255,0.85)'
         ctx.fillText('AI 反种草形象风格诊断', w / 2, footerY + 42)
+        const finalY = Math.min(footerY + footerH + 16, h)
 
         setTimeout(() => {
           wx.canvasToTempFilePath({
             canvas,
             fileType: 'jpg',
-            quality: 0.85,
+            quality: 0.9,
+            x: 0,
+            y: 0,
+            width: w,
+            height: finalY,
+            destWidth: w * dpr,
+            destHeight: finalY * dpr,
             success: (r) => resolve(r.tempFilePath),
             fail: reject
           })

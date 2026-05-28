@@ -7,12 +7,15 @@
 
   <!-- 顶部标题 -->
   <view class="page-header">
-    <view class="header-title">
-      <text class="header-orn header-orn-l">❖</text>
-      <text class="header-title-text">穿搭决策</text>
-      <text class="header-orn header-orn-r">❖</text>
+    <view class="ph-meta">
+      <view class="ph-rule"></view>
+      <text class="ph-meta-text">№ 01 / VOL. AI</text>
     </view>
-    <view class="header-subtitle">上传衣物照片 · AI 帮你理性分析</view>
+    <view class="ph-zh">穿搭决策<text class="ph-zh-dot">.</text></view>
+    <view class="ph-en">
+      <text class="ph-en-line">OUTFIT · DECISIONS</text>
+    </view>
+    <view class="ph-rule ph-rule-bottom"></view>
   </view>
 
   <!-- 你的风格标签卡片：把诊断结果带入决策场景 -->

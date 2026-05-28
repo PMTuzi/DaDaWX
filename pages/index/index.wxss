@@ -61,52 +61,39 @@
 
 .header-diagnosed .logo {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: center;
-  gap: 14rpx;
-  padding: 8rpx 40rpx;
+  gap: 24rpx;
+  padding: 0;
   letter-spacing: 0;
   position: relative;
 }
-.header-diagnosed .logo::before,
-.header-diagnosed .logo::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  width: 36rpx;
-  height: 2rpx;
-  background: linear-gradient(90deg, transparent, #B89968);
-  transform: translateY(-50%);
-}
-.header-diagnosed .logo::before { left: 0; }
-.header-diagnosed .logo::after {
-  right: 0;
-  background: linear-gradient(90deg, #B89968, transparent);
-}
 .header-diagnosed .logo-zh {
   font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
-  font-weight: 900;
-  font-size: 68rpx;
+  font-weight: 800;
+  font-size: 76rpx;
   letter-spacing: 8rpx;
-  color: #2A2118;
-  text-shadow: 0 2rpx 0 rgba(184,153,104,0.25);
+  color: #1F1812;
 }
 .header-diagnosed .logo-sep {
-  width: 10rpx;
-  height: 10rpx;
-  border-radius: 50%;
-  background: #C9A45C;
+  width: 3rpx;
+  height: 52rpx;
+  border-radius: 2rpx;
+  background: linear-gradient(180deg, transparent 0%, #C9A45C 50%, transparent 100%);
   flex-shrink: 0;
   align-self: center;
-  box-shadow: 0 0 10rpx rgba(201,164,92,0.7);
+  box-shadow: none;
 }
 .header-diagnosed .logo-en {
-  font-family: "Georgia", "Times New Roman", serif;
-  font-style: italic;
+  font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+  font-style: normal;
   font-weight: 700;
-  font-size: 50rpx;
-  letter-spacing: 3rpx;
+  font-size: 32rpx;
+  letter-spacing: 12rpx;
   color: #B89968;
+  text-transform: uppercase;
+  align-self: center;
+  padding-left: 6rpx;
 }
 
 .header-diagnosed .report-summary {
@@ -1930,7 +1917,7 @@
   position: fixed;
   left: -9999rpx;
   width: 680rpx;
-  height: 1700rpx;
+  height: 3400rpx;
 }
 
 /* 浮动「蜕变」FAB */
@@ -2471,8 +2458,8 @@
 }
 .appeal-enduring {
   color: #fff;
-  background: linear-gradient(135deg, #4FB8A6 0%, #7BD0BF 100%);
-  box-shadow: 0 3rpx 10rpx rgba(79, 184, 166, 0.42),
+  background: linear-gradient(135deg, #1E88E5 0%, #4FC3F7 50%, #4DD0E1 100%);
+  box-shadow: 0 3rpx 10rpx rgba(30, 136, 229, 0.45),
               inset 0 -2rpx 0 rgba(0,0,0,0.06);
-  text-shadow: 0 1rpx 2rpx rgba(20, 90, 80, 0.3);
+  text-shadow: 0 1rpx 2rpx rgba(10, 60, 120, 0.35);
 }

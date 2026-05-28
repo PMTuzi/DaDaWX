@@ -6,75 +6,93 @@
 }
 
 .page-header {
-  padding: 56rpx 32rpx 32rpx;
-  text-align: center;
+  padding: 64rpx 36rpx 40rpx;
+  text-align: left;
 }
 
-.header-title {
+.ph-meta {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 22rpx;
-  margin-bottom: 18rpx;
+  gap: 16rpx;
+  margin-bottom: 36rpx;
 }
+
+.ph-rule {
+  flex: 1;
+  height: 1rpx;
+  background: #1A1812;
+  opacity: 0.55;
+}
+
+.ph-meta-text {
+  flex-shrink: 0;
+  font-size: 18rpx;
+  letter-spacing: 4rpx;
+  color: #4A3B26;
+  font-weight: 600;
+}
+
+.ph-zh {
+  font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+  font-size: 92rpx;
+  font-weight: 800;
+  letter-spacing: 12rpx;
+  line-height: 1;
+  color: #1A1812;
+}
+
+.ph-zh-dot {
+  color: #C9A45C;
+}
+
+.ph-en {
+  display: flex;
+  flex-direction: column;
+  margin-top: 22rpx;
+}
+
+.ph-en-line {
+  font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+  font-size: 22rpx;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 8rpx;
+  color: #8B7B6A;
+}
+
+.ph-rule-bottom {
+  margin-top: 40rpx;
+  height: 1rpx;
+}
+
 .header-title-text {
   font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
-  font-size: 60rpx;
-  font-weight: 900;
-  letter-spacing: 14rpx;
-  padding-left: 14rpx;
+  font-size: 56rpx;
+  font-weight: 800;
+  letter-spacing: 10rpx;
+  padding-left: 10rpx;
   background: linear-gradient(180deg, #2A2118 0%, #4A3B26 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  line-height: 1.15;
 }
-.header-orn {
-  font-size: 28rpx;
-  color: #C9A45C;
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-}
-.header-orn::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  width: 64rpx;
-  height: 1rpx;
-  transform: translateY(-50%);
-}
-.header-orn-l::before {
-  right: 100%;
-  margin-right: 12rpx;
-  background: linear-gradient(90deg, transparent, #C9A45C);
-}
-.header-orn-r::before {
-  left: 100%;
-  margin-left: 12rpx;
-  background: linear-gradient(90deg, #C9A45C, transparent);
+
+.header-accent {
+  width: 56rpx;
+  height: 3rpx;
+  margin: 22rpx auto 0;
+  background: linear-gradient(90deg, #E5C988, #C9A45C);
+  border-radius: 2rpx;
 }
 
 .header-subtitle {
-  font-family: "Georgia", "PingFang SC", serif;
+  margin-top: 20rpx;
   font-size: 24rpx;
-  font-style: italic;
-  color: #B89968;
-  letter-spacing: 4rpx;
-  position: relative;
-  display: inline-block;
-  padding: 0 24rpx;
+  color: #8B7B6A;
+  letter-spacing: 2rpx;
+  font-weight: 400;
 }
-.header-subtitle::before,
-.header-subtitle::after {
-  content: '·';
-  color: #C9A45C;
-  font-size: 36rpx;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-58%);
-}
-.header-subtitle::before { left: 0; }
-.header-subtitle::after { right: 0; }
 
 /* 统一入口卡片 - 黑金主按钮风格 */
 .unified-card {
