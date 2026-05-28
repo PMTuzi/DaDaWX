@@ -1049,25 +1049,45 @@ Page({
         const report = this.data.latestReport
         const p = 20, cw = w - p * 2
 
-        ctx.fillStyle = '#FFF8F3'; ctx.fillRect(0, 0, w, h)
-        const headerH = 92
+        // 整体冷调底色（淡冰蓝渐变）
+        const pageBg = ctx.createLinearGradient(0, 0, 0, h)
+        pageBg.addColorStop(0, '#F2F4FF')
+        pageBg.addColorStop(1, '#EAF1FA')
+        ctx.fillStyle = pageBg; ctx.fillRect(0, 0, w, h)
+        const headerH = 130
+        // 酷炫赛博渐变：深夜空 → 电紫 → 品红 → 青
         const grad = ctx.createLinearGradient(0, 0, w, headerH)
-        grad.addColorStop(0, '#B76E79'); grad.addColorStop(0.5, '#C38D9E'); grad.addColorStop(1, '#E8A87C')
+        grad.addColorStop(0, '#0F0C29')
+        grad.addColorStop(0.35, '#7B2CBF')
+        grad.addColorStop(0.7, '#FF3CAC')
+        grad.addColorStop(1, '#00D4FF')
         ctx.fillStyle = grad; ctx.fillRect(0, 0, w, headerH)
 
-        ctx.fillStyle = 'rgba(255,255,255,0.15)'
-        ctx.beginPath(); ctx.arc(w - 30, 25, 28, 0, Math.PI * 2); ctx.fill()
-        ctx.beginPath(); ctx.arc(28, headerH - 18, 20, 0, Math.PI * 2); ctx.fill()
+        // 装饰：右上 + 左下 大光晕
+        ctx.fillStyle = 'rgba(255,255,255,0.18)'
+        ctx.beginPath(); ctx.arc(w - 30, 25, 36, 0, Math.PI * 2); ctx.fill()
+        ctx.fillStyle = 'rgba(0,212,255,0.22)'
+        ctx.beginPath(); ctx.arc(28, headerH - 20, 28, 0, Math.PI * 2); ctx.fill()
+        // 底部高亮霓虹线
+        const lineGrad = ctx.createLinearGradient(0, 0, w, 0)
+        lineGrad.addColorStop(0, 'rgba(0,212,255,0)')
+        lineGrad.addColorStop(0.5, 'rgba(255,255,255,0.85)')
+        lineGrad.addColorStop(1, 'rgba(255,60,172,0)')
+        ctx.fillStyle = lineGrad
+        ctx.fillRect(0, headerH - 1.5, w, 1.5)
 
-        ctx.fillStyle = '#fff'; ctx.font = 'bold 20px sans-serif'; ctx.textAlign = 'center'
-        ctx.fillText('✦ 形象风格诊断报告', w / 2, 44)
-        ctx.font = '11px sans-serif'; ctx.fillStyle = 'rgba(255,255,255,0.85)'
+        // 标题（带轻微辉光）
+        ctx.shadowColor = 'rgba(0,212,255,0.55)'; ctx.shadowBlur = 10
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'center'
+        ctx.fillText('✦ 形象风格诊断报告', w / 2, 50)
+        ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0
+        ctx.font = '11px sans-serif'; ctx.fillStyle = 'rgba(255,255,255,0.88)'
         const now = new Date()
         const dateStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}  ·  美哒 Meeta`
-        ctx.fillText(dateStr, w / 2, 66)
+        ctx.fillText(dateStr, w / 2, 76)
 
         const scoreCardY = headerH - 26, scoreCardH = 110
-        ctx.shadowColor = 'rgba(183,110,121,0.18)'; ctx.shadowBlur = 12; ctx.shadowOffsetY = 4
+        ctx.shadowColor = 'rgba(123,44,191,0.22)'; ctx.shadowBlur = 14; ctx.shadowOffsetY = 4
         ctx.fillStyle = '#fff'
         this._roundRect(ctx, p, scoreCardY, cw, scoreCardH, 14); ctx.fill()
         ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0
@@ -1348,16 +1368,27 @@ Page({
           }
         }
 
-        // ==================== 页脚 ====================
+        // ==================== 页脚（赛博渐变呼应头部） ====================
         const footerH = 56
         const footerY = y + 8
         const fGrad = ctx.createLinearGradient(p, footerY, p + cw, footerY + footerH)
-        fGrad.addColorStop(0, '#B76E79'); fGrad.addColorStop(1, '#E8A87C')
+        fGrad.addColorStop(0, '#0F0C29')
+        fGrad.addColorStop(0.5, '#7B2CBF')
+        fGrad.addColorStop(1, '#00D4FF')
         ctx.fillStyle = fGrad
         this._roundRect(ctx, p, footerY, cw, footerH, 12); ctx.fill()
+        // 顶部霓虹高光线
+        const fLine = ctx.createLinearGradient(p, 0, p + cw, 0)
+        fLine.addColorStop(0, 'rgba(255,60,172,0)')
+        fLine.addColorStop(0.5, 'rgba(255,255,255,0.85)')
+        fLine.addColorStop(1, 'rgba(0,212,255,0)')
+        ctx.fillStyle = fLine
+        ctx.fillRect(p + 12, footerY + 1, cw - 24, 1.2)
+        ctx.shadowColor = 'rgba(0,212,255,0.5)'; ctx.shadowBlur = 8
         ctx.font = 'bold 15px sans-serif'; ctx.fillStyle = '#fff'; ctx.textAlign = 'center'
         ctx.fillText('美哒 Meeta', w / 2, footerY + 24)
-        ctx.font = '10px sans-serif'; ctx.fillStyle = 'rgba(255,255,255,0.85)'
+        ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0
+        ctx.font = '10px sans-serif'; ctx.fillStyle = 'rgba(255,255,255,0.88)'
         ctx.fillText('AI 反种草形象风格诊断', w / 2, footerY + 42)
         const finalY = Math.min(footerY + footerH + 16, h)
 
