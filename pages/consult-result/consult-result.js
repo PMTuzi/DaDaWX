@@ -317,7 +317,7 @@ Page({
     return {
       title: score ? `穿搭评分 ${score}分 ` : 'AI穿搭决策 - 帮你不踩雷',
       path: '/pages/outfit/outfit',
-      imageUrl: '/images/邀请好友ootd打分.jpg'
+      imageUrl: '/images/yanzhi2.jpg'
     }
   }
 })

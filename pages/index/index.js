@@ -6,7 +6,7 @@ const { mixinTaskBars } = require('../../utils/task-bars')
 
 // 9 型第一印象人格定义（模块级常量，避免 Page 选项过滤导致 this 上访问不到）
 const IMPRESSION_PERSONAS = {
-  deer:    { id: 1, animal: '小鹿', style: '温柔亲和型', emoji: '🦌', image: '/images/9型人格/小鹿1.jpg', tagline: '一眼就让人卸下防备的那种温度', traits: ['亲和力', '柔和'] },
+  deer:    { id: 1, animal: '小鹿', style: '温柔亲和型', emoji: '🦌', image: '/images/9型人格/小鹿.jpg', tagline: '一眼就让人卸下防备的那种温度', traits: ['亲和力', '柔和'] },
   rabbit:  { id: 2, animal: '白兔', style: '天真元气型', emoji: '🐰', image: '/images/9型人格/兔子.jpg', tagline: '把"少女感"穿在了脸上', traits: ['少女感', '元气'] },
   lark:    { id: 3, animal: '云雀', style: '诗意氛围感', emoji: '🕊️', image: '/images/9型人格/云雀.jpg', tagline: '画面感选手，走过都自带 BGM', traits: ['氛围感', '空气感'] },
   fox:     { id: 4, animal: '灵狐', style: '风情张力型', emoji: '🦊', image: '/images/9型人格/灵狐.jpg', tagline: '不动声色，就能把人勾住', traits: ['魅惑感', '张力'] },
