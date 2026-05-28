@@ -146,8 +146,12 @@
         <view class="rank-list">
           <view class="rank-item {{index === 0 ? 'rank-top' : ''}}" wx:for="{{record.rankings}}" wx:key="index">
             <view class="rank-badge">{{index + 1}}</view>
-            <view class="rank-letter">{{['A','B','C','D','E','F'][item.index]}}</view>
-            <text class="rank-label">{{item.label}}</text>
+            <text class="rank-label">选项{{['A','B','C','D','E','F'][item.index]}}</text>
+            <image class="rank-thumb-mini" wx:if="{{record.images[item.index]}}"
+              src="{{record.images[item.index].localPath || record.images[item.index].imageUrl}}"
+              mode="aspectFill"
+              catchtap="onPreviewImage"
+              data-url="{{record.images[item.index].localPath || record.images[item.index].imageUrl}}"></image>
             <text class="rank-score">{{h.toFixed1(item.totalScore)}}分</text>
           </view>
         </view>
@@ -176,8 +180,13 @@
         <view class="comparison-list">
           <view class="comparison-item" wx:for="{{record.comparisons}}" wx:key="index">
             <view class="comp-header">
-              <view class="comp-letter">{{['A','B','C','D','E','F'][item.index !== undefined ? item.index : index]}}</view>
-              <text class="comp-label">{{item.label}}</text>
+              <text class="comp-label">选项{{['A','B','C','D','E','F'][item.index !== undefined ? item.index : index]}}</text>
+              <image class="rank-thumb-mini"
+                wx:if="{{record.images[item.index !== undefined ? item.index : index]}}"
+                src="{{record.images[item.index !== undefined ? item.index : index].localPath || record.images[item.index !== undefined ? item.index : index].imageUrl}}"
+                mode="aspectFill"
+                catchtap="onPreviewImage"
+                data-url="{{record.images[item.index !== undefined ? item.index : index].localPath || record.images[item.index !== undefined ? item.index : index].imageUrl}}"></image>
             </view>
             <view class="comp-detail" wx:if="{{item.pros || item.cons}}">
               <view class="comp-pros" wx:if="{{item.pros}}">

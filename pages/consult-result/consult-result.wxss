@@ -793,6 +793,25 @@
   box-shadow: 0 2rpx 6rpx rgba(74, 59, 38, 0.25);
 }
 
+.rank-thumb {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 12rpx;
+  flex-shrink: 0;
+  background: #eee;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+}
+
+.rank-thumb-mini {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 10rpx;
+  flex-shrink: 0;
+  background: #eee;
+  box-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.08);
+  margin-right: 4rpx;
+}
+
 .comp-letter {
   width: 44rpx;
   height: 44rpx;
@@ -871,6 +890,15 @@
   align-items: center;
   gap: 12rpx;
   margin-bottom: 16rpx;
+}
+
+.comp-thumb {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 14rpx;
+  flex-shrink: 0;
+  background: #eee;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
 }
 
 .comp-icon-circle {
