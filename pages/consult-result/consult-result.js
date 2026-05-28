@@ -315,7 +315,7 @@ Page({
     const record = this.data.record
     const score = record?.totalScore || ''
     return {
-      title: score ? `穿搭评分 ${score}分 - AI帮你不踩雷` : 'AI穿搭决策 - 帮你不踩雷',
+      title: score ? `穿搭评分 ${score}分 ` : 'AI穿搭决策 - 帮你不踩雷',
       path: '/pages/outfit/outfit',
       imageUrl: '/images/邀请好友ootd打分.jpg'
     }
