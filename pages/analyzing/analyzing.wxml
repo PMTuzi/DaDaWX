@@ -68,6 +68,6 @@
 
   <!-- 提示文字 -->
   <view class="tip-area">
-    <text class="tip-text"> 3000亿参数模型正在深度提取特征，请耐心等待...</text>
+    <text class="tip-text">3000亿参数模型分析中，请耐心等待...</text>
   </view>
 </view>

@@ -1,25 +1,25 @@
-/* pages/analyzing/analyzing.wxss */
+/* pages/analyzing/analyzing.wxss —— 天蓝 + 金色风格（与穿搭决策 loading 对齐） */
 
 /* ============ 页面容器 ============ */
 .page-analyzing {
   position: relative;
   min-height: 100vh;
-  background: #FFFFFF;
+  background: linear-gradient(180deg, #E8F4FC 0%, #F4FAFD 40%, #FFFFFF 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 56rpx 32rpx 80rpx;
   overflow: hidden;
-  color: #1a1a1a;
+  color: #1F1A17;
 }
 
-/* 极简网格 */
+/* 极简网格 —— 浅天蓝 */
 .bg-grid {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(241, 132, 155, 0.06) 1rpx, transparent 1rpx),
-    linear-gradient(90deg, rgba(241, 132, 155, 0.06) 1rpx, transparent 1rpx);
+    linear-gradient(rgba(95, 158, 200, 0.07) 1rpx, transparent 1rpx),
+    linear-gradient(90deg, rgba(95, 158, 200, 0.07) 1rpx, transparent 1rpx);
   background-size: 80rpx 80rpx;
   mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 50%);
   -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 50%);
@@ -33,19 +33,26 @@
   pointer-events: none;
 }
 
+/* 右上：天蓝光晕 */
 .bg-glow-1 {
   top: -160rpx;
   right: -160rpx;
   width: 480rpx;
   height: 480rpx;
-  background: radial-gradient(circle, rgba(241, 132, 155, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(159, 207, 236, 0.55) 0%, transparent 70%);
 }
 
+/* 左下：金色光晕 */
 .bg-glow-2 {
-  display: none;
+  display: block;
+  bottom: -180rpx;
+  left: -120rpx;
+  width: 420rpx;
+  height: 420rpx;
+  background: radial-gradient(circle, rgba(245, 230, 184, 0.6) 0%, transparent 70%);
 }
 
-/* ============ 顶部状态徽标 ============ */
+/* ============ 顶部状态徽标（金色调） ============ */
 .status-tag {
   position: relative;
   z-index: 2;
@@ -53,22 +60,23 @@
   align-items: center;
   gap: 10rpx;
   padding: 8rpx 20rpx;
-  background: rgba(241, 132, 155, 0.1);
-  border: 1rpx solid rgba(241, 132, 155, 0.3);
+  background: rgba(212, 184, 131, 0.18);
+  border: 1rpx solid rgba(184, 153, 104, 0.4);
   border-radius: 20rpx;
   font-size: 22rpx;
   font-weight: 600;
-  color: #F1849B;
+  color: #B89968;
   letter-spacing: 2rpx;
   margin-bottom: 32rpx;
+  box-shadow: 0 2rpx 8rpx rgba(184, 153, 104, 0.18);
 }
 
 .tag-dot {
   width: 10rpx;
   height: 10rpx;
   border-radius: 50%;
-  background: #F1849B;
-  box-shadow: 0 0 12rpx rgba(241, 132, 155, 0.6);
+  background: #C9A45C;
+  box-shadow: 0 0 12rpx rgba(201, 164, 92, 0.65);
   animation: tag-pulse 1.6s ease-in-out infinite;
 }
 
@@ -99,18 +107,20 @@
   pointer-events: none;
 }
 
+/* 外圈：天蓝虚线 */
 .orbit-outer {
   width: 100%;
   height: 100%;
-  border: 2rpx dashed rgba(241, 132, 155, 0.4);
+  border: 2rpx dashed rgba(95, 158, 200, 0.5);
   animation: spin 12s linear infinite;
 }
 
+/* 内圈：金色顶弧 */
 .orbit-mid {
   width: 84%;
   height: 84%;
   border: 2rpx solid transparent;
-  border-top-color: rgba(241, 132, 155, 0.8);
+  border-top-color: rgba(212, 184, 131, 0.9);
   animation: spin 4s linear infinite reverse;
 }
 
@@ -128,7 +138,7 @@
   50% { transform: scale(1.06); opacity: 1; }
 }
 
-/* 四角标记 */
+/* 四角装饰：金色 */
 .corner {
   position: absolute;
   width: 36rpx;
@@ -138,8 +148,9 @@
 .corner::before, .corner::after {
   content: '';
   position: absolute;
-  background: #F1849B;
+  background: #C9A45C;
   border-radius: 2rpx;
+  box-shadow: 0 0 8rpx rgba(201, 164, 92, 0.5);
 }
 
 .corner::before { width: 36rpx; height: 4rpx; }
@@ -161,7 +172,6 @@
 .corner-br::before { bottom: 0; right: 0; }
 .corner-br::after  { bottom: 0; right: 0; }
 
-/* 用户图片圆形容器 */
 .photo-circle {
   position: relative;
   width: 320rpx;
@@ -170,19 +180,45 @@
   overflow: hidden;
   box-shadow:
     0 0 0 4rpx #ffffff,
-    0 8rpx 24rpx rgba(241, 132, 155, 0.25);
+    0 0 0 6rpx rgba(212, 184, 131, 0.45),
+    0 8rpx 24rpx rgba(95, 158, 200, 0.3);
 }
 
 .user-photo {
   width: 100%;
   height: 100%;
   display: block;
+  animation: photo-fade 0.5s ease;
+}
+
+@keyframes photo-fade {
+  0% { opacity: 0.2; transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* 多图轮播指示器：金色胶囊 */
+.preview-indicator {
+  position: absolute;
+  top: 16rpx;
+  right: 16rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 20rpx;
+  background: linear-gradient(135deg, #F5E6B8 0%, #D4B883 50%, #B89968 100%);
+  z-index: 4;
+  box-shadow: 0 2rpx 8rpx rgba(184, 153, 104, 0.45);
+}
+
+.indicator-text {
+  color: #1F1A17;
+  font-size: 20rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
 }
 
 .photo-fallback {
   width: 100%;
   height: 100%;
-  background: #fafafa;
+  background: linear-gradient(135deg, #F4FAFD 0%, #E8F4FC 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -190,7 +226,7 @@
 
 .fallback-text {
   font-size: 32rpx;
-  color: #F1849B;
+  color: #B89968;
   font-weight: 600;
   letter-spacing: 4rpx;
 }
@@ -199,7 +235,7 @@
   display: none;
 }
 
-/* 横向扫描线 */
+/* 扫描线：天蓝 */
 .scan-line {
   position: absolute;
   left: 0;
@@ -208,9 +244,9 @@
   height: 4rpx;
   background: linear-gradient(90deg,
     transparent 0%,
-    rgba(241, 132, 155, 0.8) 50%,
+    rgba(95, 158, 200, 0.85) 50%,
     transparent 100%);
-  box-shadow: 0 0 16rpx rgba(241, 132, 155, 0.6);
+  box-shadow: 0 0 16rpx rgba(95, 158, 200, 0.6);
   animation: scan-vertical 2.4s ease-in-out infinite;
   z-index: 2;
 }
@@ -223,7 +259,6 @@
   100% { transform: translateY(0); opacity: 0; }
 }
 
-/* 旋转扇形光束（去掉，简洁化） */
 .scan-sweep {
   display: none;
 }
@@ -233,7 +268,7 @@
   to   { transform: rotate(360deg); }
 }
 
-/* 进度百分比浮标 */
+/* 进度胶囊：金色 */
 .progress-chip {
   position: absolute;
   bottom: -20rpx;
@@ -241,8 +276,8 @@
   transform: translateX(-50%);
   padding: 8rpx 24rpx;
   border-radius: 28rpx;
-  background: #F1849B;
-  box-shadow: 0 8rpx 20rpx rgba(241, 132, 155, 0.4);
+  background: linear-gradient(135deg, #F5E6B8 0%, #D4B883 50%, #B89968 100%);
+  box-shadow: 0 8rpx 20rpx rgba(184, 153, 104, 0.45);
   display: flex;
   align-items: center;
   gap: 8rpx;
@@ -250,24 +285,24 @@
 }
 
 .chip-icon {
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(31, 26, 23, 0.85);
   font-size: 22rpx;
 }
 
 .chip-percent {
-  color: #fff;
+  color: #1F1A17;
   font-size: 28rpx;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 1rpx;
 }
 
-/* ============ 进度条 ============ */
+/* ============ 进度条：天蓝渐变 ============ */
 .progress-bar {
   position: relative;
   z-index: 2;
   width: 80%;
   height: 6rpx;
-  background: #f0f0f0;
+  background: rgba(159, 207, 236, 0.25);
   border-radius: 4rpx;
   overflow: hidden;
   margin: 36rpx 0 60rpx;
@@ -275,21 +310,24 @@
 
 .progress-inner {
   height: 100%;
-  background: #F1849B;
+  background: linear-gradient(90deg, #9FCFEC 0%, #5F9EC8 50%, #D4B883 100%);
   border-radius: 4rpx;
+  box-shadow: 0 0 8rpx rgba(95, 158, 200, 0.55), 0 0 16rpx rgba(212, 184, 131, 0.35);
   transition: width 0.3s ease;
 }
 
-/* ============ 步骤列表 ============ */
+/* ============ 步骤列表：白底 + 金色描边 ============ */
 .steps-area {
   position: relative;
   z-index: 2;
   width: 100%;
-  background: #fafafa;
+  background: #ffffff;
   border-radius: 24rpx;
   padding: 32rpx;
   margin-bottom: 40rpx;
-  border: 1rpx solid #f0f0f0;
+  border: 1rpx solid rgba(212, 184, 131, 0.3);
+  box-shadow: 0 4rpx 16rpx rgba(95, 158, 200, 0.1),
+              0 2rpx 6rpx rgba(184, 153, 104, 0.06);
 }
 
 .step-item {
@@ -316,7 +354,7 @@
 
 .step-icon {
   font-size: 28rpx;
-  color: #F1849B;
+  color: #B89968;
 }
 
 .step-item.done .step-icon {
@@ -326,7 +364,7 @@
 .step-label {
   flex: 1;
   font-size: 28rpx;
-  color: #1a1a1a;
+  color: #1F1A17;
 }
 
 .step-status {
@@ -335,8 +373,8 @@
 }
 
 .step-status.active {
-  color: #F1849B;
-  font-weight: 600;
+  color: #B89968;
+  font-weight: 700;
 }
 
 .step-item.done .step-status {
@@ -351,6 +389,6 @@
 
 .tip-text {
   font-size: 24rpx;
-  color: #b8b8b8;
+  color: #8C7340;
   letter-spacing: 1rpx;
 }

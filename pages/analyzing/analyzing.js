@@ -8,12 +8,12 @@ Page({
     progress: 0,
     currentStep: 0,
     steps: [
-      { label: '图片上传', icon: 'upload', status: 'pending' },
-      { label: '深度面部骨相分析', icon: 'eye', status: 'pending' },
-      { label: '色彩形象风格分析', icon: 'search', status: 'pending' },
-      { label: '穿搭妆容风格分析', icon: 'palette', status: 'pending' },
-      { label: '体态气质风格分析', icon: 'sparkle', status: 'pending' },
-      { label: '深度总结', icon: 'heart', status: 'pending' }
+      { label: '图片就绪', icon: 'upload', status: 'pending' },
+      { label: '面部骨相分析', icon: 'eye', status: 'pending' },
+      { label: '色彩风格分析', icon: 'search', status: 'pending' },
+      { label: '穿搭妆容分析', icon: 'palette', status: 'pending' },
+      { label: '体态气质分析', icon: 'sparkle', status: 'pending' },
+      { label: '生成诊断结论', icon: 'heart', status: 'pending' }
     ],
     imageUrl: '',
     photoType: 'face',

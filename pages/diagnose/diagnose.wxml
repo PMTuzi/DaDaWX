@@ -94,23 +94,6 @@
       </view>
     </view>
 
-    <!-- 数据指标三连 -->
-    <view class="insight-stats">
-      <view class="stat-cell">
-        <text class="stat-num">3000<text class="stat-unit">亿</text></text>
-        <text class="stat-label">大模型参数</text>
-      </view>
-      <view class="stat-divider"></view>
-      <view class="stat-cell">
-        <text class="stat-num">136<text class="stat-unit">点</text></text>
-        <text class="stat-label">面部关键点</text>
-      </view>
-      <view class="stat-divider"></view>
-      <view class="stat-cell">
-        <text class="stat-num">12<text class="stat-unit">维</text></text>
-        <text class="stat-label">气质评估</text>
-      </view>
-    </view>
 
     <!-- 信任徽章 -->
     <view class="insight-trust">
@@ -124,7 +107,7 @@
 
     <view class="insight-footnote">
       <view class="foot-dot"></view>
-      <text>请保持页面打开，AI 正在为你定制专属报告</text>
+   
       <view class="foot-dot"></view>
     </view>
   </view>
