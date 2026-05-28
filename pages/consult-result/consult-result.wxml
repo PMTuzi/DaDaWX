@@ -1,22 +1,8 @@
 <!--pages/consult-result/consult-result.wxml-->
 <wxs src="../../utils/helpers.wxs" module="h" />
 <view class="page-result" wx:if="{{record}}">
-  <!-- 顶部决策结论卡片（5层结构） -->
+  <!-- 顶部决策结论卡片 -->
   <view class="verdict-section {{isCompare ? 'verdict-compare' : (record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? 'verdict-accept' : 'verdict-reject')}}">
-    <view class="verdict-bg-glow"></view>
-    <view class="verdict-bg-glow-2"></view>
-
-    <!-- L0: 报告头（编号 + 生成时间） -->
-    <view class="report-header">
-      <view class="rh-left">
-        <text class="rh-brand">DADA · AI REPORT</text>
-        <text class="rh-no">{{record.reportNo || ''}}</text>
-      </view>
-      <view class="rh-right">
-        <text class="rh-time">{{record.createTime}}</text>
-      </view>
-    </view>
-
     <!-- 商品图片陈列区（对比模式标注 A/B/C/D） -->
     <view class="product-gallery" wx:if="{{record.images && record.images.length}}">
       <view class="pg-item count-{{record.images.length}}" wx:for="{{record.images}}" wx:key="index"
@@ -27,46 +13,26 @@
       </view>
     </view>
 
-    <!-- L1: 分数环 + 决策章（同一行，居中对齐） -->
+    <!-- L1: 分数 + 决策结论 -->
     <view class="verdict-main">
-      <view class="vm-left">
-        <view class="score-ring-wrap" wx:if="{{record.totalScore}}">
-          <view class="score-ring-outer {{isCompare ? 'ring-compare' : (record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? 'ring-accept' : 'ring-reject')}}">
-            <view class="score-ring-inner-wrap">
-              <view class="score-ring-glass"></view>
-              <view class="score-ring-inner">
-                <text class="score-big">{{h.toFixed1(record.totalScore)}}</text>
-                <text class="score-max">/10</text>
-              </view>
-              <view class="score-ring-label">综合评分</view>
-            </view>
-          </view>
-        </view>
+      <view class="score-block" wx:if="{{record.totalScore}}">
+        <text class="score-num">{{h.toFixed1(record.totalScore)}}</text>
+        <text class="score-unit">/10</text>
       </view>
-
-      <view class="verdict-right">
-        <view class="verdict-stamp {{isCompare ? 'stamp-compare' : (record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? 'stamp-accept' : 'stamp-reject')}}">
-          <view class="stamp-border">
-            <view class="stamp-icon">{{isCompare ? '★' : (record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? '✓' : '✕')}}</view>
-            <text class="stamp-text">{{record.verdict}}</text>
-          </view>
+      <view class="verdict-info">
+        <view class="verdict-title">
+          <text class="verdict-icon">{{isCompare ? '★' : (record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? '✓' : '✕')}}</text>
+          <text class="verdict-text">{{record.verdict}}</text>
         </view>
-
-        <!-- 档位 + 置信度 -->
-        <view class="meta-row" wx:if="{{record.tierLabel || record.confidence}}">
-          <view class="tier-pill" wx:if="{{record.tierLabel}}">
-            <text class="tier-dot"></text>
-            <text class="tier-text">{{record.tierLabel}}</text>
-          </view>
-          <view class="conf-pill" wx:if="{{record.confidence}}">
-            <text class="conf-label">AI 置信度</text>
-            <text class="conf-value">{{record.confidence}}%</text>
-          </view>
+        <view class="verdict-sub" wx:if="{{record.tierLabel || record.confidence}}">
+          <text wx:if="{{record.tierLabel}}">{{record.tierLabel}}</text>
+          <text class="dot-sep" wx:if="{{record.tierLabel && record.confidence}}"> · </text>
+          <text wx:if="{{record.confidence}}">置信度 {{record.confidence}}%</text>
         </view>
       </view>
     </view>
 
-    <!-- L1.5: 契合度进度条（整行） -->
+    <!-- L2: 契合度进度条 -->
     <view class="match-row" wx:if="{{record.matchRate}}">
       <view class="match-head">
         <text class="match-label">个人契合度</text>
@@ -75,10 +41,16 @@
       <view class="match-bar"><view class="match-bar-inner" style="width: {{record.matchRate}}%"></view></view>
     </view>
 
-    <!-- L2: 个性化理由 -->
-    <view class="personal-reason {{isCompare ? 'reason-compare' : (record.verdict === '建议购买' || record.verdict === '建议自留' || record.verdict === '建议入手' ? 'reason-accept' : 'reason-reject')}}" wx:if="{{record.personalReason}}">
-      <view class="reason-icon icon icon-user" style="font-size:20rpx;"></view>
+    <!-- L3: 个性化理由 -->
+    <view class="personal-reason" wx:if="{{record.personalReason}}">
       <text class="reason-text">{{record.personalReason}}</text>
+    </view>
+
+    <!-- L4: 报告页脚 -->
+    <view class="report-footer">
+      <text class="rf-brand">DADA · AI REPORT</text>
+      <text class="rf-no" wx:if="{{record.reportNo}}">{{record.reportNo}}</text>
+      <text class="rf-time">{{record.createTime}}</text>
     </view>
   </view>
 
