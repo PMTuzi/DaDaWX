@@ -353,7 +353,6 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  margin-left: 24rpx;
   min-width: 0;
 }
 
@@ -362,8 +361,7 @@
   display: inline-flex;
   position: relative;
   z-index: 2;
-  margin-bottom: 14rpx;
-  transform: rotate(-1.5deg);
+  margin-bottom: 0;
 }
 
 .stamp-border {
@@ -1157,21 +1155,27 @@
   color: #999;
 }
 
-/* L1: 主体（覆盖原 inline style） */
+/* L1: 主体（分数环 + 印章 居中对齐） */
 .verdict-section .verdict-main {
   display: flex;
-  align-items: flex-start;
-  padding: 20rpx 28rpx 16rpx;
+  align-items: center;
+  gap: 24rpx;
+  padding: 20rpx 28rpx 12rpx;
   position: relative;
   z-index: 2;
 }
 
 .vm-left {
+  flex-shrink: 0;
+}
+
+.verdict-right {
+  flex: 1;
+  min-width: 0;
+  margin-left: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 16rpx;
-  flex-shrink: 0;
+  gap: 12rpx;
 }
 
 /* meta 行：档位 + 置信度 */
@@ -1179,7 +1183,7 @@
   display: flex;
   align-items: center;
   gap: 12rpx;
-  margin-top: 12rpx;
+  margin-top: 0;
   flex-wrap: wrap;
 }
 
@@ -1230,9 +1234,11 @@
   color: #2D9BFF;
 }
 
-/* 契合度进度条 */
+/* 契合度进度条（整行） */
 .match-row {
-  margin-top: 14rpx;
+  position: relative;
+  z-index: 2;
+  margin: 4rpx 28rpx 16rpx;
 }
 
 .match-head {

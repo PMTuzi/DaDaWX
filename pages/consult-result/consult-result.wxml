@@ -27,7 +27,7 @@
       </view>
     </view>
 
-    <!-- L1: 分数 + 决策章 + 档位 + 置信度 + 契合度 -->
+    <!-- L1: 分数环 + 决策章（同一行，居中对齐） -->
     <view class="verdict-main">
       <view class="vm-left">
         <view class="score-ring-wrap" wx:if="{{record.totalScore}}">
@@ -63,16 +63,16 @@
             <text class="conf-value">{{record.confidence}}%</text>
           </view>
         </view>
-
-        <!-- 契合度进度条 -->
-        <view class="match-row" wx:if="{{record.matchRate}}">
-          <view class="match-head">
-            <text class="match-label">个人契合度</text>
-            <text class="match-value">{{record.matchRate}}%</text>
-          </view>
-          <view class="match-bar"><view class="match-bar-inner" style="width: {{record.matchRate}}%"></view></view>
-        </view>
       </view>
+    </view>
+
+    <!-- L1.5: 契合度进度条（整行） -->
+    <view class="match-row" wx:if="{{record.matchRate}}">
+      <view class="match-head">
+        <text class="match-label">个人契合度</text>
+        <text class="match-value">{{record.matchRate}}%</text>
+      </view>
+      <view class="match-bar"><view class="match-bar-inner" style="width: {{record.matchRate}}%"></view></view>
     </view>
 
     <!-- L2: 个性化理由 -->
