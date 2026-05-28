@@ -357,64 +357,86 @@
   min-width: 0;
 }
 
-/* ===== 决策印章 - 纯色图标+文字 ===== */
+/* ===== 决策印章 - 实心大徽章（强结论） ===== */
 .verdict-stamp {
   display: inline-flex;
   position: relative;
   z-index: 2;
-  margin-bottom: 8rpx;
+  margin-bottom: 14rpx;
+  transform: rotate(-1.5deg);
 }
 
 .stamp-border {
   display: flex;
   align-items: center;
-  gap: 10rpx;
-  padding: 8rpx 0;
+  gap: 14rpx;
+  padding: 14rpx 26rpx;
+  border-radius: 999rpx;
+  position: relative;
+  overflow: hidden;
+}
+
+.stamp-border::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 100%);
+  pointer-events: none;
+}
+
+.stamp-accept .stamp-border {
+  background: linear-gradient(135deg, #F1849B 0%, #D96A85 100%);
+  box-shadow: 0 8rpx 22rpx rgba(217, 106, 133, 0.42),
+              inset 0 -2rpx 0 rgba(0,0,0,0.06);
+}
+
+.stamp-reject .stamp-border {
+  background: linear-gradient(135deg, #5BB0FF 0%, #1A6FB8 100%);
+  box-shadow: 0 8rpx 22rpx rgba(26, 111, 184, 0.42),
+              inset 0 -2rpx 0 rgba(0,0,0,0.06);
+}
+
+.stamp-compare .stamp-border {
+  background: linear-gradient(135deg, #F5D28A 0%, #C9A45C 100%);
+  box-shadow: 0 8rpx 22rpx rgba(201, 164, 92, 0.45),
+              inset 0 -2rpx 0 rgba(0,0,0,0.06);
 }
 
 .stamp-icon {
-  width: 32rpx;
-  height: 32rpx;
+  width: 44rpx;
+  height: 44rpx;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20rpx;
-  font-weight: 700;
+  font-size: 28rpx;
+  font-weight: 900;
   flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.12);
 }
 
 .stamp-accept .stamp-icon {
-  background: var(--brand);
-  color: #fff;
+  color: #D96A85;
 }
 
 .stamp-reject .stamp-icon {
-  background: #1A6FB8;
-  color: #fff;
-}
-
-.stamp-compare .stamp-icon {
-  background: var(--gold);
-  color: #fff;
-}
-
-.stamp-text {
-  font-size: 28rpx;
-  font-weight: 700;
-  letter-spacing: 2rpx;
-}
-
-.stamp-accept .stamp-text {
-  color: var(--brand-deep);
-}
-
-.stamp-reject .stamp-text {
   color: #1A6FB8;
 }
 
-.stamp-compare .stamp-text {
-  color: var(--gold-deep);
+.stamp-compare .stamp-icon {
+  color: #B8893A;
+}
+
+.stamp-text {
+  font-size: 36rpx;
+  font-weight: 900;
+  letter-spacing: 4rpx;
+  color: #fff;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.18);
+  position: relative;
+  z-index: 1;
 }
 
 /* ===== 个人化理由摘要 ===== */
