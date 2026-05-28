@@ -43,6 +43,15 @@
   <!-- 顶部后台任务进度条（形象诊断 / 穿搭决策） -->
   <template is="task-bars" data="{{diagnoseTask, consultTask}}" />
 
+  <!-- 我的蜕变计划（仅已诊断态） -->
+  <view class="menu-section" wx:if="{{hasReport}}">
+    <view class="menu-item" bindtap="onGoBeautyPlan">
+      <view class="menu-icon icon icon-sparkle" style="font-size:36rpx;"></view>
+      <text class="menu-text">我的蜕变计划</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
   <!-- 功能列表 -->
   <view class="menu-section">
     <view class="menu-item" bindtap="onAbout">
@@ -61,10 +70,5 @@
     <view class="menu-item logout" bindtap="onLogout">
       <text class="menu-text">退出登录</text>
     </view>
-  </view>
-
-  <!-- 浮动 蜕变 入口（仅已诊断态，与首页逻辑一致） -->
-  <view class="beauty-fab" wx:if="{{hasReport}}" bindtap="onGoBeautyPlan" hover-class="beauty-fab-hover">
-    <text class="beauty-fab-text">蜕变</text>
   </view>
 </view>

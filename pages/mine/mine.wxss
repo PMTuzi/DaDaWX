@@ -259,30 +259,3 @@
   color: #8C7340;
   font-weight: 500;
 }
-
-/* 浮动「蜕变」FAB —— 金色为主，天蓝光环 */
-.beauty-fab {
-  position: fixed;
-  right: 32rpx;
-  bottom: calc(40rpx + env(safe-area-inset-bottom));
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #F5E6B8 0%, #D4B883 50%, #B89968 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 8rpx 24rpx rgba(184, 153, 104, 0.45),
-              0 0 0 6rpx rgba(199, 228, 245, 0.85);
-  z-index: 99;
-}
-.beauty-fab-hover {
-  transform: scale(0.94);
-}
-.beauty-fab-text {
-  color: #1F1A17;
-  font-size: 30rpx;
-  font-weight: 800;
-  letter-spacing: 4rpx;
-  text-shadow: 0 2rpx 4rpx rgba(255, 255, 255, 0.45);
-}
