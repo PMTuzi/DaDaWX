@@ -1136,9 +1136,11 @@
 }
 
 .rh-brand {
-  font-size: 18rpx;
-  letter-spacing: 4rpx;
+  font-family: "Times New Roman", "Georgia", "Songti SC", serif;
+  font-size: 26rpx;
+  letter-spacing: 1rpx;
   font-weight: 600;
+  font-style: italic;
   color: #C9A45C;
 }
 

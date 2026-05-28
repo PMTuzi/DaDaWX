@@ -6,11 +6,10 @@
     <view class="verdict-bg-glow"></view>
     <view class="verdict-bg-glow-2"></view>
 
-    <!-- L0: 报告头（编号 + 生成时间） -->
+    <!-- L0: 报告头（生成时间） -->
     <view class="report-header">
       <view class="rh-left">
-        <text class="rh-brand">DADA · AI REPORT</text>
-        <text class="rh-no">{{record.reportNo || ''}}</text>
+        <text class="rh-brand">Meeta · Report</text>
       </view>
       <view class="rh-right">
         <text class="rh-time">{{record.createTime}}</text>
