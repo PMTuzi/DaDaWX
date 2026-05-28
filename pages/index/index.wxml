@@ -115,6 +115,7 @@
         <view class="impression-persona" wx:if="{{latestReport.modules.impression.persona}}">
           <view class="persona-badge">
             <text class="persona-badge-label">第一印象人格</text>
+            <text class="appeal-tag appeal-{{latestReport.modules.impression.appealType === '惊艳型' ? 'striking' : 'enduring'}}" wx:if="{{latestReport.modules.impression.appealType}}">{{latestReport.modules.impression.appealType}}</text>
           </view>
           <view class="persona-main">
             <image class="persona-photo" src="{{latestReport.modules.impression.persona.image}}" mode="aspectFill" wx:if="{{latestReport.modules.impression.persona.image}}" />

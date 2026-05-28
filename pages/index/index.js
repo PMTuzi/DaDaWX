@@ -554,6 +554,7 @@ Page({
     const existed = report && report.modules && report.modules.impression
     if (existed && Array.isArray(existed.scores) && existed.scores.length === 6 && typeof existed.attractIndex === 'number') {
       existed.persona = this._pickImpressionPersona(existed.scores, { dna, style, ageNum })
+      existed.appealType = this._computeAppealType(existed.scores)
       return existed
     }
     const dims = [
@@ -650,7 +651,20 @@ Page({
     const percentile = Math.max(40, Math.min(99, Math.round(40 + (attractIndex - 60) * 1.4)))
     // 9 型人格（新规则：z-score 余弦相似度 + 语义加权）
     const persona = this._pickImpressionPersona(scores, { dna, style, ageNum })
-    return { scores, attractIndex, percentile, persona }
+    // 惊艳型 / 耐看型 标签
+    const appealType = this._computeAppealType(scores)
+    return { scores, attractIndex, percentile, persona, appealType }
+  },
+
+  // 惊艳型 / 耐看型：基于六维分数判定第一印象类型
+  // 惊艳型 = 第一眼冲击力（魅惑感 + 记忆点 + 氛围感）更强
+  // 耐看型 = 越看越好看（高级感 + 亲和力 + 少女感）更强
+  _computeAppealType(scores) {
+    const sMap = {}
+    ;(scores || []).forEach(s => { sMap[s.key] = s.score || 0 })
+    const striking = (sMap.allure || 0) + (sMap.distinctiveness || 0) + (sMap.aura || 0)
+    const enduring = (sMap.sophistication || 0) + (sMap.approachability || 0) + (sMap.youthfulness || 0)
+    return striking >= enduring ? '惊艳型' : '耐看型'
   },
 
   // 9 型第一印象人格定义（保留为页面属性以兼容老引用，实际使用模块级常量）

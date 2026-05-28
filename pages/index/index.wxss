@@ -2440,3 +2440,39 @@
   line-height: 1.7;
   font-weight: 500;
 }
+
+/* 第一印象类型标签：惊艳型 / 耐看型 */
+.appeal-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 22rpx;
+  font-weight: 800;
+  letter-spacing: 2rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 100rpx;
+  line-height: 1.2;
+  position: relative;
+  overflow: hidden;
+}
+.appeal-tag::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 100rpx;
+  background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 60%);
+  pointer-events: none;
+}
+.appeal-striking {
+  color: #fff;
+  background: linear-gradient(135deg, #C77DFF 0%, #E5A3FF 50%, #FFB16B 100%);
+  box-shadow: 0 3rpx 10rpx rgba(199, 125, 255, 0.45),
+              inset 0 -2rpx 0 rgba(0,0,0,0.06);
+  text-shadow: 0 1rpx 2rpx rgba(80, 30, 130, 0.35);
+}
+.appeal-enduring {
+  color: #fff;
+  background: linear-gradient(135deg, #4FB8A6 0%, #7BD0BF 100%);
+  box-shadow: 0 3rpx 10rpx rgba(79, 184, 166, 0.42),
+              inset 0 -2rpx 0 rgba(0,0,0,0.06);
+  text-shadow: 0 1rpx 2rpx rgba(20, 90, 80, 0.3);
+}
