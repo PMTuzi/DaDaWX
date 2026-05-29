@@ -263,7 +263,13 @@ Page({
     tabLabels: { impression: '第一印象', celebrity: '明星相似', optimize: '颜值&蜕变', hairmakeup: '发型&妆容', dna: '面部&骨相', style: '皮肤&风格' },
     shared: false,
     cdnImages: { hair: [], makeup: {}, advice: {}, roadmap: [] },
-    currentReportId: ''
+    currentReportId: '',
+    // 假门测试：静态商品数据
+    staticProducts: [
+      { id: 'p1', emoji: '👗', name: '简约直筒西装裤', tag: '适合你的直线感版型', price: '128' },
+      { id: 'p2', emoji: '👔', name: '奶白色宽肩西装外套', tag: '强化你的肩部线条', price: '256' },
+      { id: 'p3', emoji: '👜', name: '复古托特包（焦糖色）', tag: '呼应你的暖色色调', price: '198' }
+    ]
   },
 
   onLoad(options) {
@@ -990,6 +996,11 @@ Page({
     wx.navigateTo({ url })
   },
 
+  // 跳转穿搭决策Tab
+  onGoOutfitConsult() {
+    wx.switchTab({ url: '/pages/outfit/outfit' })
+  },
+
   _roundRect(ctx, x, y, w, h, r) {
     ctx.beginPath()
     ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y)
@@ -1536,5 +1547,23 @@ Page({
       list.push(`${prefix}${suffix.charAt(0)}****${action}`)
     }
     this.setData({ tickerList: list })
+  },
+
+  // 假门测试：首页商品卡片点击
+  onIndexProductTap(e) {
+    const id = e.currentTarget.dataset.id
+    const key = 'shopRecClickCount'
+    const count = (wx.getStorageSync(key) || 0) + 1
+    wx.setStorageSync(key, count)
+    const logs = wx.getStorageSync('shopRecClickLogs') || []
+    logs.push({ id, p: 'index', t: Date.now() })
+    wx.setStorageSync('shopRecClickLogs', logs)
+
+    wx.showModal({
+      title: '好物推荐即将上线',
+      content: '我们正在接入精选好物，点击即代表你的期待！感谢你的反馈 🥰',
+      showCancel: false,
+      confirmText: '期待上线'
+    })
   }
 })

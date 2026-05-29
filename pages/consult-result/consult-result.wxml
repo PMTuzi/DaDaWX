@@ -123,6 +123,27 @@
             </view>
           </view>
         </view>
+
+        <!-- 精选好物（假门测试） -->
+        <view class="card shop-rec-card">
+          <view class="card-title"><view class="icon icon-sparkle" style="font-size:28rpx;margin-right:6rpx;"></view> 精选好物</view>
+          <text class="shop-rec-sub">适合你的风格好物</text>
+          <view class="shop-rec-list">
+            <view class="shop-rec-item" wx:for="{{staticProducts}}" wx:key="id" bindtap="onProductTap" data-id="{{item.id}}">
+              <view class="sri-img-wrap">
+                <view class="sri-img-placeholder">{{item.emoji}}</view>
+              </view>
+              <view class="sri-info">
+                <text class="sri-name">{{item.name}}</text>
+                <text class="sri-tag">{{item.tag}}</text>
+                <view class="sri-bottom">
+                  <text class="sri-price">¥{{item.price}}</text>
+                  <view class="sri-btn">去看看</view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
       </view>
     </block>
 
@@ -201,6 +222,27 @@
                 <view class="comp-text-wrap">
                   <text class="comp-detail-label">注意</text>
                   <text class="comp-detail-content">{{item.cons}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 精选好物（假门测试） -->
+        <view class="card shop-rec-card">
+          <view class="card-title"><view class="icon icon-sparkle" style="font-size:28rpx;margin-right:6rpx;"></view> 精选好物</view>
+          <text class="shop-rec-sub">为你严选单品</text>
+          <view class="shop-rec-list">
+            <view class="shop-rec-item" wx:for="{{staticProducts}}" wx:key="id" bindtap="onProductTap" data-id="{{item.id}}">
+              <view class="sri-img-wrap">
+                <view class="sri-img-placeholder">{{item.emoji}}</view>
+              </view>
+              <view class="sri-info">
+                <text class="sri-name">{{item.name}}</text>
+                <text class="sri-tag">{{item.tag}}</text>
+                <view class="sri-bottom">
+                  <text class="sri-price">¥{{item.price}}</text>
+                  <view class="sri-btn">去看看</view>
                 </view>
               </view>
             </view>
@@ -307,6 +349,30 @@
             <view class="advice-title">{{item.title}}</view>
             <view class="advice-desc">{{item.description}}</view>
             <view class="advice-reason">{{item.reason}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 精选好物（假门测试） -->
+    <view class="card shop-rec-card" wx:if="{{record}}">
+      <view class="card-title shop-rec-title-row">
+        <view class="icon icon-sparkle" style="font-size:28rpx;margin-right:6rpx;"></view>
+        <text class="shop-rec-title-text">精选好物</text>
+        <text class="shop-rec-sub-inline">{{record.styleTier ? '适合你的风格好物' : '为你严选单品'}}</text>
+      </view>
+      <view class="shop-rec-list">
+        <view class="shop-rec-item" wx:for="{{staticProducts}}" wx:key="id" bindtap="onProductTap" data-id="{{item.id}}">
+          <view class="sri-img-wrap">
+            <view class="sri-img-placeholder">{{item.emoji}}</view>
+          </view>
+          <view class="sri-info">
+            <text class="sri-name">{{item.name}}</text>
+            <text class="sri-tag">{{item.tag}}</text>
+            <view class="sri-bottom">
+              <text class="sri-price">¥{{item.price}}</text>
+              <view class="sri-btn">去看看</view>
+            </view>
           </view>
         </view>
       </view>

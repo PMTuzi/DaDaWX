@@ -1,5 +1,5 @@
 /* pages/consult-publish/consult-publish.wxss */
-/* 全屏一屏一步式 · 金色天蓝混合风（与首页/我的页对齐） */
+/* 两步流程 · 金色天蓝混合风 */
 
 page {
   height: 100%;
@@ -20,9 +20,7 @@ page {
 .page-publish::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 0; left: 0; right: 0;
   height: 2rpx;
   background: linear-gradient(90deg, transparent 0%, #D4B883 50%, transparent 100%);
   z-index: 50;
@@ -41,11 +39,9 @@ page {
   gap: 16rpx;
 }
 
-/* 顶部进度条占位（原自定义返回按钮已移除，使用原生导航返回） */
-
 .dots {
   display: flex;
-  gap: 8rpx;
+  gap: 12rpx;
   flex: 1;
 }
 
@@ -68,23 +64,16 @@ page {
   flex-shrink: 0;
 }
 
-/* ============ Swiper 主体 ============ */
-.slider {
+/* ============ 步骤主体 ============ */
+.step-body {
   flex: 1;
-  width: 100%;
-  height: auto;
-}
-
-.slide {
-  height: 100%;
   padding: 60rpx 48rpx 40rpx;
-  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
 }
 
-.slide-title {
+.step-title {
   font-size: 48rpx;
   font-weight: 800;
   color: #1F1A17;
@@ -93,13 +82,7 @@ page {
   margin-bottom: 14rpx;
 }
 
-.req {
-  font-size: 36rpx;
-  color: #B89968;
-  margin-left: 8rpx;
-}
-
-.slide-sub {
+.step-sub {
   font-size: 24rpx;
   color: #8C7340;
   margin-bottom: 56rpx;
@@ -107,26 +90,7 @@ page {
   line-height: 1.5;
 }
 
-.ai-badge {
-  display: inline-block;
-  font-size: 18rpx;
-  color: #8C6E3A;
-  background: rgba(184, 153, 104, 0.12);
-  border: 1rpx solid rgba(184, 153, 104, 0.4);
-  padding: 0 10rpx;
-  border-radius: 4rpx;
-  margin-right: 8rpx;
-  font-weight: 600;
-  letter-spacing: 1rpx;
-  vertical-align: 2rpx;
-}
-
-/* ============ 上传 slide ============ */
-.slide-upload {
-  align-items: center;
-  text-align: center;
-}
-
+/* ============ 上传区域 ============ */
 .upload-stage {
   width: 100%;
   flex: 1;
@@ -134,8 +98,7 @@ page {
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  margin: 40rpx 0;
-  transform: translateY(-50rpx);
+  margin: 20rpx 0;
 }
 
 .upload-empty {
@@ -254,12 +217,19 @@ page {
 .add-icon { font-size: 56rpx; color: #B89968; font-weight: 200; line-height: 1; }
 .add-text { font-size: 22rpx; color: #8C7340; letter-spacing: 1rpx; }
 
-/* ============ 模式徽章 ============ */
+/* ============ 识别结果 ============ */
+.detect-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20rpx;
+  margin-top: 8rpx;
+}
+
 .mode-pill {
   display: inline-flex;
   align-items: center;
   gap: 8rpx;
-  margin-top: 32rpx;
   padding: 10rpx 22rpx;
   border-radius: 999rpx;
   font-size: 24rpx;
@@ -285,123 +255,184 @@ page {
   background: currentColor;
 }
 
-/* ============ Chip ============ */
-.chip-group {
+.category-detect {
+  text-align: center;
+}
+
+.detect-label {
+  font-size: 26rpx;
+  color: #8C7340;
+  letter-spacing: 0.5rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+}
+
+.detect-spin {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+  font-size: 24rpx;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.detect-success {
+  color: #1F1A17;
+}
+
+.detect-highlight {
+  font-weight: 700;
+  color: #8C6E3A;
+}
+
+.detect-change {
+  font-size: 22rpx;
+  color: #5F9EC8;
+  margin-left: 12rpx;
+  text-decoration: underline;
+}
+
+.ai-badge {
+  display: inline-block;
+  font-size: 18rpx;
+  color: #8C6E3A;
+  background: rgba(184, 153, 104, 0.12);
+  border: 1rpx solid rgba(184, 153, 104, 0.4);
+  padding: 0 10rpx;
+  border-radius: 4rpx;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+}
+
+/* ============ 场景选择网格 ============ */
+.scene-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24rpx;
+}
+
+.scene-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  padding: 40rpx 20rpx;
+  background: #fff;
+  border-radius: 20rpx;
+  border: 2rpx solid #E6EFF5;
+  transition: all 200ms ease;
+}
+
+.scene-item:active { transform: scale(0.97); }
+
+.scene-active {
+  background: linear-gradient(135deg, rgba(184,153,104,0.12), rgba(159,207,236,0.08));
+  border-color: #B89968;
+  box-shadow: 0 8rpx 24rpx rgba(184,153,104,0.2);
+}
+
+.scene-icon {
+  width: 56rpx;
+  height: 56rpx;
+}
+
+.scene-name {
+  font-size: 28rpx;
+  color: #1F1A17;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+}
+
+.scene-active .scene-name {
+  color: #8C6E3A;
+}
+
+.scene-tip {
+  margin-top: 32rpx;
+  padding: 16rpx 20rpx;
+  background: rgba(184,153,104,0.06);
+  border-radius: 12rpx;
+  font-size: 22rpx;
+  color: #8C7340;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8rpx;
+}
+
+.scene-tip-icon {
+  font-size: 24rpx;
+  flex-shrink: 0;
+}
+
+/* ============ 品类弹窗 ============ */
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-content {
+  width: 100%;
+  background: #fff;
+  border-radius: 32rpx 32rpx 0 0;
+  padding: 40rpx 32rpx calc(24rpx + env(safe-area-inset-bottom));
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #1F1A17;
+  text-align: center;
+  margin-bottom: 32rpx;
+  letter-spacing: 1rpx;
+}
+
+.modal-list {
   display: flex;
   flex-wrap: wrap;
   gap: 16rpx;
+  margin-bottom: 32rpx;
 }
 
-.chip {
-  padding: 18rpx 32rpx;
+.modal-item {
+  padding: 18rpx 36rpx;
   border-radius: 999rpx;
-  font-size: 26rpx;
+  font-size: 28rpx;
   color: #555;
-  background: #fff;
-  border: 1rpx solid #E6EFF5;
-  letter-spacing: 1rpx;
+  background: #F5F5F5;
+  border: 1rpx solid transparent;
   transition: all 180ms ease;
 }
 
-.chip:active { transform: scale(0.95); }
-
-.chip-active {
-  background: rgba(184,153,104,0.12);
-  color: #8C6E3A;
-  border-color: #B89968;
-  font-weight: 600;
-  box-shadow: 0 4rpx 12rpx rgba(184,153,104,0.25);
-}
-
-.chip-ai {
-  background: linear-gradient(135deg, rgba(184,153,104,0.2), rgba(159,207,236,0.15));
-  border-color: #B89968;
-  position: relative;
-}
-
-.chip-ai::after {
-  content: '✨';
-  position: absolute;
-  top: -10rpx;
-  right: -4rpx;
-  font-size: 22rpx;
-}
-
-.chip-group-lg .chip {
-  padding: 26rpx 40rpx;
-  font-size: 30rpx;
-}
-
-.chip-other {
-  border-style: dashed;
-  color: #888;
-}
-
-.other-input {
-  margin-top: 20rpx;
-  background: #fff;
-  border: 1rpx solid #E6EFF5;
-  border-radius: 12rpx;
-  height: 84rpx;
-  padding: 0 28rpx;
-  font-size: 28rpx;
+.modal-item-active {
+  background: linear-gradient(135deg, #F5E6B8 0%, #D4B883 50%, #B89968 100%);
   color: #1F1A17;
-}
-
-.other-input-ph { color: #c0c0c0; font-size: 28rpx; }
-
-/* ============ 补充 slide ============ */
-.extra-block { margin-bottom: 40rpx; }
-
-.extra-label {
-  font-size: 26rpx;
   font-weight: 600;
-  color: #555;
-  margin-bottom: 16rpx;
-  letter-spacing: 1rpx;
 }
 
-.extra-hint {
-  font-size: 20rpx;
-  color: #b8b8b8;
-  font-weight: 400;
-  margin-left: 8rpx;
-}
-
-/* ============ 价格行 ============ */
-.price-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14rpx;
-}
-
-.price-row { display: flex; align-items: center; }
-
-.price-label {
-  font-size: 26rpx;
-  color: #8C6E3A;
-  flex-shrink: 0;
-  width: 60rpx;
-  font-weight: 700;
+.modal-close {
+  width: 100%;
+  padding: 24rpx 0;
+  text-align: center;
+  font-size: 28rpx;
+  color: #888;
+  background: #F5F5F5;
+  border-radius: 16rpx;
   letter-spacing: 2rpx;
 }
-
-.picker-value {
-  background: #fff;
-  border: 1rpx solid #E6EFF5;
-  border-radius: 10rpx;
-  height: 72rpx;
-  padding: 0 24rpx;
-  font-size: 26rpx;
-  color: #1F1A17;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex: 1;
-}
-
-.picker-value.placeholder { color: #c0c0c0; }
-.picker-arrow { font-size: 18rpx; color: #B89968; }
 
 /* ============ 底部导航 ============ */
 .footer {
@@ -412,21 +443,6 @@ page {
   backdrop-filter: blur(8px);
   border-top: 1rpx solid #EFE8D6;
 }
-
-.summary-bar {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  padding: 8rpx 14rpx;
-  margin-bottom: 12rpx;
-  background: rgba(184,153,104,0.08);
-  border-radius: 8rpx;
-  font-size: 22rpx;
-  color: #8C7340;
-}
-
-.summary-icon { color: #B89968; font-weight: 700; flex-shrink: 0; }
-.summary-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .footer-row {
   display: flex;
@@ -470,7 +486,7 @@ page {
   box-shadow: 0 12rpx 32rpx rgba(184,153,104,0.4);
 }
 
-.btn-submit[disabled] {
+.btn-next[disabled], .btn-submit[disabled] {
   background: #e5e5e5 !important;
   color: #aaa !important;
   opacity: 0.7;

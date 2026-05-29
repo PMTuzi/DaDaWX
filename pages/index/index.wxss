@@ -1153,9 +1153,84 @@
   }
 }
 
+/* 穿搭决策 CTA 卡片 */
+.outfit-cta-card {
+  position: relative;
+  margin: 32rpx 32rpx 24rpx;
+  border-radius: 24rpx;
+  overflow: hidden;
+  background: linear-gradient(135deg, #E8F4FC 0%, #C7E4F5 50%, #9FCFEC 100%);
+  box-shadow: 0 8rpx 24rpx rgba(95, 158, 200, 0.2),
+              0 2rpx 8rpx rgba(184, 153, 104, 0.1);
+}
+.outfit-cta-card::before {
+  content: '';
+  position: absolute;
+  top: -30rpx; right: -30rpx;
+  width: 180rpx; height: 180rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 230, 184, 0.6) 0%, transparent 70%);
+}
+.outfit-cta-card::after {
+  content: '';
+  position: absolute;
+  bottom: -40rpx; left: -20rpx;
+  width: 140rpx; height: 140rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.5) 0%, transparent 70%);
+}
+.outfit-cta-content {
+  position: relative;
+  z-index: 1;
+  padding: 36rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+.outfit-cta-label {
+  font-size: 22rpx;
+  color: #5F9EC8;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+}
+.outfit-cta-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #1F1A17;
+  line-height: 1.4;
+  letter-spacing: 1rpx;
+}
+.outfit-cta-btn {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-top: 8rpx;
+  padding: 16rpx 32rpx;
+  background: #1F1A17;
+  border-radius: 40rpx;
+  box-shadow: 0 4rpx 16rpx rgba(31, 26, 23, 0.25);
+}
+.outfit-cta-btn-text {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #FFFFFF;
+  letter-spacing: 1rpx;
+}
+.outfit-cta-arrow {
+  font-size: 28rpx;
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
 /* 报告末尾收尾操作 */
 .report-actions {
-  margin: 32rpx 32rpx 16rpx;
+  margin: 0 32rpx 16rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.report-actions-body {
   display: flex;
   flex-direction: column;
   gap: 20rpx;
@@ -2462,4 +2537,105 @@
   box-shadow: 0 3rpx 10rpx rgba(30, 136, 229, 0.45),
               inset 0 -2rpx 0 rgba(0,0,0,0.06);
   text-shadow: 0 1rpx 2rpx rgba(10, 60, 120, 0.35);
+}
+
+/* ===== AI精选好物（假门测试） ===== */
+.shop-rec-card {
+  position: relative;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 36rpx;
+  box-shadow: 0 4rpx 24rpx rgba(40, 60, 90, 0.06);
+  border: 1rpx solid #DCE5EF;
+}
+.shop-rec-header {
+  margin-bottom: 20rpx;
+}
+.shop-rec-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+.shop-rec-title-icon {
+  font-size: 24rpx;
+  color: #C0392B;
+}
+.shop-rec-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1F1A17;
+}
+.shop-rec-sub {
+  position: absolute;
+  top: 36rpx;
+  right: 36rpx;
+  font-size: 22rpx;
+  color: #8A8580;
+}
+.shop-rec-list-row {
+  display: flex;
+  gap: 16rpx;
+  overflow-x: auto;
+  padding-bottom: 8rpx;
+  -webkit-overflow-scrolling: touch;
+}
+.shop-rec-list-row::-webkit-scrollbar {
+  display: none;
+}
+.shop-rec-cell {
+  flex-shrink: 0;
+  width: 200rpx;
+  background: #F8F6F4;
+  border-radius: 16rpx;
+  padding: 20rpx 16rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+.sri-img-wrap {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 12rpx;
+  background: #F0EDE8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sri-img-placeholder {
+  font-size: 48rpx;
+}
+.shop-rec-cell .sri-name {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #1F1A17;
+  text-align: center;
+  line-height: 1.3;
+  width: 100%;
+}
+.shop-rec-cell .sri-tag {
+  font-size: 20rpx;
+  color: #8A8580;
+  text-align: center;
+  width: 100%;
+}
+.shop-rec-cell .sri-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 4rpx;
+}
+.shop-rec-cell .sri-price {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #C0392B;
+}
+.shop-rec-cell .sri-btn {
+  font-size: 20rpx;
+  color: #fff;
+  background: #1F1A17;
+  padding: 6rpx 16rpx;
+  border-radius: 16rpx;
+  font-weight: 500;
 }

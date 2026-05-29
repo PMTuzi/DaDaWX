@@ -1506,3 +1506,84 @@
   position: relative;
   z-index: 2;
 }
+
+/* ===== 精选好物（假门测试） ===== */
+.shop-rec-card {
+  position: relative;
+}
+.shop-rec-sub {
+  position: absolute;
+  top: 32rpx;
+  right: 32rpx;
+  font-size: 22rpx;
+  color: #8A8580;
+}
+.shop-rec-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+.shop-rec-item {
+  display: flex;
+  gap: 20rpx;
+  background: #F8F6F4;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  align-items: center;
+}
+.sri-img-wrap {
+  flex-shrink: 0;
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  background: #EEE9E3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sri-img-placeholder {
+  font-size: 48rpx;
+}
+.sri-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+.sri-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #1F1A17;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sri-tag {
+  font-size: 22rpx;
+  color: #8A8580;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sri-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4rpx;
+}
+.sri-price {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #C0392B;
+}
+.sri-btn {
+  font-size: 22rpx;
+  color: #fff;
+  background: #1F1A17;
+  padding: 8rpx 24rpx;
+  border-radius: 20rpx;
+  font-weight: 500;
+}

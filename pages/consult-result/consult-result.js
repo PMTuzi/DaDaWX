@@ -16,7 +16,13 @@ Page({
     // 顶部卡片：用户输入回显 chips
     echoChips: [],
     // 当前激活 tab：'compare'(多维对比) | 'advice'(穿搭建议)
-    activeTab: 'compare'
+    activeTab: 'compare',
+    // 假门测试：静态商品数据
+    staticProducts: [
+      { id: 'p1', emoji: '👗', name: '简约直筒西装裤', tag: '适合你的直线感版型', price: '128' },
+      { id: 'p2', emoji: '👔', name: '奶白色宽肩西装外套', tag: '强化你的肩部线条', price: '256' },
+      { id: 'p3', emoji: '👜', name: '复古托特包（焦糖色）', tag: '呼应你的暖色色调', price: '198' }
+    ]
   },
 
   onTabTap(e) {
@@ -319,5 +325,25 @@ Page({
       path: '/pages/outfit/outfit',
       imageUrl: '/images/yanzhi2.jpg'
     }
+  },
+
+  // 假门测试：记录商品点击兴趣
+  onProductTap(e) {
+    const id = e.currentTarget.dataset.id
+    // 累计点击次数到本地存储
+    const key = 'shopRecClickCount'
+    const count = (wx.getStorageSync(key) || 0) + 1
+    wx.setStorageSync(key, count)
+    // 记录每次点击的商品
+    const logs = wx.getStorageSync('shopRecClickLogs') || []
+    logs.push({ id, t: Date.now() })
+    wx.setStorageSync('shopRecClickLogs', logs)
+
+    wx.showModal({
+      title: '好物推荐即将上线',
+      content: '我们正在接入精选好物，点击即代表你的期待！感谢你的反馈 🥰',
+      showCancel: false,
+      confirmText: '期待上线'
+    })
   }
 })

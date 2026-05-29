@@ -516,31 +516,69 @@
     <!-- 保存图片用的隐藏Canvas -->
     <canvas type="2d" id="report-card-canvas" class="report-card-canvas"></canvas>
 
+    <!-- 穿搭决策 CTA -->
+    <view class="outfit-cta-card" bindtap="onGoOutfitConsult">
+      <view class="outfit-cta-bg"></view>
+      <view class="outfit-cta-content">
+        <text class="outfit-cta-label">下一步</text>
+        <text class="outfit-cta-title">根据你的风格，看看今天适合穿什么</text>
+        <view class="outfit-cta-btn">
+          <text class="outfit-cta-btn-text">开始穿搭决策</text>
+          <text class="outfit-cta-arrow">›</text>
+        </view>
+      </view>
+    </view>
+
     <!-- 报告末尾流式操作收尾区 -->
     <view class="report-actions">
       <view class="report-actions-tip" wx:if="{{!shared}}">
         <text class="report-actions-tip-icon">↗</text>
-        <text>转发任意聊天即可解锁保存与重新诊断</text>
       </view>
-      <view class="report-actions-row" wx:if="{{shared}}">
-        <button class="report-action-btn save" bindtap="onSaveAllImages">
-          <text class="report-action-icon">⤓</text>
-          <text class="report-action-text">保存形象诊断卡</text>
-        </button>
-        <button class="report-action-btn redo" bindtap="onReDiagnose">
-          <text class="report-action-icon">↻</text>
-          <text class="report-action-text">重新拍照诊断</text>
-        </button>
-      </view>
-      <view class="report-actions-row" wx:else>
-        <button class="report-action-btn save locked" open-type="share">
-          <text class="report-action-icon">↗</text>
-          <text class="report-action-text">转发解锁·保存</text>
-        </button>
-        <button class="report-action-btn redo locked" open-type="share">
-          <text class="report-action-icon">↗</text>
-          <text class="report-action-text">转发解锁·重测</text>
-        </button>
+      <!-- AI精选好物 + 操作按钮为一组 -->
+      <view class="report-actions-body">
+        <!-- AI精选好物（假门测试） -->
+        <view class="shop-rec-card" wx:if="{{hasReport}}">
+          <text class="shop-rec-sub">{{activeTab === 'impression' ? '强化第一印象气质' : activeTab === 'celebrity' ? '复刻明星同款造型' : activeTab === 'optimize' ? '蜕变路上少走弯路' : activeTab === 'hairmakeup' ? '发型妆容全配套' : activeTab === 'dna' ? '凸显五官优势' : activeTab === 'style' ? '氛围穿搭风格' : '根据你的形象诊断，为你严选'}}</text>
+          <view class="shop-rec-header">
+            <view class="shop-rec-title-row">
+              <text class="shop-rec-title-icon">✦</text>
+              <text class="shop-rec-title">{{activeTab === 'impression' ? '氛围感好物' : activeTab === 'celebrity' ? '风格同款' : activeTab === 'optimize' ? '蜕变好物' : activeTab === 'hairmakeup' ? '造型同款' : activeTab === 'dna' ? '精致好物' : activeTab === 'style' ? '色彩同款' : 'AI 精选好物'}}</text>
+            </view>
+          </view>
+          <view class="shop-rec-list-row">
+            <view class="shop-rec-cell" bindtap="onIndexProductTap" data-id="{{item.id}}" wx:for="{{staticProducts}}" wx:key="id">
+              <view class="sri-img-wrap">
+                <view class="sri-img-placeholder">{{item.emoji}}</view>
+              </view>
+              <text class="sri-name">{{item.name}}</text>
+              <text class="sri-tag">{{item.tag}}</text>
+              <view class="sri-bottom">
+                <text class="sri-price">¥{{item.price}}</text>
+                <view class="sri-btn">去看看</view>
+              </view>
+            </view>
+          </view>
+        </view>
+        <view class="report-actions-row" wx:if="{{shared}}">
+          <button class="report-action-btn save" bindtap="onSaveAllImages">
+            <text class="report-action-icon">⤓</text>
+            <text class="report-action-text">保存形象诊断卡</text>
+          </button>
+          <button class="report-action-btn redo" bindtap="onReDiagnose">
+            <text class="report-action-icon">↻</text>
+            <text class="report-action-text">重新拍照诊断</text>
+          </button>
+        </view>
+        <view class="report-actions-row" wx:else>
+          <button class="report-action-btn save locked" open-type="share">
+            <text class="report-action-icon">↗</text>
+            <text class="report-action-text">转发解锁·保存</text>
+          </button>
+          <button class="report-action-btn redo locked" open-type="share">
+            <text class="report-action-icon">↗</text>
+            <text class="report-action-text">转发解锁·重测</text>
+          </button>
+        </view>
       </view>
     </view>
   </view>
@@ -612,11 +650,6 @@
       </view>
       <view class="login-skip" bindtap="onSkipLogin">暂不设置，直接体验</view>
     </view>
-  </view>
-
-  <!-- 浮动 蜕变 入口（仅已诊断态） -->
-  <view class="beauty-fab" wx:if="{{hasReport}}" bindtap="onGoBeautyPlan" hover-class="beauty-fab-hover">
-    <text class="beauty-fab-text">蜕变</text>
   </view>
 
   <!-- 未诊断态：底部能力标签横向轮播 -->

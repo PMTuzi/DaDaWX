@@ -1,198 +1,116 @@
 <!--pages/consult-publish/consult-publish.wxml-->
-<wxs src="../../utils/helpers.wxs" module="h" />
 <view class="page-publish">
 
   <!-- 顶部进度 -->
   <view class="topbar">
     <view class="dots">
-      <view class="dot {{idx <= currentIdx ? 'dot-active' : ''}} {{idx === currentIdx ? 'dot-now' : ''}}"
-        wx:for="{{slideKeys}}" wx:key="*this" wx:for-index="idx"></view>
+      <view class="dot {{step === 0 ? 'dot-now' : 'dot-active'}}"></view>
+      <view class="dot {{step === 1 ? 'dot-now' : ''}}"></view>
     </view>
-    <view class="step-counter">{{currentIdx + 1}} / {{slideKeys.length}}</view>
+    <view class="step-counter">{{step + 1}} / 2</view>
   </view>
 
-  <!-- 全屏滑卡 -->
-  <swiper class="slider" current="{{currentIdx}}" bindchange="onSwiperChange"
-    duration="300" easing-function="easeOutCubic">
+  <!-- ====== 第一步：上传图片 ====== -->
+  <view class="step-body" wx:if="{{step === 0}}">
+    <view class="step-title">上传照片</view>
+    <view class="step-sub">1 张评估单品 · 2-4 张对比 PK</view>
 
-    <!-- ============ 0. 上传照片 ============ -->
-    <swiper-item>
-      <view class="slide slide-upload">
-        <view class="slide-title">上传照片</view>
-        <view class="slide-sub">1 张评估单品 · 2-4 张对比 PK</view>
-
-        <view class="upload-stage">
-          <view wx:if="{{images.length === 0}}" class="upload-empty" bindtap="onAddImage">
-            <view class="upload-circle">
-              <text class="upload-plus">+</text>
-            </view>
-            <view class="upload-empty-text">点这里上传 / 拍照</view>
-            <view class="upload-pulse"></view>
-            <view class="upload-pulse upload-pulse-2"></view>
-          </view>
-          <view wx:else class="upload-thumbs">
-            <view class="image-item" wx:for="{{images}}" wx:key="path">
-              <image class="image-thumb" src="{{item.thumb}}" mode="aspectFill"
-                data-index="{{index}}" bindtap="onPreviewImage" />
-              <view class="image-label" wx:if="{{images.length > 1}}">{{['A','B','C','D'][index]}}</view>
-              <view class="image-remove" data-index="{{index}}" catchtap="onRemoveImage">×</view>
-            </view>
-            <view class="image-add" wx:if="{{images.length < 4}}" bindtap="onAddImage">
-              <text class="add-icon">+</text>
-              <text class="add-text">加一张</text>
-            </view>
-          </view>
+    <view class="upload-stage">
+      <!-- 空态 -->
+      <view wx:if="{{images.length === 0}}" class="upload-empty" bindtap="onAddImage">
+        <view class="upload-circle">
+          <text class="upload-plus">+</text>
         </view>
+        <view class="upload-empty-text">点击上传 / 拍照</view>
+        <view class="upload-pulse"></view>
+        <view class="upload-pulse upload-pulse-2"></view>
+      </view>
 
-        <view class="mode-pill mode-pill-buy" wx:if="{{images.length === 1}}">
-          <text class="pill-dot"></text>单品评估模式
+      <!-- 已有图片 -->
+      <view wx:else class="upload-thumbs">
+        <view class="image-item" wx:for="{{images}}" wx:key="path">
+          <image class="image-thumb" src="{{item.thumb}}" mode="aspectFill"
+            data-index="{{index}}" bindtap="onPreviewImage" />
+          <view class="image-label" wx:if="{{images.length > 1}}">{{['A','B','C','D'][index]}}</view>
+          <view class="image-remove" data-index="{{index}}" catchtap="onRemoveImage">×</view>
         </view>
-        <view class="mode-pill mode-pill-compare" wx:if="{{images.length > 1}}">
-          <text class="pill-dot"></text>{{images.length}} 件对比 PK
+        <view class="image-add" wx:if="{{images.length < 4}}" bindtap="onAddImage">
+          <text class="add-icon">+</text>
+          <text class="add-text">加一张</text>
         </view>
       </view>
-    </swiper-item>
+    </view>
 
-    <!-- ============ 单品流程 ============ -->
-    <swiper-item wx:if="{{mode === 'buy'}}">
-      <view class="slide">
-        <view class="slide-title">这是什么单品？<text class="req">*</text></view>
-        <view class="slide-sub" wx:if="{{categoryDetecting}}">AI 正在识别…</view>
-        <view class="slide-sub" wx:elif="{{categoryDetected && category}}">
-          <text class="ai-badge">AI</text>识别为「{{category}}」，可点击下方修改
-        </view>
-        <view class="slide-sub" wx:else>选一个最贴近的</view>
-
-        <view class="chip-group chip-group-lg">
-          <view class="chip {{category === item ? 'chip-active' : ''}} {{categoryDetected && category === item ? 'chip-ai' : ''}}"
-            wx:for="{{categoryOptions}}" wx:key="*this"
-            data-field="category" data-value="{{item}}" bindtap="onSingleChipTap">
-            {{item}}
-          </view>
-          <view class="chip chip-other {{showCategoryInput ? 'chip-active' : ''}}"
-            bindtap="onTapOtherCategory">其他…</view>
-        </view>
-        <input wx:if="{{showCategoryInput}}" class="other-input" type="text" maxlength="20"
-          placeholder="自定义类别，如：风衣、围巾" placeholder-class="other-input-ph"
-          value="{{customCategory}}" bindinput="onCustomCategoryInput" focus="{{showCategoryInput}}" />
+    <!-- 模式 & AI识别结果 -->
+    <view class="detect-result" wx:if="{{images.length > 0}}">
+      <view class="mode-pill {{mode === 'compare' ? 'mode-pill-compare' : 'mode-pill-buy'}}">
+        <text class="pill-dot"></text>
+        {{mode === 'compare' ? images.length + ' 件对比 PK' : '单品评估模式'}}
       </view>
-    </swiper-item>
 
-    <swiper-item wx:if="{{mode === 'buy'}}">
-      <view class="slide">
-        <view class="slide-title">主要穿什么场合？</view>
-        <view class="slide-sub">最多 2 项 · 选填但建议</view>
-        <view class="chip-group chip-group-lg">
-          <view class="chip {{h.includes(wearScenes, item) ? 'chip-active' : ''}}"
-            wx:for="{{wearSceneOptions}}" wx:key="*this"
-            data-value="{{item}}" bindtap="onWearSceneTap">{{item}}</view>
+      <!-- 单品：AI识别品类 -->
+      <view class="category-detect" wx:if="{{mode === 'buy'}}">
+        <view class="detect-label" wx:if="{{categoryDetecting}}">
+          <text class="detect-spin">◌</text> AI 正在识别品类…
         </view>
+        <view class="detect-label detect-success" wx:elif="{{category}}">
+          <text class="ai-badge">AI</text>
+          识别为「<text class="detect-highlight">{{category}}</text>」
+          <text class="detect-change" bindtap="onShowCategoryPicker">修改</text>
+        </view>
+        <view class="detect-label detect-change" wx:else bindtap="onShowCategoryPicker">未能自动识别，请手动选择</view>
       </view>
-    </swiper-item>
+    </view>
+  </view>
 
-    <swiper-item wx:if="{{mode === 'buy'}}">
-      <view class="slide">
-        <view class="slide-title">最担心 / 想解决的是？</view>
-        <view class="slide-sub">单选 · 选填</view>
-        <view class="chip-group chip-group-lg">
-          <view class="chip {{trouble === item ? 'chip-active' : ''}}"
-            wx:for="{{troubleOptions}}" wx:key="*this"
-            data-field="trouble" data-value="{{item}}" bindtap="onSingleChipTap">{{item}}</view>
-        </view>
+  <!-- ====== 第二步：选择场景 ====== -->
+  <view class="step-body" wx:if="{{step === 1}}">
+    <view class="step-title">穿什么场合？</view>
+    <view class="step-sub">选择一个最贴近的场景</view>
+
+    <view class="scene-grid">
+      <view class="scene-item {{scene === item.value ? 'scene-active' : ''}}"
+        wx:for="{{sceneOptions}}" wx:key="value"
+        data-value="{{item.value}}" bindtap="onSceneTap">
+        <image class="scene-icon" src="{{scene === item.value ? item.iconActive : item.icon}}" mode="aspectFit" />
+        <text class="scene-name">{{item.label}}</text>
       </view>
-    </swiper-item>
+    </view>
 
-    <swiper-item wx:if="{{mode === 'buy'}}">
-      <view class="slide">
-        <view class="slide-title">再补充一点？</view>
-        <view class="slide-sub">选填，可直接跳过</view>
+    <view class="scene-tip" wx:if="{{mode === 'compare'}}">
+      <text class="scene-tip-icon">💡</text>
+      对比模式下，AI 将根据「{{scene || '…'}}」场景对各款式进行评分
+    </view>
+  </view>
 
-        <view class="extra-block">
-          <view class="extra-label">价格区间</view>
-          <view class="chip-group">
-            <view class="chip {{priceRange === item ? 'chip-active' : ''}}"
-              wx:for="{{priceRangeOptions}}" wx:key="*this"
-              data-field="priceRange" data-value="{{item}}" bindtap="onSingleChipTap">{{item}}</view>
-          </view>
-        </view>
-        <view class="extra-block">
-          <view class="extra-label">身型特点 <text class="extra-hint">最多 3 项</text></view>
-          <view class="chip-group">
-            <view class="chip {{h.includes(bodyFeatures, item) ? 'chip-active' : ''}}"
-              wx:for="{{bodyFeatureOptions}}" wx:key="*this"
-              data-value="{{item}}" bindtap="onBodyFeatureTap">{{item}}</view>
-          </view>
+  <!-- 品类修改弹窗 -->
+  <view class="modal-mask" wx:if="{{showCategoryPicker}}" bindtap="onHideCategoryPicker">
+    <view class="modal-content" catchtap="onPreventBubble">
+      <view class="modal-title">选择品类</view>
+      <view class="modal-list">
+        <view class="modal-item {{category === item ? 'modal-item-active' : ''}}"
+          wx:for="{{categoryOptions}}" wx:key="*this"
+          data-value="{{item}}" bindtap="onCategoryPick">
+          {{item}}
         </view>
       </view>
-    </swiper-item>
-
-    <!-- ============ 对比流程 ============ -->
-    <swiper-item wx:if="{{mode === 'compare'}}">
-      <view class="slide">
-        <view class="slide-title">这几件穿什么场合？<text class="req">*</text></view>
-        <view class="slide-sub">单选 · 决定 PK 评分维度</view>
-        <view class="chip-group chip-group-lg">
-          <view class="chip {{compareScene === item ? 'chip-active' : ''}}"
-            wx:for="{{compareSceneOptions}}" wx:key="*this"
-            data-field="compareScene" data-value="{{item}}" bindtap="onSingleChipTap">{{item}}</view>
-        </view>
-      </view>
-    </swiper-item>
-
-    <swiper-item wx:if="{{mode === 'compare'}}">
-      <view class="slide">
-        <view class="slide-title">为什么纠结？</view>
-        <view class="slide-sub">单选 · 选填</view>
-        <view class="chip-group chip-group-lg">
-          <view class="chip {{reason === item ? 'chip-active' : ''}}"
-            wx:for="{{reasonOptions}}" wx:key="*this"
-            data-field="reason" data-value="{{item}}" bindtap="onSingleChipTap">{{item}}</view>
-        </view>
-      </view>
-    </swiper-item>
-
-    <swiper-item wx:if="{{mode === 'compare'}}">
-      <view class="slide">
-        <view class="slide-title">再补充一点？</view>
-        <view class="slide-sub">选填，可直接跳过</view>
-
-        <view class="extra-block">
-          <view class="extra-label">各款式价格</view>
-          <view class="price-list">
-            <view class="price-row" wx:for="{{priceList}}" wx:key="index" wx:for-item="pItem" wx:for-index="pIdx">
-              <text class="price-label">{{['A','B','C','D'][pIdx]}}</text>
-              <picker mode="selector" range="{{priceRangeOptions}}" value="{{priceListIndexes[pIdx]}}" data-index="{{pIdx}}" bindchange="onPriceListChange">
-                <view class="picker-value small {{pItem ? '' : 'placeholder'}}">
-                  {{pItem || '选择价格'}}<text class="picker-arrow">▾</text>
-                </view>
-              </picker>
-            </view>
-          </view>
-        </view>
-        <view class="extra-block">
-          <view class="extra-label">风格差异 <text class="extra-hint">最多 3 项</text></view>
-          <view class="chip-group">
-            <view class="chip {{h.includes(styleDiff, item) ? 'chip-active' : ''}}"
-              wx:for="{{styleDiffOptions}}" wx:key="*this"
-              data-value="{{item}}" bindtap="onStyleDiffTap">{{item}}</view>
-          </view>
-        </view>
-      </view>
-    </swiper-item>
-  </swiper>
+      <view class="modal-close" bindtap="onHideCategoryPicker">关闭</view>
+    </view>
+  </view>
 
   <!-- 底部导航 -->
   <view class="footer safe-bottom">
-    <view class="summary-bar" wx:if="{{summaryText}}">
-      <text class="summary-icon">✓</text>
-      <text class="summary-text">{{summaryText}}</text>
-    </view>
     <view class="footer-row">
-      <button class="btn-back {{currentIdx === 0 ? 'btn-back-hidden' : ''}}" bindtap="onPrev">上一步</button>
-      <button wx:if="{{currentIdx < slideKeys.length - 1}}" class="btn-next" bindtap="onNext">
-        {{nextLabel}}
+      <button class="btn-back {{step === 0 ? 'btn-back-hidden' : ''}}" bindtap="onPrev">上一步</button>
+
+      <!-- 第一步：下一步 -->
+      <button wx:if="{{step === 0}}" class="btn-next" bindtap="onNext"
+        disabled="{{images.length === 0 || (mode === 'buy' && !category)}}">
+        {{images.length === 0 ? '请先上传照片' : (mode === 'buy' && !category) ? 'AI识别中…' : '下一步'}}
       </button>
-      <button wx:else class="btn-submit" bindtap="onSubmit" disabled="{{submitting}}">
+
+      <!-- 第二步：开始分析 -->
+      <button wx:else class="btn-submit" bindtap="onSubmit" disabled="{{submitting || !scene}}">
         {{submitting ? '分析中…' : '开始 AI 分析'}}
       </button>
     </view>
