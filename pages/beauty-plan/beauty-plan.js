@@ -74,7 +74,7 @@ Page({
       // 提炼报告关键信息
       const summary = this._buildReportSummary(report)
 
-      this.setData({ loadingText: 'AI 正在为你定制蜕变计划...' })
+      this.setData({ loadingText: '正在为你定制蜕变计划...' })
       const res = await request('/api/ai/generate-beauty-plan', {
         method: 'POST',
         data: { reportId, summary },

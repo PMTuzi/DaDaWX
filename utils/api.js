@@ -30,6 +30,9 @@ const API = {
   getConsultList: '/api/consult/list',
   // OSS 直传凭证
   ossToken: '/api/oss/token',
+  // 埋点
+  track: '/api/track',
+  trackStats: '/api/track/stats',
 }
 
 // 服务器连通性缓存

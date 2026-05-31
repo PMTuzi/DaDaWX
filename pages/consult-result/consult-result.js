@@ -1,4 +1,38 @@
 // pages/consult-result/consult-result.js
+const { request, API } = require('../../utils/api')
+const ALL_PRODUCTS = [
+  { id: 'p1', image: '/images/穿搭推荐/丝绸白色连衣裙.jpg', name: '丝绸白色连衣裙', tag: '气质优雅·百搭单品', price: '298' },
+  { id: 'p2', image: '/images/穿搭推荐/天蓝色连衣裙.jpg', name: '天蓝色连衣裙', tag: '清新活力·显白必备', price: '228' },
+  { id: 'p3', image: '/images/穿搭推荐/白色通勤连衣裙.jpg', name: '白色通勤连衣裙', tag: '职场精英·干练有型', price: '268' },
+  { id: 'p4', image: '/images/穿搭推荐/粉白约会套装.jpg', name: '粉白约会套装', tag: '甜美约会·少女感十足', price: '388' },
+  { id: 'p5', image: '/images/穿搭推荐/蓝色连衣裙.jpg', name: '蓝色连衣裙', tag: '显瘦修身·气质满分', price: '248' },
+  { id: 'p6', image: '/images/穿搭推荐/衬衫牛仔.jpg', name: '衬衫牛仔套装', tag: '休闲通勤·轻松穿搭', price: '178' },
+  { id: 'p7', image: '/images/穿搭推荐/黄白通勤套装.jpg', name: '黄白通勤套装', tag: '明亮活力·职场首选', price: '358' },
+  { id: 'p8', image: '/images/穿搭推荐/黑白通勤套装.jpg', name: '黑白通勤套装', tag: '经典配色·高级感满满', price: '428' },
+  { id: 'p9', image: '/images/穿搭推荐/黑白通勤套装2.jpg', name: '黑白通勤套装II', tag: '都市精英·时尚百搭', price: '468' },
+  { id: 'p10', image: '/images/穿搭推荐/丝绸高级连衣裙.jpg', name: '丝绸高级连衣裙', tag: '奢感丝滑·高级质感', price: '498' },
+  { id: 'p11', image: '/images/穿搭推荐/咖色高级连衣裙.jpg', name: '咖色高级连衣裙', tag: '复古暖调·秋冬必备', price: '368' },
+  { id: 'p12', image: '/images/穿搭推荐/紫色套装.jpg', name: '紫色套装', tag: '高饱和撞色·风格出挑', price: '418' },
+  { id: 'p13', image: '/images/穿搭推荐/赫本经典小黑裙.jpg', name: '赫本经典小黑裙', tag: '永恒经典·约会首选', price: '338' },
+  { id: 'p14', image: '/images/穿搭推荐/黑白通勤裤套装.jpg', name: '黑白通勤裤套装', tag: '简约利落·干练气场', price: '448' }
+]
+function pickRandom3() {
+  const arr = ALL_PRODUCTS.slice()
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  return arr.slice(0, 3)
+}
+// 返回两组互不重叠的随机 3 件
+function pickRandom3Pair() {
+  const arr = ALL_PRODUCTS.slice()
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  return [arr.slice(0, 3), arr.slice(3, 6)]
+}
 Page({
   data: {
     record: null,
@@ -17,12 +51,9 @@ Page({
     echoChips: [],
     // 当前激活 tab：'compare'(多维对比) | 'advice'(穿搭建议)
     activeTab: 'compare',
-    // 假门测试：静态商品数据
-    staticProducts: [
-      { id: 'p1', emoji: '👗', name: '简约直筒西装裤', tag: '适合你的直线感版型', price: '128' },
-      { id: 'p2', emoji: '👔', name: '奶白色宽肩西装外套', tag: '强化你的肩部线条', price: '256' },
-      { id: 'p3', emoji: '👜', name: '复古托特包（焦糖色）', tag: '呼应你的暖色色调', price: '198' }
-    ]
+    // 假门测试：静态商品数据（两个 tab 各一组，不重复）
+    staticProducts: [],
+    staticProducts2: []
   },
 
   onTabTap(e) {
@@ -36,6 +67,8 @@ Page({
   },
 
   onLoad(options) {
+    const [g1, g2] = pickRandom3Pair()
+    this.setData({ staticProducts: g1, staticProducts2: g2 })
     const id = options.id
     if (!id) {
       wx.showToast({ title: '参数错误', icon: 'none' })
@@ -321,23 +354,37 @@ Page({
     const record = this.data.record
     const score = record?.totalScore || ''
     return {
-      title: score ? `穿搭评分 ${score}分 ` : 'AI穿搭决策 - 帮你不踩雷',
+      title: score ? `穿搭评分 ${score}分 ` : '穿搭决策 - 帮你不踩雷',
       path: '/pages/outfit/outfit',
       imageUrl: '/images/yanzhi2.jpg'
     }
   },
 
   // 假门测试：记录商品点击兴趣
+  onPreviewProductImage(e) {
+    const src = e.currentTarget.dataset.src
+    const urls = [
+      ...this.data.staticProducts.map(p => p.image),
+      ...this.data.staticProducts2.map(p => p.image)
+    ].filter((v, i, a) => a.indexOf(v) === i)
+    wx.previewImage({ current: src, urls })
+  },
+
   onProductTap(e) {
     const id = e.currentTarget.dataset.id
-    // 累计点击次数到本地存储
+    const allProducts = [...(this.data.staticProducts || []), ...(this.data.staticProducts2 || [])]
+    const product = allProducts.find(p => p.id === id)
+    // 本地埋点（兜底）
     const key = 'shopRecClickCount'
-    const count = (wx.getStorageSync(key) || 0) + 1
-    wx.setStorageSync(key, count)
-    // 记录每次点击的商品
+    wx.setStorageSync(key, (wx.getStorageSync(key) || 0) + 1)
     const logs = wx.getStorageSync('shopRecClickLogs') || []
     logs.push({ id, t: Date.now() })
     wx.setStorageSync('shopRecClickLogs', logs)
+    // 服务端上报（静默）
+    request(API.track, {
+      method: 'POST',
+      data: { event: 'product_click', productId: id, productName: product ? product.name : '', page: 'consult-result' }
+    }).catch(() => {})
 
     wx.showModal({
       title: '好物推荐即将上线',

@@ -9,7 +9,7 @@
   <view class="hero">
     <view class="hero-tag">
       <view class="tag-dot"></view>
-      <text>AI · IMAGE DIAGNOSIS</text>
+      <text>IMAGE DIAGNOSIS</text>
     </view>
     <view class="hero-title">智能形象诊断</view>
    
@@ -41,7 +41,7 @@
           <view class="tech-status">
             <view class="tech-tag">
               <view class="tech-dot"></view>
-              <text>AI ANALYZING</text>
+              <text>ANALYZING</text>
             </view>
             <view class="tech-label">{{scanLabel}}</view>
             <view class="tech-percent">

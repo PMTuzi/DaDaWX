@@ -4,6 +4,31 @@ const { formatDate, getScoreLevel, calcPercentile } = require('../../utils/forma
 const taskState = require('../../utils/task-state')
 const { mixinTaskBars } = require('../../utils/task-bars')
 
+const ALL_PRODUCTS = [
+  { id: 'p1', image: '/images/穿搭推荐/丝绸白色连衣裙.jpg', name: '丝绸白色连衣裙', tag: '气质优雅·百搭单品', price: '298' },
+  { id: 'p2', image: '/images/穿搭推荐/天蓝色连衣裙.jpg', name: '天蓝色连衣裙', tag: '清新活力·显白必备', price: '228' },
+  { id: 'p3', image: '/images/穿搭推荐/白色通勤连衣裙.jpg', name: '白色通勤连衣裙', tag: '职场精英·干练有型', price: '268' },
+  { id: 'p4', image: '/images/穿搭推荐/粉白约会套装.jpg', name: '粉白约会套装', tag: '甜美约会·少女感十足', price: '388' },
+  { id: 'p5', image: '/images/穿搭推荐/蓝色连衣裙.jpg', name: '蓝色连衣裙', tag: '显瘦修身·气质满分', price: '248' },
+  { id: 'p6', image: '/images/穿搭推荐/衬衫牛仔.jpg', name: '衬衫牛仔套装', tag: '休闲通勤·轻松穿搭', price: '178' },
+  { id: 'p7', image: '/images/穿搭推荐/黄白通勤套装.jpg', name: '黄白通勤套装', tag: '明亮活力·职场首选', price: '358' },
+  { id: 'p8', image: '/images/穿搭推荐/黑白通勤套装.jpg', name: '黑白通勤套装', tag: '经典配色·高级感满满', price: '428' },
+  { id: 'p9', image: '/images/穿搭推荐/黑白通勤套装2.jpg', name: '黑白通勤套装II', tag: '都市精英·时尚百搭', price: '468' },
+  { id: 'p10', image: '/images/穿搭推荐/丝绸高级连衣裙.jpg', name: '丝绸高级连衣裙', tag: '奢感丝滑·高级质感', price: '498' },
+  { id: 'p11', image: '/images/穿搭推荐/咖色高级连衣裙.jpg', name: '咖色高级连衣裙', tag: '复古暖调·秋冬必备', price: '368' },
+  { id: 'p12', image: '/images/穿搭推荐/紫色套装.jpg', name: '紫色套装', tag: '高饱和撞色·风格出挑', price: '418' },
+  { id: 'p13', image: '/images/穿搭推荐/赫本经典小黑裙.jpg', name: '赫本经典小黑裙', tag: '永恒经典·约会首选', price: '338' },
+  { id: 'p14', image: '/images/穿搭推荐/黑白通勤裤套装.jpg', name: '黑白通勤裤套装', tag: '简约利落·干练气场', price: '448' }
+]
+function pickRandom3() {
+  const arr = ALL_PRODUCTS.slice()
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  return arr.slice(0, 3)
+}
+
 // 9 型第一印象人格定义（模块级常量，避免 Page 选项过滤导致 this 上访问不到）
 const IMPRESSION_PERSONAS = {
   deer:    { id: 1, animal: '小鹿', style: '温柔亲和型', emoji: '🦌', image: '/images/9型人格/小鹿.jpg', tagline: '一眼就让人卸下防备的那种温度', traits: ['亲和力', '柔和'] },
@@ -236,7 +261,7 @@ function buildCdnImages(report) {
 
 Page({
   data: {
-    slogan: '国内首款「反种草」AI 形象诊断平台',
+    slogan: '国内首款「反种草」形象诊断平台',
     hasReport: false,
     latestReport: null,
     scoreLevel: null,
@@ -265,14 +290,11 @@ Page({
     cdnImages: { hair: [], makeup: {}, advice: {}, roadmap: [] },
     currentReportId: '',
     // 假门测试：静态商品数据
-    staticProducts: [
-      { id: 'p1', emoji: '👗', name: '简约直筒西装裤', tag: '适合你的直线感版型', price: '128' },
-      { id: 'p2', emoji: '👔', name: '奶白色宽肩西装外套', tag: '强化你的肩部线条', price: '256' },
-      { id: 'p3', emoji: '👜', name: '复古托特包（焦糖色）', tag: '呼应你的暖色色调', price: '198' }
-    ]
+    staticProducts: []
   },
 
   onLoad(options) {
+    this.setData({ staticProducts: pickRandom3() })
     this.checkLogin()
     if (options && options.id) {
       wx.setStorageSync('pendingReportId', options.id)
@@ -734,101 +756,187 @@ Page({
     const faceType = (dna && dna.faceType) || ''
     const boneType = (dna && dna.boneType) || ''
     const lineStyle = (dna && dna.lineStyle) || ''
+    const colorIntensity = (dna && dna.colorIntensity) || ''
+    const faceScore = (dna && parseFloat(dna.faceScore)) || 0
+    const visualAge = (dna && dna.visualAge) || ''
+    // AI 实际返回的 faceFeatures 名称：颧骨/下颌线/眉骨/鼻梁/下巴
     const features = (dna && dna.faceFeatures) || []
-    const feat = {}
-    features.forEach(f => { feat[f.name] = f.score || 0 })
+    const feat = {}; const featDesc = {}
+    features.forEach(f => { if (f && f.name) { feat[f.name] = f.score || 0; featDesc[f.name] = f.desc || '' } })
     const mainStyle = (style && style.mainStyle) || ''
+    const subStyles = (style && style.subStyles) || []
     const skinType = (style && style.skinType) || ''
-    const mass = (style && style.mass) || 0
+    const season = (style && style.season) || ''
+    const mass = (style && typeof style.mass === 'number') ? style.mass : 0
     const brightness = (style && style.brightness) || 0
+    const purity = (style && style.purity) || 0
 
     function level(s) { return s >= 8.5 ? 'H' : s >= 7 ? 'M' : 'L' }
-    function pickHigh(names) {
+    // 从 AI 真实返回的五官特征中取最高分特征
+    function pickTopFeature(nameList) {
       let top = ''; let max = 0
-      names.forEach(n => { if (feat[n] > max) { max = feat[n]; top = n } })
+      nameList.forEach(n => { if ((feat[n] || 0) > max) { max = feat[n]; top = n } })
       return max >= 7 ? top : ''
+    }
+    // 返回所有评分 >= threshold 的特征名
+    function highFeatures(threshold) {
+      return features.filter(f => (f.score || 0) >= threshold).map(f => f.name)
+    }
+    // 返回评分最低的特征名（软肋）
+    function weakFeature() {
+      let min = 999; let name = ''
+      features.forEach(f => { if ((f.score || 0) < min) { min = f.score; name = f.name } })
+      return min <= 5 ? name : ''
     }
 
     const reasonBuilders = {
       approachability(s) {
         const lv = level(s)
         const tags = []
-        if (/圆|鹅蛋|心形|心型/.test(faceType)) tags.push(`${faceType}的柔和轮廓`)
-        if (/柔|圆|融/.test(lineStyle)) tags.push('面部线条带着圆融的过渡')
-        if (feat['嘴'] >= 7 || feat['唇'] >= 7) tags.push('唇形微微上扬，自带笑意')
-        if (feat['眼'] >= 7) tags.push('眼神清亮、有温度')
-        if (!tags.length) tags.push('五官节奏稳，不带攻击性')
-        const prefix = lv === 'H' ? '第一眼就让人卸下防备：' : lv === 'M' ? '初印象是「不锋利、可接近」：' : '初次见面略显疏离感，但仍有亲和潜力：'
-        const suffix = lv === 'L' ? '。建议用微笑、柔和发型与暖色穿搭进一步软化。' : '。'
-        return prefix + tags.join('，') + suffix
+        // 脸型：圆润/柔和类 → 亲和力高
+        if (/圆|鹅蛋|心形|心型|椭圆/.test(faceType)) tags.push(`${faceType}的柔和轮廓天然没有距离感`)
+        else if (/方|长|菱|钻石/.test(faceType)) tags.push(`${faceType}轮廓给人感觉较强势，亲和力需造型来弥补`)
+        // 线条风格
+        if (/柔和|流畅|圆润/.test(lineStyle)) tags.push(`面部${lineStyle}，初见不带攻击性`)
+        else if (/利落|分明|锋|刚/.test(lineStyle)) tags.push(`面部线条${lineStyle}，初见有点距离感`)
+        // 色彩浓淡：淡颜更亲和
+        if (/淡/.test(colorIntensity)) tags.push('淡颜五官观感柔软，更易建立信任')
+        else if (/浓/.test(colorIntensity)) tags.push('浓颜五官冲击力强，亲和与魅惑二选一')
+        // 下颌线分数：圆润型（低分 = 圆）→ 亲和
+        const jawScore = feat['下颌线'] || 0
+        if (jawScore && jawScore <= 5) tags.push('下颌线弧度圆润，微笑时格外温柔')
+        else if (jawScore >= 8) tags.push('下颌线清晰锐利，气场强过亲和感')
+        // 暖皮加亲和
+        if (/暖/.test(skinType)) tags.push(`${skinType}底色，笑起来很有感染力`)
+        if (!tags.length) tags.push('五官节奏平稳，不带明显攻击性，但记忆点也偏弱')
+        const prefix = lv === 'H' ? '第一眼就让人卸下防备——' : lv === 'M' ? '初印象是「不锋利、可接近」——' : '初次见面会有一点疏离感——'
+        const suffix = lv === 'L' ? '；建议用暖色穿搭、柔和发型、微笑眼妆进一步化解。' : '。'
+        return prefix + tags.slice(0, 3).join('，') + suffix
       },
       allure(s) {
         const lv = level(s)
         const tags = []
-        if (/立体|锐|利落|量感/.test(lineStyle)) tags.push(`${lineStyle}的面部线条`)
-        if (/方|长|菱|骨/.test(faceType)) tags.push(`${faceType}带来轮廓张力`)
-        const eye = pickHigh(['眼', '眼睛'])
-        if (eye) tags.push('眼型深邃、眼神有故事')
-        const lip = pickHigh(['嘴', '唇'])
-        if (lip) tags.push('唇形饱满、唇眼比舒服')
-        if (boneType) tags.push(`${boneType}的骨相加持`)
-        if (!tags.length) tags.push('五官有起伏，不流于平淡')
-        const prefix = lv === 'H' ? '镜头下气场拉满，自带「再看一眼」的吸引力：' : lv === 'M' ? '魅惑感属于"日常耐看"路线：' : '魅惑感偏含蓄，更适合温柔治愈路线：'
-        const suffix = lv === 'L' ? '。可通过加深眼妆、强调唇形与轮廓修容放大张力。' : '。'
-        return prefix + tags.join('，') + suffix
+        // 骨相特征是魅惑感核心
+        const jawScore = feat['下颌线'] || 0; const noseScore = feat['鼻梁'] || 0
+        const boneScore = feat['眉骨'] || 0; const cheekScore = feat['颧骨'] || 0
+        if (jawScore >= 7) tags.push(`下颌线${featDesc['下颌线'] ? '（' + featDesc['下颌线'].slice(0, 12) + '…）' : '分明'}，轮廓张力十足`)
+        if (noseScore >= 7) tags.push(`鼻梁${noseScore >= 8.5 ? '挺拔精致，立体感极强' : '有高度，增添面部起伏'}`)
+        if (boneScore >= 7) tags.push(`眉骨${boneScore >= 8 ? '骨感突出，眼窝深邃' : '有轮廓，眼神更有力量'}`)
+        if (cheekScore >= 7) tags.push(`颧骨适度突出，侧脸颧颊比例令人着迷`)
+        // 浓颜 = 视觉冲击力强
+        if (/浓/.test(colorIntensity)) tags.push(`${colorIntensity}五官对比度高，视觉上更抓人`)
+        // 线条风格
+        if (/利落|分明|锋|刚/.test(lineStyle)) tags.push(`${lineStyle}面部线条带着吸引人的张力`)
+        if (/骨相/.test(boneType)) tags.push(`${boneType}气质，骨相本身就是最大的魅力加持`)
+        if (!tags.length) {
+          if (faceScore >= 7) tags.push('五官精致协调，整体散发自然吸引力')
+          else tags.push('五官和谐但起伏偏少，魅惑感偏含蓄')
+        }
+        const prefix = lv === 'H' ? '镜头下气场拉满，自带「多看一眼」的引力——' : lv === 'M' ? '魅惑感属于"日常耐看、越看越有"路线——' : '魅惑感偏含蓄，更适合温柔治愈的方向——'
+        const suffix = lv === 'L' ? '；深色眼妆、轮廓修容、大地色唇是快速放大张力的捷径。' : '。'
+        return prefix + tags.slice(0, 3).join('，') + suffix
       },
       youthfulness(s) {
         const lv = level(s)
         const tags = []
-        if (ageNum > 0) tags.push(`视龄 ${ageNum} 岁`)
-        if (/圆|鹅蛋|心形|心型/.test(faceType)) tags.push(`${faceType}的圆润度撑住了年龄感`)
-        if (/柔|圆|融/.test(lineStyle)) tags.push('线条圆融、不带岁月感的锐利')
-        if (skinType && /冷|暖|中|白/.test(skinType)) tags.push(`${skinType}的肤况通透`)
-        if (brightness >= 7) tags.push('肤色明度高，气色显嫩')
-        if (!tags.length) tags.push('整体气质偏鲜活')
-        const prefix = lv === 'H' ? '少女感是你的天然加分项：' : lv === 'M' ? '少女感与气质感保持平衡：' : '少女感不是你的强项，但成熟感反而是优势：'
-        const suffix = lv === 'L' ? '。无需强行装嫩，走「清冷高级」反而更高分。' : '。'
-        return prefix + tags.join('，') + suffix
+        // 视龄直接说出来
+        if (visualAge) tags.push(`视觉年龄约 ${visualAge}`)
+        else if (ageNum > 0) tags.push(`视觉年龄约 ${ageNum} 岁`)
+        // 脸型
+        if (/圆|心形|心型|鹅蛋|椭圆/.test(faceType)) tags.push(`${faceType}保有天然的圆润感`)
+        else if (/方|长|菱/.test(faceType)) tags.push(`${faceType}线条感成熟，少女感退位成熟感上位`)
+        // 线条
+        if (/柔和|流畅|圆润/.test(lineStyle)) tags.push('线条圆融，不带岁月感的锐利')
+        // 皮肤明度
+        if (brightness >= 7) tags.push(`皮肤明度 ${brightness} 分，气色透亮显嫩`)
+        else if (brightness && brightness <= 5) tags.push(`皮肤明度 ${brightness} 分，肤色状态会拉低视觉年龄感`)
+        // 皮肤纯净度
+        if (purity >= 7) tags.push('皮肤纯净细腻，底色加分不少')
+        // 肤色类型
+        if (/暖/.test(skinType)) tags.push(`${skinType}气色活泼，更显鲜嫩`)
+        else if (/冷/.test(skinType)) tags.push(`${skinType}底色更显清冷，少女感让位成熟感`)
+        if (!tags.length) tags.push('整体气质介于青春与成熟之间')
+        const prefix = lv === 'H' ? '少女感是你的天然王牌——' : lv === 'M' ? '少女感与气质感保持平衡——' : '成熟感是你更大的优势——'
+        const suffix = lv === 'L' ? '；走清冷高级路线，比装嫩更高分。' : '。'
+        return prefix + tags.slice(0, 3).join('，') + suffix
       },
       aura(s) {
         const lv = level(s)
         const tags = []
-        if (mainStyle) tags.push(`${mainStyle}风格的整体调性`)
-        const eye = pickHigh(['眼', '眼睛'])
-        if (eye) tags.push('眼神带戏、情绪可读性强')
-        if (/清冷|高级|气质|空气|文艺/.test(mainStyle)) tags.push('面部空气感拉满')
-        if (mass >= 7) tags.push('量感充足，撑得起场')
-        else if (mass && mass < 5) tags.push('量感偏轻，自带松弛')
-        if (!tags.length) tags.push('整体氛围未被某一项五官抢走焦点')
-        const prefix = lv === 'H' ? '走进画面就有"故事感"：' : lv === 'M' ? '氛围感稳定但还未到记忆点级别：' : '氛围感偏弱，更像可爱/邻家系：'
-        const suffix = lv === 'L' ? '。可在妆容、滤镜、眼神管理上做"留白练习"。' : '。'
-        return prefix + tags.join('，') + suffix
+        // 主风格 + 季节色彩直接给文案素材
+        if (mainStyle) tags.push(`${mainStyle}的风格调性让整体有明确的气场方向`)
+        if (season) tags.push(`${season}色彩季型的配色会大幅强化你的氛围感`)
+        // 子风格补充
+        const sub = subStyles.find(s => /文艺|复古|知性|前卫|异域/.test(s.name || ''))
+        if (sub) tags.push(`${sub.name}的副风格给你增添了层次`)
+        // 眉骨/颧骨高 → 眼神有戏
+        const boneScore = feat['眉骨'] || 0
+        if (boneScore >= 7) tags.push('眉骨有立体感，眼神自然带戏')
+        // 量感
+        if (mass >= 7) tags.push(`量感 ${mass} 分，足以撑起强烈的视觉存在感`)
+        else if (mass && mass <= 4) tags.push(`量感偏轻（${mass} 分），自带空灵松弛的氛围`)
+        // 浓颜 = 氛围感强
+        if (/浓/.test(colorIntensity)) tags.push('浓颜五官情绪张力强，轻松制造氛围')
+        if (!tags.length) tags.push('整体氛围完整，但风格感还可以进一步锐化')
+        const prefix = lv === 'H' ? '走进画面就有故事感——' : lv === 'M' ? '氛围感稳定，但还差一点点「只属于你」的符号——' : '氛围感偏日常，更接近可爱/邻家系——'
+        const suffix = lv === 'L' ? '；在妆容留白、配色统一、眼神管理上做精准强化，氛围感会快速上来。' : '。'
+        return prefix + tags.slice(0, 3).join('，') + suffix
       },
       distinctiveness(s) {
         const lv = level(s)
         const tags = []
-        const top = pickHigh(['眼', '眼睛', '鼻', '嘴', '唇', '眉'])
-        if (top) tags.push(`${top}部辨识度突出`)
-        if (faceType) tags.push(`${faceType}在人群里不易撞脸`)
-        if (boneType) tags.push(`${boneType}给到独特的骨相记忆点`)
-        if (mainStyle) tags.push(`${mainStyle}的整体风格自带标签感`)
-        if (!tags.length) tags.push('五官比例舒服但缺少一个"主角"')
-        const prefix = lv === 'H' ? '是那种"看一次就能描述出来"的脸：' : lv === 'M' ? '记忆点属于"看第二眼会发现"型：' : '五官偏均衡、记忆点不突出：'
-        const suffix = lv === 'L' ? '。可用发型/眼妆/穿搭，主动制造一个视觉锚点。' : '。'
-        return prefix + tags.join('，') + suffix
+        // 找 AI 给分最高的骨相特征当记忆锚点
+        const topFeat = pickTopFeature(['颧骨', '下颌线', '眉骨', '鼻梁', '下巴'])
+        if (topFeat) {
+          const sc = feat[topFeat]
+          tags.push(`${topFeat}是你最强的辨识度锚点（${sc} 分）${featDesc[topFeat] ? '——' + featDesc[topFeat].slice(0, 14) : ''}`)
+        }
+        // 脸型独特性
+        if (/菱|钻石|心形|倒三角/.test(faceType)) tags.push(`${faceType}在人群里极低撞脸率`)
+        else if (faceType) tags.push(`${faceType}让整脸轮廓有记忆点`)
+        // 骨相型 = 强记忆点
+        if (/骨相/.test(boneType)) tags.push('骨相型五官本身就自带高辨识度')
+        // 主风格独特性
+        if (mainStyle && !/自然|清新|简约/.test(mainStyle)) tags.push(`${mainStyle}风格少见，见一面就难忘`)
+        // 浓颜记忆点强
+        if (/浓/.test(colorIntensity)) tags.push('浓颜五官高对比度，一眼就被记住')
+        // 弱特征
+        const weak = weakFeature()
+        if (!tags.length) {
+          if (weak) tags.push(`${weak}偏弱，整体均衡但缺少一个「主角」五官`)
+          else tags.push('五官比例协调，但缺乏一个能被描述出来的视觉焦点')
+        }
+        const prefix = lv === 'H' ? '是那种「看一次就能描述出来」的脸——' : lv === 'M' ? '记忆点属于「看第二眼才会发现」型——' : '五官偏均衡，记忆点有待强化——'
+        const suffix = lv === 'L' ? '；主动用发型、眼妆或一件标志性单品制造视觉锚点。' : '。'
+        return prefix + tags.slice(0, 3).join('，') + suffix
       },
       sophistication(s) {
         const lv = level(s)
         const tags = []
-        if (boneType) tags.push(`${boneType}骨相`)
-        if (/利落|清冷|骨感|锐|直线/.test(lineStyle)) tags.push(`${lineStyle}的线条节奏`)
-        if (/方|长|菱/.test(faceType)) tags.push(`${faceType}带来高级量感`)
-        if (mass >= 7) tags.push('量感稳，镇得住极简造型')
-        if (/高级|清冷|文艺|知性/.test(mainStyle)) tags.push(`${mainStyle}风格放大了高级感`)
-        if (!tags.length) tags.push('整体协调，但缺一点"清冷距离感"')
-        const prefix = lv === 'H' ? '骨相和气场都站在"高级"这一边：' : lv === 'M' ? '高级感在线，但少女/甜感会拉走一些权重：' : '高级感不是你天然的标签：'
-        const suffix = lv === 'L' ? '。可通过简约配色、利落剪裁、低饱和妆面拉升。' : '。'
-        return prefix + tags.join('，') + suffix
+        // 骨相特征：下颌线、颧骨、鼻梁是高级感核心
+        const jawScore = feat['下颌线'] || 0; const cheekScore = feat['颧骨'] || 0; const noseScore = feat['鼻梁'] || 0; const chinScore = feat['下巴'] || 0
+        if (jawScore >= 7) tags.push(`下颌线 ${jawScore} 分${featDesc['下颌线'] ? '（' + featDesc['下颌线'].slice(0, 10) + '…）' : '，轮廓清晰'}，高级感直接来自骨相`)
+        else if (jawScore && jawScore <= 5) tags.push('下颌线偏圆润，会削减一些骨相高级感')
+        if (cheekScore >= 7) tags.push(`颧骨适度高挑，侧脸有雕塑感`)
+        if (noseScore >= 7) tags.push(`鼻梁${noseScore >= 8.5 ? '挺拔精致，立体感顶级' : '有高度，撑起面部立体结构'}`)
+        if (chinScore >= 7) tags.push('下巴线条流畅，侧颜极加分')
+        // 线条风格
+        if (/利落|分明|清冷|骨感|锐|直线/.test(lineStyle)) tags.push(`面部${lineStyle}，自带清冷的高级距离感`)
+        // 骨相型
+        if (/骨相/.test(boneType)) tags.push('骨相主导型——岁月越久越耐看')
+        // 量感
+        if (mass >= 7) tags.push(`量感 ${mass} 分，极简造型也能镇场`)
+        // 主风格
+        if (/高级|清冷|文艺|知性|极简/.test(mainStyle)) tags.push(`${mainStyle}风格与高级感相辅相成`)
+        // 冷皮 = 更清冷高级
+        if (/冷/.test(skinType)) tags.push(`${skinType}底色天然带着一丝清冷高级感`)
+        if (!tags.length) {
+          if (faceScore >= 7) tags.push('整体精致感在线，但高级感还需靠造型来诠释')
+          else tags.push('五官协调，高级感不是天然标签，需要靠穿搭和妆容来定义')
+        }
+        const prefix = lv === 'H' ? '骨相和气场都站在「高级」这一边——' : lv === 'M' ? '高级感在线，少女/甜感会拉走一点权重——' : '高级感不是你天然的标签，但可以通过造型后天习得——'
+        const suffix = lv === 'L' ? '；简约配色、利落剪裁、低饱和哑光妆是最快捷径。' : '。'
+        return prefix + tags.slice(0, 3).join('，') + suffix
       }
     }
     scores.forEach(s => {
@@ -1400,7 +1508,7 @@ Page({
         ctx.fillText('美哒 Meeta', w / 2, footerY + 24)
         ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0
         ctx.font = '10px sans-serif'; ctx.fillStyle = 'rgba(255,255,255,0.88)'
-        ctx.fillText('AI 反种草形象风格诊断', w / 2, footerY + 42)
+        ctx.fillText('反种草形象风格诊断', w / 2, footerY + 42)
         const finalY = Math.min(footerY + footerH + 16, h)
 
         setTimeout(() => {
@@ -1498,7 +1606,7 @@ Page({
     const idx = impr?.attractIndex || 88
     const styles = [
       {
-        title: `我的颜值打败了 ${pctNum}% 的人，你敢测吗？AI 帮你打个真分`,
+        title: `我的颜值打败了 ${pctNum}% 的人，你敢测吗？帮你打个真分`,
         imageUrl: '/images/yanzhi1.jpg'
       },
       {
@@ -1534,7 +1642,7 @@ Page({
     const prefixes = ['小', '大', '阿', '懒', '快乐', '迷糊', '可爱', '甜甜', '温柔', '元气', '佛系', '资深', '野生', '倔强', '傲娇']
     const suffixes = ['橘猫', '桃子', '奶茶', '云朵', '草莓', '布丁', '西瓜', '棉花糖', '小熊', '柠檬', '椰子', '芒果', '松鼠', '鲸鱼', '星星', '泡芙', '果冻', '薯条', '饼干', '樱桃', '泡泡', '饭团', '抹茶', '可可', '豆豆', '糯米', '蜜桃', '柚子', '栗子', '奶酪']
     const actions = [
-      '正在进行AI形象风格分析', '正在进行穿搭决策', '正在生成形象诊断报告',
+      '正在进行形象风格分析', '正在进行穿搭决策', '正在生成形象诊断报告',
       '正在查看发型推荐', '正在进行妆容分析', '正在获取风格建议', '正在进行色彩诊断'
     ]
     const shuffle = arr => arr.slice().sort(() => Math.random() - 0.5)
@@ -1550,14 +1658,26 @@ Page({
   },
 
   // 假门测试：首页商品卡片点击
+  onPreviewProductImage(e) {
+    const src = e.currentTarget.dataset.src
+    const urls = this.data.staticProducts.map(p => p.image)
+    wx.previewImage({ current: src, urls })
+  },
+
   onIndexProductTap(e) {
     const id = e.currentTarget.dataset.id
+    const product = (this.data.staticProducts || []).find(p => p.id === id)
+    // 本地埋点（兜底）
     const key = 'shopRecClickCount'
-    const count = (wx.getStorageSync(key) || 0) + 1
-    wx.setStorageSync(key, count)
+    wx.setStorageSync(key, (wx.getStorageSync(key) || 0) + 1)
     const logs = wx.getStorageSync('shopRecClickLogs') || []
     logs.push({ id, p: 'index', t: Date.now() })
     wx.setStorageSync('shopRecClickLogs', logs)
+    // 服务端上报（静默，不影响用户体验）
+    request(API.track, {
+      method: 'POST',
+      data: { event: 'product_click', productId: id, productName: product ? product.name : '', page: 'index' }
+    }).catch(() => {})
 
     wx.showModal({
       title: '好物推荐即将上线',

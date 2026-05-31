@@ -63,7 +63,7 @@ Page({
       taskState.set('diagnose', {
         status: 'running',
         progress: 0,
-        label: 'AI 形象诊断中',
+        label: '形象诊断中',
         imageUrl: this.data.imageUrl,
         localPhoto: this.data.localPhoto,
         photoType: this.data.photoType
@@ -135,7 +135,7 @@ Page({
     if (this._alive) { try { this.setData(data) } catch (e) {} }
     // 同步进度到全局任务状态（即使页面已卸载也继续更新）
     if (data && typeof data.progress === 'number') {
-      taskState.set('diagnose', { status: 'running', progress: data.progress, label: 'AI 形象诊断中' })
+      taskState.set('diagnose', { status: 'running', progress: data.progress, label: '形象诊断中' })
     }
   },
 
@@ -313,7 +313,7 @@ Page({
     this.safeSetData({ analyzing: false, errorMsg: msg })
     wx.showModal({
       title: '诊断失败',
-      content: msg || 'AI 分析过程出现异常，请重新尝试',
+      content: msg || '分析过程出现异常，请重新尝试',
       confirmText: '重新诊断',
       cancelText: '返回首页',
       success: (res) => {

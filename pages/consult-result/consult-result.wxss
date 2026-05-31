@@ -1533,8 +1533,8 @@
 }
 .sri-img-wrap {
   flex-shrink: 0;
-  width: 100rpx;
-  height: 100rpx;
+  width: 140rpx;
+  height: 140rpx;
   border-radius: 12rpx;
   overflow: hidden;
   background: #EEE9E3;
@@ -1544,6 +1544,11 @@
 }
 .sri-img-placeholder {
   font-size: 48rpx;
+}
+.sri-img {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 .sri-info {
   flex: 1;
@@ -1562,7 +1567,7 @@
   text-overflow: ellipsis;
 }
 .sri-tag {
-  font-size: 22rpx;
+  font-size: 18rpx;
   color: #8A8580;
   white-space: nowrap;
   overflow: hidden;

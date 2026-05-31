@@ -116,12 +116,16 @@ const reportRoutes = require('./routes/report')
 const favoriteRoutes = require('./routes/favorite')
 const consultRoutes = require('./routes/consult')
 const ossRoutes = require('./routes/oss')
+const trackRoutes = require('./routes/track')
+const adminRoutes = require('./routes/admin')
 
 app.use('/api/ai', aiLimiter, aiRoutes)
 app.use('/api/report', reportRoutes)
 app.use('/api/favorite', favoriteRoutes)
 app.use('/api/consult', aiLimiter, consultRoutes)
 app.use('/api/oss', uploadLimiter, ossRoutes)
+app.use('/api/track', trackRoutes)
+app.use('/admin', adminRoutes)
 
 // 首页
 app.get('/', (req, res) => {
@@ -148,7 +152,9 @@ app.get('/', (req, res) => {
       '类别识别': 'POST /api/consult/detect-category (需鉴权)',
       '咨询记录列表': 'GET /api/consult/list (需鉴权)',
       '咨询记录详情': 'GET /api/consult/:id (需鉴权)',
-      '健康检查': 'GET /api/health (无需鉴权)'
+      '健康检查': 'GET /api/health (无需鉴权)',
+      '埋点上报': 'POST /api/track (需鉴权)',
+      '埋点统计': 'GET /api/track/stats (需鉴权)'
     }
   })
 })

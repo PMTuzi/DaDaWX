@@ -3,7 +3,7 @@
   <!-- 诊断提示 -->
   <view class="diagnose-tip" wx:if="{{!hasReport}}" bindtap="onGoDiagnose">
     <view class="tip-icon icon icon-camera" style="font-size:36rpx;"></view>
-    <text class="tip-text">完成AI诊断后，可获得个性化发型推荐</text>
+    <text class="tip-text">完成诊断后，可获得个性化发型推荐</text>
     <text class="tip-arrow">→</text>
   </view>
 

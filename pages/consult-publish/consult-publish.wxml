@@ -51,10 +51,10 @@
       <!-- 单品：AI识别品类 -->
       <view class="category-detect" wx:if="{{mode === 'buy'}}">
         <view class="detect-label" wx:if="{{categoryDetecting}}">
-          <text class="detect-spin">◌</text> AI 正在识别品类…
+          <text class="detect-spin">◌</text> 正在识别品类…
         </view>
         <view class="detect-label detect-success" wx:elif="{{category}}">
-          <text class="ai-badge">AI</text>
+          <text class="ai-badge">✓</text>
           识别为「<text class="detect-highlight">{{category}}</text>」
           <text class="detect-change" bindtap="onShowCategoryPicker">修改</text>
         </view>
@@ -79,7 +79,7 @@
 
     <view class="scene-tip" wx:if="{{mode === 'compare'}}">
       <text class="scene-tip-icon">💡</text>
-      对比模式下，AI 将根据「{{scene || '…'}}」场景对各款式进行评分
+      对比模式下，将根据「{{scene || '…'}}」场景对各款式进行评分
     </view>
   </view>
 
@@ -106,12 +106,12 @@
       <!-- 第一步：下一步 -->
       <button wx:if="{{step === 0}}" class="btn-next" bindtap="onNext"
         disabled="{{images.length === 0 || (mode === 'buy' && !category)}}">
-        {{images.length === 0 ? '请先上传照片' : (mode === 'buy' && !category) ? 'AI识别中…' : '下一步'}}
+        {{images.length === 0 ? '请先上传照片' : (mode === 'buy' && !category) ? '识别中…' : '下一步'}}
       </button>
 
       <!-- 第二步：开始分析 -->
       <button wx:else class="btn-submit" bindtap="onSubmit" disabled="{{submitting || !scene}}">
-        {{submitting ? '分析中…' : '开始 AI 分析'}}
+        {{submitting ? '分析中…' : '开始分析'}}
       </button>
     </view>
   </view>

@@ -204,28 +204,28 @@
   gap: 12rpx;
   margin: 19rpx 32rpx 0;
   padding: 20rpx 24rpx;
-  background: #fff;
+  background: #EBF4FF;
   border-radius: 20rpx;
-  border: 1rpx solid #F0EBE5;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.03);
+  border: 1rpx solid #C3DDF8;
+  box-shadow: 0 4rpx 16rpx rgba(74, 144, 226, 0.06);
 }
 
 .tip-icon {
   font-size: 28rpx;
-  color: #C8A97E;
+  color: #4A90E2;
   flex-shrink: 0;
 }
 
 .tip-text {
   flex: 1;
   font-size: 24rpx;
-  color: #8B7355;
+  color: #3A75C4;
   line-height: 1.5;
 }
 
 .tip-arrow {
   font-size: 28rpx;
-  color: #C8A97E;
+  color: #4A90E2;
   flex-shrink: 0;
 }
 

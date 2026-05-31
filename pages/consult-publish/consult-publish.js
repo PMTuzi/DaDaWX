@@ -44,7 +44,7 @@ Page({
         return
       }
       if (this.data.mode === 'buy' && !this.data.category) {
-        wx.showToast({ title: 'AI正在识别中，请稍候', icon: 'none' })
+        wx.showToast({ title: '正在识别中，请稍候', icon: 'none' })
         return
       }
       this.setData({ step: 1 })

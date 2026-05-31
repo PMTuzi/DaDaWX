@@ -69,7 +69,7 @@ Page({
         guideVisible: false,
         analyzing: true,
         progress: typeof t.progress === 'number' ? t.progress : 0,
-        scanLabel: t.label || 'AI 形象诊断中'
+        scanLabel: t.label || '形象诊断中'
       })
       this._updateScanLabel(this.data.progress)
       this._startFactRotation()
@@ -148,7 +148,7 @@ Page({
   safeSetData(data) {
     if (this._alive) { try { this.setData(data) } catch (e) {} }
     if (data && typeof data.progress === 'number') {
-      taskState.set('diagnose', { status: 'running', progress: data.progress, label: data.scanLabel || 'AI 形象诊断中' })
+      taskState.set('diagnose', { status: 'running', progress: data.progress, label: data.scanLabel || '形象诊断中' })
     }
   },
 
@@ -330,7 +330,7 @@ Page({
       taskState.set('diagnose', {
         status: 'running',
         progress: 0,
-        label: 'AI 形象诊断中',
+        label: '形象诊断中',
         imageUrl,
         localPhoto: savedPhoto || this.data.photoUrl,
         photoType: this.data.photoType
@@ -419,7 +419,7 @@ Page({
       this.setData({ analyzing: false, progress: 0 })
       wx.showModal({
         title: '诊断失败',
-        content: (err && err.message) || 'AI 分析过程出现异常，请重新尝试',
+        content: (err && err.message) || '分析过程出现异常，请重新尝试',
         showCancel: false
       })
     }

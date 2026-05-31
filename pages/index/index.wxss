@@ -2584,18 +2584,18 @@
 }
 .shop-rec-cell {
   flex-shrink: 0;
-  width: 200rpx;
+  width: 220rpx;
   background: #F8F6F4;
   border-radius: 16rpx;
-  padding: 20rpx 16rpx;
+  padding: 16rpx 16rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8rpx;
 }
 .sri-img-wrap {
-  width: 100rpx;
-  height: 100rpx;
+  width: 188rpx;
+  height: 188rpx;
   border-radius: 12rpx;
   background: #F0EDE8;
   display: flex;
@@ -2604,6 +2604,11 @@
 }
 .sri-img-placeholder {
   font-size: 48rpx;
+}
+.sri-img {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 .shop-rec-cell .sri-name {
   font-size: 24rpx;
@@ -2614,7 +2619,7 @@
   width: 100%;
 }
 .shop-rec-cell .sri-tag {
-  font-size: 20rpx;
+  font-size: 18rpx;
   color: #8A8580;
   text-align: center;
   width: 100%;

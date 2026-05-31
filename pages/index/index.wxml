@@ -521,7 +521,7 @@
       <view class="outfit-cta-bg"></view>
       <view class="outfit-cta-content">
         <text class="outfit-cta-label">下一步</text>
-        <text class="outfit-cta-title">根据你的风格，看看今天适合穿什么</text>
+        <text class="outfit-cta-title">根据你的报告，看看你穿的对不对</text>
         <view class="outfit-cta-btn">
           <text class="outfit-cta-btn-text">开始穿搭决策</text>
           <text class="outfit-cta-arrow">›</text>
@@ -542,16 +542,15 @@
           <view class="shop-rec-header">
             <view class="shop-rec-title-row">
               <text class="shop-rec-title-icon">✦</text>
-              <text class="shop-rec-title">{{activeTab === 'impression' ? '氛围感好物' : activeTab === 'celebrity' ? '风格同款' : activeTab === 'optimize' ? '蜕变好物' : activeTab === 'hairmakeup' ? '造型同款' : activeTab === 'dna' ? '精致好物' : activeTab === 'style' ? '色彩同款' : 'AI 精选好物'}}</text>
+              <text class="shop-rec-title">{{activeTab === 'impression' ? '氛围感好物' : activeTab === 'celebrity' ? '风格同款' : activeTab === 'optimize' ? '蜕变好物' : activeTab === 'hairmakeup' ? '造型同款' : activeTab === 'dna' ? '精致好物' : activeTab === 'style' ? '色彩同款' : '精选好物'}}</text>
             </view>
           </view>
           <view class="shop-rec-list-row">
             <view class="shop-rec-cell" bindtap="onIndexProductTap" data-id="{{item.id}}" wx:for="{{staticProducts}}" wx:key="id">
               <view class="sri-img-wrap">
-                <view class="sri-img-placeholder">{{item.emoji}}</view>
+                <image class="sri-img" src="{{item.image}}" mode="aspectFill" catchtap="onPreviewProductImage" data-src="{{item.image}}"></image>
               </view>
               <text class="sri-name">{{item.name}}</text>
-              <text class="sri-tag">{{item.tag}}</text>
               <view class="sri-bottom">
                 <text class="sri-price">¥{{item.price}}</text>
                 <view class="sri-btn">去看看</view>

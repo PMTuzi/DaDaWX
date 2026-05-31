@@ -39,7 +39,12 @@
         "type": "file"
       }
     ],
-    "include": []
+    "include": [
+      {
+        "value": "images/穿搭推荐/**",
+        "type": "glob"
+      }
+    ]
   },
   "setting": {
     "bundle": false,

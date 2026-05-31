@@ -123,23 +123,22 @@
             </view>
           </view>
         </view>
+      </view>
 
-        <!-- 精选好物（假门测试） -->
-        <view class="card shop-rec-card">
-          <view class="card-title"><view class="icon icon-sparkle" style="font-size:28rpx;margin-right:6rpx;"></view> 精选好物</view>
-          <text class="shop-rec-sub">适合你的风格好物</text>
-          <view class="shop-rec-list">
-            <view class="shop-rec-item" wx:for="{{staticProducts}}" wx:key="id" bindtap="onProductTap" data-id="{{item.id}}">
-              <view class="sri-img-wrap">
-                <view class="sri-img-placeholder">{{item.emoji}}</view>
-              </view>
-              <view class="sri-info">
-                <text class="sri-name">{{item.name}}</text>
-                <text class="sri-tag">{{item.tag}}</text>
-                <view class="sri-bottom">
-                  <text class="sri-price">¥{{item.price}}</text>
-                  <view class="sri-btn">去看看</view>
-                </view>
+      <!-- 精选好物（假门测试） -->
+      <view class="card shop-rec-card">
+        <view class="card-title"><view class="icon icon-sparkle" style="font-size:28rpx;margin-right:6rpx;"></view> 精选好物</view>
+        <text class="shop-rec-sub">适合你的风格好物</text>
+        <view class="shop-rec-list">
+          <view class="shop-rec-item" wx:for="{{staticProducts}}" wx:key="id" bindtap="onProductTap" data-id="{{item.id}}">
+            <view class="sri-img-wrap">
+              <image class="sri-img" src="{{item.image}}" mode="aspectFill" catchtap="onPreviewProductImage" data-src="{{item.image}}"></image>
+            </view>
+            <view class="sri-info">
+              <text class="sri-name">{{item.name}}</text>
+              <view class="sri-bottom">
+                <text class="sri-price">¥{{item.price}}</text>
+                <view class="sri-btn">去看看</view>
               </view>
             </view>
           </view>
@@ -235,11 +234,10 @@
           <view class="shop-rec-list">
             <view class="shop-rec-item" wx:for="{{staticProducts}}" wx:key="id" bindtap="onProductTap" data-id="{{item.id}}">
               <view class="sri-img-wrap">
-                <view class="sri-img-placeholder">{{item.emoji}}</view>
+                <image class="sri-img" src="{{item.image}}" mode="aspectFill" catchtap="onPreviewProductImage" data-src="{{item.image}}"></image>
               </view>
               <view class="sri-info">
                 <text class="sri-name">{{item.name}}</text>
-                <text class="sri-tag">{{item.tag}}</text>
                 <view class="sri-bottom">
                   <text class="sri-price">¥{{item.price}}</text>
                   <view class="sri-btn">去看看</view>
@@ -362,9 +360,9 @@
         <text class="shop-rec-sub-inline">{{record.styleTier ? '适合你的风格好物' : '为你严选单品'}}</text>
       </view>
       <view class="shop-rec-list">
-        <view class="shop-rec-item" wx:for="{{staticProducts}}" wx:key="id" bindtap="onProductTap" data-id="{{item.id}}">
+        <view class="shop-rec-item" wx:for="{{staticProducts2}}" wx:key="id" bindtap="onProductTap" data-id="{{item.id}}">
           <view class="sri-img-wrap">
-            <view class="sri-img-placeholder">{{item.emoji}}</view>
+            <image class="sri-img" src="{{item.image}}" mode="aspectFill" catchtap="onPreviewProductImage" data-src="{{item.image}}"></image>
           </view>
           <view class="sri-info">
             <text class="sri-name">{{item.name}}</text>

@@ -72,7 +72,7 @@
   <!-- 新手提示 -->
   <view class="beginner-tip" wx:if="{{!hasReport}}" bindtap="onGoDiagnose">
     <view class="tip-icon icon icon-chart"></view>
-    <text class="tip-text">完成AI形象诊断后，穿搭决策将更精准匹配你的风格</text>
+    <text class="tip-text">完成形象诊断后，穿搭决策将更精准匹配你的风格</text>
     <text class="tip-arrow">→</text>
   </view>
 

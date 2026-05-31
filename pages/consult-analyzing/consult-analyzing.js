@@ -71,7 +71,7 @@ Page({
       taskState.set('consult', {
         status: 'running',
         progress: 0,
-        label: 'AI 穿搭决策中',
+        label: '穿搭决策中',
         type,
         previewImages,
         previewImage
@@ -150,7 +150,7 @@ Page({
       try { this.setData(data) } catch (e) {}
     }
     if (data && typeof data.progress === 'number') {
-      taskState.set('consult', { status: 'running', progress: data.progress, label: 'AI 穿搭决策中' })
+      taskState.set('consult', { status: 'running', progress: data.progress, label: '穿搭决策中' })
     }
   },
 

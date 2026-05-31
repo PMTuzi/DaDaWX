@@ -215,7 +215,7 @@ Page({
   onAbout() {
     wx.showModal({
       title: '关于美哒',
-      content: '国内首款「反种草」AI 形象风格分析平台\n版本: 1.0.0\n\n基于美哒 Meeta自研大模型，为您提供专业级形象分析与穿搭决策',
+      content: '国内首款「反种草」形象风格分析平台\n版本: 1.0.0\n\n基于美哒 Meeta自研大模型，为您提供专业级形象分析与穿搭决策',
   
       showCancel: false
     })
@@ -224,7 +224,7 @@ Page({
   onPrivacy() {
     wx.showModal({
       title: '隐私协议',
-      content: '1. 您的照片仅用于AI分析，7天后自动清除\n2. 诊断报告存储在本地，不会上传至服务器\n3. 我们不会收集或分享您的个人信息\n4. 您可随时删除所有个人数据',
+      content: '1. 您的照片仅用于分析，7天后自动清除\n2. 诊断报告存储在本地，不会上传至服务器\n3. 我们不会收集或分享您的个人信息\n4. 您可随时删除所有个人数据',
       showCancel: false
     })
   },
@@ -253,7 +253,7 @@ Page({
       const v = latest && latest.basic && latest.basic.percentile
       if (v != null && !isNaN(v)) pct = v
     } catch (e) {}
-    return `我的颜值打败了 ${pct}% 的人，你敢测吗？AI 帮你打个真分`
+    return `我的颜值打败了 ${pct}% 的人，你敢测吗？帮你打个真分`
   },
 
   onShareAppMessage() {

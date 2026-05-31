@@ -8,7 +8,7 @@
   <!-- 顶部状态徽标 -->
   <view class="status-tag">
     <view class="tag-dot"></view>
-    <text>AI ANALYZING · 穿搭分析中</text>
+    <text>ANALYZING · 穿搭分析中</text>
   </view>
 
   <!-- 科技扫描动画区域 -->

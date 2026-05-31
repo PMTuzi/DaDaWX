@@ -57,7 +57,7 @@ Page({
       this.setData({ shared: true })
     }
     return {
-      title: 'AI形象诊断 - 发现你的专属风格密码',
+      title: '形象诊断 - 发现你的专属风格密码',
       path: '/pages/index/index',
       imageUrl: '/images/finalbanner1.jpg'
     }
