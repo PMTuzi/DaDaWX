@@ -22,8 +22,8 @@
       <view class="brand-text">
         <view class="logo">
           <text class="logo-zh">美哒</text>
-          <text class="logo-sep">{{hasReport ? '' : '·'}}</text>
-          <text class="logo-en">{{hasReport ? 'Meeta' : '形象工作台'}}</text>
+          <text class="logo-sep">·</text>
+          <text class="logo-en">形象工作台</text>
         </view>
         <view class="slogan" wx:if="{{!hasReport}}">{{slogan}}</view>
       </view>
@@ -531,9 +531,6 @@
 
     <!-- 报告末尾流式操作收尾区 -->
     <view class="report-actions">
-      <view class="report-actions-tip" wx:if="{{!shared}}">
-        <text class="report-actions-tip-icon">↗</text>
-      </view>
       <!-- AI精选好物 + 操作按钮为一组 -->
       <view class="report-actions-body">
         <!-- AI精选好物（假门测试） -->
@@ -558,7 +555,7 @@
             </view>
           </view>
         </view>
-        <view class="report-actions-row" wx:if="{{shared}}">
+        <view class="report-actions-row">
           <button class="report-action-btn save" bindtap="onSaveAllImages">
             <text class="report-action-icon">⤓</text>
             <text class="report-action-text">保存形象诊断卡</text>
@@ -566,16 +563,6 @@
           <button class="report-action-btn redo" bindtap="onReDiagnose">
             <text class="report-action-icon">↻</text>
             <text class="report-action-text">重新拍照诊断</text>
-          </button>
-        </view>
-        <view class="report-actions-row" wx:else>
-          <button class="report-action-btn save locked" open-type="share">
-            <text class="report-action-icon">↗</text>
-            <text class="report-action-text">转发解锁·保存</text>
-          </button>
-          <button class="report-action-btn redo locked" open-type="share">
-            <text class="report-action-icon">↗</text>
-            <text class="report-action-text">转发解锁·重测</text>
           </button>
         </view>
       </view>
@@ -625,23 +612,21 @@
     </view>
   </view>
 
-  <!-- 未诊断态：三步引导 -->
+  <!-- 未诊断态：三步引导（横向步骤条） -->
   <view class="diag-steps-card" wx:if="{{!hasReport}}">
-    <view class="diag-steps-title">
-      <text class="diag-steps-title-icon">✦</text>
-      <text>三步获取专属形象报告</text>
-    </view>
-    <view class="diag-step">
-      <text class="diag-step-num">1</text>
-      <text class="diag-step-text">上传一张清晰正脸照</text>
-    </view>
-    <view class="diag-step">
-      <text class="diag-step-num">2</text>
-      <text class="diag-step-text">AI 分析骨相 · 肤色 · 明星相似度</text>
-    </view>
-    <view class="diag-step">
-      <text class="diag-step-num">3</text>
-      <text class="diag-step-text">生成发型妆容 · 穿搭 · 蜕变建议</text>
+    <view class="steps-bar">
+      <view class="step-node">
+        <view class="step-dot">1</view>
+        <text class="step-label">上传正脸照</text>
+      </view>
+      <view class="step-node">
+        <view class="step-dot">2</view>
+        <text class="step-label">多维分析</text>
+      </view>
+      <view class="step-node">
+        <view class="step-dot">3</view>
+        <text class="step-label">生成报告</text>
+      </view>
     </view>
   </view>
 

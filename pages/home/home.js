@@ -290,7 +290,10 @@ Page({
     cdnImages: { hair: [], makeup: {}, advice: {}, roadmap: [] },
     currentReportId: '',
     // 假门测试：静态商品数据
-    staticProducts: []
+    staticProducts: [],
+    // ===== 聚合工作台 =====
+    reportSummary: null,   // 最近报告摘要卡数据
+    consultHistory: []     // 穿搭历史（最近 3 条）
   },
 
   onLoad(options) {
@@ -319,6 +322,7 @@ Page({
       this.setData({ currentReportId: pendingId })
     }
     this.loadLatestReport()
+    this.loadConsultHistory()
     if (!this._taskBarsMixed) { mixinTaskBars(this, { onDone: (type) => { if (type === 'diagnose') this.loadLatestReport() } }); this._taskBarsMixed = true }
     this.startTaskBars()
   },
@@ -373,30 +377,73 @@ Page({
   },
 
   loadLatestReport() {
+    // 聚合工作台：读取最近一份报告，生成摘要卡数据（首页不展示完整报告，只做入口）
     const reports = wx.getStorageSync('reports') || []
     if (!reports.length) {
-      this.setData({ hasReport: false, latestReport: null })
+      this.setData({ hasReport: false, latestReport: null, reportSummary: null })
       return
     }
-    const id = this.data.currentReportId
-    let target = id ? reports.find(r => r.id === id) : reports[0]
-    if (!target) target = reports[0]
-
-    // 老报告兜底补算颜值百分位
-    if (target.basic && (target.basic.percentile == null || isNaN(target.basic.percentile))) {
-      target.basic.percentile = calcPercentile(target.basic.overallScore)
+    const r = reports[0]
+    const score = (r.basic && r.basic.overallScore) || 0
+    let percentile = r.basic && r.basic.percentile
+    if (percentile == null || isNaN(percentile)) percentile = calcPercentile(score)
+    const style = (r.modules && r.modules.style) || r.style || {}
+    const optimize = (r.modules && r.modules.optimize) || {}
+    const summary = {
+      id: r.id,
+      createTime: r.createTime || '',
+      score,
+      percentile,
+      level: getScoreLevel(score),
+      mainStyle: style.mainStyle || '',
+      tags: (r.basic && r.basic.tags) || [],
+      coreConclusion: optimize.coreConclusion || (r.summary && r.summary.coreConclusion) || ''
     }
-    // 第一印象 · 魅力六边形：根据已有报告数据派生 6 维评分
-    if (!target.modules) target.modules = {}
-    target.modules.impression = this.computeImpression(target)
-    this.setData({
-      hasReport: true,
-      latestReport: target,
-      scoreLevel: getScoreLevel(target.basic?.overallScore || 0),
-      activeTab: 'impression',
-      cdnImages: buildCdnImages(target)
+    this.setData({ hasReport: true, latestReport: r, reportSummary: summary })
+  },
+
+  // 加载穿搭决策历史（最近 3 条）
+  loadConsultHistory() {
+    const list = wx.getStorageSync('consultRecords') || []
+    const recent = list.slice(0, 3).map(it => {
+      // 浓缩卡片封面：优先展示最推荐的选项（对比模式），无则回退首图
+      const imgs = it.images || []
+      let idx = it.recommendedIndex || 0
+      if (idx < 0 || idx >= imgs.length) idx = 0
+      const cover = imgs[idx] || imgs[0]
+      return {
+        id: it.id,
+        typeLabel: it.type === 'compare' ? '对比' : '单品',
+        verdict: it.verdict || '',
+        totalScore: (it.totalScore != null && it.totalScore !== '') ? it.totalScore : '--',
+        createTime: it.createTime || '',
+        thumb: (cover && (cover.localPath || cover.imageUrl || cover)) || ''
+      }
     })
-    setTimeout(() => this.drawRadarChart(), 300)
+    this.setData({ consultHistory: recent })
+  },
+
+  // 查看完整报告
+  onViewReport() {
+    const id = this.data.reportSummary && this.data.reportSummary.id
+    if (!id) { this.onStartDiagnose(); return }
+    wx.navigateTo({ url: `/pages/report/report?id=${id}` })
+  },
+
+  // 去穿搭决策 tab
+  onGoOutfit() {
+    wx.switchTab({ url: '/pages/outfit/outfit' })
+  },
+
+  // 发起穿搭决策
+  onStartConsult() {
+    wx.navigateTo({ url: '/pages/consult-publish/consult-publish' })
+  },
+
+  // 查看某条穿搭历史
+  onViewConsult(e) {
+    const id = e.currentTarget.dataset.id
+    if (id) wx.navigateTo({ url: `/pages/consult-result/consult-result?id=${id}` })
   },
 
   // 立即诊断 - 需要登录确认
@@ -513,22 +560,6 @@ Page({
     const tab = e.currentTarget.dataset.tab
     this.setData({ activeTab: tab })
     setTimeout(() => this.drawRadarChart(), 100)
-    // 切换 tab 后回到 tab 栏顶部：滚到 report-header 底部（= 吸顶 tab 栏的自然位置），
-    // 让新 tab 内容从顶部开始展示
-    this.scrollToReportTabs()
-  },
-
-  scrollToReportTabs() {
-    const q = wx.createSelectorQuery().in(this)
-    q.select('.report-header').boundingClientRect()
-    q.selectViewport().scrollOffset()
-    q.exec((res) => {
-      const rect = res && res[0]
-      const scroll = res && res[1]
-      if (!rect || !scroll) return
-      const target = rect.top + scroll.scrollTop + rect.height
-      wx.pageScrollTo({ scrollTop: target > 0 ? target : 0, duration: 200 })
-    })
   },
 
   onAvatarError() {

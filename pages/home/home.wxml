@@ -1,0 +1,125 @@
+<!-- 聚合工作台 / 仪表盘 -->
+<view class="dashboard">
+
+  <!-- 顶部品牌 + 诊断入口 -->
+  <view class="dash-hero">
+    <view class="dash-hero-title">搭搭 · 形象工作台</view>
+    <view class="dash-hero-sub">{{slogan}}</view>
+    <view class="dash-cta" bindtap="onStartDiagnose" hover-class="dash-cta-hover">
+      <text class="dash-cta-text">{{hasReport ? '重新诊断 · 更新形象报告' : '上传正脸照 · 开启形象风格诊断'}}</text>
+      <text class="dash-cta-arrow">→</text>
+    </view>
+  </view>
+
+  <!-- 最近报告 -->
+  <view class="dash-section">
+    <view class="dash-sec-head">
+      <text class="dash-sec-title">最近报告</text>
+      <text class="dash-sec-more" wx:if="{{hasReport}}" bindtap="onViewReport">查看完整 ›</text>
+    </view>
+
+    <view wx:if="{{hasReport}}" class="report-card" bindtap="onViewReport">
+      <view class="report-card-top">
+        <view class="report-score">
+          <text class="report-score-num">{{reportSummary.score}}</text>
+          <text class="report-score-unit">分</text>
+        </view>
+        <view class="report-meta">
+          <text class="report-level" wx:if="{{reportSummary.level}}" style="color:{{reportSummary.level.color}}">{{reportSummary.level.text}}</text>
+          <text class="report-percentile" wx:if="{{reportSummary.percentile}}">超过 {{reportSummary.percentile}}% 的人</text>
+          <text class="report-style" wx:if="{{reportSummary.mainStyle}}">主风格 · {{reportSummary.mainStyle}}</text>
+        </view>
+      </view>
+      <view class="report-tags" wx:if="{{reportSummary.tags.length}}">
+        <text class="report-tag" wx:for="{{reportSummary.tags}}" wx:key="*this">{{item}}</text>
+      </view>
+      <view class="report-conclusion" wx:if="{{reportSummary.coreConclusion}}">{{reportSummary.coreConclusion}}</view>
+      <view class="report-card-foot">
+        <text class="report-time">{{reportSummary.createTime}}</text>
+        <text class="report-view">查看完整报告 ›</text>
+      </view>
+    </view>
+
+    <view wx:else class="empty-card" bindtap="onStartDiagnose">
+      <text class="empty-title">还没有形象诊断报告</text>
+      <text class="empty-desc">上传一张清晰正脸照，即可生成专属风格报告</text>
+      <view class="empty-btn">立即诊断</view>
+    </view>
+  </view>
+  <!-- 蜕变计划 -->
+  <view class="dash-section" wx:if="{{hasReport}}">
+    <view class="beauty-plan-card" bindtap="onGoBeautyPlan">
+      <view class="bp-left">
+        <text class="bp-title">28 天蜕变计划</text>
+        <text class="bp-desc">根据你的报告，每天一个小任务</text>
+      </view>
+      <text class="bp-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 穿搭历史 -->
+  <view class="dash-section">
+    <view class="dash-sec-head">
+      <text class="dash-sec-title">穿搭决策</text>
+      <text class="dash-sec-more" wx:if="{{consultHistory.length}}" bindtap="onGoOutfit">全部 ›</text>
+    </view>
+
+    <view wx:if="{{consultHistory.length}}" class="consult-list">
+      <view class="consult-item" wx:for="{{consultHistory}}" wx:key="id" data-id="{{item.id}}" bindtap="onViewConsult">
+        <image wx:if="{{item.thumb}}" class="consult-thumb" src="{{item.thumb}}" mode="aspectFill" />
+        <view wx:else class="consult-thumb consult-thumb-ph"></view>
+        <view class="consult-info">
+          <view class="consult-line1">
+            <text class="consult-type">{{item.typeLabel}}</text>
+            <text class="consult-verdict">{{item.verdict}}</text>
+          </view>
+          <text class="consult-time">{{item.createTime}}</text>
+        </view>
+        <view class="consult-score">
+          <text class="consult-score-num">{{item.totalScore}}</text>
+          <text class="consult-score-unit">分</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="consult-start" bindtap="onStartConsult">
+      <text>+ 开始反种草 · 穿搭决策</text>
+    </view>
+  </view>
+
+  <!-- 今日推荐 -->
+  <view class="dash-section" wx:if="{{staticProducts.length}}">
+    <view class="dash-sec-head">
+      <text class="dash-sec-title">今日推荐</text>
+    </view>
+    <scroll-view class="rec-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="rec-item" wx:for="{{staticProducts}}" wx:key="id" data-src="{{item.image}}" bindtap="onPreviewProductImage">
+        <image class="rec-img" src="{{item.image}}" mode="aspectFill" />
+        <text class="rec-name">{{item.name}}</text>
+        <text class="rec-tag">{{item.tag}}</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 登录确认弹窗 -->
+  <view class="login-modal-mask" wx:if="{{showLoginModal}}" bindtap="onCloseLoginModal">
+    <view class="login-modal" catchtap="onPreventBubble">
+      <view class="login-modal-title">完善个人信息</view>
+      <view class="login-modal-desc">点击即可获取微信头像和昵称，也可自行编辑</view>
+      <view class="login-avatar-area">
+        <button class="login-avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+          <image wx:if="{{loginAvatarUrl}}" class="login-avatar-img" src="{{loginAvatarUrl}}" mode="aspectFill" />
+          <view wx:else class="login-avatar-placeholder"><text class="login-avatar-add">+</text></view>
+          <view class="login-avatar-edit">选择头像</view>
+        </button>
+      </view>
+      <view class="login-nickname-area">
+        <input class="login-nickname-input" type="nickname" placeholder="点击获取微信昵称"
+               value="{{loginNickname}}" bindblur="onNicknameInput" bindconfirm="onNicknameInput"
+               focus="{{autoFocusNickname}}" />
+      </view>
+      <view class="login-confirm-btn" bindtap="onConfirmLogin"><text>确认开启</text></view>
+      <view class="login-skip" bindtap="onSkipLogin">暂不设置，直接体验</view>
+    </view>
+  </view>
+</view>

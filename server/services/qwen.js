@@ -292,18 +292,15 @@ async function analyzePart2(imageInput, part1Data, gender = 'auto', userInfo = {
   const ageInfo = userInfo.age ? `${userInfo.age}岁` : ''
   const bodyInfo = (userInfo.height || userInfo.weight) ? `，身高${userInfo.height || '?'}cm，体重${userInfo.weight || '?'}kg` : ''
   const genderText = gender === 'male' ? '男性' : (gender === 'female' ? '女性' : '人物（请先根据照片自动识别性别，并基于识别结果做相应分析）')
-  const prompt = `你是一位顶级形象顾问+发型师+化妆师AI，请根据以下${genderText}${ageInfo ? '（' + ageInfo + bodyInfo + '）' : ''}的面部分析数据和照片，完成两个模块的深度分析。
+  const prompt = `你是一位顶级形象顾问+发型师+化妆师AI，请仔细观察这张${genderText}${ageInfo ? '（' + ageInfo + bodyInfo + '）' : ''}的照片，直接基于照片完成两个模块的深度分析。
 
 【重要规则】
-1. 必须严格基于具体特征做判断，不同人必须有明显差异
+1. 必须严格基于照片具体特征做判断，不同人必须有明显差异
 2. 发型推荐必须针对脸型和发质，不要给通用推荐
 3. 妆容建议必须具体到色调和手法
 4. 颜值优化只能推荐保守方案（护肤/化妆/发型/穿搭），绝对不能推荐任何整容/医美项目
 5. 所有描述必须具体，禁止写"适中""百搭""日常"等模糊词
 6. 文案使用第二人称"你"来描述
-
-## 已有分析数据
-${JSON.stringify(part1Data, null, 2)}
 
 以JSON格式输出：
 

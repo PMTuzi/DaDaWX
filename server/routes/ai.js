@@ -135,14 +135,18 @@ router.post('/start-analysis', authRequired, async (req, res) => {
       const task = tasks.get(taskId)
       const imageInput = imageUrl
 
-      // Part1 分析
-      task.step = '深度面部骨相分析'; task.progress = 10
-      console.log(`[AI] 任务${taskId} 开始Part1, 用户${openid.substring(0, 8)}...`)
+      // Part1 + Part2 并行分析（Part2 已改为直接看图、不依赖 Part1，省去一次串行的视觉调用 ~90s）
+      task.step = '深度分析中'; task.progress = 15
+      console.log(`[AI] 任务${taskId} 并行 Part1+Part2, 用户${openid.substring(0, 8)}...`)
 
-      const part1Data = await analyzePart1(imageInput, photoType, gender, { age, height, weight }).catch(err => {
-        console.warn('[AI] VL Part1失败:', err.message)
-        return null
-      })
+      const [part1Data, part2Raw] = await Promise.all([
+        analyzePart1(imageInput, photoType, gender, { age, height, weight }).catch(err => {
+          console.warn('[AI] VL Part1失败:', err.message); return null
+        }),
+        analyzePart2(imageInput, null, gender, { age, height, weight }).catch(err => {
+          console.warn('[AI] VL Part2失败:', err.message); return null
+        })
+      ])
 
       if (!part1Data) {
         task.status = 'failed'
@@ -150,17 +154,10 @@ router.post('/start-analysis', authRequired, async (req, res) => {
         return
       }
 
-      // Part2 分析
-      task.step = '色彩形象风格分析'; task.progress = 40
-      console.log(`[AI] 任务${taskId} 开始Part2`)
-
-      const part2Data = await analyzePart2(imageInput, part1Data, gender, { age, height, weight }).catch(err => {
-        console.warn('[AI] VL Part2失败:', err.message)
-        return {
-          module3_hairmakeup: { title: '发型&妆容', hairRecommend: { top3: [], alternatives: [], hairColors: [], avoidHair: [] }, makeup: { style: '待分析' }, keyInsight: '' },
-          module4_optimize: { title: '颜值优化诊断', optimizablePoints: [], priorityOrder: '', roadmap3m: {}, coreConclusion: '', keyInsight: '' }
-        }
-      })
+      const part2Data = part2Raw || {
+        module3_hairmakeup: { title: '发型&妆容', hairRecommend: { top3: [], alternatives: [], hairColors: [], avoidHair: [] }, makeup: { style: '待分析' }, keyInsight: '' },
+        module4_optimize: { title: '颜值优化诊断', optimizablePoints: [], priorityOrder: '', roadmap3m: {}, coreConclusion: '', keyInsight: '' }
+      }
 
       // 计算评分（与 prompt【评分标准】对齐：face 主导 50%，去掉 +7*15% 的安全分基线）
       task.step = '生成报告'; task.progress = 80
@@ -208,10 +205,12 @@ router.post('/start-analysis', authRequired, async (req, res) => {
         imageComplete: false
       }
 
-      // 抓取明星头像（同步，最多等 6s）
-      task.step = '抓取明星头像'; task.progress = 90
+      // 抓取明星头像：最多阻塞 3s；命中缓存的明星秒回，未命中则先返回报告、后台继续补全并预热缓存
+      task.step = '生成报告'; task.progress = 90
       if (result.modules.celebrity) {
-        await enrichCelebrityImages(result.modules.celebrity)
+        const enrichPromise = enrichCelebrityImages(result.modules.celebrity)
+          .catch(e => console.warn('[AI] 明星头像补全失败:', e.message))
+        await Promise.race([enrichPromise, new Promise(r => setTimeout(r, 3000))])
       }
 
       task.status = 'done'
@@ -271,19 +270,21 @@ router.post('/full-analysis', authRequired, async (req, res) => {
     }
     const imageInput = imageUrl
 
-    const part1Data = await analyzePart1(imageInput, photoType, gender, { age, height, weight }).catch(err => {
-      console.warn('[AI] VL Part1失败:', err.message)
-      return null
-    })
+    // Part1 + Part2 并行（Part2 已改为直接看图，不依赖 Part1）
+    const [part1Data, part2Raw] = await Promise.all([
+      analyzePart1(imageInput, photoType, gender, { age, height, weight }).catch(err => {
+        console.warn('[AI] VL Part1失败:', err.message); return null
+      }),
+      analyzePart2(imageInput, null, gender, { age, height, weight }).catch(err => {
+        console.warn('[AI] VL Part2失败:', err.message); return null
+      })
+    ])
     if (!part1Data) throw new Error('视觉分析返回为空')
 
-    const part2Data = await analyzePart2(imageInput, part1Data, gender, { age, height, weight }).catch(err => {
-      console.warn('[AI] VL Part2失败:', err.message)
-      return {
-        module3_hairmakeup: { title: '发型&妆容', hairRecommend: { top3: [], alternatives: [], hairColors: [], avoidHair: [] }, makeup: { style: '待分析' }, keyInsight: '' },
-        module4_optimize: { title: '颜值优化诊断', optimizablePoints: [], priorityOrder: '', roadmap3m: {}, coreConclusion: '', keyInsight: '' }
-      }
-    })
+    const part2Data = part2Raw || {
+      module3_hairmakeup: { title: '发型&妆容', hairRecommend: { top3: [], alternatives: [], hairColors: [], avoidHair: [] }, makeup: { style: '待分析' }, keyInsight: '' },
+      module4_optimize: { title: '颜值优化诊断', optimizablePoints: [], priorityOrder: '', roadmap3m: {}, coreConclusion: '', keyInsight: '' }
+    }
 
     const faceScore = part1Data.module1_dna?.faceScore || 5
     const skinScore = ((part1Data.module2_style?.brightness || 5) + (part1Data.module2_style?.purity || 5)) / 2
