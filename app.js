@@ -3,7 +3,7 @@ App({
     // 初始化云开发（callContainer 需要）
     if (wx.cloud) {
       wx.cloud.init({
-        env: 'dada-d9gw8x8fb426caba5',
+        env: 'dada0810-d6g6aowp1aeffc3ce',
         traceUser: true,
       })
     }
@@ -25,7 +25,7 @@ App({
         if (!res.code) return
         // 调用后端登录接口换取 token
         wx.cloud.callContainer({
-          config: { env: 'dada-d9gw8x8fb426caba5' },
+          config: { env: 'dada0810-d6g6aowp1aeffc3ce' },
           path: '/api/user/login',
           method: 'POST',
           service: 'dada-server',

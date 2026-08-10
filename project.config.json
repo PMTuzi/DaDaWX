@@ -1,86 +1,41 @@
 {
-  "description": "项目配置文件",
-  "packOptions": {
-    "ignore": [
-      {
-        "value": "server",
-        "type": "folder"
-      },
-      {
-        "value": ".codebuddy",
-        "type": "folder"
-      },
-      {
-        "value": "prd",
-        "type": "file"
-      },
-      {
-        "value": "README.md",
-        "type": "file"
-      },
-      {
-        "value": ".env",
-        "type": "file"
-      },
-      {
-        "value": ".git/**",
-        "type": "glob"
-      },
-      {
-        "value": "*.png",
-        "type": "glob"
-      },
-      {
-        "value": "*.mp4",
-        "type": "glob"
-      },
-      {
-        "value": "deploy.sh",
-        "type": "file"
-      }
-    ],
-    "include": [
-      {
-        "value": "images/穿搭推荐/**",
-        "type": "glob"
-      }
-    ]
-  },
+  "miniprogramRoot": "./",
   "setting": {
-    "bundle": false,
-    "userConfirmedBundleSwitch": false,
-    "urlCheck": false,
-    "scopeDataCheck": false,
-    "coverView": true,
+    "urlCheck": true,
     "es6": true,
+    "enhance": true,
     "postcss": true,
-    "compileHotReLoad": false,
-    "lazyloadPlaceholderEnable": false,
     "preloadBackgroundData": false,
     "minified": true,
-    "autoAudits": false,
-    "newFeature": false,
-    "uglifyFileName": false,
-    "uploadWithSourceMap": true,
-    "useIsolateContext": true,
+    "newFeature": true,
+    "coverView": true,
     "nodeModules": false,
-    "enhance": true,
+    "autoAudits": false,
+    "showShadowRootInWxmlPanel": true,
+    "scopeDataCheck": false,
+    "uglifyFileName": false,
+    "checkInvalidKey": true,
+    "checkSiteMap": true,
+    "uploadWithSourceMap": true,
+    "compileHotReLoad": false,
     "useMultiFrameRuntime": true,
     "useApiHook": true,
     "useApiHostProcess": true,
-    "showShadowRootInWxmlPanel": true,
-    "packNpmManually": false,
-    "enableEngineNative": false,
-    "packNpmRelationList": [],
-    "minifyWXSS": true,
-    "showES6CompileOption": false,
-    "minifyWXML": true,
     "babelSetting": {
       "ignore": [],
       "disablePlugins": [],
       "outputPath": ""
     },
+    "enableEngineNative": false,
+    "useIsolateContext": true,
+    "useCompilerModule": true,
+    "userConfirmedUseCompilerModuleSwitch": false,
+    "userConfirmedBundleSwitch": false,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
     "compileWorklet": false,
+    "minifyWXML": true,
     "localPlugins": false,
     "disableUseStrict": false,
     "useCompilerPlugins": false,
@@ -88,11 +43,42 @@
     "swc": false,
     "disableSWC": true
   },
-  "compileType": "miniprogram",
-  "libVersion": "3.16.0",
   "appid": "wx8fc58531b3253205",
-  "projectname": "dada",
-  "condition": {},
-  "simulatorPluginLibVersion": {},
-  "editorSetting": {}
+  "projectname": "dada0810",
+  "libVersion": "3.17.1",
+  "condition": {
+    "search": {
+      "list": []
+    },
+    "conversation": {
+      "list": []
+    },
+    "plugin": {
+      "list": []
+    },
+    "game": {
+      "list": []
+    },
+    "miniprogram": {
+      "list": []
+    }
+  },
+  "compileType": "miniprogram",
+  "srcMiniprogramRoot": "./",
+  "packOptions": {
+    "ignore": [
+      { "type": "folder", "value": "server" },
+      { "type": "folder", "value": "miniprogram" },
+      { "type": "folder", "value": "cloudfunctions" },
+      { "type": "file", "value": "prd" },
+      { "type": "file", "value": "README.md" },
+      { "type": "file", "value": "uploadCloudFunction.sh" }
+    ],
+    "include": []
+  },
+  "editorSetting": {
+    "tabIndent": "insertSpaces",
+    "tabSize": 2
+  },
+  "simulatorPluginLibVersion": {}
 }

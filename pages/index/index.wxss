@@ -2107,6 +2107,109 @@
   to { transform: translateX(0); }
 }
 
+/* ===== 未诊断态：顶部引导条 ===== */
+.diag-entry-banner {
+  display: flex;
+  align-items: center;
+  margin: 24rpx 32rpx 20rpx;
+  padding: 24rpx 28rpx;
+  background: linear-gradient(135deg, #F0F6FF 0%, #E6F0FB 100%);
+  border: 1rpx solid rgba(96, 150, 200, 0.25);
+  border-radius: 16rpx;
+}
+.diag-entry-banner-hover { opacity: 0.85; }
+.diag-entry-bars {
+  display: flex;
+  align-items: flex-end;
+  height: 28rpx;
+  margin-right: 16rpx;
+}
+.diag-entry-bars text {
+  width: 6rpx;
+  margin-right: 4rpx;
+  background: #4A7BC0;
+  border-radius: 2rpx;
+}
+.diag-entry-bars text:nth-child(1) { height: 14rpx; }
+.diag-entry-bars text:nth-child(2) { height: 22rpx; }
+.diag-entry-bars text:nth-child(3) { height: 28rpx; }
+.diag-entry-banner-text {
+  flex: 1;
+  font-size: 27rpx;
+  color: #3A6EA5;
+  font-weight: 500;
+}
+.diag-entry-banner-arrow {
+  font-size: 30rpx;
+  color: #4A7BC0;
+  margin-left: 12rpx;
+}
+
+/* ===== 未诊断态：今日完成诊断提示 ===== */
+.diag-done-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20rpx 32rpx;
+  padding: 16rpx 24rpx;
+  background: rgba(74, 123, 192, 0.06);
+  border-radius: 12rpx;
+}
+.diag-done-eye {
+  font-size: 26rpx;
+  color: #6E9BCB;
+  margin-right: 12rpx;
+}
+.diag-done-text {
+  font-size: 24rpx;
+  color: #5A7699;
+  letter-spacing: 1rpx;
+}
+
+/* ===== 未诊断态：3 步说明卡片 ===== */
+.diag-steps-card {
+  margin: -150rpx 32rpx 40rpx;
+  padding: 20rpx 28rpx 12rpx;
+  background: #FFFFFF;
+  border: 1rpx solid rgba(96, 150, 200, 0.15);
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgba(96, 150, 200, 0.06);
+}
+.diag-steps-title {
+  display: flex;
+  align-items: center;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #C89A3C;
+  margin-bottom: 12rpx;
+}
+.diag-steps-title-icon {
+  color: #E0B84C;
+  margin-right: 10rpx;
+}
+.diag-step {
+  display: flex;
+  align-items: center;
+  padding: 7rpx 0;
+}
+.diag-step-num {
+  flex-shrink: 0;
+  width: 34rpx;
+  height: 34rpx;
+  line-height: 34rpx;
+  text-align: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #5A8DD6 0%, #4A7BC0 100%);
+  color: #FFFFFF;
+  font-size: 22rpx;
+  font-weight: 600;
+  margin-right: 16rpx;
+}
+.diag-step-text {
+  font-size: 26rpx;
+  color: #33475F;
+}
+
 /* 顶部后台任务进度条 */
 .task-bar {
   position: sticky;
@@ -2644,3 +2747,8 @@
   border-radius: 16rpx;
   font-weight: 500;
 }
+
+/* 修复：未诊断态顶部品牌区被负 margin 顶出屏幕，改为正常置顶显示 */
+.page-index-undiag .header { flex: 0 0 auto; padding-top: 200rpx; }
+.page-index-undiag .brand-text { margin-top: 0; }
+.page-index-undiag .intro-video { margin-top: 24rpx; }

@@ -22,8 +22,8 @@
       <view class="brand-text">
         <view class="logo">
           <text class="logo-zh">美哒</text>
-          <text class="logo-sep"></text>
-          <text class="logo-en">Meeta</text>
+          <text class="logo-sep">{{hasReport ? '' : '·'}}</text>
+          <text class="logo-en">{{hasReport ? 'Meeta' : '形象工作台'}}</text>
         </view>
         <view class="slogan" wx:if="{{!hasReport}}">{{slogan}}</view>
       </view>
@@ -625,6 +625,26 @@
     </view>
   </view>
 
+  <!-- 未诊断态：三步引导 -->
+  <view class="diag-steps-card" wx:if="{{!hasReport}}">
+    <view class="diag-steps-title">
+      <text class="diag-steps-title-icon">✦</text>
+      <text>三步获取专属形象报告</text>
+    </view>
+    <view class="diag-step">
+      <text class="diag-step-num">1</text>
+      <text class="diag-step-text">上传一张清晰正脸照</text>
+    </view>
+    <view class="diag-step">
+      <text class="diag-step-num">2</text>
+      <text class="diag-step-text">AI 分析骨相 · 肤色 · 明星相似度</text>
+    </view>
+    <view class="diag-step">
+      <text class="diag-step-num">3</text>
+      <text class="diag-step-text">生成发型妆容 · 穿搭 · 蜕变建议</text>
+    </view>
+  </view>
+
   <!-- 登录确认弹窗 -->
   <view class="login-modal-mask" wx:if="{{showLoginModal}}" bindtap="onCloseLoginModal">
     <view class="login-modal" catchtap="onPreventBubble">
@@ -648,34 +668,6 @@
         <text>确认开启</text>
       </view>
       <view class="login-skip" bindtap="onSkipLogin">暂不设置，直接体验</view>
-    </view>
-  </view>
-
-  <!-- 未诊断态：底部能力标签横向轮播 -->
-  <view class="feature-marquee" wx:if="{{!hasReport}}">
-    <view class="feature-marquee-row">
-      <view class="feature-marquee-track">
-        <view class="feature-chip" wx:for="{{featureTagsRow1}}" wx:key="*this" wx:for-item="ft">
-          <text class="feature-chip-dot">◆</text>
-          <text class="feature-chip-text">{{ft}}</text>
-        </view>
-        <view class="feature-chip" wx:for="{{featureTagsRow1}}" wx:key="*this" wx:for-item="ft">
-          <text class="feature-chip-dot">◆</text>
-          <text class="feature-chip-text">{{ft}}</text>
-        </view>
-      </view>
-    </view>
-    <view class="feature-marquee-row">
-      <view class="feature-marquee-track feature-marquee-track-rev">
-        <view class="feature-chip" wx:for="{{featureTagsRow2}}" wx:key="*this" wx:for-item="ft">
-          <text class="feature-chip-dot">◆</text>
-          <text class="feature-chip-text">{{ft}}</text>
-        </view>
-        <view class="feature-chip" wx:for="{{featureTagsRow2}}" wx:key="*this" wx:for-item="ft">
-          <text class="feature-chip-dot">◆</text>
-          <text class="feature-chip-text">{{ft}}</text>
-        </view>
-      </view>
     </view>
   </view>
 

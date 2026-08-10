@@ -1,6 +1,6 @@
 // API 基础配置 - 使用云托管 callContainer，无需配置服务器域名
 const currentConfig = {
-  envId: 'dada-d9gw8x8fb426caba5',
+  envId: 'dada0810-d6g6aowp1aeffc3ce',
   serviceName: 'dada-server',
 }
 
