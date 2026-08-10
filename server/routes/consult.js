@@ -59,7 +59,7 @@ async function resolveLocalImage(img) {
   return { imageUrl: img.imageUrl }
 }
 
-// 服饰视觉分析
+// 服饰视觉分析（异步任务模式：避开 callContainer 60s 网关超时）
 router.post('/analyze-clothing-vision', authRequired, async (req, res) => {
   try {
     const { images, consultType } = req.body
@@ -70,15 +70,27 @@ router.post('/analyze-clothing-vision', authRequired, async (req, res) => {
       return res.status(400).json({ code: -1, message: '最多支持4张图片' })
     }
 
-    const resolvedImages = await Promise.all(images.map(resolveLocalImage))
-    const result = await analyzeClothingVision(resolvedImages, consultType)
-    const visionSessionId = putVisionCache(result)
-    const featuresSize = JSON.stringify(result).length
-    console.log(`[穿搭咨询] 视觉分析成功 sessionId=${visionSessionId} 特征大小=${featuresSize}B`)
-    res.json({ code: 0, data: { features: result, visionSessionId } })
+    // 立即返回 taskId，后台异步执行 AI 分析
+    const taskId = newTask(req.user.openid)
+    res.json({ code: 0, data: { taskId } })
+
+    // 异步执行视觉分析
+    ;(async () => {
+      try {
+        const resolvedImages = await Promise.all(images.map(resolveLocalImage))
+        const result = await analyzeClothingVision(resolvedImages, consultType)
+        const visionSessionId = putVisionCache(result)
+        const featuresSize = JSON.stringify(result).length
+        console.log(`[穿搭咨询] 视觉分析成功 sessionId=${visionSessionId} 特征大小=${featuresSize}B`)
+        setTask(taskId, { status: 'done', result: { features: result, visionSessionId } })
+      } catch (err) {
+        console.error('[穿搭咨询] 视觉分析失败:', err.message)
+        setTask(taskId, { status: 'failed', error: '视觉分析失败：' + (err.message || '未知错误') })
+      }
+    })()
   } catch (err) {
-    console.error('[穿搭咨询] 视觉分析失败:', err.message)
-    res.status(500).json({ code: -1, message: err.message || '视觉分析失败' })
+    console.error('[穿搭咨询] 视觉分析参数错误:', err.message)
+    res.status(500).json({ code: -1, message: err.message || '请求参数错误' })
   }
 })
 

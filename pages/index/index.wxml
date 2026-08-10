@@ -11,7 +11,7 @@
   }
   module.exports = { cleanAge: cleanAge };
 </wxs>
-<view class="page-index {{hasReport ? 'page-index-diag' : 'page-index-undiag'}}">
+<view class="page-index {{hasReport ? 'page-index-diag' : 'page-index-undiag'}}" style="--sbh: {{statusBarHeight}}px">
   <!-- 顶部后台任务进度条（形象诊断 / 穿搭决策） -->
   <import src="../../templates/task-bars.wxml" />
   <template is="task-bars" data="{{diagnoseTask, consultTask}}" />
@@ -575,7 +575,7 @@
       wx:if="{{introVideoVisible}}"
       class="intro-video-player"
       id="introVideo"
-      src="cloud://dada-d9gw8x8fb426caba5.6461-dada-d9gw8x8fb426caba5-1435078506/home-intro-v2.mp4"
+      src="{{introVideoSrc}}"
       object-fit="cover"
       autoplay="{{true}}"
       loop="{{true}}"

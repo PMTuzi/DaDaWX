@@ -346,20 +346,53 @@ Page({
       throw new Error('没有可用的图片数据，请返回重新上传')
     }
 
-    const result = await request(API.analyzeClothingVision, {
+    // 异步任务模式：先 POST 拿 taskId，再轮询任务状态（避开 callContainer 60s 网关超时）
+    const submit = await request(API.analyzeClothingVision, {
       method: 'POST',
       data: {
         images: imagesForApi,
         consultType: isCompare ? 'compare' : 'single'
       },
-      timeout: 120000
+      timeout: 15000
     })
-    if (result.code !== 0) {
-      throw new Error(result.message || '视觉分析失败')
+    if (!submit || submit.code !== 0 || !submit.data || !submit.data.taskId) {
+      throw new Error((submit && submit.message) || '提交视觉分析任务失败')
     }
+
+    const taskId = submit.data.taskId
+    console.log('[consult-analyzing] 视觉分析任务已提交，等待结果...')
+
+    // 轮询任务状态
+    let result = null
+    for (let i = 0; i < 120; i++) {  // 最多等 120 秒
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      try {
+        const statusRes = await request(`${API.consultTask}/${taskId}`, { timeout: 10000 })
+        if (!statusRes || statusRes.code !== 0) continue
+
+        if (statusRes.data.status === 'done') {
+          result = statusRes.data.result
+          break
+        } else if (statusRes.data.status === 'failed') {
+          throw new Error(statusRes.data.error || '视觉分析失败')
+        }
+
+        // 更新进度提示
+        if (i % 5 === 0 && this._updateProgress) {
+          this._updateProgress(`AI 视觉分析中... (${i + 1}s)`)
+        }
+      } catch (e) {
+        console.warn('[consult-analyzing] 查询视觉分析任务状态失败:', e.message)
+      }
+    }
+
+    if (!result) {
+      throw new Error('视觉分析超时，请重试')
+    }
+
     // 记录 sessionId，后续 single/compare 用 sessionId 替代 features 体积，避开 callContainer 1MB 限制
-    this._visionSessionId = result.data.visionSessionId
-    return result.data.features
+    this._visionSessionId = result.visionSessionId
+    return result.features
   },
 
   async callSingleAnalysis(visionFeatures, consultData) {

@@ -82,18 +82,18 @@
   pointer-events: none;
 }
 
-/* ===== 推荐 (Accept) - 樱粉，主品牌 ===== */
+/* ===== 推荐 (Accept) - 玫瑰豆沙，质感主品牌 ===== */
 .verdict-accept {
-  background: var(--brand-soft);
-  border: 2rpx solid rgba(241, 132, 155, 0.22);
+  background: #F9F2F0;
+  border: 2rpx solid rgba(168, 120, 110, 0.22);
 }
 
 .verdict-accept .verdict-bg-glow {
-  background: radial-gradient(circle, #F1849B 0%, transparent 65%);
+  background: radial-gradient(circle, #B8837A 0%, transparent 65%);
 }
 
 .verdict-accept .verdict-bg-glow-2 {
-  background: radial-gradient(circle, #D96A85 0%, transparent 65%);
+  background: radial-gradient(circle, #96635A 0%, transparent 65%);
 }
 
 /* ===== 不推荐 (Reject) - 警示红 ===== */

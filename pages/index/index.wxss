@@ -4,6 +4,7 @@
   flex-direction: column;
   min-height: 100vh;
   background: #FFFFFF;
+  padding-top: var(--sbh, 0px);
   padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
 }
 
@@ -40,7 +41,7 @@
 .header-diagnosed {
   flex: 0 0 auto;
   justify-content: flex-start;
-  padding-top: 48rpx;
+  padding-top: 88rpx;
   padding-bottom: 28rpx;
   margin-top: 0;
 }
@@ -51,40 +52,49 @@
 }
 
 .header-diagnosed .brand-area {
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .header-diagnosed .brand-text {
   margin-top: 20rpx;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .header-diagnosed .logo {
-  display: block;
-  text-align: center;
-  font-size: 64rpx;
-  font-weight: 800;
-  color: #333;
-  letter-spacing: 8rpx;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18rpx;
   padding: 0;
+  letter-spacing: 0;
   position: relative;
 }
-/* 品牌名样式与未诊断态保持一致：统一字号/颜色，复位诊断态的特殊装饰 */
-.header-diagnosed .logo-zh,
-.header-diagnosed .logo-sep,
+/* 已诊断态：纯黑色标题 */
+.header-diagnosed .logo-zh {
+  font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+  font-size: 48rpx;
+  font-weight: 700;
+  letter-spacing: 4rpx;
+  color: #000000;
+}
+.header-diagnosed .logo-sep {
+  width: 2rpx;
+  height: 40rpx;
+  border-radius: 2rpx;
+  background: linear-gradient(180deg, transparent 0%, #C6A863 50%, transparent 100%);
+  align-self: center;
+  font-size: 0;
+  box-shadow: none;
+}
 .header-diagnosed .logo-en {
   font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
-  font-size: 64rpx;
-  font-weight: 800;
-  color: #333;
-  letter-spacing: 8rpx;
-  width: auto;
-  height: auto;
-  background: none;
-  box-shadow: none;
-  text-transform: none;
   font-style: normal;
-  align-self: auto;
+  font-size: 48rpx;
+  font-weight: 700;
+  letter-spacing: 4rpx;
+  color: #000000;
+  text-transform: none;
+  align-self: center;
   padding-left: 0;
 }
 
@@ -338,9 +348,28 @@
   transform: translateY(-150rpx);
   z-index: 200;
 }
-/* 未诊断态：整页内容整体下移 40rpx */
+/* 未诊断态：整页内容整体下移 140rpx（叠加状态栏高度） */
 .page-index-undiag {
-  padding-top: 40rpx;
+  padding-top: calc(var(--sbh, 0px) + 140rpx);
+}
+/* 已诊断态：沉浸式浅蓝背景，从顶部铺满并向下渐隐为白 */
+.page-index-diag {
+  background: linear-gradient(180deg, #DCEBF9 0%, #E9F3FC 240rpx, #F4FAFE 480rpx, #FFFFFF 760rpx) no-repeat;
+  background-color: #FFFFFF;
+}
+/* 沉浸式下：顶部品牌区与评分头部背景透明，让蓝色直接铺到顶 */
+.page-index-diag .header-diagnosed {
+  background: transparent;
+}
+.page-index-diag .report-header {
+  margin-top: 8rpx;
+}
+.page-index-diag .header-bg {
+  background: linear-gradient(135deg, rgba(197, 224, 248, 0.85) 0%, rgba(230, 242, 252, 0.78) 45%, rgba(250, 242, 214, 0.85) 100%);
+  border: 1rpx solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 10rpx 30rpx rgba(90, 140, 190, 0.18), inset 0 1rpx 0 rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20rpx);
+  -webkit-backdrop-filter: blur(20rpx);
 }
 /* 未诊断态：整体内容上移 50rpx（在原位置基础上） */
 .page-index-undiag .brand-area {
@@ -1066,7 +1095,7 @@
   background: #fff;
   border-bottom: 1rpx solid #DCE5EF;
   position: sticky;
-  top: 0;
+  top: var(--sbh, 0px);
   z-index: 50;
 }
 .dr-tab-item {
@@ -1097,7 +1126,7 @@
   transform: translateX(-50%);
   width: 48rpx;
   height: 6rpx;
-  background: #B89968;
+  background: #5B93C7;
   border-radius: 3rpx;
 }
 
@@ -1406,8 +1435,8 @@
 .header-bg {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: #FFFFFF;
-  border: 2rpx solid #DCE5EF;
+  background: linear-gradient(135deg, #EAF4FC 0%, #F5FAFE 55%, #FFFFFF 100%);
+  border: 2rpx solid #CFE2F2;
   z-index: 0;
 }
 .header-bg::before {
@@ -1415,7 +1444,7 @@
   position: absolute;
   top: -40%; right: -20%;
   width: 320rpx; height: 320rpx;
-  background: radial-gradient(circle, rgba(184, 153, 104,0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(91, 147, 199, 0.14) 0%, transparent 70%);
   border-radius: 50%;
 }
 .header-bg::after {
@@ -1639,7 +1668,7 @@
   color: #1F1A17;
   margin-bottom: 20rpx;
   padding-left: 16rpx;
-  border-left: 6rpx solid #B89968;
+  border-left: 6rpx solid #5B93C7;
 }
 .tags-row {
   display: flex;
@@ -1665,7 +1694,7 @@
   width: 8rpx;
   height: 8rpx;
   border-radius: 50%;
-  background: #B89968;
+  background: #5B93C7;
   margin-right: 12rpx;
   flex-shrink: 0;
 }
@@ -1722,12 +1751,12 @@
 }
 .dr-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #B89968, #D4B883);
+  background: linear-gradient(90deg, #6BA3D6, #A9D3EE);
   border-radius: 8rpx;
 }
 .dr-feature-val {
   font-size: 24rpx;
-  color: #B89968;
+  color: #4E86BF;
   font-weight: 600;
   width: 40rpx;
   text-align: right;
@@ -1746,7 +1775,7 @@
 .attr-val {
   font-size: 30rpx;
   font-weight: 700;
-  color: #B89968;
+  color: #4E86BF;
   display: block;
   margin-top: 4rpx;
 }
@@ -2683,7 +2712,7 @@
   font-weight: 600;
 }
 .impr-bar-fill {
-  background: linear-gradient(90deg, #B89968, #D4B883);
+  background: linear-gradient(90deg, #6BA3D6, #A9D3EE);
 }
 .impr-feat-val {
   color: #B89968;

@@ -280,6 +280,7 @@ Page({
     ],
     introVideoVisible: true,
     introVideoRetry: 0,
+    introVideoSrc: '',
     diagnoseTask: null,
     consultTask: null,
     // ===== 报告详情态 =====
@@ -295,6 +296,11 @@ Page({
 
   onLoad(options) {
     this.setData({ staticProducts: pickRandom3() })
+    // 自定义导航（沉浸式）：读取系统状态栏高度，供顶部留白使用
+    try {
+      const sb = (wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync()).statusBarHeight || 0
+      this.setData({ statusBarHeight: sb })
+    } catch (e) {}
     this.checkLogin()
     if (options && options.id) {
       wx.setStorageSync('pendingReportId', options.id)
@@ -307,6 +313,8 @@ Page({
     this._refreshShareLock()
     this.loadLatestReport()
     this.generateTickerList()
+    // 解析云存储视频为临时 HTTPS 链接
+    this._resolveVideoUrl()
   },
 
   onShow() {
@@ -965,7 +973,7 @@ Page({
     if (!data || !Array.isArray(data.scores)) return
     const labels = data.scores.map(s => s.name)
     const scores = data.scores.map(s => s.score)
-    this._drawRadar(ctx, w, h, labels, scores, '#B89968', '魅力六维')
+    this._drawRadar(ctx, w, h, labels, scores, '#5B93C7', '魅力六维')
   },
 
   drawDNARadar(ctx, w, h, data) {
@@ -1543,6 +1551,25 @@ Page({
           })
         }, 300)
       })
+    })
+  },
+
+  // 首页宣传视频：将 cloud:// 转为临时 HTTPS 链接
+  // 注意：fileID 中的环境ID必须与 app.js 中 wx.cloud.init 的 env 一致
+  _resolveVideoUrl() {
+    const fileID = 'cloud://dada0810-d6g6aowp1aeffc3ce.6461-dada0810-d6g6aowp1aeffc3ce-1435078506/home-intro-v2.mp4'
+    wx.cloud.getTempFileURL({
+      fileList: [fileID],
+      success: (res) => {
+        if (res.fileList && res.fileList[0] && res.fileList[0].tempFileURL) {
+          this.setData({ introVideoSrc: res.fileList[0].tempFileURL })
+        }
+      },
+      fail: (err) => {
+        // 静默失败：视频加载失败不影响主功能
+        console.warn('[introVideo] getTempFileURL fail（视频可选）:', err && err.errMsg)
+        this.setData({ introVideoVisible: false })
+      }
     })
   },
 

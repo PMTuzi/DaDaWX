@@ -59,14 +59,17 @@ const globalLimiter = rateLimit({
   skip: (req) => req.path === '/api/health' // 健康检查不限流
 })
 
-// AI 接口限流：每IP每分钟20次（保护外部 API 额度）
+// AI 接口限流：每IP每分钟40次（保护外部 API 额度）
+// 跳过异步任务轮询接口（/api/consult/task/:id、/api/ai/.../task/:id），
+// 否则前端轮询会占满额度，导致真正的生成接口被 429
 const aiLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 20,
+  max: 40,
   standardHeaders: true,
   legacyHeaders: false,
   validate: false,
-  message: { code: 429, message: 'AI分析请求过于频繁，请稍后再试' }
+  message: { code: 429, message: 'AI分析请求过于频繁，请稍后再试' },
+  skip: (req) => /\/task(\/|$)/.test(req.path)
 })
 
 // 上传接口限流：保留给 /api/oss/token（前端取凭证时限流）

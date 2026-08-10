@@ -4,6 +4,13 @@ const currentConfig = {
   serviceName: 'dada-server',
 }
 
+// 云托管公网地址（用于大请求 fallback，绕过 callContainer 1MB 限制）
+// 从云托管控制台「基本信息」或「访问设置」获取实际地址
+const CLOUDRUN_BASE_URL = 'https://dada-server-294520-7-1435078506.sh.run.tcloudbase.com'
+
+// callContainer 请求体大小阈值（字节），超过此值改用 HTTP 直连
+const LARGE_REQUEST_THRESHOLD = 512 * 1024  // 512KB 留余量
+
 // API 路径
 const API = {
   // 异步分析（推荐，不超时）
@@ -26,6 +33,7 @@ const API = {
   analyzeClothingVision: '/api/consult/analyze-clothing-vision',
   generateSingleConsult: '/api/consult/generate-single-consult',
   generateCompareConsult: '/api/consult/generate-compare-consult',
+  consultTask: '/api/consult/task',  // 查询咨询任务状态
   detectCategory: '/api/consult/detect-category',
   getConsultList: '/api/consult/list',
   // OSS 直传凭证
@@ -91,6 +99,12 @@ function callContainer(options) {
   const maxRetry = options._retry != null ? options._retry : 2
   const attempt = options._attempt || 0
 
+  // 调试日志：确认真机环境ID和请求体大小
+  if (attempt === 0 && !options.path.includes('/health')) {
+    const bodySize = options.data ? JSON.stringify(options.data).length : 0
+    console.log('[API] callContainer env=', currentConfig.envId, 'service=', currentConfig.serviceName, 'path=', options.path, 'bodySize=', bodySize, 'B')
+  }
+
   return new Promise((resolve, reject) => {
     wx.cloud.callContainer({
       config: { env: currentConfig.envId },
@@ -124,7 +138,52 @@ function callContainer(options) {
 }
 
 /**
+ * HTTP 直连云托管（绕过 callContainer 1MB 限制）
+ * 需要在小程序后台配置服务器域名白名单
+ */
+function httpRequestDirect(options) {
+  const maxRetry = options._retry != null ? options._retry : 2
+  const attempt = options._attempt || 0
+  const url = CLOUDRUN_BASE_URL + (options.path || options.url)
+
+  console.log('[API] httpRequestDirect url=', url, 'method=', options.method)
+
+  return new Promise((resolve, reject) => {
+    wx.request({
+      url,
+      method: options.method || 'GET',
+      data: options.data || {},
+      header: options.header || {},
+      timeout: options.timeout || 300000,
+      dataType: options.dataType || 'json',
+      success(res) {
+        // 统一返回格式与 callContainer 一致 { data, statusCode, header }
+        resolve({
+          data: res.data,
+          statusCode: res.statusCode,
+          header: res.header
+        })
+      },
+      fail(err) {
+        console.error('[API] httpRequestDirect 失败:', url, err.errMsg, 'attempt=', attempt)
+        if (attempt < maxRetry) {
+          const delay = 800 * (attempt + 1)
+          setTimeout(() => {
+            httpRequestDirect({ ...options, _attempt: attempt + 1, _retry: maxRetry })
+              .then(resolve, reject)
+          }, delay)
+        } else {
+          reject(err)
+        }
+      }
+    })
+  })
+}
+
+/**
  * HTTP 请求封装（基于 callContainer，带401自动重登）
+ * 大请求自动切换到 HTTP 直连（绕过 callContainer 1MB 限制）
+ * callContainer 102002 时自动 fallback 到 HTTP 直连
  */
 function request(url, options = {}) {
   const token = wx.getStorageSync('token')
@@ -134,7 +193,17 @@ function request(url, options = {}) {
   }
   if (token) header['Authorization'] = `Bearer ${token}`
 
-  return callContainer({
+  // 判断请求体大小，超过阈值使用 HTTP 直连
+  const bodySize = options.data ? JSON.stringify(options.data).length : 0
+  const useDirectHttp = bodySize > LARGE_REQUEST_THRESHOLD || options._useDirectHttp
+
+  if (useDirectHttp) {
+    console.log('[API] 使用 HTTP 直连模式 bodySize=', bodySize, 'B')
+  }
+
+  const requester = useDirectHttp ? httpRequestDirect : callContainer
+
+  return requester({
     path: url,
     method: options.method || 'GET',
     data: options.data || {},
@@ -163,6 +232,12 @@ function request(url, options = {}) {
   }).catch(err => {
     // callContainer 网络层失败
     if (err && err.statusCode === undefined) {
+      const errMsg = (err && (err.errMsg || err.message)) || ''
+      // 102002 错误自动 fallback 到 HTTP 直连（如果还没试过）
+      if (/102002/i.test(errMsg) && !useDirectHttp && !options._retried) {
+        console.log('[API] callContainer 102002，自动 fallback 到 HTTP 直连')
+        return request(url, { ...options, _useDirectHttp: true })
+      }
       markServerUnreachable()
       return Promise.reject({ code: -1, message: err.errMsg || err.message || '网络异常，请稍后重试' })
     }
