@@ -1658,7 +1658,7 @@ Page({
       },
       {
         title: '原来别人眼里的我，第一印象是「__」',
-        imageUrl: '/images/第一印象.jpg'
+        imageUrl: '/images/yanzhi2.jpg'
       }
     ]
     return styles[Math.floor(Math.random() * styles.length)]
