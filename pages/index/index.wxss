@@ -72,14 +72,14 @@
 /* 已诊断态：纯黑色标题 */
 .header-diagnosed .logo-zh {
   font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
-  font-size: 48rpx;
+  font-size: 60rpx;
   font-weight: 700;
   letter-spacing: 4rpx;
   color: #000000;
 }
 .header-diagnosed .logo-sep {
   width: 2rpx;
-  height: 40rpx;
+  height: 52rpx;
   border-radius: 2rpx;
   background: linear-gradient(180deg, transparent 0%, #C6A863 50%, transparent 100%);
   align-self: center;
@@ -89,7 +89,7 @@
 .header-diagnosed .logo-en {
   font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
   font-style: normal;
-  font-size: 48rpx;
+  font-size: 60rpx;
   font-weight: 700;
   letter-spacing: 4rpx;
   color: #000000;
@@ -1080,6 +1080,8 @@
 /* 已诊断容器 */
 .page-index-diag {
   background: #EEF3F8;
+  /* 已诊断态：整页内容整体下移 40rpx（叠加状态栏高度） */
+  padding-top: calc(var(--sbh, 0px) + 40rpx);
   padding-bottom: calc(40rpx + env(safe-area-inset-bottom));
 }
 
@@ -2578,18 +2580,18 @@
   padding: 32rpx 28rpx 28rpx;
   border-radius: 24rpx;
   background:
-    radial-gradient(120% 100% at 0% 0%, rgba(212,184,131,0.18) 0%, transparent 60%),
-    linear-gradient(135deg, #1F1A17 0%, #2C2620 100%);
-  color: #FFFFFF;
+    radial-gradient(120% 100% at 0% 0%, rgba(198,168,99,0.12) 0%, transparent 60%),
+    linear-gradient(135deg, #FBF6EC 0%, #F4EEE0 100%);
+  color: #3A322A;
   overflow: hidden;
-  box-shadow: 0 10rpx 32rpx rgba(31,26,23,0.28);
+  box-shadow: 0 8rpx 24rpx rgba(198,168,99,0.16);
 }
 .impression-persona::before {
   content: '';
   position: absolute;
   top: -60rpx; right: -60rpx;
   width: 280rpx; height: 280rpx;
-  background: radial-gradient(circle, rgba(212,184,131,0.35) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(198,168,99,0.18) 0%, transparent 70%);
   pointer-events: none;
 }
 .impression-persona::after {
@@ -2597,7 +2599,7 @@
   position: absolute;
   inset: 4rpx;
   border-radius: 22rpx;
-  border: 1rpx solid rgba(212,184,131,0.28);
+  border: 1rpx solid rgba(198,168,99,0.28);
   pointer-events: none;
 }
 .persona-badge {
@@ -2612,14 +2614,14 @@
   font-size: 22rpx;
   font-weight: 700;
   letter-spacing: 1rpx;
-  color: #1F1A17;
-  background: linear-gradient(90deg, #E5C988, #B89968);
+  color: #FFFFFF;
+  background: linear-gradient(90deg, #D4B883, #B89968);
   padding: 6rpx 14rpx;
   border-radius: 100rpx;
 }
 .persona-badge-label {
   font-size: 22rpx;
-  color: rgba(229,201,136,0.85);
+  color: rgba(160,131,74,0.9);
   letter-spacing: 4rpx;
 }
 .persona-main {
@@ -2633,16 +2635,16 @@
   font-size: 100rpx;
   line-height: 1;
   flex-shrink: 0;
-  filter: drop-shadow(0 4rpx 12rpx rgba(212,184,131,0.4));
+  filter: drop-shadow(0 4rpx 12rpx rgba(198,168,99,0.3));
 }
 .persona-photo {
   width: 140rpx;
   height: 140rpx;
   border-radius: 50%;
   flex-shrink: 0;
-  background: rgba(255,255,255,0.5);
-  border: 3rpx solid rgba(212,184,131,0.6);
-  box-shadow: 0 4rpx 16rpx rgba(212,184,131,0.4), inset 0 0 0 2rpx rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.6);
+  border: 3rpx solid rgba(198,168,99,0.5);
+  box-shadow: 0 4rpx 16rpx rgba(198,168,99,0.28), inset 0 0 0 2rpx rgba(255,255,255,0.85);
   object-fit: cover;
 }
 .persona-text {
@@ -2659,25 +2661,25 @@
 .persona-animal {
   font-size: 64rpx;
   font-weight: 800;
-  color: #FFE7B8;
+  color: #6B5326;
   letter-spacing: 4rpx;
   line-height: 1.1;
-  text-shadow: 0 4rpx 16rpx rgba(212,184,131,0.4);
+  text-shadow: 0 2rpx 8rpx rgba(198,168,99,0.22);
 }
 .persona-divider {
   font-size: 32rpx;
-  color: rgba(229,201,136,0.6);
+  color: rgba(160,131,74,0.5);
   margin: 0 4rpx;
 }
 .persona-style {
   font-size: 30rpx;
   font-weight: 600;
-  color: #E5C988;
+  color: #9A7B3E;
   letter-spacing: 1rpx;
 }
 .persona-tagline {
   font-size: 26rpx;
-  color: rgba(255,255,255,0.85);
+  color: rgba(58,50,42,0.75);
   line-height: 1.6;
 }
 .persona-traits {
@@ -2688,13 +2690,13 @@
   gap: 12rpx;
   margin-top: 20rpx;
   padding-top: 18rpx;
-  border-top: 1rpx solid rgba(212,184,131,0.18);
+  border-top: 1rpx solid rgba(198,168,99,0.22);
 }
 .persona-trait {
   font-size: 22rpx;
-  color: #E5C988;
-  background: rgba(212,184,131,0.14);
-  border: 1rpx solid rgba(212,184,131,0.32);
+  color: #8A6E38;
+  background: rgba(198,168,99,0.12);
+  border: 1rpx solid rgba(198,168,99,0.3);
   padding: 6rpx 18rpx;
   border-radius: 100rpx;
   letter-spacing: 0.5rpx;

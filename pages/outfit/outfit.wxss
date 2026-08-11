@@ -8,42 +8,44 @@
 .page-header {
   padding: 48rpx 32rpx 28rpx;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .ph-logo {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 24rpx;
+  gap: 18rpx;
 }
 
 .ph-logo-zh {
   font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
-  font-weight: 800;
-  font-size: 56rpx;
-  letter-spacing: 8rpx;
-  color: #1F1812;
+  font-weight: 700;
+  font-size: 60rpx;
+  letter-spacing: 4rpx;
+  color: #000000;
   line-height: 1;
 }
 
 .ph-logo-sep {
-  width: 3rpx;
-  height: 40rpx;
+  width: 2rpx;
+  height: 52rpx;
   border-radius: 2rpx;
-  background: linear-gradient(180deg, transparent 0%, #C9A45C 50%, transparent 100%);
+  background: linear-gradient(180deg, transparent 0%, #C6A863 50%, transparent 100%);
   flex-shrink: 0;
   align-self: center;
 }
 
 .ph-logo-en {
   font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+  font-style: normal;
   font-weight: 700;
-  font-size: 28rpx;
-  letter-spacing: 8rpx;
-  color: #B89968;
-  text-transform: uppercase;
-  padding-left: 4rpx;
+  font-size: 60rpx;
+  letter-spacing: 4rpx;
+  color: #000000;
+  text-transform: none;
+  align-self: center;
+  padding-left: 0;
 }
 
 .ph-title,

@@ -229,12 +229,6 @@ Page({
     })
   },
 
-  // 真机网络自检：测试云托管 callContainer / HTTP 直连两条链路是否可达
-  onHealthCheck() {
-    const { runHealthCheck } = require('../../utils/health-check')
-    runHealthCheck()
-  },
-
   onLogout() {
     wx.showModal({
       title: '确认退出',
