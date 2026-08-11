@@ -21,7 +21,7 @@ Page({
     // 跑马灯下方营销区：用反问制造点击动机，不预设结论
     sellPoints: [
       { style: '优雅通勤', question: '适合你吗？点击测试' },
-      { style: '极简晚装', question: '你穿好看吗？AI 帮你判' },
+      { style: '极简晚装', question: '你穿好看吗？要不要买' },
       { style: '温柔甜美', question: '这件适合你的风格吗？' }
     ]
   },

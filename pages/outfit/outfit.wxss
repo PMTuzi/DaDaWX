@@ -930,23 +930,77 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding-bottom: 140rpx;
+  padding-bottom: 40rpx;
   z-index: 20;
+  pointer-events: none;
 }
 .carousel-cta-inner {
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(12rpx);
-  -webkit-backdrop-filter: blur(12rpx);
-  padding: 18rpx 40rpx;
+  position: relative;
+  background: linear-gradient(135deg, rgba(255, 216, 155, 0.55) 0%, rgba(201, 164, 92, 0.42) 45%, rgba(138, 110, 56, 0.40) 100%);
+  backdrop-filter: blur(18rpx) saturate(1.3);
+  -webkit-backdrop-filter: blur(18rpx) saturate(1.3);
+  padding: 24rpx 56rpx;
   border-radius: 100rpx;
-  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.25);
+  border: 1rpx solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 10rpx 30rpx rgba(201, 164, 92, 0.30),
+    0 4rpx 12rpx rgba(31, 24, 18, 0.20),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.6);
+  animation: cta-pulse 2.2s ease-in-out infinite;
+  pointer-events: auto;
+}
+.carousel-cta-inner::after {
+  content: '';
+  position: absolute;
+  inset: -6rpx;
+  border-radius: 100rpx;
+  background: linear-gradient(135deg, rgba(255, 216, 155, 0.25), rgba(201, 164, 92, 0.10));
+  filter: blur(14rpx);
+  z-index: -1;
+  opacity: 0.8;
 }
 .carousel-cta-text {
-  font-size: 28rpx;
-  font-weight: 600;
+  font-size: 32rpx;
+  font-weight: 700;
   color: #FFFFFF;
-  letter-spacing: 2rpx;
+  letter-spacing: 3rpx;
+  text-shadow: 0 1rpx 4rpx rgba(31, 24, 18, 0.45);
 }
+@keyframes cta-pulse {
+  0%, 100% {
+    transform: translateY(0);
+    box-shadow:
+      0 10rpx 30rpx rgba(201, 164, 92, 0.30),
+      0 4rpx 12rpx rgba(31, 24, 18, 0.20),
+      inset 0 1rpx 0 rgba(255, 255, 255, 0.6);
+  }
+  50% {
+    transform: translateY(-4rpx);
+    box-shadow:
+      0 16rpx 40rpx rgba(201, 164, 92, 0.45),
+      0 6rpx 16rpx rgba(31, 24, 18, 0.28),
+      inset 0 1rpx 0 rgba(255, 255, 255, 0.7);
+  }
+}
+/* ===== 页面底部累计服务人数 ===== */
+.page-footer-stat {
+  margin: 36rpx 24rpx 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.footer-stat-text {
+  font-size: 24rpx;
+  color: #A8B0BE;
+  letter-spacing: 1rpx;
+}
+.footer-stat-num {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #8A6E38;
+  letter-spacing: 1rpx;
+}
+
 /* 无缝滚动动画：位移 -50% = 一整套 3 张 */
 @keyframes carousel-scroll {
   from { transform: translateX(0); }
@@ -955,8 +1009,8 @@
 
 /* ===== 跑马灯下方营销反问区 ===== */
 .sell-section {
-  margin: 20rpx 24rpx 0;
-  padding: 20rpx 24rpx;
+  margin: 24rpx 24rpx 0;
+  padding: 32rpx 30rpx;
   border-radius: 24rpx;
   background: linear-gradient(160deg, #FBFCFE 0%, #F2F6FB 100%);
   border: 1rpx solid rgba(201, 164, 92, 0.18);
@@ -965,7 +1019,7 @@
 .sell-list {
   display: flex;
   flex-direction: column;
-  gap: 12rpx;
+  gap: 24rpx;
 }
 .sell-row {
   display: flex;

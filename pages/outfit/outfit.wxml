@@ -116,10 +116,6 @@
         <text class="sell-row-q">{{item.question}}</text>
       </view>
     </view>
-    <view class="sell-cta">
-      <text class="sell-cta-text">上传穿搭 · 免费测</text>
-      <text class="sell-cta-arrow">›</text>
-    </view>
   </view>
 
   <!-- 历史记录 -->
@@ -171,5 +167,10 @@
         <text class="invite-arrow">→</text>
       </view>
     </button>
+  </view>
+
+  <!-- 页面底部：累计服务人数 -->
+  <view class="page-footer-stat">
+    <text class="footer-stat-text">已帮助 <text class="footer-stat-num">137800</text> 人，完成穿搭及购物决策</text>
   </view>
 </view>
