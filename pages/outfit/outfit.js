@@ -11,7 +11,19 @@ Page({
     recentConsults: [],
     showHistory: false,
     diagnoseTask: null,
-    consultTask: null
+    consultTask: null,
+    // 空态大图跑马灯：仅用风格与场景描述，不预填决策结论
+    carouselItems: [
+      { image: '/images/穿搭决策/1.jpg', style: '优雅通勤', scene: '职场 · 干练气场' },
+      { image: '/images/穿搭决策/2.jpg', style: '极简晚装', scene: '晚宴 · 高级冷感' },
+      { image: '/images/穿搭决策/3.jpg', style: '温柔甜美', scene: '约会 · 少女感' }
+    ],
+    // 跑马灯下方营销区：用反问制造点击动机，不预设结论
+    sellPoints: [
+      { style: '优雅通勤', question: '适合你吗？点击测试' },
+      { style: '极简晚装', question: '你穿好看吗？AI 帮你判' },
+      { style: '温柔甜美', question: '这件适合你的风格吗？' }
+    ]
   },
 
   onLoad() {

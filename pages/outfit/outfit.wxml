@@ -76,33 +76,49 @@
     <text class="tip-arrow">→</text>
   </view>
 
-  <!-- 空列表占位视频（整块可点击） -->
-  <view class="empty-video-wrap" wx:if="{{!showHistory}}" bindtap="onStartConsult">
-    <video
-      class="empty-video"
-      src="cloud://dada-d9gw8x8fb426caba5.6461-dada-d9gw8x8fb426caba5-1435078506/outfit-decision.mp4"
-      object-fit="cover"
-      autoplay="{{true}}"
-      loop="{{true}}"
-      muted="{{true}}"
-      controls="{{false}}"
-      show-center-play-btn="{{false}}"
-      show-play-btn="{{false}}"
-      show-fullscreen-btn="{{false}}"
-      enable-progress-gesture="{{false}}"
-      show-progress="{{false}}"
-    ></video>
-    <!-- 透明点击层，捕获视频区域的点击（兼容原生组件） -->
-    <view class="empty-video-tap" catchtap="onStartConsult"></view>
-    <!-- 酷炫科技风文字引导覆盖层 -->
-    <view class="tech-overlay" catchtap="onStartConsult">
-      <view class="tech-cta">
-        <view class="tech-cta-main">
-          <text class="tech-arrow">▸</text>
-          <text class="tech-cta-text">点击开启 · 穿搭反种草</text>
-          <text class="tech-arrow tech-arrow-rev">◂</text>
+  <!-- 空列表占位：大图跑马灯 + 毛玻璃信息层（整块可点击） -->
+  <view class="carousel-wrap" wx:if="{{!showHistory}}" bindtap="onStartConsult">
+    <!-- 左右渐隐遮罩 -->
+    <view class="carousel-fade carousel-fade-l"></view>
+    <view class="carousel-fade carousel-fade-r"></view>
+    <!-- 横向滚动轨道 -->
+    <view class="carousel-track">
+      <view class="carousel-card" wx:for="{{carouselItems}}" wx:key="index">
+        <image class="carousel-card-img" src="{{item.image}}" mode="aspectFill" />
+        <view class="carousel-card-glass">
+          <text class="carousel-glass-style">{{item.style}}</text>
+          <text class="carousel-glass-scene">{{item.scene}}</text>
         </view>
       </view>
+      <!-- 复制一份实现无缝循环 -->
+      <view class="carousel-card" wx:for="{{carouselItems}}" wx:key="index">
+        <image class="carousel-card-img" src="{{item.image}}" mode="aspectFill" />
+        <view class="carousel-card-glass">
+          <text class="carousel-glass-style">{{item.style}}</text>
+          <text class="carousel-glass-scene">{{item.scene}}</text>
+        </view>
+      </view>
+    </view>
+    <!-- CTA 覆盖层 -->
+    <view class="carousel-cta" catchtap="onStartConsult">
+      <view class="carousel-cta-inner">
+        <text class="carousel-cta-text">点击开启 · 穿搭反种草</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 跑马灯下方：营销反问区（引导点击，不预设结论） -->
+  <view class="sell-section" wx:if="{{!showHistory}}" bindtap="onStartConsult">
+    <view class="sell-list">
+      <view class="sell-row" wx:for="{{sellPoints}}" wx:key="index">
+        <text class="sell-row-style">{{item.style}}</text>
+        <text class="sell-row-arrow">→</text>
+        <text class="sell-row-q">{{item.question}}</text>
+      </view>
+    </view>
+    <view class="sell-cta">
+      <text class="sell-cta-text">上传穿搭 · 免费测</text>
+      <text class="sell-cta-arrow">›</text>
     </view>
   </view>
 
@@ -143,8 +159,8 @@
     </view>
   </view>
 
-  <!-- 底部分享Banner -->
-  <view class="invite-banner">
+  <!-- 底部分享Banner（仅有历史记录时显示） -->
+  <view class="invite-banner" wx:if="{{showHistory}}">
     <button class="invite-banner-inner" open-type="share">
       <view class="invite-left">
         <view class="invite-title">分享好友，一起决策</view>

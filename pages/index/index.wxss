@@ -352,24 +352,31 @@
 .page-index-undiag {
   padding-top: calc(var(--sbh, 0px) + 140rpx);
 }
-/* 已诊断态：沉浸式浅蓝背景，从顶部铺满并向下渐隐为白 */
+/* 已诊断态：整页浅蓝底色 */
 .page-index-diag {
-  background: linear-gradient(180deg, #DCEBF9 0%, #E9F3FC 240rpx, #F4FAFE 480rpx, #FFFFFF 760rpx) no-repeat;
-  background-color: #FFFFFF;
+  background: #EDF4FB;
 }
-/* 沉浸式下：顶部品牌区与评分头部背景透明，让蓝色直接铺到顶 */
+/* 沉浸式下：顶部品牌区白色底，延伸到状态栏顶部，与浅蓝报告区域区分。
+   负 margin 抵消页面顶部 padding（sbh + 40rpx），padding-top 再补回相同高度 + 原来的 88rpx，
+   保证品牌文字在页面上的视觉位置与之前完全一致。 */
 .page-index-diag .header-diagnosed {
-  background: transparent;
+  background: #FFFFFF;
+  margin-top: calc(-1 * var(--sbh, 0px) - 40rpx);
+  padding-top: calc(var(--sbh, 0px) + 128rpx);
 }
 .page-index-diag .report-header {
   margin-top: 8rpx;
 }
+/* 评分头部卡片：白色透亮玻璃，加强对比与悬浮感使其更突出 */
 .page-index-diag .header-bg {
-  background: linear-gradient(135deg, rgba(197, 224, 248, 0.85) 0%, rgba(230, 242, 252, 0.78) 45%, rgba(250, 242, 214, 0.85) 100%);
-  border: 1rpx solid rgba(255, 255, 255, 0.65);
-  box-shadow: 0 10rpx 30rpx rgba(90, 140, 190, 0.18), inset 0 1rpx 0 rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(20rpx);
-  -webkit-backdrop-filter: blur(20rpx);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1rpx solid rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 16rpx 40rpx rgba(70, 120, 175, 0.20),
+    0 4rpx 10rpx rgba(70, 120, 175, 0.10),
+    inset 0 1rpx 0 rgba(255, 255, 255, 1);
+  backdrop-filter: blur(24rpx) saturate(1.1);
+  -webkit-backdrop-filter: blur(24rpx) saturate(1.1);
 }
 /* 未诊断态：整体内容上移 50rpx（在原位置基础上） */
 .page-index-undiag .brand-area {
@@ -1138,7 +1145,7 @@
 
 /* 已诊断容器 */
 .page-index-diag {
-  background: #EEF3F8;
+  background: #EDF4FB;
   /* 已诊断态：整页内容整体下移 40rpx（叠加状态栏高度） */
   padding-top: calc(var(--sbh, 0px) + 40rpx);
   padding-bottom: calc(40rpx + env(safe-area-inset-bottom));
