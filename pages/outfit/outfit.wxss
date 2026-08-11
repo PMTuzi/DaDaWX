@@ -2,6 +2,7 @@
 .page-outfit {
   min-height: 100vh;
   background: #FFFFFF;
+  padding-top: 30rpx;
   padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
 }
 

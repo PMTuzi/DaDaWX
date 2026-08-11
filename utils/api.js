@@ -50,24 +50,28 @@ const SERVER_CHECK_TTL = 30000
 
 /**
  * 检测云托管服务是否可达
+ * callContainer 与 HTTP 直连任一通即视为可达 —— callContainer 侧的 102002
+ * 是网关系统错误，此时直连通常仍然正常，不能据此判定服务不可用。
  */
 function checkServerReachable() {
   const now = Date.now()
   if (_serverReachable !== null && (now - _serverCheckTime) < SERVER_CHECK_TTL) {
     return Promise.resolve(_serverReachable)
   }
-  return callContainer({
-    path: '/api/health',
-    method: 'GET',
-  }).then(() => {
-    _serverReachable = true
-    _serverCheckTime = Date.now()
-    return true
-  }).catch(() => {
-    _serverReachable = false
-    _serverCheckTime = Date.now()
-    return false
-  })
+  // 探活不做重试：失败就直接走直连兜底，避免 800+1600ms 的无效等待
+  const probe = { path: '/api/health', method: 'GET', timeout: 8000, _retry: 0 }
+  return callContainer(probe)
+    .catch(() => httpRequestDirect({ ...probe }))
+    .then(() => {
+      _serverReachable = true
+      _serverCheckTime = Date.now()
+      return true
+    })
+    .catch(() => {
+      _serverReachable = false
+      _serverCheckTime = Date.now()
+      return false
+    })
 }
 
 function markServerUnreachable() {
@@ -120,8 +124,9 @@ function callContainer(options) {
       },
       fail(err) {
         const msg = (err && (err.errMsg || err.message)) || ''
-        // 命中冷启动/网络层错误：102002 / system fail / -606001 / timeout / fail
-        const retriable = /102002|system\s*fail|-606001|timeout|fail/i.test(msg)
+        // 命中冷启动/网关层错误才重试。注意不能用裸 `fail` 匹配 ——
+        // 微信所有 errMsg 都形如 "cloud.callContainer:fail ..."，会导致任何错误都重试 3 次。
+        const retriable = /102002|system\s*(error|fail)|-606001|timeout/i.test(msg)
         console.error('[API] callContainer 失败:', options.path, msg, 'attempt=', attempt)
         if (retriable && attempt < maxRetry) {
           const delay = 800 * (attempt + 1)  // 800ms, 1600ms

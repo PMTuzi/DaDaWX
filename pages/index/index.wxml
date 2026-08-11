@@ -32,6 +32,8 @@
 
   <!-- ==================== 已诊断态：直接展示完整报告详情 ==================== -->
   <view class="diag-report" wx:if="{{hasReport && latestReport}}">
+    <!-- Tab 吸顶时的状态栏白色遮罩，防止正文透底 -->
+    <view class="status-bar-cover {{tabStuck ? 'is-stuck' : ''}}" style="height: {{statusBarHeight}}px"></view>
     <!-- 综合评分头部 -->
     <view class="report-header">
       <view class="header-bg"></view>

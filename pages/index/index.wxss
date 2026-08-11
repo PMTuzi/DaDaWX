@@ -1100,6 +1100,21 @@
   top: var(--sbh, 0px);
   z-index: 50;
 }
+/* 吸顶时补白：覆盖状态栏区域，防止正文文字滑动透底 */
+.status-bar-cover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  z-index: 51;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+.status-bar-cover.is-stuck {
+  opacity: 1;
+}
 .dr-tab-item {
   flex: 1;
   display: flex;

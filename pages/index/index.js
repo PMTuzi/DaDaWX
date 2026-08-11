@@ -285,6 +285,7 @@ Page({
     consultTask: null,
     // ===== 报告详情态 =====
     activeTab: 'impression',
+    tabStuck: false,
     tabKeys: ['impression', 'celebrity', 'optimize', 'hairmakeup', 'dna', 'style'],
     tabLabels: { impression: '第一印象', celebrity: '明星相似', optimize: '颜值&蜕变', hairmakeup: '发型&妆容', dna: '面部&骨相', style: '皮肤&风格' },
     shared: false,
@@ -535,7 +536,48 @@ Page({
       const scroll = res && res[1]
       if (!rect || !scroll) return
       const target = rect.top + scroll.scrollTop + rect.height
-      wx.pageScrollTo({ scrollTop: target > 0 ? target : 0, duration: 200 })
+      const current = scroll.scrollTop
+      // Tab 已吸顶时（当前滚动位置 >= tab 栏自然位置）：
+      // 若再用平滑滚动回滚到 target，用户会看到正文长距离被"拉回"，观感差；
+      // 改为 duration: 0 直接对齐，视觉上 tab 栏原地不动，只有下方内容瞬时切换。
+      const stuck = current >= target - 1
+      wx.pageScrollTo({
+        scrollTop: target > 0 ? target : 0,
+        duration: stuck ? 0 : 200,
+      })
+    })
+  },
+
+  // 页面滚动：切换 tab 吸顶白色遮罩显隐（防止状态栏区域透底文字）
+  onPageScroll(e) {
+    if (!this.data.hasReport) return
+    const st = (e && e.scrollTop) || 0
+    // 首次进入或阈值失效时懒测量 tab 栏自然位置
+    if (!this._tabNaturalTop || this._tabNaturalTop < 0) {
+      this._measureTabNaturalTop()
+    }
+    const sbh = this.data.statusBarHeight || 0
+    const threshold = (this._tabNaturalTop || 0) - sbh
+    const stuck = threshold > 0 && st >= threshold
+    if (stuck !== !!this.data.tabStuck) {
+      this.setData({ tabStuck: stuck })
+    }
+  },
+
+  _measureTabNaturalTop() {
+    if (this._measuringTabTop) return
+    this._measuringTabTop = true
+    const q = wx.createSelectorQuery().in(this)
+    // 用非 sticky 的 .report-header 测量：它的底边即 tab 栏自然位置。
+    // 不能直接量 .dr-tab-bar —— 它 sticky 后 rect.top 会被钳制在 var(--sbh)，算出的绝对位置偏大。
+    q.select('.report-header').boundingClientRect()
+    q.selectViewport().scrollOffset()
+    q.exec((res) => {
+      this._measuringTabTop = false
+      const rect = res && res[0]
+      const scroll = res && res[1]
+      if (!rect || !scroll) return
+      this._tabNaturalTop = rect.top + scroll.scrollTop + rect.height
     })
   },
 
