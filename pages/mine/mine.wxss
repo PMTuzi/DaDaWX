@@ -259,3 +259,14 @@
   color: #8C7340;
   font-weight: 500;
 }
+
+/* 清空所有数据：警示色，与普通菜单区分 */
+.menu-item.clear-data .menu-text {
+  color: #E74C3C;
+}
+.menu-item.clear-data .menu-icon {
+  color: #E74C3C;
+}
+.menu-item.clear-data .menu-arrow {
+  color: rgba(231, 76, 60, 0.5);
+}

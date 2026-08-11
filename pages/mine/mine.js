@@ -244,6 +244,42 @@ Page({
     })
   },
 
+  onClearData() {
+    wx.showModal({
+      title: '清空所有数据',
+      content: '此操作将永久删除您的全部诊断报告和穿搭决策记录，且无法恢复。确定要继续吗？',
+      confirmText: '确认清空',
+      confirmColor: '#E74C3C',
+      success: (res) => {
+        if (!res.confirm) return
+        wx.showLoading({ title: '清除中...' })
+        const { request, API } = require('../../utils/api')
+        request(API.clearUserData, { method: 'DELETE', timeout: 15000 })
+          .then(() => {
+            // 清空本地全部缓存
+            try { wx.clearStorageSync() } catch (e) {}
+            wx.hideLoading()
+            wx.showToast({ title: '已清空', icon: 'success' })
+            this.setData({ userInfo: null, isLoggedIn: false })
+            // 跳回首页
+            setTimeout(() => {
+              wx.reLaunch({ url: '/pages/index/index' })
+            }, 1200)
+          })
+          .catch((err) => {
+            wx.hideLoading()
+            // 即使后端失败也清本地（用户体验优先）
+            try { wx.clearStorageSync() } catch (e) {}
+            this.setData({ userInfo: null, isLoggedIn: false })
+            wx.showToast({ title: '已清空本地数据', icon: 'success' })
+            setTimeout(() => {
+              wx.reLaunch({ url: '/pages/index/index' })
+            }, 1200)
+          })
+      }
+    })
+  },
+
   // 与首页保持一致的分享文案/图片
   _buildShareTitle() {
     let pct = 90

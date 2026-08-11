@@ -383,9 +383,12 @@
   transform: translateY(-160rpx);
 }
 /* 未诊断态：品牌文案放大，强化主页气势 */
+/* 未诊断态品牌文案：与穿搭页 .ph-logo-* 和已诊断态 .header-diagnosed .logo-* 保持同一规格 */
 .page-index-undiag .logo {
-  font-size: 64rpx;
-  letter-spacing: 8rpx;
+  font-size: 60rpx;
+  font-weight: 700;
+  color: #000000;
+  letter-spacing: 4rpx;
   margin-bottom: 10rpx;
 }
 .page-index-undiag .slogan {

@@ -29,6 +29,7 @@ const API = {
   login: '/api/user/login',
   getProfile: '/api/user/profile',
   updateProfile: '/api/user/profile',
+  clearUserData: '/api/user/data',
   // 穿搭咨询
   analyzeClothingVision: '/api/consult/analyze-clothing-vision',
   generateSingleConsult: '/api/consult/generate-single-consult',

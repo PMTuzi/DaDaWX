@@ -65,4 +65,16 @@ async function deleteReport(openid, reportId) {
   })
 }
 
-module.exports = { saveReport, getReportList, getReport, getLatestReport, deleteReport }
+/**
+ * 清空该用户全部报告（用于用户主动清除个人数据）
+ */
+async function clearAll(openid) {
+  return store._withLock(openid, async () => {
+    const reports = (await store._load(openid)) || []
+    store._cache.set(openid, [])
+    store._markDirty(openid)
+    return reports.length
+  })
+}
+
+module.exports = { saveReport, getReportList, getReport, getLatestReport, deleteReport, clearAll }

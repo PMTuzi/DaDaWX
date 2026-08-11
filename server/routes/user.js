@@ -138,4 +138,30 @@ router.put('/profile', authRequired, async (req, res) => {
   }
 })
 
+/**
+ * 清除当前用户全部个人数据（报告 + 咨询记录）
+ * DELETE /api/user/data
+ * 隐私合规入口：用户主动行使删除权，不可恢复
+ */
+router.delete('/data', authRequired, async (req, res) => {
+  try {
+    const openid = req.user.openid
+    const reportStore = require('../store/report-store')
+    const consultStore = require('../store/consult-store')
+    const [reportCount, consultCount] = await Promise.all([
+      reportStore.clearAll(openid),
+      consultStore.clearAll(openid)
+    ])
+    // 同步重置用户档案上的计数
+    try {
+      await userStore.updateUser(openid, { reportCount: 0, consultCount: 0 })
+    } catch (e) {}
+    console.log(`[用户] 清除数据 openid=${openid} 报告=${reportCount} 咨询=${consultCount}`)
+    res.json({ code: 0, message: '已清除', data: { reportCount, consultCount } })
+  } catch (err) {
+    console.error('[用户] 清除数据失败:', err.message)
+    res.status(500).json({ code: -1, message: '清除失败' })
+  }
+})
+
 module.exports = router

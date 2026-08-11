@@ -66,4 +66,16 @@ async function deleteConsult(openid, consultId) {
   })
 }
 
-module.exports = { saveConsultRecord, getConsultList, getConsult, getRecentConsults, deleteConsult }
+/**
+ * 清空该用户全部咨询记录（用于用户主动清除个人数据）
+ */
+async function clearAll(openid) {
+  return store._withLock(openid, async () => {
+    const records = (await store._load(openid)) || []
+    store._cache.set(openid, [])
+    store._markDirty(openid)
+    return records.length
+  })
+}
+
+module.exports = { saveConsultRecord, getConsultList, getConsult, getRecentConsults, deleteConsult, clearAll }
