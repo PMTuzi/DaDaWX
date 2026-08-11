@@ -16,34 +16,17 @@ App({
   },
 
   // 静默登录（wx.login → 获取 openid + token，用户无感）
+  // 复用 utils/api 的 wxLogin：自带 3 次重试 + 102002 自动 fallback 到 HTTP 直连。
+  // 手机预览时云托管容器常是冷的，首发大概率 102002，裸调 callContainer 会直接失败拿不到 token。
   silentLogin() {
     const token = wx.getStorageSync('token')
     if (token) return // 已有 token，不需要重新登录
 
-    wx.login({
-      success: (res) => {
-        if (!res.code) return
-        // 调用后端登录接口换取 token
-        wx.cloud.callContainer({
-          config: { env: 'dada0810-d6g6aowp1aeffc3ce' },
-          path: '/api/user/login',
-          method: 'POST',
-          service: 'dada-server',
-          data: { code: res.code },
-          header: { 'Content-Type': 'application/json' },
-          success: (result) => {
-            const data = result.data
-            if (result.statusCode === 200 && data && data.code === 0) {
-              wx.setStorageSync('token', data.data.token)
-              wx.setStorageSync('userInfo', data.data.userInfo)
-              this.globalData.userInfo = data.data.userInfo
-            }
-          },
-          fail: (err) => {
-            console.warn('[App] 静默登录失败:', err.errMsg)
-          }
-        })
-      }
+    const { wxLogin } = require('./utils/api')
+    wxLogin().then((data) => {
+      this.globalData.userInfo = data && data.userInfo
+    }).catch((err) => {
+      console.warn('[App] 静默登录失败:', (err && (err.message || err.errMsg)) || err)
     })
   },
 

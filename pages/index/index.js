@@ -281,6 +281,15 @@ Page({
     introVideoVisible: true,
     introVideoRetry: 0,
     introVideoSrc: '',
+    // 未诊断态照片墙：3列×2行，两行反向滚动（每行 6 张不同图，避免短周期重复）
+    introWallRow1: [
+      '/images/首页/1.jpg', '/images/首页/2.jpg', '/images/首页/3.jpg',
+      '/images/首页/4.jpg', '/images/首页/5.jpg', '/images/首页/6.jpg'
+    ],
+    introWallRow2: [
+      '/images/首页/7.jpg', '/images/首页/8.jpg', '/images/首页/9.jpg',
+      '/images/首页/10.jpg', '/images/首页/11.jpg', '/images/首页/12.jpg'
+    ],
     diagnoseTask: null,
     consultTask: null,
     // ===== 报告详情态 =====

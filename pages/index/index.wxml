@@ -571,27 +571,30 @@
     </view>
   </view>
 
-  <!-- ==================== 未诊断态：宣传视频 ==================== -->
+  <!-- ==================== 未诊断态：照片墙（3列×2行 反向滚动） ==================== -->
   <view class="intro-video" wx:if="{{!hasReport}}" bindtap="onStartDiagnose" hover-class="intro-video-hover">
-    <video
-      wx:if="{{introVideoVisible}}"
-      class="intro-video-player"
-      id="introVideo"
-      src="{{introVideoSrc}}"
-      object-fit="cover"
-      autoplay="{{true}}"
-      loop="{{true}}"
-      muted="{{true}}"
-      controls="{{false}}"
-      show-center-play-btn="{{false}}"
-      show-play-btn="{{false}}"
-      show-fullscreen-btn="{{false}}"
-      enable-progress-gesture="{{false}}"
-      show-progress="{{false}}"
-      binderror="onIntroVideoError"
-      bindplay="onIntroVideoPlay"
-      bindloadedmetadata="onIntroVideoLoaded"
-    ></video>
+    <view class="intro-wall">
+      <view class="wall-row wall-row-ltr">
+        <view class="wall-track">
+          <view class="wall-cell" wx:for="{{introWallRow1}}" wx:key="index">
+            <image class="wall-img" src="{{item}}" mode="aspectFill" />
+          </view>
+          <view class="wall-cell" wx:for="{{introWallRow1}}" wx:key="index">
+            <image class="wall-img" src="{{item}}" mode="aspectFill" />
+          </view>
+        </view>
+      </view>
+      <view class="wall-row wall-row-rtl">
+        <view class="wall-track">
+          <view class="wall-cell" wx:for="{{introWallRow2}}" wx:key="index">
+            <image class="wall-img" src="{{item}}" mode="aspectFill" />
+          </view>
+          <view class="wall-cell" wx:for="{{introWallRow2}}" wx:key="index">
+            <image class="wall-img" src="{{item}}" mode="aspectFill" />
+          </view>
+        </view>
+      </view>
+    </view>
     <view class="tech-overlay" catchtap="onStartDiagnose">
       <view class="tech-cta">
         <view class="tech-cta-main">
