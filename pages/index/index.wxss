@@ -69,13 +69,13 @@
   letter-spacing: 0;
   position: relative;
 }
-/* 已诊断态：纯黑色标题 */
+/* 已诊断态：标题用暖调深炭色，避免纯黑发死 */
 .header-diagnosed .logo-zh {
   font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
   font-size: 60rpx;
   font-weight: 700;
   letter-spacing: 4rpx;
-  color: #000000;
+  color: #3A332C;
 }
 .header-diagnosed .logo-sep {
   width: 2rpx;
@@ -92,7 +92,7 @@
   font-size: 60rpx;
   font-weight: 700;
   letter-spacing: 4rpx;
-  color: #000000;
+  color: #3A332C;
   text-transform: none;
   align-self: center;
   padding-left: 0;
@@ -166,7 +166,7 @@
 .summary-title {
   font-size: 28rpx;
   font-weight: 700;
-  color: #1F1A17;
+  color: #2C2520;
   letter-spacing: 3rpx;
 }
 
@@ -218,7 +218,7 @@
 .score-num {
   font-size: 46rpx;
   font-weight: 800;
-  color: #1F1A17;
+  color: #2C2520;
   line-height: 1;
   letter-spacing: -1rpx;
 }
@@ -387,7 +387,7 @@
 .page-index-undiag .logo {
   font-size: 60rpx;
   font-weight: 700;
-  color: #000000;
+  color: #3A332C;
   letter-spacing: 4rpx;
   margin-bottom: 10rpx;
 }
@@ -1200,7 +1200,7 @@
   transition: color 0.2s ease, font-size 0.2s ease;
 }
 .dr-tab-item.active .dr-tab-label {
-  color: #1F1A17;
+  color: #2C2520;
   font-weight: 600;
   font-size: 26rpx;
 }
@@ -1234,7 +1234,7 @@
   line-height: 1;
   border: none;
   background: linear-gradient(135deg, #B89968 0%, #D4B883 100%);
-  color: #1F1A17;
+  color: #2C2520;
   box-shadow: 0 4rpx 12rpx rgba(184, 153, 104, 0.35);
 }
 .dr-share-capsule::after { border: none; }
@@ -1309,7 +1309,7 @@
 .outfit-cta-title {
   font-size: 32rpx;
   font-weight: 700;
-  color: #1F1A17;
+  color: #2C2520;
   line-height: 1.4;
   letter-spacing: 1rpx;
 }
@@ -1387,7 +1387,7 @@
 }
 .report-action-btn.redo {
   background: #fff;
-  color: #1F1A17;
+  color: #2C2520;
   border: 1rpx solid #DCE5EF;
 }
 .report-action-btn.locked {
@@ -1512,6 +1512,32 @@
 }
 
 /* 综合评分头部 */
+/* 报告卡右上角下载 icon */
+.report-save-icon {
+  position: absolute;
+  top: 20rpx;
+  right: 20rpx;
+  z-index: 10;
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(6px);
+}
+.report-save-icon:active {
+  transform: scale(0.88);
+  background: rgba(255,255,255,0.95);
+}
+.report-save-icon-glyph {
+  font-size: 32rpx;
+  color: #3A332C;
+  font-weight: 700;
+  line-height: 1;
+}
+
 .report-header {
   position: relative;
   overflow: hidden;
@@ -1588,7 +1614,7 @@
   font-weight: 800;
   letter-spacing: -1rpx;
   line-height: 1;
-  color: #1F1A17;
+  color: #2C2520;
   text-shadow: 0 2rpx 12rpx rgba(40,60,90,0.12);
 }
 .dr-score-suffix {
@@ -1751,7 +1777,7 @@
 .section-title {
   font-size: 34rpx;
   font-weight: 700;
-  color: #1F1A17;
+  color: #2C2520;
   margin-bottom: 20rpx;
   padding-left: 16rpx;
   border-left: 6rpx solid #5B93C7;
@@ -2480,7 +2506,7 @@
 }
 .task-bar-label {
   font-size: 24rpx;
-  color: #1F1A17;
+  color: #2C2520;
   font-weight: 600;
   letter-spacing: 0.5rpx;
   flex: 1;
@@ -2605,7 +2631,7 @@
 .impr-idx-num {
   font-size: 64rpx;
   font-weight: 800;
-  color: #1F1A17;
+  color: #2C2520;
   letter-spacing: -2rpx;
   line-height: 1;
 }
@@ -2655,7 +2681,7 @@
   align-self: flex-start;
 }
 .impr-idx-percent-icon { font-size: 18rpx; color: #B89968; }
-.impr-idx-percent-num { color: #1F1A17; font-weight: 700; }
+.impr-idx-percent-num { color: #2C2520; font-weight: 700; }
 
 /* 第一印象人格标签（9 型） · 醒目 hero 块 */
 .impression-persona {
@@ -2824,7 +2850,7 @@
 .impr-desc-name {
   font-size: 26rpx;
   font-weight: 700;
-  color: #1F1A17;
+  color: #2C2520;
 }
 .impr-desc-score {
   font-size: 22rpx;
@@ -2907,7 +2933,7 @@
 .shop-rec-title {
   font-size: 30rpx;
   font-weight: 700;
-  color: #1F1A17;
+  color: #2C2520;
 }
 .shop-rec-sub {
   position: absolute;
@@ -2957,7 +2983,7 @@
 .shop-rec-cell .sri-name {
   font-size: 24rpx;
   font-weight: 600;
-  color: #1F1A17;
+  color: #2C2520;
   text-align: center;
   line-height: 1.3;
   width: 100%;

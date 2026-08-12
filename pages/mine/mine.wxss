@@ -105,7 +105,7 @@
   display: block;
   font-size: 36rpx;
   font-weight: 700;
-  color: #1F1A17;
+  color: #2C2520;
   margin-bottom: 8rpx;
   background: transparent;
   border: none;
@@ -146,7 +146,7 @@
 
 .login-text {
   font-size: 32rpx;
-  color: #1F1A17;
+  color: #2C2520;
   font-weight: 600;
   letter-spacing: 2rpx;
 }
@@ -229,7 +229,7 @@
 .menu-text {
   flex: 1;
   font-size: 28rpx;
-  color: #1F1A17;
+  color: #2C2520;
   letter-spacing: 1rpx;
 }
 
@@ -240,7 +240,7 @@
 
 .menu-badge {
   background: linear-gradient(135deg, #F5E6B8 0%, #D4B883 50%, #B89968 100%);
-  color: #1F1A17;
+  color: #2C2520;
   font-size: 20rpx;
   padding: 2rpx 14rpx;
   border-radius: 16rpx;

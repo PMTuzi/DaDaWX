@@ -97,7 +97,7 @@ router.post('/analyze-clothing-vision', authRequired, async (req, res) => {
 // 单品决策（异步任务模式：避开 callContainer 60s 网关超时）
 router.post('/generate-single-consult', authRequired, async (req, res) => {
   console.log(`[穿搭咨询] 收到单品请求 user=${req.user?.openid?.slice(0,8)} body大小=${JSON.stringify(req.body).length}B`)
-  let { visualFeatures, visionSessionId, category, priceRange, bodyFeatures, wearScenes, trouble, consultScene, images, reportSummary } = req.body
+  let { visualFeatures, visionSessionId, category, priceRange, bodyFeatures, wearScenes, trouble, extraNote, consultScene, images, reportSummary } = req.body
   if (!visualFeatures && visionSessionId) {
     visualFeatures = getVisionCache(visionSessionId)
   }
@@ -111,7 +111,7 @@ router.post('/generate-single-consult', authRequired, async (req, res) => {
   ;(async () => {
     try {
       const result = await generateSingleConsult(visualFeatures, {
-        category, priceRange, bodyFeatures, wearScenes, trouble, consultScene
+        category, priceRange, bodyFeatures, wearScenes, trouble, extraNote, consultScene
       }, false, reportSummary || null)
 
       if (!validateSingleResult(result)) {
@@ -138,7 +138,7 @@ router.post('/generate-single-consult', authRequired, async (req, res) => {
 // 多选一决策（异步任务模式）
 router.post('/generate-compare-consult', authRequired, async (req, res) => {
   console.log(`[穿搭咨询] 收到多选一请求 user=${req.user?.openid?.slice(0,8)} body大小=${JSON.stringify(req.body).length}B`)
-  let { visualFeatures, visionSessionId, compareScene, priceList, styleDiff, reason, images, reportSummary } = req.body
+  let { visualFeatures, visionSessionId, compareScene, priceList, priceRange, styleDiff, reason, extraNote, images, reportSummary } = req.body
   if (!visualFeatures && visionSessionId) {
     visualFeatures = getVisionCache(visionSessionId)
   }
@@ -152,7 +152,7 @@ router.post('/generate-compare-consult', authRequired, async (req, res) => {
   ;(async () => {
     try {
       const result = await generateCompareConsult(visualFeatures, {
-        compareScene, priceList, styleDiff, reason
+        compareScene, priceList, priceRange, styleDiff, reason, extraNote
       }, false, reportSummary || null)
 
       if (!validateCompareResult(result)) {

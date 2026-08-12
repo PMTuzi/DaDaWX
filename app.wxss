@@ -252,7 +252,7 @@ page {
 }
 .task-bar-label {
   font-size: 24rpx;
-  color: #1F1A17;
+  color: #2C2520;
   font-weight: 600;
   letter-spacing: 0.5rpx;
   flex: 1;

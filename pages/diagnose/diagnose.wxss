@@ -8,7 +8,7 @@
   padding-top: 40rpx;
   padding-bottom: calc(220rpx + env(safe-area-inset-bottom));
   overflow: hidden;
-  color: #1F1A17;
+  color: #2C2520;
 }
 
 /* 极简网格（隐去多余装饰，仅保留淡雅纹理） */
@@ -153,7 +153,7 @@
 
 .step.active .step-label,
 .step.next .step-label {
-  color: #1F1A17;
+  color: #2C2520;
 }
 
 .step-bar {
@@ -313,7 +313,7 @@
 .upload-title {
   font-size: 30rpx;
   font-weight: 600;
-  color: #1F1A17;
+  color: #2C2520;
   letter-spacing: 2rpx;
   margin-top: 8rpx;
 }
@@ -869,7 +869,7 @@
   justify-content: center;
   gap: 16rpx;
   background: linear-gradient(135deg, #F5E6B8 0%, #D4B883 50%, #B89968 100%) !important;
-  color: #1F1A17 !important;
+  color: #2C2520 !important;
   border-radius: 48rpx !important;
   font-size: 32rpx;
   font-weight: 700;

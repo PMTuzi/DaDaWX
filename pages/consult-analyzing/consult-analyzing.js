@@ -404,8 +404,9 @@ Page({
         category: consultData.category,
         priceRange: consultData.priceRange,
         bodyFeatures: consultData.bodyFeatures,
-        wearScenes: consultData.wearScenes,
+        wearScenes: consultData.wearScenes || (consultData.scene ? [consultData.scene] : []),
         trouble: consultData.trouble,
+        extraNote: consultData.extraNote,
         consultScene: consultData.type,
         reportSummary: consultData.reportSummary || null
       },
@@ -423,10 +424,12 @@ Page({
       method: 'POST',
       data: {
         visionSessionId: this._visionSessionId,
-        compareScene: consultData.compareScene,
+        compareScene: consultData.compareScene || consultData.scene,
         priceList: consultData.priceList,
+        priceRange: consultData.priceRange,
         styleDiff: consultData.styleDiff,
         reason: consultData.reason,
+        extraNote: consultData.extraNote,
         category: category,
         reportSummary: consultData.reportSummary || null
       },
@@ -479,9 +482,10 @@ Page({
         category: consultData.category || (result.scores && result.scores[0] && result.scores[0].category) || '',
         // 用户输入回显（顶部卡片 echo chips 使用）
         priceRange: consultData.priceRange || '',
-        wearScenes: consultData.wearScenes || [],
+        wearScenes: consultData.wearScenes || (consultData.scene ? [consultData.scene] : []),
+        extraNote: consultData.extraNote || '',
         consultScene: consultData.consultScene || '',
-        compareScene: consultData.compareScene || '',
+        compareScene: consultData.compareScene || consultData.scene || '',
         priceList: consultData.priceList || [],
         ...result,
         images: consultData.images || []

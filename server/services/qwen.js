@@ -450,7 +450,10 @@ ${isCompare ? `图片中有${images.length}个不同单品，分别标记为${la
 
 async function generateSingleConsult(visualFeatures, userInfo = {}, isRetry = false, reportSummary = null) {
   const sceneLabel = userInfo.consultScene === 'buy' ? '购买决策' : '留存决策'
-  const verdictOptions = userInfo.consultScene === 'buy' ? '建议购买 / 建议不买' : '建议自留 / 建议退货'
+  const isBuyScene = userInfo.consultScene === 'buy'
+  const positiveVerdict = isBuyScene ? '建议购买' : '建议自留'
+  const negativeVerdict = isBuyScene ? '建议不买' : '建议退货'
+  const verdictOptions = `${positiveVerdict} / ${negativeVerdict}`
   const category = userInfo.category || ''
   const isMakeup = /口红|唇釉|腮红|眼影|粉底|彩妆/.test(category)
   const isAccessory = /帽子|围巾|领带|耳环|项链|手链|手镯|包包|鞋子|腰带|手表|墨镜|配饰/.test(category)
@@ -534,6 +537,21 @@ ${JSON.stringify(visualFeatures, null, 2)}
 
 ${reportSection}
 
+## verdict 判定硬规则（不许违反，违反即视为无效输出）
+你的价值是帮用户**少花冤枉钱**，不是让用户开心。说"不买"不是得罪人，是尽职。
+
+先算综合分 = scores 四项的算术平均，再按下面顺序判定，命中即停：
+1. 命中形象档案的**避雷色系**、或与**适配版型/骨相**明显冲突 → 必须 "${negativeVerdict}"
+2. 综合分 < 6.0 → 必须 "${negativeVerdict}"
+3. 综合分 6.0-7.0 且存在任一实质问题（warningFlag 非 null / 有维度分 ≤ 5 / 与主风格拧巴 / 明显不划算）→ 必须 "${negativeVerdict}"
+4. 综合分 ≥ 7.0 且无上述冲突 → "${positiveVerdict}"
+
+配套要求：
+- **评分必须敢给低分。** 版型不合就给 4-5 分，颜色踩雷就给 3-4 分，不要习惯性全给 7-8 分。一件普通货色的合理综合分是 5.5-6.5，不是 7.5。
+- 判为 "${negativeVerdict}" 时：\`dropReason\`/\`cons\` 必须写清 **至少 2 个具体缺点**（点名颜色/剪裁/面料），不许用"略微/见仁见智"这种和稀泥说法；\`dadaComment\` 也要站在劝退这一侧，不能一边劝退一边夸。
+- 判为 "${negativeVerdict}" 时，\`tips\` 与 \`outfitAdvice\` 的定位改为「**如果你已经买了/一定要买，怎么补救**」，或直接建议看同价位替代方向；**不要**写成鼓励入手的搭配方案。
+- 判为 "${positiveVerdict}" 时也必须至少保留 1 条真实缺点，不许零缺点。
+
 ## 请严格按照以下JSON格式输出（禁止输出任何其他文字）：
 
 {
@@ -567,7 +585,7 @@ ${reportSection}
     const response = await axiosInstance.post(BASE_URL, {
       model: process.env.QWEN_TEXT_MODEL || 'qwen-plus',
       messages: [
-        { role: 'system', content: '你是专业的时尚买手AI，必须给出明确结论。严格输出JSON格式。' },
+        { role: 'system', content: buildConsultSystemPrompt('你是一位严格的时尚审稿人AI，立场是帮用户少花冤枉钱。不合适就直说不买，不当好好先生。必须给出明确结论。严格输出JSON格式。', reportSection, userInfo.extraNote) },
         { role: 'user', content: prompt }
       ],
       temperature: isRetry ? 0.5 : 0.3, top_p: 0.85, max_tokens: 2500
@@ -582,6 +600,40 @@ ${reportSection}
     console.error('单品决策生成失败:', err.response?.data || err.message)
     throw new Error(err.response?.data?.error?.message || err.message)
   }
+}
+
+/**
+ * 构建穿搭决策的 system prompt
+ * 把「形象诊断报告」和「用户补充信息」提到 system 层，让模型全程把它们当成不可违背的前提，
+ * 而不是 user prompt 里可以被后文冲淡的普通上下文。
+ */
+function buildConsultSystemPrompt(baseRole, reportSection, extraNote) {
+  const parts = [baseRole]
+
+  if (reportSection) {
+    parts.push(`# 该用户的形象档案（最高优先级前提，必须全程遵守）
+${reportSection}
+
+【硬性要求】以上形象档案是这位用户的客观体征结论，不是参考建议：
+- 颜色相关的评分与结论，必须先对照「适配色系 / 避雷色系 / 色彩季型」再下判断；命中避雷色系必须扣分并明确指出。
+- 版型相关的评分与结论，必须先对照「骨相类型 / 量感 / 直曲 / 适配版型」再下判断。
+- 风格相关的评分与结论，必须先对照「主风格 / 风格洞察」再下判断；与主风格冲突要明说而不是含糊带过。
+- 禁止输出与形象档案自相矛盾的结论（例如档案写着避雷暖黄，却夸这件暖黄显白）。`)
+  }
+
+  const note = typeof extraNote === 'string' ? extraNote.trim() : ''
+  if (note) {
+    parts.push(`# 用户本次的补充信息（必须被正面回应）
+"${note}"
+
+【硬性要求】这段话是用户自己最在意的点，可能包含价格/预算、身材顾虑、场合限制、纠结原因等：
+- 你必须自行解析其中的关键信息（比如出现金额就当作预算约束，出现身材描述就当作版型约束）。
+- 最终输出里至少有两处显式回应它（如 keepReason / dropReason / priceVerdict / warningFlag / finalChoice.reason / tips）。
+- 只允许"针对性回答"，禁止原句复述，也禁止假装没看到。
+- 如果这段话与形象档案冲突（例如用户想要的风格跟档案主风格不符），要明确指出冲突并给出取舍建议。`)
+  }
+
+  return parts.join('\n\n')
 }
 
 async function generateCompareConsult(visualFeatures, userInfo = {}, isRetry = false, reportSummary = null) {
@@ -649,6 +701,9 @@ ${JSON.stringify(visualFeatures, null, 2)}
 
 ## 补充信息
 - 对比场景：${userInfo.compareScene || '未指定'}
+- 价格/预算：${userInfo.priceRange || (Array.isArray(userInfo.priceList) && userInfo.priceList.length ? userInfo.priceList.join(' / ') : '未提供')}
+- 用户纠结点：${userInfo.extraNote || '未提供'}
+${userInfo.extraNote ? `\n**用户特别写了纠结点："${userInfo.extraNote}"。这是他最在意的点，finalChoice.reason / comparisons / warningFlag / priceVerdict 里必须至少有一处正面回应它，不要忽略也不要只是复述。**\n` : ''}
 
 ${reportSection}
 
@@ -686,7 +741,7 @@ ${reportSection}
     const response = await axiosInstance.post(BASE_URL, {
       model: process.env.QWEN_TEXT_MODEL || 'qwen-plus',
       messages: [
-        { role: 'system', content: '你是专业的时尚买手AI，必须给出明确排名。严格输出JSON格式。' },
+        { role: 'system', content: buildConsultSystemPrompt('你是专业的时尚买手AI，必须给出明确排名。严格输出JSON格式。', reportSection, userInfo.extraNote) },
         { role: 'user', content: prompt }
       ],
       temperature: isRetry ? 0.5 : 0.3, top_p: 0.85, max_tokens: 2500

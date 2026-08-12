@@ -37,6 +37,9 @@
     <!-- 综合评分头部 -->
     <view class="report-header">
       <view class="header-bg"></view>
+      <view class="report-save-icon" bindtap="onSaveAllImages">
+        <text class="report-save-icon-glyph">⤓</text>
+      </view>
       <view class="dr-percentile dr-percentile-title" wx:if="{{latestReport.basic.percentile != null}}">
         <text class="percentile-icon">▲</text>
         <text class="percentile-text">颜值打败 <text class="percentile-num">{{latestReport.basic.percentile}}%</text> 的人</text>
@@ -558,10 +561,6 @@
           </view>
         </view>
         <view class="report-actions-row">
-          <button class="report-action-btn save" bindtap="onSaveAllImages">
-            <text class="report-action-icon">⤓</text>
-            <text class="report-action-text">保存形象诊断卡</text>
-          </button>
           <button class="report-action-btn redo" bindtap="onReDiagnose">
             <text class="report-action-icon">↻</text>
             <text class="report-action-text">重新拍照诊断</text>

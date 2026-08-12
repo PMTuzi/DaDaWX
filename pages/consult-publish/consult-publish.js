@@ -1,5 +1,5 @@
 // pages/consult-publish/consult-publish.js
-const { request, API, uploadImage, ensureLogin } = require('../../utils/api')
+const { uploadImage, ensureLogin } = require('../../utils/api')
 
 Page({
   data: {
@@ -11,12 +11,9 @@ Page({
     step: 0,                    // 0=上传, 1=场景
     mode: '',                   // 'buy' | 'compare'，由图片数自动决定
 
-    // AI识别品类（仅buy模式）
-    category: '',
-    categoryDetected: false,
-    categoryDetecting: false,
-    categoryOptions: ['上衣', '裤装', '裙装', '连衣裙', '外套', '鞋', '包', '配饰'],
-    showCategoryPicker: false,
+    // 可选补充信息（价格 / 纠结点 / 任何决策依据）
+    extraNote: '',
+    maxNoteLen: 120,
 
     // 场景选择
     scene: '',
@@ -41,10 +38,6 @@ Page({
     if (this.data.step === 0) {
       if (this.data.images.length === 0) {
         wx.showToast({ title: '请先上传照片', icon: 'none' })
-        return
-      }
-      if (this.data.mode === 'buy' && !this.data.category) {
-        wx.showToast({ title: '正在识别中，请稍候', icon: 'none' })
         return
       }
       this.setData({ step: 1 })
@@ -154,79 +147,15 @@ Page({
     })
   },
 
-  // ============ 模式 & AI识别 ============
+  // ============ 模式 ============
   refreshMode(images) {
     const mode = images.length > 1 ? 'compare' : 'buy'
-    this.setData({ mode, category: '', categoryDetected: false })
-
-    if (images.length === 1) {
-      this.autoDetectCategory(images[0].path).catch(() => {})
-    }
+    this.setData({ mode })
   },
 
-  async autoDetectCategory(imagePath) {
-    this.setData({ categoryDetected: false, categoryDetecting: true })
-    try {
-      const { checkServerReachable } = require('../../utils/api')
-      const reachable = await checkServerReachable()
-      if (!reachable) { this.setData({ categoryDetecting: false }); return }
-
-      try {
-        const fs = wx.getFileSystemManager()
-        fs.accessSync(imagePath)
-      } catch (e) { this.setData({ categoryDetecting: false }); return }
-
-      let imageUrl
-      try {
-        imageUrl = await Promise.race([
-          uploadImage(imagePath),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('上传超时')), 15000))
-        ])
-      } catch (e) {
-        console.warn('[consult-publish] OSS 上传失败:', e.message)
-        this.setData({ categoryDetecting: false })
-        return
-      }
-
-      const result = await request(API.detectCategory, {
-        method: 'POST',
-        timeout: 15000,
-        data: { images: [{ imageUrl }] }
-      })
-
-      if (result && result.code === 0 && result.data && result.data.category) {
-        const detected = String(result.data.category).trim()
-        if (detected) {
-          const opts = [...this.data.categoryOptions]
-          if (!opts.includes(detected)) opts.unshift(detected)
-          this.setData({
-            category: detected,
-            categoryDetected: true,
-            categoryOptions: opts
-          })
-        }
-      }
-    } catch (err) {
-      console.warn('[consult-publish] 类别识别失败:', err && err.message)
-    } finally {
-      this.setData({ categoryDetecting: false })
-    }
-  },
-
-  // ============ 品类选择弹窗 ============
-  onShowCategoryPicker() {
-    this.setData({ showCategoryPicker: true })
-  },
-
-  onHideCategoryPicker() {
-    this.setData({ showCategoryPicker: false })
-  },
-
-  onPreventBubble() {},
-
-  onCategoryPick(e) {
-    const val = e.currentTarget.dataset.value
-    this.setData({ category: val, showCategoryPicker: false })
+  // ============ 补充信息输入 ============
+  onExtraNoteInput(e) {
+    this.setData({ extraNote: e.detail.value })
   },
 
   // ============ 场景选择 ============
@@ -300,11 +229,10 @@ Page({
       }
 
       const type = this.data.mode
+      const extraNote = (this.data.extraNote || '').trim()
       const consultData = { type, images: imageDataList }
 
-      if (type === 'buy') {
-        consultData.category = this.data.category
-      }
+      if (extraNote) consultData.extraNote = extraNote
       consultData.scene = this.data.scene
 
       getApp().globalData.consultData = consultData

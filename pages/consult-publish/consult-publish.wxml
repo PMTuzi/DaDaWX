@@ -41,30 +41,17 @@
       </view>
     </view>
 
-    <!-- 模式 & AI识别结果 -->
+    <!-- 模式提示 -->
     <view class="detect-result" wx:if="{{images.length > 0}}">
       <view class="mode-pill {{mode === 'compare' ? 'mode-pill-compare' : 'mode-pill-buy'}}">
         <text class="pill-dot"></text>
         {{mode === 'compare' ? images.length + ' 件对比 PK' : '单品评估模式'}}
       </view>
-
-      <!-- 单品：AI识别品类 -->
-      <view class="category-detect" wx:if="{{mode === 'buy'}}">
-        <view class="detect-label" wx:if="{{categoryDetecting}}">
-          <text class="detect-spin">◌</text> 正在识别品类…
-        </view>
-        <view class="detect-label detect-success" wx:elif="{{category}}">
-          <text class="ai-badge">✓</text>
-          识别为「<text class="detect-highlight">{{category}}</text>」
-          <text class="detect-change" bindtap="onShowCategoryPicker">修改</text>
-        </view>
-        <view class="detect-label detect-change" wx:else bindtap="onShowCategoryPicker">未能自动识别，请手动选择</view>
-      </view>
     </view>
   </view>
 
   <!-- ====== 第二步：选择场景 ====== -->
-  <view class="step-body" wx:if="{{step === 1}}">
+  <view class="step-body step-scene" wx:if="{{step === 1}}">
     <view class="step-title">穿什么场合？</view>
     <view class="step-sub">选择一个最贴近的场景</view>
 
@@ -79,22 +66,21 @@
 
     <view class="scene-tip" wx:if="{{mode === 'compare'}}">
       <text class="scene-tip-icon">💡</text>
-      对比模式下，将根据「{{scene || '…'}}」场景对各款式进行评分
+      将按「{{scene || '…'}}」场景对各款式评分
     </view>
-  </view>
 
-  <!-- 品类修改弹窗 -->
-  <view class="modal-mask" wx:if="{{showCategoryPicker}}" bindtap="onHideCategoryPicker">
-    <view class="modal-content" catchtap="onPreventBubble">
-      <view class="modal-title">选择品类</view>
-      <view class="modal-list">
-        <view class="modal-item {{category === item ? 'modal-item-active' : ''}}"
-          wx:for="{{categoryOptions}}" wx:key="*this"
-          data-value="{{item}}" bindtap="onCategoryPick">
-          {{item}}
-        </view>
+    <!-- 可选补充信息 -->
+    <view class="extra-info">
+      <view class="extra-title">
+        <text class="extra-title-text">补充信息</text>
+        <text class="extra-title-sub">可选，价格 / 纠结点，填了更准</text>
       </view>
-      <view class="modal-close" bindtap="onHideCategoryPicker">关闭</view>
+      <view class="extra-field extra-field-textarea">
+        <textarea class="extra-textarea" placeholder="如：预算 300 内，担心版型显胖，想更显气质"
+          value="{{extraNote}}" bindinput="onExtraNoteInput" maxlength="{{maxNoteLen}}"
+          cursor-spacing="40"></textarea>
+        <text class="extra-count">{{extraNote.length || 0}}/{{maxNoteLen}}</text>
+      </view>
     </view>
   </view>
 
@@ -105,8 +91,8 @@
 
       <!-- 第一步：下一步 -->
       <button wx:if="{{step === 0}}" class="btn-next" bindtap="onNext"
-        disabled="{{images.length === 0 || (mode === 'buy' && !category)}}">
-        {{images.length === 0 ? '请先上传照片' : (mode === 'buy' && !category) ? '识别中…' : '下一步'}}
+        disabled="{{images.length === 0}}">
+        {{images.length === 0 ? '请先上传照片' : '下一步'}}
       </button>
 
       <!-- 第二步：开始分析 -->

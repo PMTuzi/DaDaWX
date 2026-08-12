@@ -1136,11 +1136,6 @@ Page({
 
   // ==================== 底部操作 ====================
   async onSaveAllImages() {
-    this._refreshShareLock()
-    if (!this.data.shared) {
-      wx.showToast({ title: '点击右上角···转发解锁（2分钟内有效）', icon: 'none', duration: 2200 })
-      return
-    }
     try {
       const auth = await wx.getSetting()
       if (!auth.authSetting['scope.writePhotosAlbum']) {

@@ -10,7 +10,7 @@
   align-items: center;
   padding: 56rpx 32rpx 80rpx;
   overflow: hidden;
-  color: #1F1A17;
+  color: #2C2520;
 }
 
 /* 极简网格 —— 浅天蓝 */
@@ -209,7 +209,7 @@
 }
 
 .indicator-text {
-  color: #1F1A17;
+  color: #2C2520;
   font-size: 20rpx;
   font-weight: 700;
   letter-spacing: 1rpx;
@@ -290,7 +290,7 @@
 }
 
 .chip-percent {
-  color: #1F1A17;
+  color: #2C2520;
   font-size: 28rpx;
   font-weight: 800;
   letter-spacing: 1rpx;
@@ -364,7 +364,7 @@
 .step-label {
   flex: 1;
   font-size: 28rpx;
-  color: #1F1A17;
+  color: #2C2520;
 }
 
 .step-status {

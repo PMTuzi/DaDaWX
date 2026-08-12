@@ -32,7 +32,7 @@
   letter-spacing: 1rpx;
 }
 .cr-tab-item.active .cr-tab-label {
-  color: #1F1A17;
+  color: #2C2520;
   font-weight: 600;
 }
 .cr-tab-item.active::after {
@@ -1560,7 +1560,7 @@
 .sri-name {
   font-size: 26rpx;
   font-weight: 600;
-  color: #1F1A17;
+  color: #2C2520;
   line-height: 1.4;
   white-space: nowrap;
   overflow: hidden;

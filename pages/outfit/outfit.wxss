@@ -24,7 +24,7 @@
   font-weight: 700;
   font-size: 60rpx;
   letter-spacing: 4rpx;
-  color: #000000;
+  color: #3A332C;
   line-height: 1;
 }
 
@@ -43,7 +43,7 @@
   font-weight: 700;
   font-size: 60rpx;
   letter-spacing: 4rpx;
-  color: #000000;
+  color: #3A332C;
   text-transform: none;
   align-self: center;
   padding-left: 0;
@@ -788,7 +788,7 @@
 }
 .task-bar-label {
   font-size: 24rpx;
-  color: #1F1A17;
+  color: #2C2520;
   font-weight: 600;
   letter-spacing: 0.5rpx;
   flex: 1;
